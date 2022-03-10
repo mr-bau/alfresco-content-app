@@ -10,7 +10,7 @@
   "routes": [
   {
     "id": "mrbau.extension.route",
-    "path": "ext/mrbau/route",
+    "path": "mrbau-extension",
     "component": "aca-mrbau-extension.main.component"
   }
 ],
