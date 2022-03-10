@@ -21,13 +21,13 @@
     "redirectUri": "${APP_CONFIG_OAUTH2_REDIRECT_LOGIN}",
     "redirectUriLogout": "${APP_CONFIG_OAUTH2_REDIRECT_LOGOUT}"
   },
-  "locale": "en",
+  "locale": "de",
   "application": {
-    "name": "Alfresco Content Application",
+    "name": "M&R Enterprise Content Management Platform",
     "version": "2.7.0",
-    "logo": "assets/images/alfresco-logo-flower.svg",
+    "logo": "assets/svg/logo_mr.svg",
     "headerImagePath": "assets/images/mastHead-bg-shapesPattern.svg",
-    "copyright": "APP.COPYRIGHT"
+    "copyright": "© 2022 M&R Bauholding GmbH, © 2017 - 2022 Alfresco Software, Inc. All rights reserved."
   },
   "viewer.maxRetries": 1,
   "sharedLinkDateTimePickerType": "date",
