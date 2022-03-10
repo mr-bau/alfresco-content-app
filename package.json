@@ -22,7 +22,7 @@
     "e2e": "npm run update-webdriver && protractor $SUITE",
     "spellcheck": "cspell '{src,e2e,projects}/**/*.ts'",
     "inspect.bundle": "ng build content-ce --prod --stats-json && npx webpack-bundle-analyzer dist/content-ce/stats.json",
-    "build:aca-mrbau-extension": "ng build aca-mrbau-extension && npx cpr projects/aca-mrbau-extension/assets dist/aca-mrbau-extensionnp/assets --deleteFirst"
+    "build:aca-mrbau-extension": "ng build aca-mrbau-extension && npx cpr projects/aca-mrbau-extension/assets dist/aca-mrbau-extension/assets --deleteFirst"
   },
   "private": true,
   "dependencies": {
@@ -49,9 +49,11 @@
     "@ngrx/store": "^9.2.0",
     "@ngrx/store-devtools": "^9.2.0",
     "@ngx-translate/core": "^13.0.0",
+    "echarts": "^5.3.1",
     "minimatch-browser": "^1.0.0",
     "moment": "^2.27.0",
     "moment-es6": "1.0.0",
+    "ngx-echarts": "^6.0.1",
     "pdfjs-dist": "2.5.207",
     "rxjs": "^6.6.3",
     "tslib": "^2.3.1",
