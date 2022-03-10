@@ -30,12 +30,12 @@ export function components() {
   exports: components(),
 })
 export class AcaMrbauExtensionModule {
-  constructor(extensions: ExtensionService) {
+  constructor(extensions: ExtensionService, myService : AcaMrbauExtensionService) {
       extensions.setComponents({
         'aca-mrbau-extension.main.component' : AcaMrbauExtensionComponent,
       });
       extensions.setEvaluators({
-         //'aca-mrbau-extension.disabled': () => !myService.mySmartViewerEnabled(),
+         'aca-mrbau-extension.disabled': () => !myService.mySmartViewerEnabled(),
       });
   }
 }
