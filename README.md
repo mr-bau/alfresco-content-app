@@ -15,8 +15,10 @@ npm start
 ## Documentation
 
 [Public Alfresco Content Application documentation](https://alfresco-content-app.netlify.com/)
+
 [ADF documentation](https://www.alfresco.com/abn/adf/docs/getting-started/)
 
+[Create your first extension ACA 2.8.0](https://github.com/aborroy/alfresco-content-app/blob/docs/update_first_extension_tutorial/docs/tutorials/how-to-create-your-first-extension.md)
 ## Setting up environment variables
 
 We need to set some environment variable to be able to run the local dev server. In the project root folder, create an `.env` file (this is gitignored) with the following data:
