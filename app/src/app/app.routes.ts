@@ -37,6 +37,9 @@ import { FavoritesComponent } from './components/favorites/favorites.component';
 import { RecentFilesComponent } from './components/recent-files/recent-files.component';
 import { SharedFilesComponent } from './components/shared-files/shared-files.component';
 import { DetailsComponent } from './components/details/details.component';
+import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
+import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
+//import { TestComponent } from './custom/test/test.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -79,6 +82,15 @@ export const APP_ROUTES: Routes = [
         path: '',
         redirectTo: `/personal-files`,
         pathMatch: 'full'
+      },
+      {
+        path: 'foerdermanager',
+        component: FoerdermanagerComponent
+      },
+      {
+        path: 'belegsammlung',
+        component: BelegsammlungComponent
+        //component: TestComponent
       },
       {
         path: 'personal-files',

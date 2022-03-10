@@ -1,0 +1,129 @@
+table {
+  width: 100%;
+}
+
+div#main {
+  overflow-y: scroll;
+  height:100%;
+  padding: 0 24px;
+}
+
+div#content {
+  position: relative;
+}
+
+mat-slide-toggle {
+  margin: 8px 0;
+  display: block;
+}
+
+.cards {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4em 0;
+  margin: 0.4em 0;
+}
+
+@media screen {
+  .card {
+      flex: 0 1 calc(100% - 32px);
+  }
+}
+
+@media screen and (min-width: 80em) {
+  .card {
+    // matcard padding is 16px => remove 32px and 0.5em space
+    flex: 0 1 calc(50% - 32px - 0.2em  );
+  }
+}
+
+.cardfull {
+  flex: 0 1 100%;
+}
+
+img.textIcon {
+  vertical-align: bottom;
+}
+
+.status {
+    font-size: smaller;
+}
+.mat-icon {
+  vertical-align: middle;
+}
+
+.chartContainer {
+  padding: 24px 0;
+  display : flex;
+}
+
+.mat-footer-row {
+  font-weight: bold;
+}
+
+.mat-sort-header-sorted {
+  color: black;
+  text-align: center;
+}
+
+.mat-column-name {
+  width: 20%;
+  padding: 10px;
+  text-align: left;
+}
+.mat-column-foerderungswerber {
+  width: 5%;
+  padding: 10px;
+  text-align: left;
+}
+.mat-column-projectnr {
+  width: 5%;
+  padding: 10px;
+  text-align: left;
+}
+.mat-column-status {
+  width: 10%;
+  padding: 10px;
+  text-align: left;
+}
+.mat-column-statusProgress {
+  width: 10%;
+  padding: 10px;
+  text-align: left;
+}
+.mat-column-sum {
+  width: 5%;
+  text-align: right;
+}
+
+.expanded-row {
+  font-weight: bold;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+tr.element-row:not(.expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.element-row:not(.expanded-row):active {
+  background: #efefef;
+}
+
+.element-row td {
+  border-bottom-width: 0;
+}
+
+.element-detail {
+  overflow: hidden;
+  display: flex;
+}
+
+.element-detail-description span{
+  padding: 0px 0 10px 0;
+  display: block;
+}
+

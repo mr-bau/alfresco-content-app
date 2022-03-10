@@ -24,7 +24,7 @@
  */
 
 import { BrowserModule, HammerModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -85,6 +85,19 @@ import localeFi from '@angular/common/locales/fi';
 import localeDa from '@angular/common/locales/da';
 import localeSv from '@angular/common/locales/sv';
 
+// custom imports
+import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
+import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
+import { TestComponent } from './custom/test/test.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule  } from '@angular/material/sort';
+import { MatPaginatorModule  } from '@angular/material/paginator';
+import { NgxEchartsModule } from 'ngx-echarts';
+import 'echarts/theme/royal.js';
+import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
+import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
+//import { GoogleChartsModule } from 'angular-google-charts';
+
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
 registerLocaleData(localeIt);
@@ -134,7 +147,19 @@ registerLocaleData(localeSv);
     AppSearchResultsModule,
     AppHeaderModule,
     AppNodeVersionModule,
-    HammerModule
+    HammerModule,
+    BrowserModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    NgxEchartsModule.forRoot({
+      /**
+       * This will import all modules from echarts.
+       * If you only need custom modules,
+       * please refer to [Custom Build] section.
+       */
+      echarts: () => import('echarts'), // or import('./path-to-my-custom-echarts')
+    })
   ],
   declarations: [
     AppComponent,
@@ -146,7 +171,12 @@ registerLocaleData(localeSv);
     FavoritesComponent,
     RecentFilesComponent,
     SharedFilesComponent,
-    CreateFromTemplateDialogComponent
+    CreateFromTemplateDialogComponent,
+    BelegsammlungComponent,
+    FoerdermanagerComponent,
+    TestComponent,
+    LoaderoverlayComponent,
+    ErrormsgpaneComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },
@@ -158,6 +188,10 @@ registerLocaleData(localeSv);
         name: 'app',
         source: 'assets'
       }
+    },
+    {
+      provide: LOCALE_ID,
+      useValue: 'de-AT' // 'de-DE' for Germany, 'fr-FR' for France ...
     }
   ],
   bootstrap: [AppComponent]

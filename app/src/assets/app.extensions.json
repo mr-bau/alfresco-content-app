@@ -299,7 +299,30 @@
             "route": "trashcan"
           }
         ]
-      }
+      },
+      {
+        "id": "app.navbar.custom.menu",
+        "items": [
+          {
+            "id": "app.navbar.customb",
+            "order": 500,
+            "icon": "attach_money",
+            "label": "Link",
+            "title": "Fördermanager",
+            "description": "Fördermanager",
+            "route": "foerdermanager"
+          },
+          {
+            "id": "app.navbar.customa",
+            "order": 500,
+            "icon": "work",
+            "label": "Link",
+            "title": "Belegsammlung",
+            "description": "Belegsammlung",
+            "route": "belegsammlung"
+          }
+        ]
+	  }
     ],
     "toolbar": [
       {

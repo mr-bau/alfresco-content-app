@@ -1,0 +1,17 @@
+<h3>Belegsammlung works!</h3>
+<button (click)="testPdfLoad()">load</button>
+<br/>
+<a [href]="pdf_url">link to doc</a>
+<div id="pdf-container" style="height: 50%">
+    <!-- <iframe id="my-iframe" src="" style="border: none;" width="100%" height="100%">
+      This browser does not support PDFs. Please download the PDF to view it:
+      <a href="">Download PDF</a>
+    </iframe> -->
+    <!--<object data="" type="application/pdf" width="100%" height="100%">
+      <p><b>Example fallback content</b>: This browser does not support PDFs. Please download the PDF to view it:
+        <a href="">Download PDF</a>.</p>
+    </object>-->
+    <embed id="my-iframe" type="application/pdf" width="100%" height="100%" src="">
+</div>
+
+

@@ -1,0 +1,11 @@
+<div *ngIf="errorMessage!=null" class="errorMessage">
+  <mat-card class="cardfull errorMessage">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>error</mat-icon>
+      <mat-card-title>Error</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      {{errorMessage}}
+    </mat-card-content>
+  </mat-card>
+</div>

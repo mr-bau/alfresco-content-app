@@ -1,0 +1,155 @@
+<div id="main">
+  <h2>Fördermanager</h2>
+  <!--
+  <h4><a [href]="siteLink"><mat-icon class="mat-18" title="Link zur Dateibibliothek">link</mat-icon> Link zur Dateibibliothek</a></h4>
+  <h4><img class="textIcon" src="./assets/images/ft_ic_folder_shortcut_link.svg" alt="Dateibibliothek"> <a [href]="siteLink">Dateibibliothek</a></h4>
+  -->
+
+  <section class="cards">
+    <!-- Link to data -->
+    <mat-card class="cardfull">
+      <mat-card-header>
+        <mat-card-title><img class="textIcon" src="./assets/images/ft_ic_folder_shortcut_link.svg" alt="Dateibibliothek"> <a [href]="siteLink">Dateibibliothek</a></mat-card-title>
+      </mat-card-header>
+    </mat-card>
+  </section>
+  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
+  <div id="content">
+    <aca-mrbau-loaderoverlay *ngIf="loaderVisible"></aca-mrbau-loaderoverlay>
+    <section class="cards">
+      <mat-card class="cardfull errorMessage">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>settings</mat-icon>
+          <mat-card-title>Einstellungen</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-slide-toggle [(ngModel)]="includeAusfallbonusIII" (change)="dataSettingsChanged()">COFAG Ausfallbonus III berücksichtigen</mat-slide-toggle>
+          <mat-slide-toggle [(ngModel)]="includeBeendet" (change)="dataSettingsChanged()">Zurückgezogene Förderungen berücksichtigen</mat-slide-toggle>
+        </mat-card-content>
+      </mat-card>
+      <!-- charts -->
+      <mat-card class="card">
+        <mat-card-header>
+          <mat-card-title>Fördersumme pro Firma</mat-card-title>
+          <mat-card-subtitle>Erhaltene Förderungen</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div echarts [options]="optionsChartA" (chartInit)="onChartEvent($event,'initA')"></div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="card">
+        <mat-card-header>
+          <mat-card-title>Förderstatus</mat-card-title>
+          <mat-card-subtitle>Status aktuell</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <!--<div echarts [options]="optionsChartB" (chartInit)="onChartEvent($event,'initB')" theme="royal"></div>-->
+          <div echarts [options]="optionsChartB" (chartInit)="onChartEvent($event,'initB')"></div>
+        </mat-card-content>
+      </mat-card>
+      <!-- table -->
+      <mat-card class="cardfull">
+        <mat-card-header>
+          <mat-card-title>Auflistung</mat-card-title>
+          <mat-card-subtitle>Auflistung Förderungen</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <mat-form-field *ngFor="let filter of filterSelectObj" style="margin-left: 15px;">
+              <mat-label>Filter {{filter.name}}</mat-label>
+              <select matNativeControl name="{{filter.columnProp}}" [(ngModel)]="filter.modelValue"
+                (change)="filterChange(filter,$event)">
+                <option value="">-- Select {{filter.name}} --</option>
+                <option [value]="item" *ngFor="let item of filter.options">{{item}}</option>
+              </select>
+            </mat-form-field>
+            &nbsp;
+            <button mat-flat-button color="primary" (click)="resetFilters()">Reset</button>
+            <div>
+              <table mat-table [dataSource]="dataTableSource" matSort multiTemplateDataRows>
+                <!-- Position Name -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name"> Name </th>
+                  <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                  <td mat-footer-cell *matFooterCellDef> Gesamt </td>
+                </ng-container>
+
+                <!-- Förderungswerber -->
+                <ng-container matColumnDef="foerderungswerber">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by foerderungswerber"> Firma </th>
+                  <td mat-cell *matCellDef="let element"> {{element.foerderungswerber}} </td>
+                  <td mat-footer-cell *matFooterCellDef> </td>
+                </ng-container>
+
+                <!-- Projektnummer -->
+                <ng-container matColumnDef="projectnr">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by projectnr"> Projektnummer </th>
+                  <td mat-cell *matCellDef="let element"> {{element.projectnr}} </td>
+                  <td mat-footer-cell *matFooterCellDef> </td>
+                </ng-container>
+
+                <!-- status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by status"> Status </th>
+                  <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                  <td mat-footer-cell *matFooterCellDef> </td>
+                </ng-container>
+
+                <!-- statusProgress Column -->
+                <ng-container matColumnDef="statusProgress">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by statusProgress"> Fortschritt </th>
+                  <td mat-cell *matCellDef="let element">
+                    <!--{{element.statusProgress}}
+                    <mat-icon class="mat-18">system_update</mat-icon>
+                    -->
+                    <svg width="80%" height="10px">
+                      <rect [attr.fill]="element.statusProgress==1 ? '#005500' : '#3d5599'" [attr.width]="element.statusProgress*100+'%'" height="100%"></rect>;
+                    </svg>
+
+                  </td>
+                  <td mat-footer-cell *matFooterCellDef> </td>
+                </ng-container>
+
+                <!-- sum Column -->
+                <ng-container matColumnDef="sum">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by sum"> Fördersumme </th>
+                  <td mat-cell *matCellDef="let element"> {{element.sum | currency:'EUR':true}} </td>
+                  <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency:'EUR':true}} </td>
+                </ng-container>
+
+                <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                <ng-container matColumnDef="expandedDetail">
+                  <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
+                    <div class="element-detail" [@detailExpand]="row===expandedElement ? 'expanded' : 'collapsed'">
+                      <div class="element-detail-description">
+                        <span>{{row.desc}}</span>
+                        <span><img class="textIcon" src="./assets/images/ft_ic_folder_shortcut_link.svg" alt="Link zum Ordner"> <a href="/#/libraries/{{row.id}}">Link zum Ordner in der Dateibibliothek</a></span>
+                        <span>Förderschiene: {{row.foerderschiene}}<br/>Zustaendig: {{row.zustaendig}} angelegt am {{row.startDate | date:'medium'}}</span>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                    class="element-row"
+                    [class.expanded-row]="expandedElement === row"
+                    (click)="rowClicked(row)"
+                ></tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
+                    class="detail-row"
+                ></tr>
+                <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+              </table>
+              <mat-paginator [pageSizeOptions]="[7, 20, 50]"
+                              showFirstLastButtons
+                              aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+    <div class="status"><p>{{ siteStatus }}<br>{{expandedElement}}</p></div>
+  </div>
+</div>
