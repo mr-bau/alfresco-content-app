@@ -13,8 +13,7 @@
     "path": "mrbau-extension",
     "component": "aca-mrbau-extension.main.component"
   }
-],
-
+  ],
   "features": {
     "navbar": [
       {
@@ -29,5 +28,5 @@
       ]
     }
   ]
-}
+  }
 }
