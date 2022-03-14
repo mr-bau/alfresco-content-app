@@ -91,8 +91,8 @@
                 "output": "./assets/plugins"
               },
               {
-                "glob": "mrbau.plugin.json",
-                "input": "projects/aca-mrbau-extension/assets",
+                "glob": "mrbau-extension.json",
+                "input": "projects/mrbau-extension/assets",
                 "output": "./assets/plugins"
               }
             ],
@@ -490,38 +490,38 @@
         }
       }
     },
-    "aca-mrbau-extension": {
+    "mrbau-extension": {
       "projectType": "library",
-      "root": "projects/aca-mrbau-extension",
-      "sourceRoot": "projects/aca-mrbau-extension/src",
+      "root": "projects/mrbau-extension",
+      "sourceRoot": "projects/mrbau-extension/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/aca-mrbau-extension/tsconfig.lib.json",
-            "project": "projects/aca-mrbau-extension/ng-package.json"
+            "tsConfig": "projects/mrbau-extension/tsconfig.lib.json",
+            "project": "projects/mrbau-extension/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/aca-mrbau-extension/tsconfig.lib.prod.json"
+              "tsConfig": "projects/mrbau-extension/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/aca-mrbau-extension/src/test.ts",
-            "tsConfig": "projects/aca-mrbau-extension/tsconfig.spec.json",
-            "karmaConfig": "projects/aca-mrbau-extension/karma.conf.js"
+            "main": "projects/mrbau-extension/src/test.ts",
+            "tsConfig": "projects/mrbau-extension/tsconfig.spec.json",
+            "karmaConfig": "projects/mrbau-extension/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/aca-mrbau-extension/tsconfig.lib.json",
-              "projects/aca-mrbau-extension/tsconfig.spec.json"
+              "projects/mrbau-extension/tsconfig.lib.json",
+              "projects/mrbau-extension/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

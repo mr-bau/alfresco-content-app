@@ -49,9 +49,9 @@
       "package.json": [
         "package.json"
       ],
-      "aca-mrbau-extension": [
-        "dist/aca-mrbau-extension/aca-mrbau-extension",
-        "dist/aca-mrbau-extension"
+      "mrbau-extension": [
+        "dist/mrbau-extension/mrbau-extension",
+        "dist/mrbau-extension"
       ]
     }
   },

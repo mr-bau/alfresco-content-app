@@ -1,19 +1,20 @@
 {
   "$schema": "../../../extension.schema.json",
-  "$id": "mrbau.plugin",
+  "$id": "mrbau-extension",
   "$version": "1.0.0",
-  "$vendor": "MR Bauholding GmbH",
-  "$name": "MRBau Plugin",
-  "$description": "ACA MRBau Plugin",
+  "$vendor": "MRBau",
+  "$name": "plugin-mrbau",
+  "$description": "mrbau plugin desc",
   "$license": "MIT",
 
   "routes": [
   {
     "id": "mrbau.extension.route",
-    "path": "mrbau-extension",
-    "component": "aca-mrbau-extension.main.component"
+    "path": "ext/mrbau/route",
+    "component": "mrbau-extension.main.component"
   }
-  ],
+],
+
   "features": {
     "navbar": [
       {
@@ -22,11 +23,11 @@
           {
             "id": "mrbau.extension.main",
             "icon": "extension",
-            "title": "Mrbau Extension",
+            "title": "MRBau Extension",
             "route": "mrbau.extension.route"
         }
       ]
     }
   ]
-  }
+}
 }

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AcaMrbauExtensionComponent } from './aca-mrbau-extension.component';
+import { MrbauExtensionComponent } from './mrbau-extension.component';
 
-describe('AcaMrbauExtensionComponent', () => {
-  let component: AcaMrbauExtensionComponent;
-  let fixture: ComponentFixture<AcaMrbauExtensionComponent>;
+describe('MrbauExtensionComponent', () => {
+  let component: MrbauExtensionComponent;
+  let fixture: ComponentFixture<MrbauExtensionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AcaMrbauExtensionComponent ]
+      declarations: [ MrbauExtensionComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AcaMrbauExtensionComponent);
+    fixture = TestBed.createComponent(MrbauExtensionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
