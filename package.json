@@ -49,6 +49,7 @@
     "@ngrx/store": "^9.2.0",
     "@ngrx/store-devtools": "^9.2.0",
     "@ngx-translate/core": "^13.0.0",
+    "cpr": "^3.0.1",
     "echarts": "^5.3.1",
     "minimatch-browser": "^1.0.0",
     "moment": "^2.27.0",
