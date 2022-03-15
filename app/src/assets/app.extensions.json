@@ -301,10 +301,10 @@
         ]
       },
       {
-        "id": "app.navbar.custom.menu",
+        "id": "app.navbar.custom.mrbau",
         "items": [
           {
-            "id": "app.navbar.customb",
+            "id": "app.navbar.foerdermanager",
             "order": 500,
             "icon": "attach_money",
             "label": "Link",
@@ -313,8 +313,8 @@
             "route": "foerdermanager"
           },
           {
-            "id": "app.navbar.customa",
-            "order": 500,
+            "id": "app.navbar.belegsammlung",
+            "order": 600,
             "icon": "work",
             "label": "Link",
             "title": "Belegsammlung",

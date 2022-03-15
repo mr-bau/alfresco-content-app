@@ -27,7 +27,7 @@
     "version": "2.7.0",
     "logo": "assets/svg/logo_mr.svg",
     "headerImagePath": "assets/images/mastHead-bg-shapesPattern.svg",
-    "copyright": "© 2022 M&R Bauholding GmbH, © 2017 - 2022 Alfresco Software, Inc. All rights reserved."
+    "copyright": "APP.COPYRIGHT"
   },
   "viewer.maxRetries": 1,
   "sharedLinkDateTimePickerType": "date",
