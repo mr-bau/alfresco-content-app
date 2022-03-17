@@ -113,8 +113,8 @@
                 <!-- sum Column -->
                 <ng-container matColumnDef="sum">
                   <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by sum"> Fördersumme </th>
-                  <td mat-cell *matCellDef="let element"> {{element.sum | currency:'EUR':true}} </td>
-                  <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency:'EUR':true}} </td>
+                  <td mat-cell *matCellDef="let element"> {{element.sum | currency:'EUR':'symbol'}} </td>
+                  <td mat-footer-cell *matFooterCellDef> {{getTotalCost() | currency:'EUR':'symbol'}} </td>
                 </ng-container>
 
                 <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
