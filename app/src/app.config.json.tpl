@@ -1,21 +1,21 @@
 {
   "$schema": "../node_modules/@alfresco/adf-core/app.config.schema.json",
-  "ecmHost": "${APP_CONFIG_ECM_HOST}",
-  "aosHost": "${APP_CONFIG_ECM_HOST}/alfresco/aos",
-  "baseShareUrl": "${APP_CONFIG_ECM_HOST}/#/preview/s",
-  "providers": "${APP_CONFIG_PROVIDER}",
-  "authType": "${APP_CONFIG_AUTH_TYPE}",
+  "ecmHost": "https://mrdms01.mrbau.at",
+  "aosHost": "https://mrdms01.mrbau.at/alfresco/aos",
+  "baseShareUrl": "https://mrdms01.mrbau.at/#/preview/s",
+  "providers": "ECM",
+  "authType": "BASIC",
   "loginRoute": "login",
   "plugins":{
-    "aosPlugin" : ${APP_CONFIG_PLUGIN_AOS}
+    "aosPlugin" : "${APP_CONFIG_PLUGIN_AOS}"
   },
   "oauth2": {
     "host": "${APP_CONFIG_OAUTH2_HOST}",
     "clientId": "${APP_CONFIG_OAUTH2_CLIENTID}",
     "scope": "openid",
     "secret": "",
-    "implicitFlow": ${APP_CONFIG_OAUTH2_IMPLICIT_FLOW},
-    "silentLogin": ${APP_CONFIG_OAUTH2_SILENT_LOGIN},
+    "implicitFlow": true,
+    "silentLogin": true,
     "publicUrls": ["**/preview/s/*", "**/settings", "**/blank"],
     "redirectSilentIframeUri": "${APP_CONFIG_OAUTH2_REDIRECT_SILENT_IFRAME_URI}",
     "redirectUri": "${APP_CONFIG_OAUTH2_REDIRECT_LOGIN}",
@@ -34,7 +34,6 @@
   "headerColor": "#ffffff",
   "headerTextColor": "#000000",
   "customCssPath": "",
-  "webFontPath": "",
   "pagination": {
     "size": 25,
     "supportedPageSizes": [25, 50, 100]
