@@ -91,6 +91,11 @@
                 "output": "./assets/plugins"
               },
               {
+                "glob": "**/*",
+                "input": "projects/mrbau-extension/assets",
+                "output": "./assets/mrbau-extension"
+              },
+              {
                 "glob": "mrbau-extension.json",
                 "input": "projects/mrbau-extension/assets",
                 "output": "./assets/plugins"

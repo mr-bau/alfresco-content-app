@@ -20,8 +20,8 @@ export function components() {
             provide: TRANSLATION_PROVIDER,
             multi: true,
             useValue: {
-                name: 'adf-my-extension',
-                source: 'assets/adf-my-extension',
+                name: 'mrbau-extension',
+                source: 'assets/mrbau-extension',
             },
         },
         MrbauExtensionService,
