@@ -20,7 +20,8 @@
             "allowedCommonJsDependencies": [
               "moment-es6",
               "minimatch",
-              "zen-observable"
+              "zen-observable",
+              "echarts/theme/royal.js"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
