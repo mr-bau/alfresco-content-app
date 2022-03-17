@@ -251,7 +251,7 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
                   statusProgress: CONST.getStatusProgress(foerNode.entry.properties[CONST.FOER_FOERDERSTATUS]),
                   foerderschiene: foerNode.entry.properties[CONST.FOER_FOERDERSCHIENE],
                   foerderungswerber: foerNode.entry.properties[CONST.FOER_FOERDERUNGSWERBER],
-                  sum: foerNode.entry.properties[CONST.FOER_FOERDERSUMME],
+                  sum: (foerNode.entry.properties[CONST.FOER_FOERDERSUMME]) ? (foerNode.entry.properties[CONST.FOER_FOERDERSUMME]) : 0,
                   projectnr: foerNode.entry.properties[CONST.FOER_PROJECTNR],
                   zustaendig: foerNode.entry.properties[CONST.FOER_ZUSTAENDIG],
                   desc: foerNode.entry.properties[CONST.CM_DESC],
