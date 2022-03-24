@@ -24,16 +24,17 @@
   "locale": "de",
   "application": {
     "name": "M&R Enterprise Content Management Platform",
-    "version": "2.7.0",
+    "version": "2.9.0",
     "logo": "assets/svg/logo_mr.svg",
     "headerImagePath": "assets/images/mastHead-bg-shapesPattern.svg",
-    "copyright": "APP.COPYRIGHT"
+    "copyright": "© 2022 M&R Bauholding GmbH, © 2017–2022 Alfresco Software, Inc. Alle Rechte vorbehalten."
   },
   "viewer.maxRetries": 1,
   "sharedLinkDateTimePickerType": "date",
   "headerColor": "#ffffff",
   "headerTextColor": "#000000",
   "customCssPath": "",
+  "webFontPath": "",
   "pagination": {
     "size": 25,
     "supportedPageSizes": [25, 50, 100]
@@ -251,6 +252,7 @@
         "component": {
           "selector": "check-list",
           "settings": {
+            "allowUpdateOnChange": false,
             "options": [
               {
                 "name": "SEARCH.SEARCH_HEADER.FILTERS.SIZE.SMALL",
