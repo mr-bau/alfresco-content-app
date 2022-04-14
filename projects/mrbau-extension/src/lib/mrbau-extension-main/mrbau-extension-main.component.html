@@ -1,0 +1,10 @@
+<div id="main">
+  <h2>M&R Bau Extension</h2>
+  <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+    <div class="example-box" *ngFor="let app of apps" cdkDrag>
+      <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+        <span><img class="textIcon" src="./assets/images/ft_ic_folder_shortcut_link.svg" alt="{{app.name}}"> <a href="{{app.link}}">{{app.name}}</a></span>
+    </div>
+  </div>
+
+</div>

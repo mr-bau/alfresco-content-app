@@ -9,9 +9,25 @@
 
   "routes": [
   {
-    "id": "mrbau.extension.route",
-    "path": "ext/mrbau/route",
-    "component": "mrbau-extension.main.component"
+    "id": "mrbau.extension.route.main",
+    "path": "ext/mrbau/main",
+    "component": "mrbau-extension.main.component",
+    "layout": "app.layout.main",
+    "auth": ["app.auth"]
+  },
+  {
+    "id": "mrbau.extension.route.tasks",
+    "path": "ext/mrbau/tasks",
+    "component": "mrbau-extension.tasks.component",
+    "layout": "app.layout.main",
+    "auth": ["app.auth"]
+  },
+  {
+    "id": "mrbau.extension.route.mrid",
+    "path": "mrid/:mrId",
+    "component": "mrbau-extension.mrid.component",
+    "layout": "app.layout.main",
+    "auth": ["app.auth"]
   }
 ],
 
@@ -21,10 +37,16 @@
         "id": "mrbau.extension.nav",
         "items": [
           {
-            "id": "mrbau.extension.main",
-            "icon": "extension",
-            "title": "MRBau Extension",
-            "route": "mrbau.extension.route"
+            "id": "mrbau.extension.tasks",
+            "icon": "touch_app",
+            "title": "Aufgaben",
+            "route": "mrbau.extension.route.tasks"
+        },
+        {
+          "id": "mrbau.extension.tools",
+          "icon": "timeline",
+          "title": "Anwendungen",
+          "route": "mrbau.extension.route.main"
         }
       ]
     }
