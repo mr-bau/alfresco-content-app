@@ -96,6 +96,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import 'echarts/theme/royal.js';
 import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
 import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
+import { TasksComponent } from './custom/tasks/tasks.component';
 //import { GoogleChartsModule } from 'angular-google-charts';
 
 registerLocaleData(localeFr);
@@ -176,7 +177,8 @@ registerLocaleData(localeSv);
     FoerdermanagerComponent,
     TestComponent,
     LoaderoverlayComponent,
-    ErrormsgpaneComponent
+    ErrormsgpaneComponent,
+    TasksComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

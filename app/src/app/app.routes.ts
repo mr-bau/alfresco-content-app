@@ -39,6 +39,7 @@ import { SharedFilesComponent } from './components/shared-files/shared-files.com
 import { DetailsComponent } from './components/details/details.component';
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
 import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
+import { TasksComponent } from './custom/tasks/tasks.component';
 //import { TestComponent } from './custom/test/test.component';
 
 export const APP_ROUTES: Routes = [
@@ -88,9 +89,13 @@ export const APP_ROUTES: Routes = [
         component: FoerdermanagerComponent
       },
       {
-        path: 'belegsammlung',
+        path: 'belege',
         component: BelegsammlungComponent
         //component: TestComponent
+      },
+      {
+        path: 'tasks',
+        component: TasksComponent
       },
       {
         path: 'personal-files',

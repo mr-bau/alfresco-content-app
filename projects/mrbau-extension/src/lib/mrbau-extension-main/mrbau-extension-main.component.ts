@@ -15,6 +15,8 @@ export class MrbauExtensionMainComponent implements OnInit {
 
     apps : AppTableEntry[] = [
       {name : 'Fördermanager', link : '/#/foerdermanager'},
+      {name : 'Tasks', link : '/#/tasks'},
+      {name : 'Belegsammlung', link : '/#/belege'},
       {name : 'MRBau UID Test', link : '/#/mrid/42'}
     ];
 
