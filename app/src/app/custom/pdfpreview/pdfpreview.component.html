@@ -1,0 +1,21 @@
+<div id="pdf-container" >
+  <!-- <iframe id="my-iframe" src="" style="border: none;" width="100%" height="100%">
+    This browser does not support PDFs. Please download the PDF to view it:
+    <a href="">Download PDF</a>
+  </iframe> -->
+  <!--<object data="" type="application/pdf" width="100%" height="100%">
+    <p><b>Example fallback content</b>: This browser does not support PDFs. Please download the PDF to view it:
+      <a href="">Download PDF</a>.</p>
+  </object>
+-->
+  <div *ngIf='document_url==null; else elseBlock'>
+    <div class="center">
+      <img class="preview-icon" src="./assets/images/ft_ic_pdf.svg" alt="PDF Icon" width="500px">
+      <p class="preview-text">Document Preview</p>
+    </div>
+  </div>
+  <ng-template #elseBlock>
+    <embed id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="document_url">
+  </ng-template>
+
+</div>

@@ -94,9 +94,13 @@ import { MatSortModule  } from '@angular/material/sort';
 import { MatPaginatorModule  } from '@angular/material/paginator';
 import { NgxEchartsModule } from 'ngx-echarts';
 import 'echarts/theme/royal.js';
+import { AngularSplitModule } from 'angular-split';
 import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
 import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
+import { SplitpaneComponent } from './custom/splitpane/splitpane.component';
+import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
+import { TabgroupComponent } from './custom/tabgroup/tabgroup.component';
 //import { GoogleChartsModule } from 'angular-google-charts';
 
 registerLocaleData(localeFr);
@@ -153,6 +157,7 @@ registerLocaleData(localeSv);
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    AngularSplitModule.forRoot(),
     NgxEchartsModule.forRoot({
       /**
        * This will import all modules from echarts.
@@ -178,7 +183,10 @@ registerLocaleData(localeSv);
     TestComponent,
     LoaderoverlayComponent,
     ErrormsgpaneComponent,
-    TasksComponent
+    TasksComponent,
+    SplitpaneComponent,
+    PdfpreviewComponent,
+    TabgroupComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

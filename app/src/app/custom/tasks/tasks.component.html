@@ -1,89 +1,17 @@
 <div id="main">
   <h2>Aufgaben</h2>
-<!--
-  <mat-tab-group>
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon class="example-tab-icon">thumb_up</mat-icon>
-        First
-      </ng-template>
-      <div>
-        Small content
-      </div>
-    </mat-tab>
+  <aca-splitpane>
+    <ng-container ngProjectAs="[splitAreaUpperLeft]">
+      <aca-tabgroup></aca-tabgroup>
+    </ng-container>
 
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon class="example-tab-icon">thumb_up</mat-icon>
-        Second
-      </ng-template>
-      <div>
-        Small content
-      </div>
-    </mat-tab>
+    <ng-container ngProjectAs="[splitAreaLowerLeft]">
+      <p>lower</p>
+      <button (click)="testPdfLoad()">load</button>
+    </ng-container>
+    <ng-container ngProjectAs="[splitAreaUpperRight]">
+      <aca-pdfpreview [document_url]="document_url"></aca-pdfpreview>
+    </ng-container>
 
-
-todo
-
-<mat-tab-group [selectedIndex]="selected.value"
-               (selectedIndexChange)="selected.setValue($event)">
-  <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
-    Contents for {{tab}} tab
-
-    <button mat-raised-button
-            class="example-delete-tab-button"
-            [disabled]="tabs.length === 1"
-            (click)="removeTab(index)">
-      Delete Tab
-    </button>
-  </mat-tab>
-
-</mat-tab-group>
-
-
-
-
-  </mat-tab-group>
-
-
--->
-  <adf-toolbar title="Toolbar">
-    <adf-toolbar-title>
-      <adf-breadcrumb></adf-breadcrumb>
-    </adf-toolbar-title>
-
-  <adf-toolbar-divider></adf-toolbar-divider>
-
-    <button mat-icon-button>
-        <mat-icon>create_new_folder</mat-icon>
-    </button>
-    <button mat-icon-button>
-        <mat-icon>delete</mat-icon>
-    </button>
-
-    <adf-toolbar-divider></adf-toolbar-divider>
-
-    <button mat-icon-button>
-      <mat-icon>create_new_folder</mat-icon>
-  </button>
-  <button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>more_vert</mat-icon>
-</button>
-<mat-menu #menu="matMenu">
-    <button mat-menu-item>
-        <mat-icon>dialpad</mat-icon>
-        <span>Redial</span>
-    </button>
-    <button mat-menu-item disabled>
-        <mat-icon>voicemail</mat-icon>
-        <span>Check voicemail</span>
-    </button>
-    <button mat-menu-item>
-        <mat-icon>notifications_off</mat-icon>
-        <span>Disable alerts</span>
-    </button>
-</mat-menu>
-  </adf-toolbar>
-
-  <p>todo</p>
+  </aca-splitpane>
 </div>>
