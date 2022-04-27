@@ -14,8 +14,8 @@ export class SplitpaneComponent implements OnInit {
   @ViewChild('areaLeft1') areaLeft1: SplitAreaDirective
   @ViewChild('areaLeft2') areaLeft2: SplitAreaDirective
   @ViewChild('areaRight') area2Right: SplitAreaDirective
-  _size1=40;
-  _size2=60;
+  _size1=60;
+  _size2=40;
 
   constructor() { }
 

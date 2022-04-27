@@ -21,12 +21,14 @@
         >
           <as-split-area
             #areaLeft1
+            [minSize]="10"
             [size]="50"
           >
             <ng-content select="[splitAreaUpperLeft]"></ng-content>
           </as-split-area>
           <as-split-area
             #areaLeft2
+            [minSize]="10"
             [size]="50"
           >
             <ng-content select="[splitAreaLowerLeft]"></ng-content>

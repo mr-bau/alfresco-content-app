@@ -1,6 +1,4 @@
-export class CONST {
-
-  public static readonly DMS_SERVER_URL:       string = "https://mrdms01.mrbau.at";
+export class FOER_CONST {
 
   public static readonly FOER_FOERDERUNGSORDNER:string = "foer:Foerderungsordner";
 
@@ -20,29 +18,29 @@ export class CONST {
   public static readonly FOER_AUSBEZAHLT: string = "Ausbezahlt - Aufrechter Vertrag";
   public static readonly FOER_BEENDET: string = "Beendet - Vertrag Abgelaufen";
   public static readonly FOER_FOERDERSTATUS_VALUES = [
-	  CONST.FOER_OFFEN,
-	  CONST.FOER_BEANTRAGT,
-	  CONST.FOER_POSITIV,
-	  CONST.FOER_ABGERECHNET,
-	  CONST.FOER_AUSBEZAHLT,
-	  CONST.FOER_BEENDET
+	  FOER_CONST.FOER_OFFEN,
+	  FOER_CONST.FOER_BEANTRAGT,
+	  FOER_CONST.FOER_POSITIV,
+	  FOER_CONST.FOER_ABGERECHNET,
+	  FOER_CONST.FOER_AUSBEZAHLT,
+	  FOER_CONST.FOER_BEENDET
   ];
 
   public static getStatusProgress(val:string) : number {
     console.log(val);
     switch (val)
     {
-      case CONST.FOER_OFFEN:
+      case FOER_CONST.FOER_OFFEN:
         return 0.01;
-      case CONST.FOER_BEANTRAGT:
+      case FOER_CONST.FOER_BEANTRAGT:
         return 0.25;
-      case CONST.FOER_POSITIV:
+      case FOER_CONST.FOER_POSITIV:
         return 0.5;
-      case CONST.FOER_ABGERECHNET:
+      case FOER_CONST.FOER_ABGERECHNET:
         return 0.75;
-      case CONST.FOER_AUSBEZAHLT:
+      case FOER_CONST.FOER_AUSBEZAHLT:
         return 1.0;
-      case CONST.FOER_BEENDET:
+      case FOER_CONST.FOER_BEENDET:
         return 1.0;
       default:
         return 0;
@@ -59,15 +57,15 @@ export class CONST {
   public static readonly FOER_OG: string = "Moser-Rauter OG";
   public static readonly FOER_SCHWAB: string = "Schwab";
   public static readonly FOER_FOERDERUNGSWERBER_VALUES = [
-    CONST.FOER_HOLDING,
-    CONST.FOER_MOBIL,
-    CONST.FOER_GLOBAL,
-    CONST.FOER_HT,
-    CONST.FOER_MRGU,
-    CONST.FOER_GUBAU,
-    CONST.FOER_IMMO,
-    CONST.FOER_OG,
-    CONST.FOER_SCHWAB
+    FOER_CONST.FOER_HOLDING,
+    FOER_CONST.FOER_MOBIL,
+    FOER_CONST.FOER_GLOBAL,
+    FOER_CONST.FOER_HT,
+    FOER_CONST.FOER_MRGU,
+    FOER_CONST.FOER_GUBAU,
+    FOER_CONST.FOER_IMMO,
+    FOER_CONST.FOER_OG,
+    FOER_CONST.FOER_SCHWAB
   ];
 
   public static readonly FOER_AWS_COVID_INVEST: string = "AWS COVID Investitionsprämie";
@@ -75,9 +73,9 @@ export class CONST {
   public static readonly FOER_OEKOFIT_KAERNTEN: string = "ÖKO Fit Kärnten";
   public static readonly FOER_COFAG_AUSFALLBONUS_III: string = "COFAG Ausfallbonus III";
   public static readonly FOER_FOERDERSCHIENE_VALUES = [
-    CONST.FOER_AWS_COVID_INVEST,
-    CONST.FOER_OEMAG_PV_INV_ZUSCHUSS,
-    CONST.FOER_OEKOFIT_KAERNTEN,
-    CONST.FOER_COFAG_AUSFALLBONUS_III,
+    FOER_CONST.FOER_AWS_COVID_INVEST,
+    FOER_CONST.FOER_OEMAG_PV_INV_ZUSCHUSS,
+    FOER_CONST.FOER_OEKOFIT_KAERNTEN,
+    FOER_CONST.FOER_COFAG_AUSFALLBONUS_III,
   ];
 }

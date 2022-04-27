@@ -1,6 +1,6 @@
 import { Component, OnInit   } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
+import { IMRBauTasksCategory} from '../mrbau-task-declarations';
 
 @Component({
   selector: 'aca-tasks',
@@ -11,6 +11,53 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class TasksComponent implements OnInit {
   SHOW_TOOLBAR : string = "#toolbar=1";
   document_url: SafeResourceUrl = null;
+  taskCategories : IMRBauTasksCategory[] = [{
+    tabIcon: 'description',
+    tabName: 'Eingang',
+    // NewDocumentStart - NewDocumentLast
+    tabBadge: 0,
+    searchQuery: "foer:*",
+    searchOptions: {
+      skipCount:  0,
+      maxItems : 5,
+      //rootNodeId?: string;
+      //nodeType?: string;
+      //include?: string[];
+      //orderBy?: string;
+      //fields?: string[];
+    }
+  },{
+    tabIcon: 'list',
+    tabName: 'Belegprüfung',
+    // InvoiceAuditStart - InvoiceAuditLast
+    tabBadge: 0,
+    searchQuery: "oemag",
+    searchOptions: {
+      skipCount:  0,
+      maxItems : 5,
+      //rootNodeId?: string;
+      //nodeType?: string;
+      //include?: string[];
+      //orderBy?: string;
+      //fields?: string[];
+    }
+  },{
+    tabIcon: 'label',
+    tabName: 'Allgemein',
+    // CommonTaskStart - CommonTaskLast
+    tabBadge: 0,
+    searchQuery: "aws",
+    searchOptions: {
+      skipCount:  0,
+      maxItems : 5,
+      //rootNodeId?: string;
+      nodeType: "cm:folder",
+      //include?: string[];
+      //orderBy?: string;
+      //fields?: string[];
+    }
+  }];
+
 
   private urls : string[] = ["https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf", "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", null];
   private docId = 0;
@@ -38,5 +85,10 @@ export class TasksComponent implements OnInit {
     this.docId = (this.docId+1) % this.urls.length;
     console.log(this.document_url);
     //this.document_url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"+this.SHOW_TOOLBAR;
+  }
+
+  taskSelected(newItem) {
+    this.testPdfLoad();
+    newItem;
   }
 }

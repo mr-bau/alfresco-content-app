@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TabgroupComponent } from './tabgroup.component';
+import { TasksTableComponent } from './taskstable.component';
 
-describe('TabgroupComponent', () => {
-  let component: TabgroupComponent;
-  let fixture: ComponentFixture<TabgroupComponent>;
+describe('TaskstableComponent', () => {
+  let component: TasksTableComponent;
+  let fixture: ComponentFixture<TasksTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TabgroupComponent ]
+      declarations: [ TasksTableComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TabgroupComponent);
+    fixture = TestBed.createComponent(TasksTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

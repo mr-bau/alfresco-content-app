@@ -4,7 +4,7 @@ import { ChangeDetectorRef, AfterContentInit, AfterViewInit, Component, OnInit, 
 import { NodeEntry, NodePaging } from '@alfresco/js-api';
 import { AlfrescoApiService } from '@alfresco/adf-core';
 import { ContentApiService } from '@alfresco/aca-shared';
-import { CONST } from '../global-constants';
+import { FOER_CONST } from '../mrbau-foerdermanager-declarations';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -195,7 +195,7 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
   //********************************************************************************/
 
   isFoerderungsordner(node: NodeEntry): boolean {
-    return node.entry.aspectNames.indexOf(CONST.FOER_FOERDERUNGSORDNER) > -1;
+    return node.entry.aspectNames.indexOf(FOER_CONST.FOER_FOERDERUNGSORDNER) > -1;
   }
 
   async loadData() {
@@ -236,25 +236,25 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
               let includeNode = true;
               if (
                 this.includeAusfallbonusIII === false &&
-                foerNode.entry.properties[CONST.FOER_FOERDERSCHIENE] === CONST.FOER_COFAG_AUSFALLBONUS_III
+                foerNode.entry.properties[FOER_CONST.FOER_FOERDERSCHIENE] === FOER_CONST.FOER_COFAG_AUSFALLBONUS_III
               ) {
                 includeNode = false;
               }
-              if (this.includeBeendet === false && foerNode.entry.properties[CONST.FOER_FOERDERSTATUS] === 'Beendet - Zurückgezogen') {
+              if (this.includeBeendet === false && foerNode.entry.properties[FOER_CONST.FOER_FOERDERSTATUS] === 'Beendet - Zurückgezogen') {
                 includeNode = false;
               }
               if (includeNode) {
                 const entry: FoerderungenDataTableEntry = {
                   name: foerNode.entry.name,
                   startDate: foerNode.entry.createdAt,
-                  status: foerNode.entry.properties[CONST.FOER_FOERDERSTATUS],
-                  statusProgress: CONST.getStatusProgress(foerNode.entry.properties[CONST.FOER_FOERDERSTATUS]),
-                  foerderschiene: foerNode.entry.properties[CONST.FOER_FOERDERSCHIENE],
-                  foerderungswerber: foerNode.entry.properties[CONST.FOER_FOERDERUNGSWERBER],
-                  sum: (foerNode.entry.properties[CONST.FOER_FOERDERSUMME]) ? (foerNode.entry.properties[CONST.FOER_FOERDERSUMME]) : 0,
-                  projectnr: foerNode.entry.properties[CONST.FOER_PROJECTNR],
-                  zustaendig: foerNode.entry.properties[CONST.FOER_ZUSTAENDIG],
-                  desc: foerNode.entry.properties[CONST.CM_DESC],
+                  status: foerNode.entry.properties[FOER_CONST.FOER_FOERDERSTATUS],
+                  statusProgress: FOER_CONST.getStatusProgress(foerNode.entry.properties[FOER_CONST.FOER_FOERDERSTATUS]),
+                  foerderschiene: foerNode.entry.properties[FOER_CONST.FOER_FOERDERSCHIENE],
+                  foerderungswerber: foerNode.entry.properties[FOER_CONST.FOER_FOERDERUNGSWERBER],
+                  sum: (foerNode.entry.properties[FOER_CONST.FOER_FOERDERSUMME]) ? (foerNode.entry.properties[FOER_CONST.FOER_FOERDERSUMME]) : 0,
+                  projectnr: foerNode.entry.properties[FOER_CONST.FOER_PROJECTNR],
+                  zustaendig: foerNode.entry.properties[FOER_CONST.FOER_ZUSTAENDIG],
+                  desc: foerNode.entry.properties[FOER_CONST.CM_DESC],
                   id: foerNode.entry.id
                 };
                 this.dataTableSource.data.push(entry);

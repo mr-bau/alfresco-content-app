@@ -1,0 +1,18 @@
+.all_done_icon {
+  margin-right: 8px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  min-height: 0;
+}
+.mat-tab-group {
+  height: 100%;
+}
+.adf-empty-content {
+  min-height: 200px;
+}
