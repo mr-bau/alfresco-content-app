@@ -1,7 +1,6 @@
 import { Component, OnInit   } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IMRBauTasksCategory} from '../mrbau-task-declarations';
-
 @Component({
   selector: 'aca-tasks',
   templateUrl: './tasks.component.html',
@@ -61,6 +60,7 @@ export class TasksComponent implements OnInit {
 
   private urls : string[] = ["https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf", "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", null];
   private docId = 0;
+  selectedRowId: string = null;
 
   constructor(private sanitizer: DomSanitizer) {
 
@@ -75,7 +75,7 @@ export class TasksComponent implements OnInit {
     if (fullURL != null)
     {
       fullURL = fullURL.concat(this.SHOW_TOOLBAR);
-      this.document_url = this.sanitizer.bypassSecurityTrustResourceUrl(fullURL);
+      this.document_url = this.sanitizeUrl(fullURL);
     }
     else
     {
@@ -83,12 +83,24 @@ export class TasksComponent implements OnInit {
     }
 
     this.docId = (this.docId+1) % this.urls.length;
-    console.log(this.document_url);
-    //this.document_url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"+this.SHOW_TOOLBAR;
   }
 
-  taskSelected(newItem) {
-    this.testPdfLoad();
-    newItem;
+  taskSelected(row : string) {
+    //this.testPdfLoad();
+    this.selectedRowId = row;
+  }
+
+  fileSelected(fileUrl : string)
+  {
+    if (fileUrl == null)
+    {
+      this.document_url = null;
+      return;
+    }
+    this.document_url = this.sanitizeUrl(fileUrl.concat(this.SHOW_TOOLBAR));
+  }
+
+  sanitizeUrl(url:string) : SafeResourceUrl {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

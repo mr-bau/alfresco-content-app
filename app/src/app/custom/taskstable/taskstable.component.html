@@ -1,13 +1,15 @@
 <div class="main-content">
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
-  <mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="tabSelectionChanged($event)">
-  <mat-tab *ngFor="let tab of taskCategories; let index = index">
-    <ng-template mat-tab-label>
-      <mat-icon class="tab-icon">{{tab.tabIcon}}</mat-icon>
-      <span [matBadge]="tab.tabBadge" matBadgeOverlap="false" [matBadgeHidden]="tab.tabBadge == 0">{{tab.tabName}}</span>
-    </ng-template>
-    <div class="xxx">
-    <adf-datatable
+  <mat-tab-group
+    [selectedIndex]="selectedTab.value"
+    (selectedIndexChange)="tabSelectionChanged($event)"
+    >
+    <mat-tab *ngFor="let tab of taskCategories; let index = index">
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">{{tab.tabIcon}}</mat-icon>
+        <span [matBadge]="tab.tabBadge" matBadgeOverlap="false" [matBadgeHidden]="tab.tabBadge == 0">{{tab.tabName}}</span>
+      </ng-template>
+      <adf-datatable
         [data]="data"
         [loading]="isLoading"
         (rowClick)="rowClicked($event)"
@@ -16,25 +18,57 @@
         <data-column
           key="icon"
           type="image"
-            [sortable]="false">
-          </data-column>
-        <data-column
-          key="name"
-          title="Name">
+          [sortable]="false"
+          class="adf-desktop-only adf-expand-cell-1">
         </data-column>
         <data-column
-          key="createdBy"
-          title="Created By"
-          class="full-width name-column">
+          key="desc"
+          title="Aufgabe"
+          [sortable]="true"
+          class="adf-expand-cell-5 adf-ellipsis-cell">
         </data-column>
-        <data-column key="status" title="Status">
-
+        <data-column
+          key="dueDate"
+          title="Zu erledigen bis"
+          type="date"
+          format="timeAgo"
+          [sortable]="true"
+          class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
+          >
+        </data-column>
+        <data-column
+          key="status"
+          type="image"
+          class="adf-desktop-only adf-expand-cell-1"
+          [sortable]="true">
           <ng-template let-entry="$implicit">
-            <span *ngIf="entry.data.getValue(entry.row, entry.col) == 'red'" style="background-color: red; width: 20px; height: 20px"></span>
-            <span *ngIf="entry.data.getValue(entry.row, entry.col) == 'green'" style="background-color: green; width: 20px; height: 20px"></span>
+            <aca-task-indicator [status]="entry.data.getValue(entry.row, entry.col)"></aca-task-indicator>
           </ng-template>
         </data-column>
+        <data-column
+          key="createdUser"
+          title="Created By"
+          class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
+          >
+        </data-column>
+        <data-column
+          key="createdDate"
+          title="Datum"
+          type="date"
+          format="shortDate"
+          [sortable]="true"
+          class="adf-desktop-only adf-expand-cell-1 adf-ellipsis-cell"
+          >
+        </data-column>
+        <data-column
+          key="assignedUser"
+          title="Assigned To"
+          class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
+          >
+        </data-column>
+
       </data-columns>
+      <!-- ALL DONE TEMPLATE -->
       <adf-no-content-template>
         <ng-template>
           <adf-empty-content
@@ -44,6 +78,7 @@
           </adf-empty-content>
         </ng-template>
       </adf-no-content-template>
+      <!-- LOADING TEMPLATE -->
       <adf-loading-content-template>
         <ng-template>
           <mat-progress-spinner
@@ -59,8 +94,6 @@
       [supportedPageSizes]="paginationSizes"
     >
     </adf-pagination>
-  </div>
-</mat-tab>
+  </mat-tab>
 </mat-tab-group>
-
 </div>

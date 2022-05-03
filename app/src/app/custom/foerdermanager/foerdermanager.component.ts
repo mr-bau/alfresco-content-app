@@ -5,6 +5,7 @@ import { NodeEntry, NodePaging } from '@alfresco/js-api';
 import { AlfrescoApiService } from '@alfresco/adf-core';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { FOER_CONST } from '../mrbau-foerdermanager-declarations';
+import { CONST } from '../mrbau-global-declarations';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -254,7 +255,7 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
                   sum: (foerNode.entry.properties[FOER_CONST.FOER_FOERDERSUMME]) ? (foerNode.entry.properties[FOER_CONST.FOER_FOERDERSUMME]) : 0,
                   projectnr: foerNode.entry.properties[FOER_CONST.FOER_PROJECTNR],
                   zustaendig: foerNode.entry.properties[FOER_CONST.FOER_ZUSTAENDIG],
-                  desc: foerNode.entry.properties[FOER_CONST.CM_DESC],
+                  desc: foerNode.entry.properties[CONST.CM_DESC],
                   id: foerNode.entry.id
                 };
                 this.dataTableSource.data.push(entry);

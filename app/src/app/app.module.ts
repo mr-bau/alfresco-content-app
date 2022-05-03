@@ -101,6 +101,8 @@ import { TasksComponent } from './custom/tasks/tasks.component';
 import { SplitpaneComponent } from './custom/splitpane/splitpane.component';
 import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
 import { TasksTableComponent } from './custom/taskstable/taskstable.component';
+import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.component';
+import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
 //import { GoogleChartsModule } from 'angular-google-charts';
 
 registerLocaleData(localeFr);
@@ -186,7 +188,9 @@ registerLocaleData(localeSv);
     TasksComponent,
     SplitpaneComponent,
     PdfpreviewComponent,
-    TasksTableComponent
+    TasksTableComponent,
+    TaskIndicatorComponent,
+    TasksdetailComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

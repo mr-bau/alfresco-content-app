@@ -9,7 +9,7 @@ export class FOER_CONST {
   public static readonly FOER_PROJECTNR:        string = "foer:ProjektNr";
   public static readonly FOER_ZUSTAENDIG:       string = "foer:Zustaendig";
 
-  public static readonly CM_DESC:               string = "cm:description";
+
 
   public static readonly FOER_OFFEN: string = "Offen";
   public static readonly FOER_BEANTRAGT: string = "Beantragt";

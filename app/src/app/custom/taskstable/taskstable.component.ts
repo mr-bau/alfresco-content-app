@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SearchService} from '@alfresco/adf-core';
-import { ObjectDataTableAdapter, DataRowEvent, ObjectDataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
-import { IMRBauTasksCategory} from '../mrbau-task-declarations';
+import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
+import { IMRBauTasksCategory, IMRBauTaskListEntry} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
 import { NodePaging } from '@alfresco/js-api';
 
@@ -14,11 +14,11 @@ import { NodePaging } from '@alfresco/js-api';
 export class TasksTableComponent implements OnInit, PaginatedComponent {
   data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
   @Input() taskCategories : IMRBauTasksCategory[] = null;
-  @Output() taskSelectEvent = new EventEmitter<ObjectDataRow>();
+  @Output() taskSelectEvent = new EventEmitter<string>();
   isLoading : boolean = false;
   errorMessage : string = null;
   selectedTab = new FormControl(0);
-  selectedObject : ObjectDataRow = null;
+  selectedTaskId : string = null;
 
   pagination: BehaviorSubject<PaginationModel> = new BehaviorSubject<PaginationModel>({});
   paginationSizes = [5, 10, 25];
@@ -62,12 +62,13 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   {
     this.isLoading = true;
     this.errorMessage = null;
-    this.selectedObject = null;
+    this.selectedTaskId = null;
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
     let options = Object.assign({}, currentTab.searchOptions);
     options.skipCount = this.pagination.value.skipCount;
     options.maxItems = this.pagination.value.maxItems;
+
     this.searchService.getNodeQueryResults(currentTab.searchQuery, options).subscribe(
       (nodePaging : NodePaging) => {
         console.log("Query Result "+nodePaging.list.entries.length+ " skipCount "+currentTab.searchOptions.skipCount+" maxItems "+currentTab.searchOptions.maxItems+ " has more "+nodePaging.list.pagination.hasMoreItems);
@@ -81,16 +82,23 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
         });
 
         console.log(nodePaging);
-        let results = [];
+        let results: IMRBauTaskListEntry[] = [];
+        let i:number = 0;
         for (var entry of nodePaging.list.entries) {
-          results.push({
-            id: entry.entry.id,
-            name: entry.entry.name,
-            createdBy: entry.entry.createdByUser.displayName,
-            status: 'green',
-            icon: 'material-icons://'+currentTab.tabIcon
-
-          });
+          let e : IMRBauTaskListEntry = {
+            id : entry.entry.id,
+            desc : entry.entry.name,
+            createdUser : entry.entry.createdByUser.displayName,
+            assignedUser : entry.entry.createdByUser.displayName,
+            createdDate : entry.entry.createdAt,
+            dueDate : entry.entry.createdAt,
+            status : i++,
+            icon : 'material-icons://'+currentTab.tabIcon
+          }
+          e.dueDate.setDate(e.createdDate.getDate() + 30);
+          results.push(
+            e
+          );
         }
         this.data.setRows(results.map(item => { return new ObjectDataRow(item); }));
         this.isLoading = false;
@@ -120,23 +128,18 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
 
   rowClicked( event : DataRowEvent)
   {
-    let obj = event.value as ObjectDataRow;
-    if (this.selectedObject == obj)
+    let obj = event.value as DataRow;
+    let id = obj.getValue("id") as string;
+    if (id != this.selectedTaskId)
     {
-      // deselect row
-      obj.isSelected = false;
-      this.selectObject(null);
-    }
-    else
-    {
-      this.selectObject(obj);
+      this.selectObject(id);
     }
   }
 
-  selectObject(obj : ObjectDataRow)
+  selectObject(taskId : string | null)
   {
-    this.selectedObject = obj;
-    this.taskSelectEvent.emit(obj);
+    this.selectedTaskId = taskId;
+    this.taskSelectEvent.emit(taskId);
   }
 
   sortingChanged( event )

@@ -1,17 +1,14 @@
 <div id="main">
   <aca-splitpane>
     <ng-container ngProjectAs="[splitAreaUpperLeft]">
-          <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
-
+      <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaLowerLeft]">
-      <p>lower</p>
-      <button (click)="testPdfLoad()">load</button>
+      <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" [selectedRowId]="selectedRowId"></aca-tasksdetail>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaUpperRight]">
       <aca-pdfpreview [document_url]="document_url"></aca-pdfpreview>
     </ng-container>
-
   </aca-splitpane>
 </div>>
 
