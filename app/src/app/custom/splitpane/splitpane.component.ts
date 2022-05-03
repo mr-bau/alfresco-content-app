@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
-import { SplitComponent, SplitAreaDirective } from 'angular-split'
+import { Component, Output, EventEmitter, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { SplitComponent, SplitAreaDirective, IOutputData } from 'angular-split'
 
 @Component({
   selector: 'aca-splitpane',
@@ -16,6 +16,19 @@ export class SplitpaneComponent implements OnInit {
   @ViewChild('areaRight') area2Right: SplitAreaDirective
   _size1=60;
   _size2=40;
+
+  @Output() dragStartEvent = new EventEmitter<IOutputData>();
+  @Output() dragEndEvent = new EventEmitter<IOutputData>();
+
+  dragStart(event)
+  {
+    this.dragStartEvent.emit(event);
+  }
+
+  dragEnd(event)
+  {
+    this.dragEndEvent.emit(event);
+  }
 
   constructor() { }
 
@@ -35,33 +48,6 @@ export class SplitpaneComponent implements OnInit {
       this._size2 = value;
   }
   gutterClick(e) {
-    /*
-    if (this.pageSplitDirection == 'horizontal')
-    {
-      this.pageSplitDirection = 'vertical';
-    }
-    else
-    {
-      this.pageSplitDirection = 'horizontal';
-    }
-    */
     e.gutterNum;
-    /*
-    if(e.gutterNum === 1) {
-        if(this.size2 !== 0) {
-            this.size1 += this.size2;
-            this.size2 = 0;
-        }
-        else if(this.size2 === 0) {
-            this.size1 -= 25;
-            this.size2 = 25;
-        }
-        else {
-            this.size1 = 75;
-            this.size2 = 25;
-        }
-    }
-    */
   }
-
 }

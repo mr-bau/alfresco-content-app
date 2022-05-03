@@ -1,5 +1,5 @@
 <div id="main">
-  <aca-splitpane>
+  <aca-splitpane (dragStartEvent)="dragStartEvent()" (dragEndEvent)="dragEndEvent()">
     <ng-container ngProjectAs="[splitAreaUpperLeft]">
       <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
     </ng-container>

@@ -10,6 +10,9 @@ import { IMRBauTasksCategory} from '../mrbau-task-declarations';
 export class TasksComponent implements OnInit {
   SHOW_TOOLBAR : string = "#toolbar=1";
   document_url: SafeResourceUrl = null;
+  private _remember_document_url : SafeResourceUrl = null;
+  selectedRowId: string = null;
+
   taskCategories : IMRBauTasksCategory[] = [{
     tabIcon: 'description',
     tabName: 'Eingang',
@@ -57,36 +60,25 @@ export class TasksComponent implements OnInit {
     }
   }];
 
-
-  private urls : string[] = ["https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf", "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", null];
-  private docId = 0;
-  selectedRowId: string = null;
-
   constructor(private sanitizer: DomSanitizer) {
-
   }
 
   ngOnInit(): void {
   }
 
-  testPdfLoad()
-  {
-    let fullURL = this.urls[this.docId];
-    if (fullURL != null)
-    {
-      fullURL = fullURL.concat(this.SHOW_TOOLBAR);
-      this.document_url = this.sanitizeUrl(fullURL);
-    }
-    else
-    {
-      this.document_url = null;
-    }
+  dragStartEvent(){
+    // workaround: hide pdf viewer during split pane resize
+    this._remember_document_url = this.document_url;
+    this.document_url = null;
+  }
 
-    this.docId = (this.docId+1) % this.urls.length;
+  dragEndEvent(){
+    // workaround: restore pdf viewer after split pane resize
+    this.document_url = this._remember_document_url;
+    this._remember_document_url = null;
   }
 
   taskSelected(row : string) {
-    //this.testPdfLoad();
     this.selectedRowId = row;
   }
 

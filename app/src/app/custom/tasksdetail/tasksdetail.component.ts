@@ -1,8 +1,7 @@
 import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
-import { NodeService, NodeMetadata, ContentService} from '@alfresco/adf-core';
+import { ContentService} from '@alfresco/adf-core';
 import { NodeEntry } from '@alfresco/js-api';
 import { CONST } from '../mrbau-global-declarations';
-import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 
 @Component({
   selector: 'aca-tasksdetail',
@@ -22,7 +21,7 @@ export class TasksdetailComponent implements OnInit {
   isLoading: boolean = false;
 
 
-  constructor(private nodeService: NodeService, private contentService: ContentService) {
+  constructor(private contentService: ContentService) {
   }
 
   ngOnInit(): void {
