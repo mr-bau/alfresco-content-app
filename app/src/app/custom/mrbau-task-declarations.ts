@@ -1,24 +1,24 @@
-import { SearchOptions} from '@alfresco/adf-core';
+import { QueryBody } from '@alfresco/js-api';
 
 // eslint-disable-next-line
 export enum EMRBauTaskCategory {
   Uninitialized     =   0,
 
-  CommonTaskStart   = 100,
-  CommonTaskInfo    = 101,
-  CommonTaskApprove = 102,
+  CommonTaskStart   = 1000,
+  CommonTaskInfo    = 1001,
+  CommonTaskApprove = 1002,
   //...
-  CommonTaskLast    = 199,
+  CommonTaskLast    = 1999,
 
-  NewDocumentStart  = 200,
-  NewDocument       = 201,
+  NewDocumentStart  = 2000,
+  NewDocument       = 2001,
   //...
-  NewDocumentLast   = 299,
+  NewDocumentLast   = 2999,
 
-  InvoiceAuditStart = 300,
-  InvoiceAudit      = 301,
+  InvoiceAuditStart = 3000,
+  InvoiceAudit      = 3001,
   //...
-  InvoiceAuditLast  = 399,
+  InvoiceAuditLast  = 3999,
 }
 
 export interface IMRBauTaskListEntry {
@@ -133,7 +133,5 @@ export interface IMRBauTasksCategory {
   tabIcon: string;
   tabName: string;
   tabBadge: number;
-
-  searchQuery: string;
-  searchOptions: SearchOptions;
+  searchRequest: QueryBody;
 }

@@ -23,7 +23,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   pagination: BehaviorSubject<PaginationModel> = new BehaviorSubject<PaginationModel>({});
   paginationSizes = [5, 10, 25];
   updatePagination(params: PaginationModel) {
-    console.log(params);
+    //console.log(params);
     this.pagination.next(params);
     this.queryNewData();
   }
@@ -33,6 +33,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
 
   ngOnInit(): void {
     // load data
+    this.pagination.value.maxItems = this.paginationSizes[0];
     this.tabSelectionChanged(0);
   }
 
@@ -43,9 +44,12 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
       if (i != this.selectedTab.value)
       {
         let tab = this.taskCategories[i];
-        let options = Object.assign({}, tab.searchOptions);
-        options.maxItems = 1;
-        this.searchService.getNodeQueryResults(tab.searchQuery, options).subscribe(
+        tab.searchRequest.paging = {
+          skipCount: 0,
+          maxItems:  1
+        }
+
+        this.searchService.searchByQueryBody(tab.searchRequest).subscribe(
           (nodePaging : NodePaging) => {
             tab.tabBadge = nodePaging.list.pagination.totalItems;
           },
@@ -65,15 +69,16 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
     this.selectedTaskId = null;
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
-    let options = Object.assign({}, currentTab.searchOptions);
-    options.skipCount = this.pagination.value.skipCount;
-    options.maxItems = this.pagination.value.maxItems;
 
-    this.searchService.getNodeQueryResults(currentTab.searchQuery, options).subscribe(
+    let searchRequest = currentTab.searchRequest;
+    searchRequest.paging = {
+      skipCount: this.pagination.value.skipCount,
+      maxItems:  this.pagination.value.maxItems
+    }
+
+    this.searchService.searchByQueryBody(searchRequest).subscribe(
       (nodePaging : NodePaging) => {
-        console.log("Query Result "+nodePaging.list.entries.length+ " skipCount "+currentTab.searchOptions.skipCount+" maxItems "+currentTab.searchOptions.maxItems+ " has more "+nodePaging.list.pagination.hasMoreItems);
         currentTab.tabBadge = nodePaging.list.pagination.totalItems;
-
         this.pagination.next({
           count: nodePaging.list.pagination.count,
           maxItems: nodePaging.list.pagination.maxItems,
@@ -81,7 +86,6 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
           totalItems: nodePaging.list.pagination.totalItems,
         });
 
-        console.log(nodePaging);
         let results: IMRBauTaskListEntry[] = [];
         let i:number = 0;
         for (var entry of nodePaging.list.entries) {
@@ -115,10 +119,9 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   {
     // set new tab
     this.selectedTab.setValue(event);
-    // reset pagination according to tab settings
     this.pagination.next({
       skipCount: 0,
-      maxItems: this.taskCategories[this.selectedTab.value].searchOptions.maxItems,
+      maxItems: this.pagination.value.maxItems,
     });
     // deselect object
     this.selectObject(null);
