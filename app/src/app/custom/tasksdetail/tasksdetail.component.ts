@@ -11,12 +11,12 @@ import { CONST } from '../mrbau-global-declarations';
 export class TasksdetailComponent implements OnInit {
   @Output() fileSelectEvent = new EventEmitter<string>();
   @Input()
-  set selectedRowId(val: string) {
-    this._selectedRowId = val;
+  set taskId(val: string) {
+    this._taskId = val;
     this.queryNewData();
   }
 
-  private _selectedRowId : string;
+  private _taskId : string;
   errorMessage: string = null;
   isLoading: boolean = false;
 
@@ -29,7 +29,7 @@ export class TasksdetailComponent implements OnInit {
 
   queryNewData()
   {
-    if (this.selectedRowId == null)
+    if (this.taskId == null)
     {
       this.fileSelectEvent.emit(null);
       return;
@@ -37,11 +37,11 @@ export class TasksdetailComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.contentService.getNode(this.selectedRowId).subscribe(
+    this.contentService.getNode(this.taskId).subscribe(
       (node: NodeEntry) => {
         if (CONST.isPdfDocument(node))
         {
-          this.fileSelectEvent.emit(this.contentService.getContentUrl(this.selectedRowId));
+          this.fileSelectEvent.emit(this.contentService.getContentUrl(this.taskId));
         }
         else
         {
@@ -54,19 +54,7 @@ export class TasksdetailComponent implements OnInit {
     );
   }
 
-  get selectedRowId(): string {
-    return this._selectedRowId;
+  get taskId(): string {
+    return this._taskId;
   }
-
-  getId() : string {
-    if (this._selectedRowId == null)
-    {
-      return null;
-    }
-    else
-    {
-      return this.selectedRowId;
-    }
-  }
-
 }

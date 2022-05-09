@@ -103,6 +103,7 @@ import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
 import { TasksTableComponent } from './custom/taskstable/taskstable.component';
 import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.component';
 import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
+import { MrbauFormComponent } from './custom/form/mrbau-form/mrbau-form.component';
 //import { GoogleChartsModule } from 'angular-google-charts';
 
 registerLocaleData(localeFr);
@@ -190,7 +191,8 @@ registerLocaleData(localeSv);
     PdfpreviewComponent,
     TasksTableComponent,
     TaskIndicatorComponent,
-    TasksdetailComponent
+    TasksdetailComponent,
+    MrbauFormComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

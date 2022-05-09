@@ -49,6 +49,7 @@ export class MRBauTask {
   public static readonly STATUS_FINISHED: -1;
 
   constructor(
+    private _id : string = null,
     private _category : EMRBauTaskCategory = EMRBauTaskCategory.Uninitialized,
     private _desc : string = "?",
     private _fullDescription ?: string,
@@ -60,6 +61,13 @@ export class MRBauTask {
     private _documentAssociations : Map<string, string> = new Map()
     )
   {
+  }
+
+  get id() {
+    return this._id;
+  }
+  set id(value : string) {
+    this._id = value;
   }
 
   get category() {
