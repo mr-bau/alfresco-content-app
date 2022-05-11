@@ -207,7 +207,7 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
 
         const [siteEntry, nodes] = await Promise.all([
           this.contentApi.getSite('foerdermanager').toPromise(),
-          this.contentApi.getNodeChildren(this.foerderungFolderId).toPromise()
+          this.contentApi.getNodeChildren(this.foerderungFolderId, {maxItems: 999, skipCount: 0}).toPromise()
         ]);
         this.siteTitle = siteEntry.entry.title;
         this.siteStatus =
