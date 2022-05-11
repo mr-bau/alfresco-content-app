@@ -4,7 +4,8 @@ import { SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
 import { IMRBauTasksCategory, IMRBauTaskListEntry} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
-import { NodePaging } from '@alfresco/js-api';
+import { NodePaging, SearchRequest } from '@alfresco/js-api';
+import { CONST } from'../mrbau-global-declarations';
 
 @Component({
   selector: 'aca-taskstable',
@@ -41,15 +42,17 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   {
     for (let i=0; i<this.taskCategories.length; i++)
     {
-      if (i != this.selectedTab.value)
+      //if (i != this.selectedTab.value)
       {
         let tab = this.taskCategories[i];
-        tab.searchRequest.paging = {
+        // deep copy object
+        let searchRequest : SearchRequest = JSON.parse(JSON.stringify(tab.searchRequest))
+        searchRequest.paging = {
           skipCount: 0,
           maxItems:  1
         }
-
-        this.searchService.searchByQueryBody(tab.searchRequest).subscribe(
+        searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
+        this.searchService.searchByQueryBody(searchRequest).subscribe(
           (nodePaging : NodePaging) => {
             tab.tabBadge = nodePaging.list.pagination.totalItems;
           },
@@ -78,7 +81,8 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
 
     this.searchService.searchByQueryBody(searchRequest).subscribe(
       (nodePaging : NodePaging) => {
-        currentTab.tabBadge = nodePaging.list.pagination.totalItems;
+        // use queryRemainingBadgeCounts
+        //currentTab.tabBadge = nodePaging.list.pagination.totalItems;
         this.pagination.next({
           count: nodePaging.list.pagination.count,
           maxItems: nodePaging.list.pagination.maxItems,

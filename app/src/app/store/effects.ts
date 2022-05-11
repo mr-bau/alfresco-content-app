@@ -34,3 +34,5 @@ export * from './effects/upload.effects';
 export * from './effects/upload.effects';
 export * from './effects/template.effects';
 export * from './effects/contextmenu.effects';
+
+export * from './effects/mrbau.effects';

@@ -85,16 +85,21 @@ import localeFi from '@angular/common/locales/fi';
 import localeDa from '@angular/common/locales/da';
 import localeSv from '@angular/common/locales/sv';
 
+// custom imports 3rd party
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule  } from '@angular/material/sort';
+import { MatPaginatorModule  } from '@angular/material/paginator';
+import { AngularSplitModule } from 'angular-split';
+import { NgxEchartsModule } from 'ngx-echarts';
+import 'echarts/theme/royal.js';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormlyMaterialModule } from '@ngx-formly/material';
+//import { MatStepperModule } from '@angular/material/stepper';
+
 // custom imports
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
 import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
 import { TestComponent } from './custom/test/test.component';
-import { MatTableModule } from '@angular/material/table';
-import { MatSortModule  } from '@angular/material/sort';
-import { MatPaginatorModule  } from '@angular/material/paginator';
-import { NgxEchartsModule } from 'ngx-echarts';
-import 'echarts/theme/royal.js';
-import { AngularSplitModule } from 'angular-split';
 import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
 import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
@@ -104,7 +109,8 @@ import { TasksTableComponent } from './custom/taskstable/taskstable.component';
 import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.component';
 import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
 import { MrbauFormComponent } from './custom/form/mrbau-form/mrbau-form.component';
-//import { GoogleChartsModule } from 'angular-google-charts';
+import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
+
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -168,7 +174,9 @@ registerLocaleData(localeSv);
        * please refer to [Custom Build] section.
        */
       echarts: () => import('echarts'), // or import('./path-to-my-custom-echarts')
-    })
+    }),
+    FormlyModule.forRoot(),
+    FormlyMaterialModule
   ],
   declarations: [
     AppComponent,
@@ -192,7 +200,8 @@ registerLocaleData(localeSv);
     TasksTableComponent,
     TaskIndicatorComponent,
     TasksdetailComponent,
-    MrbauFormComponent
+    MrbauFormComponent,
+    MrbauNewTaskDialogComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

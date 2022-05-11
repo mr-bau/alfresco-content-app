@@ -1,0 +1,65 @@
+$flex-width-base: 10rem;
+$toolbar-text-button-color: #d1ecf1;
+$toolbar-text-button-color-hover: #beebe5;
+
+
+.disable-flex-shrink {
+  flex-shrink: 0;
+}
+.toolbar-text-button {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  width: auto;
+  padding: 0 0.5rem;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.task-description {
+  //color: #0c5460;
+  //background-color: #d1ecf1;
+  //border-color: #bee5eb;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  border: 1px solid transparent;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  border-radius: .25rem;
+
+  background: whitesmoke;
+  border: 1px solid var(--theme-border-color);
+  color: var(--theme-text-color);
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content:space-around;
+  align-items:center;
+  gap: 10px 20px;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width:calc(#{$flex-width-base} * 1);
+}
+
+.flex-2 {
+  flex: 2;
+  min-width:calc(#{$flex-width-base} * 2);
+}
+
+.flex-3 {
+  flex: calc(#{$flex-width-base} * 3);
+}
+
+.flex-4 {
+  flex: calc(#{$flex-width-base} * 4);
+}
+
+.flex-5 {
+  flex: calc(#{$flex-width-base} * 5);
+}

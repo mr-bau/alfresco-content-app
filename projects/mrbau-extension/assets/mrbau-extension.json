@@ -29,8 +29,24 @@
     "layout": "app.layout.main",
     "auth": ["app.auth"]
   }
-],
-
+  ],
+  "actions": [
+    {
+        "id": "mrbau.extension.actions.navigate-test",
+        "type": "NAVIGATE_ROUTE",
+        "payload": "$(['/mrid/', '10'])"
+    },
+    {
+      "id": "mrbau.extension.actions.snakbar-test",
+      "type": "SNACKBAR_INFO",
+      "payload": "I'm a nice little popup raised by extension."
+    },
+    {
+      "id": "mrbau.extension.actions.new-task-dialog",
+      "type": "MRBAU_NEW_TASK_DIALOG",
+      "payload": "xxx test payload xxx"
+    }
+  ],
   "features": {
     "navbar": [
       {
@@ -49,6 +65,17 @@
           "route": "mrbau.extension.route.main"
         }
       ]
+    }
+  ],
+  "create": [
+    {
+        "id": "mrbau.extension.create.new-task",
+        "type": "default",
+        "icon": "build",
+        "title": "Aufgabe erstellen",
+        "actions": {
+          "click": "mrbau.extension.actions.new-task-dialog"
+        }
     }
   ]
 }
