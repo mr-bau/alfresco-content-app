@@ -1,7 +1,8 @@
 $flex-width-base: 10rem;
 $toolbar-text-button-color: #d1ecf1;
 $toolbar-text-button-color-hover: #beebe5;
-
+$flex-width-gap: 10px;
+$flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
 
 .disable-flex-shrink {
   flex-shrink: 0;
@@ -32,4 +33,33 @@ $toolbar-text-button-color-hover: #beebe5;
   background: whitesmoke;
   border: 1px solid var(--theme-border-color);
   color: var(--theme-text-color);
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content:space-around;
+  align-items:center;
+  gap: 0 #{$flex-width-gap};
+  width: #{$flex-container-width};
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 1 - #{$flex-width-gap}));
+}
+
+.flex-2 {
+  flex: 2;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 2 - #{$flex-width-gap}));
+}
+
+.flex-3 {
+  flex: 3;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 3 - #{$flex-width-gap}));
+}
+
+.flex-6 {
+  flex: 6;
+  min-width: #{$flex-container-width};
 }

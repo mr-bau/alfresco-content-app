@@ -9,7 +9,7 @@ import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 @Component({
   selector: 'aca-mrbau-form',
   templateUrl: './mrbau-form.component.html',
-  styleUrls: ['./mrbau-form.component.scss'],
+  styleUrls: ['../mrbau-form-global.scss', './mrbau-form.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 

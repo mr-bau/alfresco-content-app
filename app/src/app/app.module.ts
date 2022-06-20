@@ -67,7 +67,7 @@ import { environment } from '../environments/environment';
 import { DetailsComponent } from './components/details/details.component';
 import { ContentUrlService } from './services/content-url.service';
 
-import { registerLocaleData } from '@angular/common';
+import { DatePipe, registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import localeDe from '@angular/common/locales/de';
 import localeIt from '@angular/common/locales/it';
@@ -94,7 +94,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import 'echarts/theme/royal.js';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
-//import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepperModule } from '@angular/material/stepper';
 
 // custom imports
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
@@ -110,6 +110,7 @@ import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.c
 import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
 import { MrbauFormComponent } from './custom/form/mrbau-form/mrbau-form.component';
 import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
+import { MrbauFormlyNewTaskStepper, dateFutureValidator } from './custom/form/mrbau-stepper-validators';
 
 
 registerLocaleData(localeFr);
@@ -166,6 +167,7 @@ registerLocaleData(localeSv);
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatStepperModule,
     AngularSplitModule.forRoot(),
     NgxEchartsModule.forRoot({
       /**
@@ -175,7 +177,22 @@ registerLocaleData(localeSv);
        */
       echarts: () => import('echarts'), // or import('./path-to-my-custom-echarts')
     }),
-    FormlyModule.forRoot(),
+    FormlyModule.forRoot({
+      validators: [
+        {
+          name: 'date-future',
+          validation: dateFutureValidator,
+          options: { days: 0 },
+        },
+      ],
+      types: [
+        { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
+      ],
+      extras: {
+        checkExpressionOn: 'modelChange',
+        lazyRender: true
+        }
+      }),
     FormlyMaterialModule
   ],
   declarations: [
@@ -201,7 +218,8 @@ registerLocaleData(localeSv);
     TaskIndicatorComponent,
     TasksdetailComponent,
     MrbauFormComponent,
-    MrbauNewTaskDialogComponent
+    MrbauNewTaskDialogComponent,
+    MrbauFormlyNewTaskStepper
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },
@@ -217,7 +235,8 @@ registerLocaleData(localeSv);
     {
       provide: LOCALE_ID,
       useValue: 'de-AT' // 'de-DE' for Germany, 'fr-FR' for France ...
-    }
+    },
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

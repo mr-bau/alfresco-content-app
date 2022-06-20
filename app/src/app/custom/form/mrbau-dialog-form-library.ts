@@ -2,6 +2,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 
 export const enum MrbauDialogForms {
   NewTaskDialog,
+  TestDialog,
 }
 
 
@@ -12,61 +13,112 @@ export class MrbauDialogFormLibrary {
   }
 
   private static readonly DIALOG_FORM_MAP = new Map<number, FormlyFieldConfig[]>([
-  [
+    [
+      MrbauDialogForms.TestDialog, [
+        {
+          key: 'text',
+          type: 'input',
+          templateOptions: {
+            label: 'Text',
+            placeholder: 'Formly is terrific!',
+            required: true,
+          },
+        }
+      ],
+    ],
+    [
     MrbauDialogForms.NewTaskDialog, [
       {
         fieldGroupClassName: 'flex-container',
-        type: 'stepper',
+        type: 'newWorkflowStepper',
         fieldGroup: [
           {
-            templateOptions: { label: 'Personal data' },
+            templateOptions: { label: 'Art der Aufgabe' },
             fieldGroup: [
               {
-                key: 'firstname',
-                type: 'input',
+                className: 'flex-4',
+                key: 'type',
+                type: 'select',
                 templateOptions: {
-                  label: 'First name',
+                  label: 'Bitte eine Aufgabe auswählen',
+                  options: [
+                    {label: 'Eine Aufgabe sich selbst oder einem Kollegen zuweisen', value: '1002', group: 'Allgemeine Aufgaben'},
+                    {label: 'Überprüfen und Genehmigen', value: '1003', group: 'Allgemeine Aufgaben'},
+                    {label: 'Spezielle Aufgabe 1', value: '2001', group: 'Spezielle Aufgabe'},
+                    {label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
+                    {label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
+                  ],
                   required: true,
                 },
-              },
-              {
-                key: 'age',
-                type: 'input',
-                templateOptions: {
-                  type: 'number',
-                  label: 'Age',
-                  required: true,
-                },
-              },
+              }
             ],
           },
           {
-            templateOptions: { label: 'Destination' },
+            templateOptions: { label: 'Aufgaben Details' },
+            fieldGroupClassName: 'flex-container',
             fieldGroup: [
               {
-                key: 'country',
+                className: 'flex-5',
+                key: 'description',
                 type: 'input',
                 templateOptions: {
-                  label: 'Country',
+                  label: 'Aufgabe',
+                  description: 'Bezeichnung',
+                  maxLength: 100,
                   required: true,
                 },
               },
-            ],
-          },
-          {
-            templateOptions: { label: 'Day of the trip' },
-            fieldGroup: [
               {
-                key: 'day',
+                className: 'flex-5',
+                key: 'fullDescription',
+                type: 'textarea',
+                templateOptions: {
+                  label: 'Beschreibung',
+                  description: 'Beschreibung',
+                  maxLength: 250,
+                  required: false,
+                },
+              },
+              {
+                className: 'flex-1',
+                key: 'dueDate',
                 type: 'input',
                 templateOptions: {
+                  label: 'Fällig bis',
                   type: 'date',
-                  label: 'Day of the trip',
+                },
+                validators: {
+                  validation: ['date-future'],
+                },
+              },
+              {
+                className: 'flex-1',
+                key: 'priority',
+                type: 'select',
+                templateOptions: {
+                  label: 'Priorität',
+                  placeholder: 'Placeholder',
+                  description: 'Description',
                   required: true,
+                  options: [
+                    { value: 1, label: 'Hoch' },
+                    { value: 2, label: 'Mittel', default: true },
+                    { value: 3, label: 'Niedrig'  },
+                  ],
+                },
+              },
+              {
+                key: 'sport',
+                type: 'select',
+                templateOptions: {
+                  label: 'Sport',
+                  options: [],
+                  valueProp: 'id',
+                  labelProp: 'name',
                 },
               },
             ],
-          },
+          }
         ]
       }
     ]

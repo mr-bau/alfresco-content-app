@@ -1,7 +1,7 @@
 import { Component, OnInit   } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IMRBauTasksCategory} from '../mrbau-task-declarations';
-
+//import { MRBauTask } from '../mrbau-task-declarations';
 @Component({
   selector: 'aca-tasks',
   templateUrl: './tasks.component.html',
@@ -17,17 +17,18 @@ export class TasksComponent implements OnInit {
 
   taskCategories : IMRBauTasksCategory[] = [{
     tabIcon: 'description',
-    tabName: 'Eingang',
+    tabName: 'Tasks',
     tabBadge: 0,
     searchRequest: {
       // https://docs.alfresco.com/content-services/latest/develop/rest-api-guide/searching/
       // https://api-explorer.alfresco.com/api-explorer/?urls.primaryName=Search%20API#/search/search
       // https://angelborroy.wordpress.com/2018/05/30/alfresco-counting-more-than-1000-elements/
       query: {
-        query: '(cm:name:*oemag* or cm:name:*photo*) and +TYPE:\"cm:content\"',
+        //query: '(cm:name:*oemag* or cm:name:*photo*) and +TYPE:\"cm:content\"',
+        query: "cm:name:* and +TYPE:'mrbt:task'",
         language: 'afts'
       },
-      sort: [{type:"FIELD", field:"cm:name",  ascending:true}]
+      //sort: [{type:"FIELD", field:"cm:name",  ascending:true}]
       /*
       paging?: RequestPagination;   // "paging": { "maxItems": "50", "skipCount": "28" }
       limits?: RequestLimits;       // alternative to paging "limits": {  "permissionEvaluationTime": 20000,  "permissionEvaluationCount": 2000 }
