@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 //import { MrbauDialogFormLibrary, MrbauDialogForms } from '../../form/mrbau-dialog-form-library';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PeopleContentService,PeopleContentQueryResponse, EcmUserModel, NodesApiService} from '@alfresco/adf-core';
-import { MRBauTask } from '../../mrbau-task-declarations';
+import { MRBauTask, EMRBauTaskCategory} from '../../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
 import { isDevMode } from '@angular/core';
 
@@ -52,7 +52,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
     if (isDevMode()) {
       this.model.assignedUser = "Wolfgang Moser";
       this.model.description = "Test-Aufgabe ";
-      this.model.category = "1003";
+      this.model.category = EMRBauTaskCategory.CommonTaskGeneral;
       //this.model.dueDate = "";
     }
   }
@@ -68,7 +68,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
     this.loaderVisible = true;
     this.errorMessage = null;
 
-    const promiseGetParentId = this.contentApi.getNodeInfo('-root-', { includeSource: true, include: ['path', 'properties'], relativePath: '/Aufgaben' }).toPromise();
+    const promiseGetParentId = this.contentApi.getNodeInfo('-root-', { includeSource: true, include: ['path', 'properties'], relativePath: MRBauTask.TASK_RELATIVE_ROOT_PATH }).toPromise();
     const promiseGetPeople = this.peopleService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "id", direction: "ASC"}}).toPromise();
     const allPromise = Promise.all([promiseGetParentId, promiseGetPeople]);
 
@@ -81,7 +81,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
         this.people.push(entry);
       }
 
-      this.fields = this.fieldsFinal;
+      this.fields = JSON.parse(JSON.stringify(this.fieldsMain));
       this.loaderVisible = false;
 
         // TODO remove: list all childs from Aufgaben folder
@@ -143,13 +143,26 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
   modelChangeEvent()
   {
-    if (this.model['type'])
+    if (this.model['category'])
     {
-      console.log(this.model['type']);
+      //console.log(this.model['category']);
+      const cat = this.model['category'];
+      let newFieldGroup = this.fieldGroupTBD;
+      if (cat > EMRBauTaskCategory.CommonTaskStart && cat < EMRBauTaskCategory.CommonTaskLast)
+      {
+        newFieldGroup = this.fieldGroupCommonTasks;
+      }
+      else if (cat > EMRBauTaskCategory.InvoiceAuditStart && cat < EMRBauTaskCategory.InvoiceAuditLast)
+      {}
+      else if (cat > EMRBauTaskCategory.NewDocumentStart && cat < EMRBauTaskCategory.NewDocumentLast)
+      {}
+
+      this.fieldsMain[0].fieldGroup[1].fieldGroup = newFieldGroup;
+      this.fields = JSON.parse(JSON.stringify(this.fieldsMain));
     }
   }
 
-  fieldsFinal: FormlyFieldConfig[] = [
+  fieldsMain: FormlyFieldConfig[] = [
     {
       fieldGroupClassName: 'flex-container',
       type: 'newWorkflowStepper',
@@ -164,8 +177,10 @@ export class MrbauNewTaskDialogComponent implements OnInit {
               templateOptions: {
                 label: 'Aufgabe auswählen',
                 options: [
-                  {label: 'Eine Aufgabe sich selbst oder einem Kollegen zuweisen', value: '1002', group: 'Allgemeine Aufgaben'},
-                  {label: 'Überprüfen und Genehmigen', value: '1003', group: 'Allgemeine Aufgaben'},
+                  {label: 'Eine Aufgabe sich selbst oder einem Kollegen zuweisen', value: EMRBauTaskCategory.CommonTaskGeneral, group: 'Allgemeine Aufgaben'},
+                  {label: 'Zur Information übermitteln', value: EMRBauTaskCategory.CommonTaskInfo, group: 'Allgemeine Aufgaben'},
+                  {label: 'Überprüfen und genehmigen (ein Überprüfer)', value: EMRBauTaskCategory.CommonTaskApprove, group: 'Allgemeine Aufgaben'},
+
                   {label: 'Spezielle Aufgabe 1', value: '2001', group: 'Spezielle Aufgabe'},
                   {label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
                   {label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
@@ -178,71 +193,74 @@ export class MrbauNewTaskDialogComponent implements OnInit {
         {
           templateOptions: { label: 'Aufgaben Details' },
           fieldGroupClassName: 'flex-container',
-          fieldGroup: [
-            {
-              className: 'flex-6',
-              key: 'description',
-              type: 'input',
-              templateOptions: {
-                label: 'Aufgabe',
-                description: 'Bezeichnung',
-                maxLength: 100,
-                required: true,
-              },
-            },
-            {
-              className: 'flex-6',
-              key: 'fullDescription',
-              type: 'textarea',
-              templateOptions: {
-                label: 'Beschreibung',
-                description: 'Beschreibung',
-                maxLength: 250,
-                required: false,
-              },
-            },
-            {
-              className: 'flex-2',
-              key: 'dueDate',
-              type: 'input',
-              templateOptions: {
-                label: 'Fällig bis',
-                type: 'date',
-              },
-              validators: {
-                validation: ['date-future'],
-              },
-            },
-            {
-              className: 'flex-2',
-              key: 'priority',
-              type: 'select',
-              templateOptions: {
-                label: 'Priorität',
-                placeholder: 'Placeholder',
-                required: true,
-                options: [
-                  { value: 1, label: 'Hoch' },
-                  { value: 2, label: 'Mittel', default: true },
-                  { value: 3, label: 'Niedrig'  },
-                ],
-              },
-            },
-            {
-              className: 'flex-2',
-              key: 'assignedUser',
-              type: 'select',
-              templateOptions: {
-                label: 'Mitarbeiter',
-                options: this.people,
-                valueProp: 'id',
-                labelProp: 'displayName',
-                required: true,
-              },
-            },
-          ],
+          fieldGroup: [],
         }
       ]
     }
+  ];
+
+  fieldGroupTBD = [];
+  fieldGroupCommonTasks = [
+    {
+      className: 'flex-6',
+      key: 'description',
+      type: 'input',
+      templateOptions: {
+        label: 'Aufgabe',
+        description: 'Bezeichnung',
+        maxLength: 100,
+        required: true,
+      },
+    },
+    {
+      className: 'flex-6',
+      key: 'fullDescription',
+      type: 'textarea',
+      templateOptions: {
+        label: 'Beschreibung',
+        description: 'Beschreibung',
+        maxLength: 250,
+        required: false,
+      },
+    },
+    {
+      className: 'flex-2',
+      key: 'dueDate',
+      type: 'input',
+      templateOptions: {
+        label: 'Fällig bis',
+        type: 'date',
+      },
+      validators: {
+        validation: ['date-future'],
+      },
+    },
+    {
+      className: 'flex-2',
+      key: 'priority',
+      type: 'select',
+      templateOptions: {
+        label: 'Priorität',
+        placeholder: 'Placeholder',
+        required: true,
+        options: [
+          { value: 1, label: 'Hoch' },
+          { value: 2, label: 'Mittel', default: true },
+          { value: 3, label: 'Niedrig'  },
+        ],
+      },
+    },
+    {
+      className: 'flex-2',
+      key: 'assignedUser',
+      type: 'select',
+      templateOptions: {
+        label: 'Mitarbeiter',
+        options: this.people,
+        valueProp: 'id',
+        labelProp: 'displayName',
+        required: true,
+      },
+    },
   ];
 }

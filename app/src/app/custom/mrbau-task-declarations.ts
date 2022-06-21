@@ -6,9 +6,9 @@ export enum EMRBauTaskCategory {
   Uninitialized     =   0,
 
   CommonTaskStart   = 1000,
-  CommonTaskInfo    = 1001,
-  CommonTaskGeneral = 1002,
-  CommonTaskApprove = 1003,
+  CommonTaskGeneral = 1001, // Eine neue Aufgabe sich selbst oder einen Kollegen zuweisen
+  CommonTaskInfo    = 1002, // Zur Information übermitteln
+  CommonTaskApprove = 1003, // Überprüfen und genehmigen (ein Überprüfer)
   //...
   CommonTaskLast    = 1999,
 
@@ -23,11 +23,20 @@ export enum EMRBauTaskCategory {
   InvoiceAuditLast  = 3999,
 }
 
+export enum EMRBauTaskStatus {
+  STATUS_NEW         = -1,
+  STATUS_IN_PROGRESS = 100,
+  STATUS_ON_HOLD     = 101,
+
+
+  STATUS_FINISHED    = 9000,
+  STATUS_CANCELED    = 9001
+}
+
 export interface IMRBauTaskListEntry {
-  id:string;
+  task:MRBauTask;
   desc:string;
   createdUser:string;
-  assignedUser:string;
   createdDate: Date;
   dueDate: Date;
   status: number;
@@ -49,19 +58,21 @@ export class MRBauTaskCategoryPipe implements PipeTransform {
 
 @Pipe({name: 'mrbauTaskStatus'})
 export class MRBauTaskStatusPipe implements PipeTransform {
-  transform(value: number): string {
+  transform(value: EMRBauTaskStatus): string {
     switch (value)
     {
-      case MRBauTask.STATUS_NEW: return "neu";
-      case MRBauTask.STATUS_FINISHED: return "erledigt";
+      case EMRBauTaskStatus.STATUS_NEW:         return "Neu";
+      case EMRBauTaskStatus.STATUS_IN_PROGRESS: return "In Bearbeitung";
+      case EMRBauTaskStatus.STATUS_ON_HOLD:     return "On Hold";
+      case EMRBauTaskStatus.STATUS_FINISHED:    return "Abgeschlossen";
+      case EMRBauTaskStatus.STATUS_CANCELED :   return "Abgebrochen";
     }
     return ""+value;
   }
 }
 
 export class MRBauTask {
-  public static readonly STATUS_NEW = -1;
-  public static readonly STATUS_FINISHED = 9000;
+  public static readonly TASK_RELATIVE_ROOT_PATH = "/Aufgaben";
   public static readonly NAMESPACE_URI = "http://www.mrbau.at/model/tasks/1.0";
   public static readonly NAMESPACE_PREFIX = "mrbt";
   public static readonly MRBT_TASK = "mrbt:task";
@@ -71,7 +82,7 @@ export class MRBauTask {
   id : string;
   category: EMRBauTaskCategory;
   desc: string; // description
-  status: number = MRBauTask.STATUS_NEW;
+  status: number = EMRBauTaskStatus.STATUS_NEW;
   documentAssociations: Map<string, string> = new Map();// map id -> Name
 
   fullDescription?: string; // long task description
@@ -84,7 +95,7 @@ export class MRBauTask {
     this.id = obj && obj.id || null;
     this.category = obj && obj.category || EMRBauTaskCategory.Uninitialized;
     this.desc =  obj && obj.desc || null;
-    this.status = obj && obj.status || MRBauTask.STATUS_NEW;
+    this.status = obj && obj.status || EMRBauTaskStatus.STATUS_NEW;
     this.documentAssociations = obj && obj.documentAssociations || new Map()
     this.fullDescription = obj && obj.fullDescription;
     this.createdUser = obj && obj.createdUser;

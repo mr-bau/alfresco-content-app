@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
-import { IMRBauTasksCategory, IMRBauTaskListEntry} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
 import { NodePaging, SearchRequest } from '@alfresco/js-api';
 import { CONST } from'../mrbau-global-declarations';
@@ -15,11 +15,11 @@ import { CONST } from'../mrbau-global-declarations';
 export class TasksTableComponent implements OnInit, PaginatedComponent {
   data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
   @Input() taskCategories : IMRBauTasksCategory[] = null;
-  @Output() taskSelectEvent = new EventEmitter<string>();
+  @Output() taskSelectEvent = new EventEmitter<MRBauTask>();
   isLoading : boolean = false;
   errorMessage : string = null;
   selectedTab = new FormControl(0);
-  selectedTaskId : string = null;
+  selectedTask : MRBauTask = null;
 
   pagination: BehaviorSubject<PaginationModel> = new BehaviorSubject<PaginationModel>({});
   paginationSizes = [5, 10, 25];
@@ -69,7 +69,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   {
     this.isLoading = true;
     this.errorMessage = null;
-    this.selectedTaskId = null;
+    this.selectedTask = null;
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
 
@@ -93,15 +93,17 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
         let results: IMRBauTaskListEntry[] = [];
 
         for (var entry of nodePaging.list.entries) {
+          let task = new MRBauTask();
+          task.updateWithNodeData(entry);
+
           let e : IMRBauTaskListEntry = {
-            id : entry.entry.id,
-            desc : entry.entry.properties["mrbt:description"],
+            task : task,
+            desc : task.desc,
             createdUser : entry.entry.createdByUser.displayName,
-            assignedUser : entry.entry.createdByUser.displayName,
             createdDate : entry.entry.createdAt,
             dueDate : entry.entry.properties["mrbt:dueDate"] ? entry.entry.properties["mrbt:dueDate"] : "",
             status : entry.entry.properties["mrbt:status"],
-            icon : 'material-icons://'+currentTab.tabIcon
+            icon : 'material-icons://'+currentTab.tabIcon,
           }
           results.push(
             e
@@ -135,17 +137,17 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   rowClicked( event : DataRowEvent)
   {
     let obj = event.value as DataRow;
-    let id = obj.getValue("id") as string;
-    if (id != this.selectedTaskId)
+    let task = obj.getValue("task") as MRBauTask;
+    if (task != this.selectedTask)
     {
-      this.selectObject(id);
+      this.selectObject(task);
     }
   }
 
-  selectObject(taskId : string | null)
+  selectObject(task : MRBauTask | null)
   {
-    this.selectedTaskId = taskId;
-    this.taskSelectEvent.emit(taskId);
+    this.selectedTask = task;
+    this.taskSelectEvent.emit(task);
   }
 
   sortingChanged( event )

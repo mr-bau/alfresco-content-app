@@ -4,7 +4,7 @@
       <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaLowerLeft]">
-      <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" [taskId]="selectedRowId"></aca-tasksdetail>
+      <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" [task]="selectedTask"></aca-tasksdetail>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaUpperRight]">
       <aca-pdfpreview [document_url]="document_url"></aca-pdfpreview>

@@ -1,7 +1,7 @@
 import { AuthenticationService } from '@alfresco/adf-core';
 import { Component, OnInit   } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { IMRBauTasksCategory} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, MRBauTask} from '../mrbau-task-declarations';
 //import { MRBauTask } from '../mrbau-task-declarations';
 @Component({
   selector: 'aca-tasks',
@@ -14,7 +14,7 @@ export class TasksComponent implements OnInit {
   SHOW_TOOLBAR : string = "#toolbar=1";
   document_url: SafeResourceUrl = null;
   private _remember_document_url : SafeResourceUrl = null;
-  selectedRowId: string = null;
+  selectedTask: MRBauTask = null;
 
   taskCategories : IMRBauTasksCategory[];
 
@@ -79,8 +79,8 @@ export class TasksComponent implements OnInit {
     this._remember_document_url = null;
   }
 
-  taskSelected(row : string) {
-    this.selectedRowId = row;
+  taskSelected(task : MRBauTask) {
+    this.selectedTask = task;
   }
 
   fileSelected(fileUrl : string)

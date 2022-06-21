@@ -1,29 +1,37 @@
-import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
-import { ContentService} from '@alfresco/adf-core';
-import { NodeEntry } from '@alfresco/js-api';
-import { CONST } from '../mrbau-global-declarations';
+import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { MRBauTask } from '../mrbau-task-declarations';
+import { MrbauTaskFormLibrary } from '../form/mrbau-task-form-library';
+import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 
 @Component({
   selector: 'aca-tasksdetail',
   templateUrl: './tasksdetail.component.html',
-  styleUrls: ['./tasksdetail.component.scss']
+  styleUrls: ['./tasksdetail.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class TasksdetailComponent implements OnInit {
   @Output() fileSelectEvent = new EventEmitter<string>();
-  task: MRBauTask = null;
   @Input()
-  set taskId(val: string) {
-    this._taskId = val;
-    this.task = null;
+  set task(val: MRBauTask) {
+    this._task = val;
     this.queryNewData();
   }
 
-  private _taskId : string;
+  private _task : MRBauTask = null;
   errorMessage: string = null;
   isLoading: boolean = false;
 
-  constructor(private contentService: ContentService) {
+  form = new FormGroup({});
+  model: any = {};
+  options: FormlyFormOptions = { } ;
+  fields : FormlyFieldConfig[] = [];
+
+  isTaskComplete : boolean =false;
+
+  constructor(private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -31,11 +39,14 @@ export class TasksdetailComponent implements OnInit {
 
   queryNewData()
   {
-    if (this.taskId == null)
+    if (this._task == null)
     {
       this.fileSelectEvent.emit(null);
       return;
     }
+    this.fields = MrbauTaskFormLibrary.getForm(this.task);
+    // TODO check associations and emit fileselect event
+    /*
     this.isLoading = true;
     this.errorMessage = null;
 
@@ -56,10 +67,63 @@ export class TasksdetailComponent implements OnInit {
       error => {
         console.log(error);
       }
-    );
+    );*/
   }
 
-  get taskId(): string {
-    return this._taskId;
+  get task(): MRBauTask {
+    return this._task;
   }
+
+  ngAfterViewInit(): void {
+    // check form validation
+    // workaround for error "Expression has changed after it was checked."
+    setTimeout(() => {
+      this.isTaskComplete = this.form.valid;
+    });
+    this.form.statusChanges.subscribe(res => {
+      this.isTaskComplete = ("VALID" === res as string);
+    })
+  }
+
+  getTaskDescription() : string {
+    return (this.task && this.task.fullDescription) ? this.task.fullDescription : "(keine weitere Beschreibung angegeben)";
+  }
+
+  onSubmitClicked(model) {
+    console.log(model);
+    this.openDialog();
+
+    this.task.createdUser.displayName
+    this.task.createdUser.id
+    this.task.createdDate
+  }
+
+  onDelegateClicked(model)
+  {
+    console.log(model);
+  }
+
+  openDialog()
+  {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+          title: 'Aufgabe deligieren',
+          message: 'Sind sie sicher?',
+          yesLabel: 'Deligieren',
+          noLabel: 'Abbrechen',      },
+      minWidth: '250px'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true)
+      {
+        console.log("OK")
+      }
+      else
+      {
+        console.log("false")
+      }
+    });
+  }
+
 }
