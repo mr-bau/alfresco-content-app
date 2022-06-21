@@ -91,19 +91,18 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
         });
 
         let results: IMRBauTaskListEntry[] = [];
-        let i:number = 0;
+
         for (var entry of nodePaging.list.entries) {
           let e : IMRBauTaskListEntry = {
             id : entry.entry.id,
-            desc : entry.entry.name,
+            desc : entry.entry.properties["mrbt:description"],
             createdUser : entry.entry.createdByUser.displayName,
             assignedUser : entry.entry.createdByUser.displayName,
             createdDate : entry.entry.createdAt,
-            dueDate : entry.entry.createdAt,
-            status : i++,
+            dueDate : entry.entry.properties["mrbt:dueDate"] ? entry.entry.properties["mrbt:dueDate"] : "",
+            status : entry.entry.properties["mrbt:status"],
             icon : 'material-icons://'+currentTab.tabIcon
           }
-          e.dueDate.setDate(e.createdDate.getDate() + 30);
           results.push(
             e
           );

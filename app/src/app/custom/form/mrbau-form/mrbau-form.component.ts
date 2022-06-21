@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { MRBauTask } from '../../mrbau-task-declarations';
 import { MrbauTaskFormLibrary } from '../mrbau-task-form-library';
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
@@ -14,7 +14,7 @@ import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 })
 
 export class MrbauFormComponent implements OnInit {
-  task: MRBauTask = null;
+  @Input() task: MRBauTask = null;
 
   form = new FormGroup({});
   model: any = {};
@@ -23,7 +23,6 @@ export class MrbauFormComponent implements OnInit {
 
   isTaskComplete : boolean =false;
   constructor(private dialog: MatDialog) {
-
   }
 
   ngOnInit(): void {
@@ -41,19 +40,16 @@ export class MrbauFormComponent implements OnInit {
   }
 
   getTaskDescription() : string {
-    if (this.task == null)
-    {
-      return "Please select a task to see details.";
-    }
-    else
-    {
-      return "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.";
-    }
+    return (this.task && this.task.fullDescription) ? this.task.fullDescription : "(keine weitere Beschreibung angegeben)";
   }
 
   onSubmitClicked(model) {
     console.log(model);
     this.openDialog();
+
+    this.task.createdUser.displayName
+    this.task.createdUser.id
+    this.task.createdDate
   }
 
   onDelegateClicked(model)

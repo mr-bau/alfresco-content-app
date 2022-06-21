@@ -1,39 +1,57 @@
-  <adf-toolbar *ngif="task != null" title="Task xyz">
-  <!--
-  <adf-toolbar-divider></adf-toolbar-divider>
-  [disabled]="!form.valid"
-  (click)="clickedDelegate()"
-  -->
-
-  <button mat-flat-button class="disable-flex-shrink" color="primary" matTooltip="Aufgabe abschließen" [disabled]="!isTaskComplete" (click)="onSubmitClicked(model)">
-    <mat-icon>done</mat-icon>Erledigen
-  </button>
-
-  <button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>more_vert</mat-icon>
-  </button>
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="onDelegateClicked(model)">
-        <mat-icon>send</mat-icon>
-        <span>Aufgabe deligieren</span>
+<div *ngIf="task != null; else noTask">
+  <adf-toolbar [title]="'Task: '+ this.task.desc">
+    <!--
+    <adf-toolbar-divider></adf-toolbar-divider>
+    [disabled]="!form.valid"
+    (click)="clickedDelegate()"
+    -->
+    <button mat-flat-button class="disable-flex-shrink" color="primary" matTooltip="Aufgabe abschließen" [disabled]="!isTaskComplete" (click)="onSubmitClicked(model)">
+      <mat-icon>done</mat-icon>Erledigen
     </button>
-    <button mat-menu-item disabled>
-        <mat-icon>message</mat-icon>
-        <span>tbd</span>
-    </button>
-    <button mat-menu-item disabled>
-        <mat-icon>mail</mat-icon>
-        <span>tbd</span>
-    </button>
-</mat-menu>
-</adf-toolbar>
 
-<div class="task-description">
-  {{getTaskDescription()}}
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="onDelegateClicked(model)">
+          <mat-icon>send</mat-icon>
+          <span>Aufgabe deligieren</span>
+      </button>
+      <button mat-menu-item disabled>
+          <mat-icon>message</mat-icon>
+          <span>tbd</span>
+      </button>
+      <button mat-menu-item disabled>
+          <mat-icon>mail</mat-icon>
+          <span>tbd</span>
+      </button>
+    </mat-menu>
+  </adf-toolbar>
+
+  <div class="task-description">
+    {{getTaskDescription()}}
+  </div>
+
+  <div class="task-details">
+    <p><i>Task Kategorie:</i>  {{this.task.category | mrbauTaskCategory}} ({{this.task.category}})</p>
+    <p><i>Erzeugt:</i> am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}} ({{this.task.createdUser.id}})</p>
+    <p><i>Zugewiesen:</i> {{this.task.assignedUser}}</p>
+    <p><i>Zu erledigen bis:</i> {{this.task.dueDate | date:'mediumDate'}}</p>
+    <p><i>Status:</i> {{this.task.status | mrbauTaskStatus}} ({{this.task.status}})</p>
+    <p><i>Verlinkte Dokumente:</i></p>
+    <ul><li>
+      <a href="">tbd</a>
+    </li></ul>
+  </div>
+
+  <form [formGroup]="form">
+    <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
+  </form>
 </div>
 
-<form [formGroup]="form">
-  <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
-</form>
-
+<ng-template #noTask>
+  <div class="task-description">
+    Please select a task to see details.
+  </div>
+</ng-template>
 

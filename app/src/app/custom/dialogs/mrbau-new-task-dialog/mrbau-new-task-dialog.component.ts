@@ -75,7 +75,6 @@ export class MrbauNewTaskDialogComponent implements OnInit {
     allPromise.then(values => {
       const node = values[0];
       this.taskParentFolderId = node.id;
-
       const response = values[1] as PeopleContentQueryResponse;
       for (let entry of response.entries)
       {
@@ -84,6 +83,24 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
       this.fields = this.fieldsFinal;
       this.loaderVisible = false;
+
+        // TODO remove: list all childs from Aufgaben folder
+        this.contentApi.getNodeChildren(this.taskParentFolderId, {maxItems: 999, skipCount: 0}).toPromise().then(nodePaging => {
+        for (let i=0; i<nodePaging.list.entries.length; i++ )
+        {
+          //let entry = nodePaging.list.entries[i].entry;
+          //console.log(entry.name);
+          //console.log(entry);
+          //if (!entry.properties["mrbt:assignedUser"])
+          //{
+          //  let x = {"name":"My new name", "properties" : {"mrbt:priority": "2"}};
+          //  this.contentApi.nodesApi.updateNode(entry.id, x)
+          //  .then(nodeEntry => console.log(nodeEntry))
+          //  .catch(error => console.log(error));
+          //}
+        }
+      });
+
     }).catch(error => {
       this.loaderVisible = false;
       this.errorMessage = "Error loading data. "+error;
@@ -92,7 +109,6 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
   onDialogClose(result : boolean)
   {
-    console.log(this.model);
     if (result)
     {
       //console.log(this.model);
@@ -109,6 +125,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
           "mrbt:category": ${this.model.category},
           "mrbt:priority": ${this.model.priority},
           "mrbt:description": "${this.model.description}",
+          "mrbt:assignedUser": "${this.model.assignedUser}",
           "mrbt:fullDescription": "${this.model.fullDescription ? this.model.fullDescription : ""}",
           "mrbt:dueDate": "${this.model.dueDate ? this.model.dueDate : ""}"
         }}`;

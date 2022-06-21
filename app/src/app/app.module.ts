@@ -111,7 +111,7 @@ import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component
 import { MrbauFormComponent } from './custom/form/mrbau-form/mrbau-form.component';
 import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauFormlyNewTaskStepper, dateFutureValidator } from './custom/form/mrbau-stepper-validators';
-
+import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -168,7 +168,7 @@ registerLocaleData(localeSv);
     MatSortModule,
     MatPaginatorModule,
     MatStepperModule,
-    AngularSplitModule.forRoot(),
+    AngularSplitModule,
     NgxEchartsModule.forRoot({
       /**
        * This will import all modules from echarts.
@@ -219,7 +219,9 @@ registerLocaleData(localeSv);
     TasksdetailComponent,
     MrbauFormComponent,
     MrbauNewTaskDialogComponent,
-    MrbauFormlyNewTaskStepper
+    MrbauFormlyNewTaskStepper,
+    MRBauTaskStatusPipe,
+    MRBauTaskCategoryPipe
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

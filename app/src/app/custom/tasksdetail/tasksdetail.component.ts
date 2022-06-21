@@ -2,6 +2,7 @@ import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { ContentService} from '@alfresco/adf-core';
 import { NodeEntry } from '@alfresco/js-api';
 import { CONST } from '../mrbau-global-declarations';
+import { MRBauTask } from '../mrbau-task-declarations';
 
 @Component({
   selector: 'aca-tasksdetail',
@@ -10,16 +11,17 @@ import { CONST } from '../mrbau-global-declarations';
 })
 export class TasksdetailComponent implements OnInit {
   @Output() fileSelectEvent = new EventEmitter<string>();
+  task: MRBauTask = null;
   @Input()
   set taskId(val: string) {
     this._taskId = val;
+    this.task = null;
     this.queryNewData();
   }
 
   private _taskId : string;
   errorMessage: string = null;
   isLoading: boolean = false;
-
 
   constructor(private contentService: ContentService) {
   }
@@ -39,7 +41,10 @@ export class TasksdetailComponent implements OnInit {
 
     this.contentService.getNode(this.taskId).subscribe(
       (node: NodeEntry) => {
-        if (CONST.isPdfDocument(node))
+        let newTask = new MRBauTask();
+        newTask.updateWithNodeData(node);
+        this.task = newTask;
+        if (false && CONST.isPdfDocument(node) )
         {
           this.fileSelectEvent.emit(this.contentService.getContentUrl(this.taskId));
         }

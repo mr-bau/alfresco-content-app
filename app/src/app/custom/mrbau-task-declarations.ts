@@ -1,4 +1,5 @@
-import { QueryBody } from '@alfresco/js-api';
+import { NodeEntry, QueryBody, UserInfo } from '@alfresco/js-api';
+import { Pipe, PipeTransform } from '@angular/core';
 
 // eslint-disable-next-line
 export enum EMRBauTaskCategory {
@@ -33,7 +34,30 @@ export interface IMRBauTaskListEntry {
   icon:string;
 }
 
+@Pipe({name: 'mrbauTaskCategory'})
+export class MRBauTaskCategoryPipe implements PipeTransform {
+  transform(value: number): string {
+    switch (value)
+    {
+      case EMRBauTaskCategory.CommonTaskInfo:  return "Info";
+      case EMRBauTaskCategory.CommonTaskGeneral: return "General";
+      case EMRBauTaskCategory.CommonTaskApprove: return "Approval";
+    }
+    return ""+value;
+  }
+}
 
+@Pipe({name: 'mrbauTaskStatus'})
+export class MRBauTaskStatusPipe implements PipeTransform {
+  transform(value: number): string {
+    switch (value)
+    {
+      case MRBauTask.STATUS_NEW: return "neu";
+      case MRBauTask.STATUS_FINISHED: return "erledigt";
+    }
+    return ""+value;
+  }
+}
 
 export class MRBauTask {
   public static readonly STATUS_NEW = -1;
@@ -51,7 +75,7 @@ export class MRBauTask {
   documentAssociations: Map<string, string> = new Map();// map id -> Name
 
   fullDescription?: string; // long task description
-  createdUser?: string; // currently assigned user
+  createdUser?: UserInfo; // currently assigned user
   createdDate?: Date;   // start date
   assignedUser?: string; // currently assigned user
   dueDate?: Date;
@@ -62,12 +86,30 @@ export class MRBauTask {
     this.desc =  obj && obj.desc || null;
     this.status = obj && obj.status || MRBauTask.STATUS_NEW;
     this.documentAssociations = obj && obj.documentAssociations || new Map()
-
     this.fullDescription = obj && obj.fullDescription;
     this.createdUser = obj && obj.createdUser;
     this.createdDate = obj && obj.createdDate;
     this.assignedUser = obj && obj.assignedUser;
     this.dueDate = obj && obj.dueDate;
+  }
+
+  public updateWithNodeData(node: NodeEntry){
+    this.id = node.entry.id;
+    this.category = node.entry.properties["mrbt:category"];
+    this.desc = node.entry.properties["mrbt:description"];
+    this.status = node.entry.properties["mrbt:status"];
+    this.fullDescription = node.entry.properties["mrbt:fullDescription"] ? node.entry.properties["mrbt:fullDescription"] : null;
+    this.createdUser = node.entry.createdByUser;
+    this.createdDate = node.entry.createdAt;
+    this.assignedUser = node.entry.properties["mrbt:assignedUser"];
+    this.dueDate = node.entry.properties["mrbt:dueDate"] ? node.entry.properties["mrbt:dueDate"] : null;
+
+    //console.log(node.entry.properties["mrbt:associatedDocument"]);
+
+    // kept in sync with mrbt:associatedDocument via automation
+    // identical order as mrbt:associatedDocument
+    //console.log(node.entry.properties["mrbt:associatedDocumentName"]);
+
 
   }
 }
