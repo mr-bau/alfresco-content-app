@@ -14,14 +14,14 @@ FROM acosix/baseimage:20220603 as appBuilder
 RUN install_clean nodejs npm \
   && mkdir -p /srv/alfresco-content-app
 
-COPY package.json package-lock.json /srv/alfresco-content-app
+COPY package.json package-lock.json /srv/alfresco-content-app/
 RUN cd /srv/alfresco-content-app \
   && npm install
 
 COPY app /srv/alfresco-content-app/app
 COPY projects /srv/alfresco-content-app/projects
 COPY tools /srv/alfresco-content-app/tools
-COPY .prettierrc .prettierignore .eslintrc.json alfresco.png angular.json cspell.json extension.schema.json karma.conf.js protractor.conf.js tsconfig.json tslint.json /srv/alfresco-content-app
+COPY .prettierrc .prettierignore .eslintrc.json alfresco.png angular.json cspell.json extension.schema.json karma.conf.js protractor.conf.js tsconfig.json tslint.json /srv/alfresco-content-app/
 RUN cd /srv/alfresco-content-app \
   && mkdir -p app/.tmp \
   && npm run build:mrbau-extension \
