@@ -2,6 +2,10 @@ import { NodeEntry } from '@alfresco/js-api';
 
 export class CONST {
 
+  public static readonly MAX_LENGTH_TASK_DESC:  number = 500;
+  public static readonly MAX_LENGTH_TASK_FULL_DESC:  number = 500;
+  public static readonly MAX_LENGTH_COMMENT:  number = 500;
+
   public static readonly DMS_SERVER_URL:       string = "https://mrdms01.mrbau.at";
 
   public static readonly CM_DESC:               string = "cm:description";

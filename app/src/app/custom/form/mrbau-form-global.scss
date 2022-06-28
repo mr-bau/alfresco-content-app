@@ -7,6 +7,12 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
 .disable-flex-shrink {
   flex-shrink: 0;
 }
+
+.adf-toolbar {
+  //color: var(--theme-text-color);
+  color: rgba(0, 0, 0, 0.87);
+}
+
 .toolbar-text-button {
   border: 1px solid transparent;
   border-radius: .25rem;
@@ -16,33 +22,43 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   border-color: #bee5eb;
 }
 
-.task-description {
-  //color: #0c5460;
-  //background-color: #d1ecf1;
-  //border-color: #bee5eb;
+.addMarginTop{
+  margin-top: 1rem;
+}
+
+.task-infobox, .task-description, .task-formbox, .task-history, .task-linked-docs {
   padding: .75rem 1.25rem;
   margin-bottom: 1rem;
   margin-top: 1rem;
-  border: 1px solid transparent;
-  border-top-color: transparent;
-  border-right-color: transparent;
-  border-bottom-color: transparent;
-  border-left-color: transparent;
   border-radius: .25rem;
-
   background: whitesmoke;
   border: 1px solid var(--theme-border-color);
-  color: var(--theme-text-color);
+  color: rgba(0, 0, 0, 0.87);
+}
+.task-infobox {
+  display: flex;
 }
 
-.flex-container {
+.flex-container, .flex-container-min-width {
   display: flex;
   flex-flow: row wrap;
   justify-content:space-around;
   align-items:center;
   gap: 0 #{$flex-width-gap};
+}
+
+.flex-container-min-width {
   width: #{$flex-container-width};
 }
+
+.tasks-detail-main {
+  margin: 10px;
+}
+
+.status {
+  font-size: smaller;
+}
+
 
 .flex-1 {
   flex: 1;
@@ -62,4 +78,8 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
 .flex-6 {
   flex: 6;
   min-width: #{$flex-container-width};
+}
+
+textarea.mat-input-element.cdk-textarea-autosize {
+  resize: vertical;
 }

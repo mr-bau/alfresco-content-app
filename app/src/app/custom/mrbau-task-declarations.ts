@@ -1,8 +1,47 @@
 import { NodeEntry, QueryBody, UserInfo } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
 
-// eslint-disable-next-line
-export enum EMRBauTaskCategory {
+
+
+export const enum EMRBauTaskStatus {
+  STATUS_NEW         = 0,
+  STATUS_IN_PROGRESS = 100,
+  STATUS_ON_HOLD     = 101,
+
+  STATUS_FINISHED    = 9000,
+  STATUS_CANCELED    = 9001
+}
+
+export const MRBauTaskStatusNames =
+[
+  {label: 'Neu', value: EMRBauTaskStatus.STATUS_NEW},
+  {label: 'In Bearbeitung', value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
+  {label: 'On Hold', value: EMRBauTaskStatus.STATUS_ON_HOLD},
+  {label: 'Abgeschlossen', value: EMRBauTaskStatus.STATUS_FINISHED},
+  {label: 'Abgebrochen', value: EMRBauTaskStatus.STATUS_CANCELED},
+]
+
+export const MRBauTaskStatusNamesReduced =
+[
+  {label: 'In Bearbeitung', value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
+  {label: 'On Hold', value: EMRBauTaskStatus.STATUS_ON_HOLD},
+]
+
+@Pipe({name: 'mrbauTaskStatus'})
+export class MRBauTaskStatusPipe implements PipeTransform {
+  transform(value: EMRBauTaskStatus): string {
+    for (const val in MRBauTaskStatusNames)
+    {
+      if (MRBauTaskStatusNames[val].value == value)
+      {
+        return MRBauTaskStatusNames[val].label;
+      }
+    }
+    return value.toString();
+  }
+}
+
+export const enum EMRBauTaskCategory {
   Uninitialized     =   0,
 
   CommonTaskStart   = 1000,
@@ -23,14 +62,18 @@ export enum EMRBauTaskCategory {
   InvoiceAuditLast  = 3999,
 }
 
-export enum EMRBauTaskStatus {
-  STATUS_NEW         = -1,
-  STATUS_IN_PROGRESS = 100,
-  STATUS_ON_HOLD     = 101,
+export const MRBauTaskCategoryNames = {
+  1001 : "General",
+  1002 : "Info",
+  1003 : "Approval"
+};
 
 
-  STATUS_FINISHED    = 9000,
-  STATUS_CANCELED    = 9001
+@Pipe({name: 'mrbauTaskCategory'})
+export class MRBauTaskCategoryPipe implements PipeTransform {
+  transform(value: EMRBauTaskCategory): string {
+    return MRBauTaskCategoryNames[value] ? MRBauTaskCategoryNames[value] : value.toString();
+  }
 }
 
 export interface IMRBauTaskListEntry {
@@ -39,37 +82,10 @@ export interface IMRBauTaskListEntry {
   createdUser:string;
   createdDate: Date;
   dueDate: Date;
-  status: number;
   icon:string;
+  status: EMRBauTaskStatus;
 }
 
-@Pipe({name: 'mrbauTaskCategory'})
-export class MRBauTaskCategoryPipe implements PipeTransform {
-  transform(value: number): string {
-    switch (value)
-    {
-      case EMRBauTaskCategory.CommonTaskInfo:  return "Info";
-      case EMRBauTaskCategory.CommonTaskGeneral: return "General";
-      case EMRBauTaskCategory.CommonTaskApprove: return "Approval";
-    }
-    return ""+value;
-  }
-}
-
-@Pipe({name: 'mrbauTaskStatus'})
-export class MRBauTaskStatusPipe implements PipeTransform {
-  transform(value: EMRBauTaskStatus): string {
-    switch (value)
-    {
-      case EMRBauTaskStatus.STATUS_NEW:         return "Neu";
-      case EMRBauTaskStatus.STATUS_IN_PROGRESS: return "In Bearbeitung";
-      case EMRBauTaskStatus.STATUS_ON_HOLD:     return "On Hold";
-      case EMRBauTaskStatus.STATUS_FINISHED:    return "Abgeschlossen";
-      case EMRBauTaskStatus.STATUS_CANCELED :   return "Abgebrochen";
-    }
-    return ""+value;
-  }
-}
 
 export class MRBauTask {
   public static readonly TASK_RELATIVE_ROOT_PATH = "/Aufgaben";
@@ -78,7 +94,7 @@ export class MRBauTask {
   public static readonly MRBT_TASK = "mrbt:task";
   public static readonly MRBT_TASK_FOLDER = "mrbt:tasksFolder";
   public static readonly ASPECT_MRBT_TASK_CORE_DETAILS ="mrbt:taskCoreDetails";
-
+  public static readonly DEFAULT_TASK_DURATION = 14;
   id : string;
   category: EMRBauTaskCategory;
   desc: string; // description
@@ -120,8 +136,6 @@ export class MRBauTask {
     // kept in sync with mrbt:associatedDocument via automation
     // identical order as mrbt:associatedDocument
     //console.log(node.entry.properties["mrbt:associatedDocumentName"]);
-
-
   }
 }
 

@@ -108,10 +108,12 @@ import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
 import { TasksTableComponent } from './custom/taskstable/taskstable.component';
 import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.component';
 import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
-import { MrbauFormComponent } from './custom/form/mrbau-form/mrbau-form.component';
 import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauFormlyNewTaskStepper, dateFutureValidator } from './custom/form/mrbau-stepper-validators';
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
+import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
+import { MrbauBaseTaskDialogComponent } from './custom/dialogs/mrbau-base-task-dialog/mrbau-base-task-dialog.component';
+import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -217,11 +219,13 @@ registerLocaleData(localeSv);
     TasksTableComponent,
     TaskIndicatorComponent,
     TasksdetailComponent,
-    MrbauFormComponent,
     MrbauNewTaskDialogComponent,
     MrbauFormlyNewTaskStepper,
     MRBauTaskStatusPipe,
-    MRBauTaskCategoryPipe
+    MRBauTaskCategoryPipe,
+    MrbauDelegateTaskDialogComponent,
+    MrbauBaseTaskDialogComponent,
+    TaskVersionlistComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

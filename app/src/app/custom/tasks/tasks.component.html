@@ -1,10 +1,10 @@
 <div id="main">
   <aca-splitpane (dragStartEvent)="dragStartEvent()" (dragEndEvent)="dragEndEvent()">
     <ng-container ngProjectAs="[splitAreaUpperLeft]">
-      <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
+      <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" [taskUpdateEvent]="modifiedTask" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaLowerLeft]">
-      <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" [task]="selectedTask"></aca-tasksdetail>
+      <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" [task]="selectedTask"></aca-tasksdetail>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaUpperRight]">
       <aca-pdfpreview [document_url]="document_url"></aca-pdfpreview>

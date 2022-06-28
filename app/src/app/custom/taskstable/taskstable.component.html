@@ -38,8 +38,9 @@
         </data-column>
         <data-column
           key="status"
+
           type="image"
-          class="adf-desktop-only adf-expand-cell-1"
+          class="adf-desktop-only adf-expand-cell-2"
           [sortable]="true">
           <ng-template let-entry="$implicit">
             <aca-task-indicator [status]="entry.data.getValue(entry.row, entry.col)"></aca-task-indicator>

@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
-import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
 import { NodePaging, SearchRequest } from '@alfresco/js-api';
 import { CONST } from'../mrbau-global-declarations';
@@ -13,9 +13,24 @@ import { CONST } from'../mrbau-global-declarations';
   styleUrls: ['./taskstable.component.scss']
 })
 export class TasksTableComponent implements OnInit, PaginatedComponent {
-  data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
+  @Input()
+  set taskUpdateEvent(task:MRBauTask) {
+    if (task)
+    {
+      if (task.status >= EMRBauTaskStatus.STATUS_FINISHED)
+      {
+        // deselect object
+        this.selectObject(null);
+        //this.selectedTab.setValue();
+      }
+      // load data
+      this.queryNewData();
+    }
+  }
   @Input() taskCategories : IMRBauTasksCategory[] = null;
   @Output() taskSelectEvent = new EventEmitter<MRBauTask>();
+
+  data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
   isLoading : boolean = false;
   errorMessage : string = null;
   selectedTab = new FormControl(0);
@@ -40,7 +55,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
 
   queryRemainingBadgeCounts()
   {
-    for (let i=0; i<this.taskCategories.length; i++)
+    for (let i=0; i<this.taskCategories.length-1; i++)
     {
       //if (i != this.selectedTab.value)
       {
@@ -101,9 +116,9 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
             desc : task.desc,
             createdUser : entry.entry.createdByUser.displayName,
             createdDate : entry.entry.createdAt,
-            dueDate : entry.entry.properties["mrbt:dueDate"] ? entry.entry.properties["mrbt:dueDate"] : "",
-            status : entry.entry.properties["mrbt:status"],
+            dueDate : entry.entry.properties["mrbt:dueDate"],
             icon : 'material-icons://'+currentTab.tabIcon,
+            status: task.status,
           }
           results.push(
             e

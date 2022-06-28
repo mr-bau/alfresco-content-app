@@ -1,4 +1,4 @@
-import { MRBauTask } from '../mrbau-task-declarations';
+import { MRBauTask, MRBauTaskStatusNamesReduced,  } from '../mrbau-task-declarations';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 
@@ -11,148 +11,51 @@ export const enum MrbauTaskForms {
 
 export class MrbauTaskFormLibrary {
 
-  static getFormEnumByTask(task : MRBauTask) : MrbauTaskForms
-  {
-    if (task == null)
-    {
-      return MrbauTaskForms.FORM_CONFIG_EMPTY;
-    }
-    return MrbauTaskForms.FORM_CONFIG_TEST;
-  }
-
   static getForm(task : MRBauTask) : FormlyFieldConfig[]
   {
-    const taskForm = this.getFormEnumByTask(task);
-    return this.getFormlyFieldConfig(taskForm);
+    if (task)
+    {
+      switch (task.category)
+      {
+        default:
+          return this.formTest;
+      }
+    }
+    return [];
   }
 
-  static getFormlyFieldConfig(type : MrbauTaskForms) : FormlyFieldConfig[]
-  {
-    return this.TASK_FORM_MAP.get(type);
-  }
+  private static formTest : FormlyFieldConfig[] = [
+    {
+      fieldGroupClassName: 'flex-container',
+      fieldGroup: [
+        {
+          className: 'flex-1',
+          type: 'select',
+          key: 'status',
+          templateOptions: {
+            label: 'Status',
+            options: MRBauTaskStatusNamesReduced
+          },
+        }
 
-  private static readonly TASK_FORM_MAP = new Map<number, FormlyFieldConfig[]>([
-    [MrbauTaskForms.FORM_CONFIG_EMPTY, [] ],
-    [MrbauTaskForms.FORM_CONFIG_TEST, [
-      {
-        fieldGroupClassName: 'flex-container',
-        fieldGroup: [
-          {
-            className: 'flex-1',
-            type: 'input',
-            key: 'firstName',
-            templateOptions: {
-              label: 'First Name',
-            },
-          },
-          {
-            className: 'flex-1',
-            type: 'input',
-            key: 'lastName',
-            templateOptions: {
-              label: 'Last Name',
-            },
-            expressionProperties: {
-              'templateOptions.disabled': '!model.firstName',
-            },
-          },
-        ],
-      },
-    ] ],
-    [MrbauTaskForms.FORM_CONFIG_TEST2, [
-      {
-        fieldGroupClassName: 'flex-container',
-        fieldGroup: [
-          {
-            className: 'flex-1',
-            type: 'input',
-            key: 'firstName',
-            templateOptions: {
-              label: 'First Name',
-            },
+      ],
+    },
+    {
+      fieldGroupClassName: 'flex-container',
+      fieldGroup: [
+        {
+          className: 'flex-1',
+          key: 'comment',
+          type: 'textarea',
+          templateOptions: {
+            label: 'Neuer Kommentar',
+            description: 'Kommentar',
+            lines: 10
           }
-        ],
-      },
-    ] ],
-    [MrbauTaskForms.FORM_CONFIG_TEST3, [
-      {
-      fieldGroupClassName: 'flex-container',
-      fieldGroup: [
-        {
-          className: 'flex-1',
-          type: 'input',
-          key: 'firstName',
-          templateOptions: {
-            label: 'First Name',
-          },
-        },
-        {
-          className: 'flex-1',
-          type: 'input',
-          key: 'lastName',
-          templateOptions: {
-            label: 'Last Name',
-          },
-          expressionProperties: {
-            'templateOptions.disabled': '!model.firstName',
-          },
-        },
+        }
       ],
-      },
-      {
-      template: '<hr /><div><strong>Address:</strong></div>',
-      },
-      {
-      fieldGroupClassName: 'flex-container',
-      fieldGroup: [
-        {
-          className: 'flex-2',
-          type: 'input',
-          key: 'street',
-          templateOptions: {
-            label: 'Street',
-          },
-        },
-        {
-          className: 'flex-1',
-          type: 'input',
-          key: 'cityName',
-          templateOptions: {
-            label: 'City',
-          },
-        },
-        {
-          className: 'flex-1',
-          type: 'input',
-          key: 'zip',
-          templateOptions: {
-            type: 'number',
-            label: 'Zip',
-            max: 99999,
-            min: 0,
-            required: true,
-            pattern: '\\d{5}',
-          },
-        },
-      ],
-      },
-      {
-      template: '<hr />',
-      },
-      {
-      type: 'input',
-      key: 'otherInput',
-      templateOptions: {
-        label: 'Other Input',
-      },
-      },
-      {
-      type: 'checkbox',
-      key: 'otherToo',
-      templateOptions: {
-        label: 'Other Checkbox',
-      },
-      },
-      ] ],
-  ]);
+    }
+  ];
+
 }
+

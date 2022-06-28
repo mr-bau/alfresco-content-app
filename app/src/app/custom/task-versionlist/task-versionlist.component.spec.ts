@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MrbauFormComponent } from './mrbau-form.component';
+import { TaskVersionlistComponent } from './task-versionlist.component';
 
-describe('MrbauFormComponent', () => {
-  let component: MrbauFormComponent;
-  let fixture: ComponentFixture<MrbauFormComponent>;
+describe('TaskVersionlistComponent', () => {
+  let component: TaskVersionlistComponent;
+  let fixture: ComponentFixture<TaskVersionlistComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MrbauFormComponent ]
+      declarations: [ TaskVersionlistComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MrbauFormComponent);
+    fixture = TestBed.createComponent(TaskVersionlistComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

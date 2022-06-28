@@ -9,6 +9,7 @@ import { PeopleContentService,PeopleContentQueryResponse, EcmUserModel, NodesApi
 import { MRBauTask, EMRBauTaskCategory} from '../../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
 import { isDevMode } from '@angular/core';
+import { CONST } from '../../mrbau-global-declarations';
 
 @Component({
   selector: 'aca-mrbau-new-task-dialog',
@@ -22,9 +23,9 @@ import { isDevMode } from '@angular/core';
       </form>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-button mat-dialog-close>ABBRECHEN</button>
     <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
-    <button mat-button [mat-dialog-close]="true" [disabled]="this.form.invalid && !this.errorMessage">ERSTELLEN</button>
+    <button mat-button color="primary" [mat-dialog-close]="true" [disabled]="formIsInValid()">ERSTELLEN</button>
+    <button mat-button mat-dialog-close>ABBRECHEN</button>
   </mat-dialog-actions>
   `,
   styleUrls: ['../mrbau-dialog-global.scss', '../../form/mrbau-form-global.scss',],
@@ -40,19 +41,24 @@ export class MrbauNewTaskDialogComponent implements OnInit {
   fields : FormlyFieldConfig[] = [ { } ];
   people: EcmUserModel[] = [];
   taskParentFolderId: string;
+  private _oldCategory : EMRBauTaskCategory = null;
 
-  constructor(private contentApi : ContentApiService,private nodeService: NodesApiService, private datePipe: DatePipe, private peopleService: PeopleContentService, public dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
+  constructor(private contentApi : ContentApiService,
+              private nodeService: NodesApiService,
+              private datePipe: DatePipe,
+              private peopleService: PeopleContentService,
+              private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
     // set default date today + 14 days
     let date = new Date();
-    date.setDate( date.getDate() + 14 );
+    date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
     this.model.dueDate = this.datePipe.transform(date, 'yyyy-MM-dd');
     // set default priority
     this.model.priority = 2;
 
     if (isDevMode()) {
       this.model.assignedUser = "Wolfgang Moser";
-      this.model.description = "Test-Aufgabe ";
-      this.model.category = EMRBauTaskCategory.CommonTaskGeneral;
+      //this.model.description = "Test-Aufgabe ";
+      //this.model.category = EMRBauTaskCategory.CommonTaskGeneral;
       //this.model.dueDate = "";
     }
   }
@@ -62,6 +68,10 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       this.onDialogClose(result);
     });
     this.queryData();
+  }
+
+  formIsInValid() : boolean {
+    return this.form.invalid || !!this.errorMessage;
   }
 
   queryData() {
@@ -83,24 +93,6 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
       this.fields = JSON.parse(JSON.stringify(this.fieldsMain));
       this.loaderVisible = false;
-
-        // TODO remove: list all childs from Aufgaben folder
-        this.contentApi.getNodeChildren(this.taskParentFolderId, {maxItems: 999, skipCount: 0}).toPromise().then(nodePaging => {
-        for (let i=0; i<nodePaging.list.entries.length; i++ )
-        {
-          //let entry = nodePaging.list.entries[i].entry;
-          //console.log(entry.name);
-          //console.log(entry);
-          //if (!entry.properties["mrbt:assignedUser"])
-          //{
-          //  let x = {"name":"My new name", "properties" : {"mrbt:priority": "2"}};
-          //  this.contentApi.nodesApi.updateNode(entry.id, x)
-          //  .then(nodeEntry => console.log(nodeEntry))
-          //  .catch(error => console.log(error));
-          //}
-        }
-      });
-
     }).catch(error => {
       this.loaderVisible = false;
       this.errorMessage = "Error loading data. "+error;
@@ -119,7 +111,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       };
       const accepts = ['application/json'];
       const postBody = `{
-        "name": "--",
+        "name": "-",
         "nodeType": "${MRBauTask.MRBT_TASK}",
         "properties":{
           "mrbt:category": ${this.model.category},
@@ -143,10 +135,10 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
   modelChangeEvent()
   {
-    if (this.model['category'])
+    const cat = this.model['category'];
+    if (cat && cat != this._oldCategory)
     {
-      //console.log(this.model['category']);
-      const cat = this.model['category'];
+      this._oldCategory = cat;
       let newFieldGroup = this.fieldGroupTBD;
       if (cat > EMRBauTaskCategory.CommonTaskStart && cat < EMRBauTaskCategory.CommonTaskLast)
       {
@@ -164,7 +156,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
   fieldsMain: FormlyFieldConfig[] = [
     {
-      fieldGroupClassName: 'flex-container',
+      fieldGroupClassName: 'flex-container-min-width',
       type: 'newWorkflowStepper',
       fieldGroup: [
         {
@@ -192,7 +184,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
         },
         {
           templateOptions: { label: 'Aufgaben Details' },
-          fieldGroupClassName: 'flex-container',
+          fieldGroupClassName: 'flex-container-min-width',
           fieldGroup: [],
         }
       ]
@@ -208,7 +200,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       templateOptions: {
         label: 'Aufgabe',
         description: 'Bezeichnung',
-        maxLength: 100,
+        maxLength: CONST.MAX_LENGTH_TASK_DESC,
         required: true,
       },
     },
@@ -219,7 +211,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       templateOptions: {
         label: 'Beschreibung',
         description: 'Beschreibung',
-        maxLength: 250,
+        maxLength: CONST.MAX_LENGTH_TASK_FULL_DESC,
         required: false,
       },
     },

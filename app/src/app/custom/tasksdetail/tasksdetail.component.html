@@ -1,18 +1,5 @@
-<div class="tasksDetailMain">
-  <!--
-  <div *ngIf="taskId!=null; else elseBlock">
-    <aca-mrbau-form></aca-mrbau-form>
-  </div>
-  <ng-template #elseBlock>
-    <div style="height: 100%;margin:auto;align-items: center;display: flex;justify-content: center;height: 100%;">
-    <p>Please select a task to see details.</p>
-  </div>
-
-  </ng-template>
-
-  <aca-mrbau-form [task]="task"></aca-mrbau-form>
--->
-
+<div class="tasks-detail-main">
+  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
   <div *ngIf="task != null; else noTask">
     <adf-toolbar [title]="this.task.desc">
       <!--
@@ -20,7 +7,7 @@
       [disabled]="!form.valid"
       (click)="clickedDelegate()"
       -->
-      <button mat-flat-button class="disable-flex-shrink" color="primary" matTooltip="Aufgabe abschließen" [disabled]="!isTaskComplete" (click)="onSubmitClicked(model)">
+      <button mat-flat-button class="disable-flex-shrink" color="primary" matTooltip="Aufgabe abschließen" [disabled]="!isTaskComplete" (click)="onFinishTaskClicked(model)">
         <mat-icon>done</mat-icon>Erledigen
       </button>
 
@@ -28,41 +15,70 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="onDelegateClicked(model)">
+        <button mat-menu-item (click)="onDelegateTaskClicked(model)">
             <mat-icon>send</mat-icon>
-            <span>Aufgabe deligieren</span>
+            <span>Aufgabe Deligieren</span>
+        </button>
+        <button mat-menu-item (click)="onCancelTaskClicked(model)">
+            <mat-icon>cancel</mat-icon>
+            <span>Aufgabe Abbrechen</span>
         </button>
         <button mat-menu-item disabled>
-            <mat-icon>message</mat-icon>
-            <span>tbd</span>
-        </button>
-        <button mat-menu-item disabled>
-            <mat-icon>mail</mat-icon>
-            <span>tbd</span>
-        </button>
+          <mat-icon>mail</mat-icon>
+          <span>tbd</span>
+      </button>
       </mat-menu>
     </adf-toolbar>
+    <mat-card class="addMarginTop" style="background:whitesmoke;">
+      <div class="flex-container">
+        <div class="flex-2"><i>Zugewiesen:</i> {{this.task.assignedUser}}</div>
+        <div class="flex-2"><i>Zu erledigen bis:</i> {{this.task.dueDate | date:'mediumDate'}}</div>
+        <div class="flex-2"><i>Status:</i> {{this.task.status | mrbauTaskStatus}}</div>
+      </div>
+      <div class="flex-container addMarginTop">
+        <div class="flex-2">{{getTaskDescription()}}</div>
+      </div>
+    </mat-card>
+    <mat-accordion multi="true">
+    <mat-expansion-panel style="margin-top:1rem;" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>comment</mat-icon>
+          <span class="expansionTitleText">Status ändern oder Kommentar hinzufügen</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="form">
+        <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
+        <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model.status && !this.model.comment">Speichern</button>
+      </form>
+    </mat-expansion-panel>
 
-    <div class="task-description">
-      {{getTaskDescription()}}
-    </div>
-
-    <div class="task-details">
-      <p><i>Task Kategorie:</i>  {{this.task.category | mrbauTaskCategory}} ({{this.task.category}})</p>
-      <p><i>Task ID:</i>  {{this.task.id }}</p>
-      <p><i>Erzeugt:</i> am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}} ({{this.task.createdUser.id}})</p>
-      <p><i>Zugewiesen:</i> {{this.task.assignedUser}}</p>
-      <p><i>Zu erledigen bis:</i> {{this.task.dueDate | date:'mediumDate'}}</p>
-      <p><i>Status:</i> {{this.task.status | mrbauTaskStatus}} ({{this.task.status}})</p>
-      <p><i>Verlinkte Dokumente:</i></p>
+    <mat-expansion-panel style="margin-top:1rem;">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>attachment</mat-icon>
+          <span class="expansionTitleText">Verlinkte Dokumente</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
       <ul><li>
         <a href="">tbd</a>
       </li></ul>
-    </div>
+    </mat-expansion-panel>
 
-    <form [formGroup]="form">
-      <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
-    </form>
+
+      <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>history</mat-icon>
+            <span class="expansionTitleText">Verlauf</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <aca-task-versionlist [nodeId]="nodeId" [isVisible]="historyPanelOpened"></aca-task-versionlist>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <div class="status addMarginTop">
+      {{this.task.category | mrbauTaskCategory}} Task - ID {{this.task.id }} - erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}
+    </div>
   </div>
 
   <ng-template #noTask>
