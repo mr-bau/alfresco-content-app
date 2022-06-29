@@ -18,13 +18,13 @@ export class MrbauTaskFormLibrary {
       switch (task.category)
       {
         default:
-          return this.formTest;
+          return this.formTaskStatusComment;
       }
     }
     return [];
   }
 
-  private static formTest : FormlyFieldConfig[] = [
+  private static formTaskStatusComment : FormlyFieldConfig[] = [
     {
       fieldGroupClassName: 'flex-container',
       fieldGroup: [

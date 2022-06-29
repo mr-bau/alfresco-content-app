@@ -1,13 +1,14 @@
-import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauTaskFormLibrary } from '../form/mrbau-task-form-library';
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
-import { ContentService, NotificationService } from '@alfresco/adf-core';
-import { MinimalNodeEntryEntity, NodeBodyUpdate } from '@alfresco/js-api';
+import { ConfirmDialogComponent, ContentNodeDialogService } from '@alfresco/adf-content-services';
+import { ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { MinimalNode, MinimalNodeEntryEntity, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
+import { CONST } from '../mrbau-global-declarations';
 
 @Component({
   selector: 'aca-tasksdetail',
@@ -23,8 +24,11 @@ export class TasksdetailComponent implements OnInit {
     this._task = val;
     this.queryNewData();
   }
-
+  get task(): MRBauTask {
+    return this._task;
+  }
   private _task : MRBauTask = null;
+
   nodeId : string = null;
   errorMessage: string = null;
   //isLoading: boolean = false;
@@ -38,7 +42,12 @@ export class TasksdetailComponent implements OnInit {
 
   node : MinimalNodeEntryEntity = null;
   isTaskComplete : boolean = false;
-  constructor(private _dialog: MatDialog, private _contentService: ContentService, private _notificationService: NotificationService) {
+  constructor(private _dialog: MatDialog,
+    private nodesApiService: NodesApiService,
+    private contentService: ContentService,
+    private notificationService: NotificationService,
+    //private commentContentService: CommentContentService,
+    private contentDialogService: ContentNodeDialogService) {
   }
 
   ngOnInit(): void {
@@ -51,19 +60,120 @@ export class TasksdetailComponent implements OnInit {
 
   buttonSaveClicked()
   {
-    this.saveNewStatus(this.model.status);
+    if (this.model.status != this._task.status)
+    {
+      this.saveNewStatus(this.model.status, this.model.comment);
+    }
+/*
+    if (this.model.comment)
+    {
+      let comment : string = this.model.comment;
+      comment.trim();
+      if (comment.length > 0)
+      {
+        this.addComment(comment);
+      }
+    }*/
   }
 
-  saveNewStatus(status : EMRBauTaskStatus)
+  buttonAddFilesClicked()
+  {
+    this.contentDialogService.openFileBrowseDialogBySite()
+    .subscribe((selections: MinimalNode[]) => {
+        // place your action here on operation success!
+        selections.forEach(selection => {
+          this.addFile(selection);
+        }
+        );
+    });
+  }
+
+  addFile(node: MinimalNode)
+  {
+    const bodyParams = [{
+      targetId : node.id,
+      assocType : 'mrbt:associatedDocument'
+    }];
+
+    const pathParams = {
+      'nodeId': this._task.id
+    };
+    const queryParams = {};
+    const headerParams= {};
+    const formParams = {};
+    const contentTypes = ['application/json'];
+    const accepts = ['application/json'];
+    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
+      (success) => {
+        success;
+        this.resetModel();
+        this._task.associatedDocumentNames.push(node.name);
+        this._task.associatedDocuments.push(node.id);
+        this.taskChangeEvent.emit(this._task);
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+    })
+    .catch((error) => {
+      this.errorMessage = error;
+    });
+  }
+
+/*
+  getComments()
+  {
+    this.commentContentService.getNodeComments(this._task.id).subscribe(
+      (comments: CommentModel[]) => {
+        if (comments && comments instanceof Array) {
+          console.log(comments.length+" comments received");
+          comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
+              const date1 = new Date(comment1.created);
+              const date2 = new Date(comment2.created);
+              return date1 > date2 ? -1 : date1 < date2 ? 1 : 0;
+          });
+          comments.forEach((comment) => {
+            console.log(comment);
+          });
+      }
+      },
+      (err) => {
+        console.log("xxx comment error");
+        console.log(err);
+      }
+    );
+  }
+  addComment(comment: string)
+  {
+    this.commentContentService.addNodeComment(this._task.id, comment).subscribe(
+      (res: CommentModel) => {
+        console.log("xxx comment added");
+        console.log(res);
+      },
+      (err) => {
+        console.log("xxx comment error");
+        console.log(err);
+      }
+    );
+  }*/
+
+  saveNewStatus(status : EMRBauTaskStatus, commentString? : string)
   {
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:status": ""+status}};
-    this._contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
+    let opts;
+    if (commentString)
+    {
+      commentString.trim();
+      if (commentString.length > 0)
+      {
+        opts = {comment : commentString};
+      }
+    }
+
+    this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate, opts).then(
       (nodeEntry) => {
         this._task.status = status;
-        this._task.updateWithNodeData(nodeEntry);
+        this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
         this.taskChangeEvent.emit(this._task);
-        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
       })
       .catch((err) => this.errorMessage = err);
   }
@@ -85,10 +195,7 @@ export class TasksdetailComponent implements OnInit {
     this.nodeId = this._task.id;
     this.resetModel();
     this.fields = MrbauTaskFormLibrary.getForm(this.task);
-  }
-
-  get task(): MRBauTask {
-    return this._task;
+    this.onAssociationClicked(0, false);
   }
 
   ngAfterViewInit(): void {
@@ -106,6 +213,89 @@ export class TasksdetailComponent implements OnInit {
     return (this.task && this.task.fullDescription) ? this.task.fullDescription : "(keine weitere Beschreibung angegeben)";
   }
 
+  onRemoveAssociationClicked(i:number)
+  {
+    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+      data: {
+          title: 'Verknüpfung Löschen',
+          message: 'Soll die Verknüpfung entfernt werden?',
+          yesLabel: 'Verknüpfung Löschen',
+          noLabel: 'Abbrechen',
+        },
+        minWidth: '250px'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true)
+      {
+        this.deleteAssociation(i);
+      }
+    });
+  }
+
+  deleteAssociation(i:number)
+  {
+    if (!this._task.associatedDocuments[i])
+    {
+      return;
+    }
+
+    const pathParams = {
+       nodeId: this._task.id,
+       targetId: this._task.associatedDocuments[i],
+       assocType : 'mrbt:associatedDocument'
+    };
+    const queryParams = {};
+    const headerParams= {};
+    const formParams = {};
+    const bodyParams = [];
+    const contentTypes = ['application/json'];
+    const accepts = ['application/json'];
+    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets/{targetId}", "DELETE", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
+      (success) => {
+        success;
+        this.resetModel();
+        // remove items from list
+        this._task.associatedDocumentNames.splice(i, 1);
+        this._task.associatedDocuments.splice(i, 1);
+        this.taskChangeEvent.emit(this._task);
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+    })
+    .catch((error) => {
+      this.errorMessage = error;
+    });
+  }
+
+  onAssociationClicked(i:number, doNotShowNotification?:boolean)
+  {
+    if (!this._task.associatedDocuments[i])
+    {
+      this.fileSelectEvent.emit(null);
+      return;
+    }
+
+    let id : string = this._task.associatedDocuments[i];
+    this.contentService.getNode(id).subscribe(
+      (node: NodeEntry) => {
+        if (CONST.isPdfDocument(node))
+        {
+          this.fileSelectEvent.emit(this.contentService.getContentUrl(id));
+        }
+        else
+        {
+          this.fileSelectEvent.emit(null);
+          if (!doNotShowNotification)
+          {
+            this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
+          }
+        }
+      },
+      error => {
+        this.errorMessage = error;
+      }
+    );
+  }
+
   onFinishTaskClicked(model) {
     model;
     const dialogRef = this._dialog.open(ConfirmDialogComponent, {
@@ -121,7 +311,6 @@ export class TasksdetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true)
       {
-        console.log("OK")
         this.saveNewStatus(EMRBauTaskStatus.STATUS_FINISHED);
       }
     });
@@ -133,15 +322,14 @@ export class TasksdetailComponent implements OnInit {
     {
       return;
     }
-    console.log(newUser);
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUser": newUser}};
-    this._contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
+    this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
       (nodeEntry) => {
         this._task.assignedUser = newUser;
-        this._task.updateWithNodeData(nodeEntry);
+        this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
         this.taskChangeEvent.emit(this._task);
-        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
       })
       .catch((err) => this.errorMessage = err);
   }
@@ -178,7 +366,6 @@ export class TasksdetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true)
       {
-        console.log("OK")
         this.saveNewStatus(EMRBauTaskStatus.STATUS_CANCELED);
       }
     });

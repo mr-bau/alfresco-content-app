@@ -26,6 +26,18 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   margin-top: 1rem;
 }
 
+.addMarginLeft{
+  margin-left: 1rem;
+}
+
+.addMarginRight{
+  margin-right: 1rem;
+}
+
+.addMarginBottom{
+  margin-bottom: 1rem;
+}
+
 .task-infobox, .task-description, .task-formbox, .task-history, .task-linked-docs {
   padding: .75rem 1.25rem;
   margin-bottom: 1rem;

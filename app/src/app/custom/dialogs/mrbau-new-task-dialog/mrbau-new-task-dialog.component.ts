@@ -120,7 +120,19 @@ export class MrbauNewTaskDialogComponent implements OnInit {
           "mrbt:assignedUser": "${this.model.assignedUser}",
           "mrbt:fullDescription": "${this.model.fullDescription ? this.model.fullDescription : ""}",
           "mrbt:dueDate": "${this.model.dueDate ? this.model.dueDate : ""}"
-        }}`;
+        }
+      }`;
+/*        "targets": [
+          {
+            "targetId": "string1",
+            "assocType": "string1"
+          },
+          {
+            "targetId": "string2",
+            "assocType": "string2"
+          }
+        ]
+      }`;*/
       //console.log(postBody);
       this.nodeService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
         (success) => {

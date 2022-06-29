@@ -1,4 +1,4 @@
-import { NodeEntry, QueryBody, UserInfo } from '@alfresco/js-api';
+import { MinimalNode, QueryBody, UserInfo } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
 
 
@@ -99,8 +99,8 @@ export class MRBauTask {
   category: EMRBauTaskCategory;
   desc: string; // description
   status: number = EMRBauTaskStatus.STATUS_NEW;
-  documentAssociations: Map<string, string> = new Map();// map id -> Name
-
+  associatedDocuments: string[] = [];
+  associatedDocumentNames: string[] = [];
   fullDescription?: string; // long task description
   createdUser?: UserInfo; // currently assigned user
   createdDate?: Date;   // start date
@@ -112,7 +112,8 @@ export class MRBauTask {
     this.category = obj && obj.category || EMRBauTaskCategory.Uninitialized;
     this.desc =  obj && obj.desc || null;
     this.status = obj && obj.status || EMRBauTaskStatus.STATUS_NEW;
-    this.documentAssociations = obj && obj.documentAssociations || new Map()
+    this.associatedDocuments = obj && obj.associatedDocuments || [];
+    this.associatedDocumentNames = obj && obj.associatedDocumentNames || [];
     this.fullDescription = obj && obj.fullDescription;
     this.createdUser = obj && obj.createdUser;
     this.createdDate = obj && obj.createdDate;
@@ -120,22 +121,18 @@ export class MRBauTask {
     this.dueDate = obj && obj.dueDate;
   }
 
-  public updateWithNodeData(node: NodeEntry){
-    this.id = node.entry.id;
-    this.category = node.entry.properties["mrbt:category"];
-    this.desc = node.entry.properties["mrbt:description"];
-    this.status = node.entry.properties["mrbt:status"];
-    this.fullDescription = node.entry.properties["mrbt:fullDescription"] ? node.entry.properties["mrbt:fullDescription"] : null;
-    this.createdUser = node.entry.createdByUser;
-    this.createdDate = node.entry.createdAt;
-    this.assignedUser = node.entry.properties["mrbt:assignedUser"];
-    this.dueDate = node.entry.properties["mrbt:dueDate"] ? node.entry.properties["mrbt:dueDate"] : null;
-
-    //console.log(node.entry.properties["mrbt:associatedDocument"]);
-
-    // kept in sync with mrbt:associatedDocument via automation
-    // identical order as mrbt:associatedDocument
-    //console.log(node.entry.properties["mrbt:associatedDocumentName"]);
+  public updateWithNodeData(node: MinimalNode){
+    this.id = node.id;
+    this.category = node.properties["mrbt:category"];
+    this.desc = node.properties["mrbt:description"];
+    this.status = node.properties["mrbt:status"];
+    this.fullDescription = node.properties["mrbt:fullDescription"] ? node.properties["mrbt:fullDescription"] : null;
+    this.createdUser = node.createdByUser;
+    this.createdDate = node.createdAt;
+    this.assignedUser = node.properties["mrbt:assignedUser"];
+    this.dueDate = node.properties["mrbt:dueDate"] ? node.properties["mrbt:dueDate"] : null;
+    this.associatedDocuments = node.properties["mrbt:associatedDocument"] ? node.properties["mrbt:associatedDocument"] : [];
+    this.associatedDocumentNames = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
   }
 }
 
