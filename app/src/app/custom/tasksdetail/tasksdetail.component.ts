@@ -60,9 +60,10 @@ export class TasksdetailComponent implements OnInit {
 
   buttonSaveClicked()
   {
-    if (this.model.status != this._task.status)
+    if (this.model.status != this._task.status || this.model.comment)
     {
       this.saveNewStatus(this.model.status, this.model.comment);
+      this.model.comment = "";
     }
 /*
     if (this.model.comment)

@@ -27,7 +27,7 @@ export class FOER_CONST {
   ];
 
   public static getStatusProgress(val:string) : number {
-    console.log(val);
+    //console.log(val);
     switch (val)
     {
       case FOER_CONST.FOER_OFFEN:
