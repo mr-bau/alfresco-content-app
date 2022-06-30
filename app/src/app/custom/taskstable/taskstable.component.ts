@@ -5,7 +5,6 @@ import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, Paginated
 import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
 import { NodePaging, SearchRequest } from '@alfresco/js-api';
-import { CONST } from'../mrbau-global-declarations';
 
 @Component({
   selector: 'aca-taskstable',
@@ -66,7 +65,8 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
           skipCount: 0,
           maxItems:  1
         }
-        searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
+        // HELPER_FORCE_FULL_TEXT_SEARCH is only needed for AFTS search
+        //searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
         this.searchService.searchByQueryBody(searchRequest).subscribe(
           (nodePaging : NodePaging) => {
             tab.tabBadge = nodePaging.list.pagination.totalItems;
@@ -110,7 +110,6 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
         for (var nodeEntry of nodePaging.list.entries) {
           let task = new MRBauTask();
           task.updateWithNodeData(nodeEntry.entry);
-
           let e : IMRBauTaskListEntry = {
             task : task,
             desc : task.desc,

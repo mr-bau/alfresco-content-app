@@ -31,12 +31,13 @@ export class TasksComponent implements OnInit {
         // https://api-explorer.alfresco.com/api-explorer/?urls.primaryName=Search%20API#/search/search
         // https://angelborroy.wordpress.com/2018/05/30/alfresco-counting-more-than-1000-elements/
         query: {
-          //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND B.mrbt:assignedUser='${ecmUserName}'`,
-          //language: 'cmis'
-          query: `+TYPE:"mrbt:task" and mrbt:status:[0 TO 8999] and mrbt:assignedUser:"${ecmUserName=="admin" ? "*" : ecmUserName}"`,
-          language: 'afts'
+          // CONTAINS comparison is necessary to make the comparison case insensitive (getECMUsername does not respect uppercase characters and reports lower case only)
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
+          language: 'cmis'
+          //query: `+TYPE:"mrbt:task" and mrbt:status:[0 TO 8999] and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"`,
+          //language: 'afts'
         },
-        sort: [{type:"FIELD", field:"cm:created",  ascending:true}],
+        //sort: [{type:"FIELD", field:"cm:created",  ascending:true}],
         include: ['properties']
       }
     },{
@@ -49,7 +50,7 @@ export class TasksComponent implements OnInit {
           //query: '(cm:name:*oemag* or cm:name:*photo*) and +TYPE:\"cm:content\"',
           //query: "+ASPECT:'foer:Foerderungsordner' and cm:name:'aws'",
           //query: 'foer:ProjektNr:*',
-          query: `+TYPE:"mrbt:task" and mrbt:assignedUser:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd xxxx"`,
+          query: `+TYPE:"mrbt:task" and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd xxxx"`,
           language: 'afts'
         },
         include: ['properties']
@@ -61,10 +62,12 @@ export class TasksComponent implements OnInit {
       tabBadge: 0,
       searchRequest: {
         query: {
-          query: `+TYPE:"mrbt:task" and mrbt:status:[9000 to 9100] and mrbt:assignedUser:"${ecmUserName=="admin" ? "*" : ecmUserName}"`,
-          language: 'afts'
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 9000 AND B.mrbt:status <= 9100 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
+          language: 'cmis'
+          //query: `+TYPE:"mrbt:task" and mrbt:status:[9000 to 9100] and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"`,
+          //language: 'afts'
         },
-        sort: [{type:"FIELD", field:"cm:name",  ascending:true}],
+        //sort: [{type:"FIELD", field:"cm:name",  ascending:true}],
         include: ['properties']
       }
     }];

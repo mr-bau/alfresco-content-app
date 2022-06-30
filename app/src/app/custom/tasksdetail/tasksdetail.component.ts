@@ -92,7 +92,7 @@ export class TasksdetailComponent implements OnInit {
   {
     const bodyParams = [{
       targetId : node.id,
-      assocType : 'mrbt:associatedDocument'
+      assocType : 'mrbt:associatedDocumentRef'
     }];
 
     const pathParams = {
@@ -107,8 +107,8 @@ export class TasksdetailComponent implements OnInit {
       (success) => {
         success;
         this.resetModel();
-        this._task.associatedDocumentNames.push(node.name);
-        this._task.associatedDocuments.push(node.id);
+        this._task.associatedDocumentName.push(node.name);
+        this._task.associatedDocumentRef.push(node.id);
         this.taskChangeEvent.emit(this._task);
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
@@ -235,15 +235,15 @@ export class TasksdetailComponent implements OnInit {
 
   deleteAssociation(i:number)
   {
-    if (!this._task.associatedDocuments[i])
+    if (!this._task.associatedDocumentRef[i])
     {
       return;
     }
 
     const pathParams = {
        nodeId: this._task.id,
-       targetId: this._task.associatedDocuments[i],
-       assocType : 'mrbt:associatedDocument'
+       targetId: this._task.associatedDocumentRef[i],
+       assocType : 'mrbt:associatedDocumentRef'
     };
     const queryParams = {};
     const headerParams= {};
@@ -256,8 +256,8 @@ export class TasksdetailComponent implements OnInit {
         success;
         this.resetModel();
         // remove items from list
-        this._task.associatedDocumentNames.splice(i, 1);
-        this._task.associatedDocuments.splice(i, 1);
+        this._task.associatedDocumentName.splice(i, 1);
+        this._task.associatedDocumentRef.splice(i, 1);
         this.taskChangeEvent.emit(this._task);
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
@@ -268,13 +268,13 @@ export class TasksdetailComponent implements OnInit {
 
   onAssociationClicked(i:number, doNotShowNotification?:boolean)
   {
-    if (!this._task.associatedDocuments[i])
+    if (!this._task.associatedDocumentRef[i])
     {
       this.fileSelectEvent.emit(null);
       return;
     }
 
-    let id : string = this._task.associatedDocuments[i];
+    let id : string = this._task.associatedDocumentRef[i];
     this.contentService.getNode(id).subscribe(
       (node: NodeEntry) => {
         if (CONST.isPdfDocument(node))
@@ -322,14 +322,14 @@ export class TasksdetailComponent implements OnInit {
     {
       return;
     }
-    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUser": newUser}};
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUser}};
     this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
       (nodeEntry) => {
-        this._task.assignedUser = newUser;
+        this._task.assignedUserName = newUser;
         this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
-        this.taskChangeEvent.emit(this._task);
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this.taskChangeEvent.emit(this._task);
       })
       .catch((err) => this.errorMessage = err);
   }

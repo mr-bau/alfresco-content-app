@@ -55,7 +55,7 @@ export class MrbauDelegateTaskDialogComponent implements OnInit {
       this.onDialogClose(result);
     });
     const task = this.data.payload as MRBauTask;
-    this.model.assignedUser = task.assignedUser;
+    this.model.assignedUser = task.assignedUserName;
     this.queryData();
   }
 
@@ -90,7 +90,7 @@ export class MrbauDelegateTaskDialogComponent implements OnInit {
 
   formIsInValid() : boolean {
     const task = this.data.payload as MRBauTask;
-    return this.form.invalid || !!this.errorMessage || task.assignedUser == this.model.assignedUser;
+    return this.form.invalid || !!this.errorMessage || task.assignedUserName == this.model.assignedUser;
   }
 
   modelChangeEvent()

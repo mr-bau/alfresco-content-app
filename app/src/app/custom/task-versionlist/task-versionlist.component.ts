@@ -66,7 +66,7 @@ export class TaskVersionlistComponent implements OnInit {
             {id:a.entry.id,
             modifiedAt: a.entry.modifiedAt,
             modifiedBy: a.entry.modifiedByUser,
-            assignedUser: a.entry.properties["mrbt:assignedUser"],
+            assignedUser: a.entry.properties["mrbt:assignedUserName"],
             status: a.entry.properties["mrbt:status"],
             });
         }

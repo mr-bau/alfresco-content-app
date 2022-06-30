@@ -31,7 +31,7 @@
     </adf-toolbar>
     <mat-card class="addMarginTop" style="background:whitesmoke;">
       <div class="flex-container">
-        <div class="flex-2"><i>Zugewiesen:</i> {{this.task.assignedUser}}</div>
+        <div class="flex-2"><i>Zugewiesen:</i> {{this.task.assignedUserName}} </div>
         <div class="flex-2"><i>Zu erledigen bis:</i> {{this.task.dueDate | date:'mediumDate'}}</div>
         <div class="flex-2"><i>Status:</i> {{this.task.status | mrbauTaskStatus}}</div>
       </div>
@@ -57,11 +57,11 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>attachment</mat-icon>
-          <span class="expansionTitleText">Verlinkte Dokumente</span>
+          <span class="expansionTitleText">Verknüpfte Dokumente</span>
         </mat-panel-title>
       </mat-expansion-panel-header>
       <ul class="associationList">
-        <li *ngFor="let d of task.associatedDocumentNames; index as i; first as isFirst">
+        <li *ngFor="let d of task.associatedDocumentName; index as i; first as isFirst">
           <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(i)" matTooltip="Link Entfernen"><mat-icon>delete</mat-icon></button>
           <a href="javascript: void(0);" (click)="onAssociationClicked(i)" matTooltip="Dokument Anzeigen">{{d}}</a>
         </li>

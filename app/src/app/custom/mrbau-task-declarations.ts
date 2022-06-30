@@ -99,12 +99,12 @@ export class MRBauTask {
   category: EMRBauTaskCategory;
   desc: string; // description
   status: number = EMRBauTaskStatus.STATUS_NEW;
-  associatedDocuments: string[] = [];
-  associatedDocumentNames: string[] = [];
+  associatedDocumentRef: string[] = [];
+  associatedDocumentName: string[] = [];
   fullDescription?: string; // long task description
   createdUser?: UserInfo; // currently assigned user
   createdDate?: Date;   // start date
-  assignedUser?: string; // currently assigned user
+  assignedUserName?: string; // currently assigned user
   dueDate?: Date;
 
   constructor(obj?: any) {
@@ -112,12 +112,12 @@ export class MRBauTask {
     this.category = obj && obj.category || EMRBauTaskCategory.Uninitialized;
     this.desc =  obj && obj.desc || null;
     this.status = obj && obj.status || EMRBauTaskStatus.STATUS_NEW;
-    this.associatedDocuments = obj && obj.associatedDocuments || [];
-    this.associatedDocumentNames = obj && obj.associatedDocumentNames || [];
+    this.associatedDocumentRef = obj && obj.associatedDocumentRef || [];
+    this.associatedDocumentName = obj && obj.associatedDocumentName || [];
     this.fullDescription = obj && obj.fullDescription;
     this.createdUser = obj && obj.createdUser;
     this.createdDate = obj && obj.createdDate;
-    this.assignedUser = obj && obj.assignedUser;
+    this.assignedUserName = obj && obj.assignedUserName;
     this.dueDate = obj && obj.dueDate;
   }
 
@@ -129,10 +129,10 @@ export class MRBauTask {
     this.fullDescription = node.properties["mrbt:fullDescription"] ? node.properties["mrbt:fullDescription"] : null;
     this.createdUser = node.createdByUser;
     this.createdDate = node.createdAt;
-    this.assignedUser = node.properties["mrbt:assignedUser"];
+    this.assignedUserName = node.properties["mrbt:assignedUserName"];
     this.dueDate = node.properties["mrbt:dueDate"] ? node.properties["mrbt:dueDate"] : null;
-    this.associatedDocuments = node.properties["mrbt:associatedDocument"] ? node.properties["mrbt:associatedDocument"] : [];
-    this.associatedDocumentNames = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
+    this.associatedDocumentRef = node.properties["mrbt:associatedDocumentRef"] ? node.properties["mrbt:associatedDocumentRef"] : [];
+    this.associatedDocumentName = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
   }
 }
 
