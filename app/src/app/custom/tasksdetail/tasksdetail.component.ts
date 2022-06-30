@@ -4,13 +4,14 @@ import { MrbauTaskFormLibrary } from '../form/mrbau-task-form-library';
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent, ContentNodeDialogService } from '@alfresco/adf-content-services';
+import { ConfirmDialogComponent, ContentNodeSelectorComponentData, ContentNodeSelectorComponent } from '@alfresco/adf-content-services';
 import { ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
-import { MinimalNode, MinimalNodeEntryEntity, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
+import { MinimalNodeEntryEntity, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { CONST } from '../mrbau-global-declarations';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
-
+import { Subject } from 'rxjs';
+import { Node } from '@alfresco/js-api';
 @Component({
   selector: 'aca-tasksdetail',
   templateUrl: './tasksdetail.component.html',
@@ -48,7 +49,8 @@ export class TasksdetailComponent implements OnInit {
     private contentService: ContentService,
     private notificationService: NotificationService,
     //private commentContentService: CommentContentService,
-    private contentDialogService: ContentNodeDialogService) {
+    //private contentDialogService: ContentNodeDialogService
+    ) {
   }
 
   ngOnInit(): void {
@@ -80,22 +82,52 @@ export class TasksdetailComponent implements OnInit {
 
   buttonAddFilesClicked()
   {
-    this.contentDialogService.openFileBrowseDialogBySite()
-    .subscribe((selections: MinimalNode[]) => {
-        // place your action here on operation success!
-        selections.forEach(selection => {
-          this.addFile(selection);
-        }
-        );
+    const data: ContentNodeSelectorComponentData = {
+        title: "Datei auswählen",
+        dropdownHideMyFiles: true,
+        selectionMode: 'multiple',
+        currentFolderId: null,
+        select: new Subject<Node[]>()
+    };
+
+    this._dialog.open(
+        ContentNodeSelectorComponent,
+        {
+            data,
+            panelClass: 'adf-content-node-selector-dialog',
+            minWidth: '630px'
+        },
+    );
+
+    data.select.subscribe((selections: Node[]) => {
+        // Use or store selection...
+        this.addFiles(selections);
+    },
+    (error)=>{
+        //your error handling
+        this.errorMessage = error;
+    },
+    ()=>{
+        //action called when an action or cancel is clicked on the dialog
+        this._dialog.closeAll();
     });
   }
 
-  addFile(node: MinimalNode)
+  addFiles(nodes: Node[])
   {
-    const bodyParams = [{
-      targetId : node.id,
-      assocType : 'mrbt:associatedDocumentRef'
-    }];
+    if (nodes.length == 0)
+    {
+      return;
+    }
+
+    let bodyParams = [];
+    for (let i=0; i< nodes.length; i++)
+    {
+      bodyParams.push({
+        targetId : nodes[i].id,
+        assocType : 'mrbt:associatedDocument'}
+      );
+    };
 
     const pathParams = {
       'nodeId': this._task.id
@@ -109,14 +141,19 @@ export class TasksdetailComponent implements OnInit {
       (success) => {
         success;
         this.resetModel();
-        this._task.associatedDocumentName.push(node.name);
-        this._task.associatedDocumentRef.push(node.id);
+        for (let i=0; i< nodes.length; i++)
+        {
+          const node = nodes[i];
+          this._task.associatedDocumentName.push(node.name);
+          this._task.associatedDocumentRef.push(node.id);
+        }
         this.taskChangeEvent.emit(this._task);
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
     .catch((error) => {
       this.errorMessage = error;
     });
+
   }
 
 /*
@@ -336,7 +373,6 @@ export class TasksdetailComponent implements OnInit {
       }
     });
   }
-
 
   delegateTask(model) {
     const newUser : string = model.assignedUser
