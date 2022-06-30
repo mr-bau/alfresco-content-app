@@ -9,6 +9,7 @@ import { ContentService, NodesApiService, NotificationService } from '@alfresco/
 import { MinimalNode, MinimalNodeEntryEntity, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { CONST } from '../mrbau-global-declarations';
+import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 
 @Component({
   selector: 'aca-tasksdetail',
@@ -297,25 +298,45 @@ export class TasksdetailComponent implements OnInit {
     );
   }
 
-  onFinishTaskClicked(model) {
+  onFinishTaskClicked(model)
+  {
     model;
-    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+    const dialogRef = this._dialog.open(MrbauConfirmTaskDialogComponent, {
       data: {
-          title: 'Aufgabe Abschließen',
-          message: 'Eine abgeschlossene Aufgabe kann nicht mehr geöffnet werden.',
-          yesLabel: 'Aufgabe Erledigen',
-          noLabel: 'Abbrechen',
-        },
-        minWidth: '250px'
+        dialogTitle: 'Aufgabe Abschließen',
+        dialogMsg: 'Eine abgeschlossene Aufgabe kann nicht mehr geöffnet werden.',
+        dialogButtonOK: 'AUFGABE ERLEDIGEN',
+        callQueryData: false,
+        fieldsMain: [
+          {
+            fieldGroupClassName: 'flex-container-min-width',
+            fieldGroup: [
+              {
+                className: 'flex-2',
+                key: 'comment',
+                type: 'textarea',
+                templateOptions: {
+                  label: 'Optionaler Kommentar',
+                  description: 'Kommentar',
+                  maxLength: CONST.MAX_LENGTH_COMMENT,
+                  required: false,
+                },
+              },
+            ]
+          }
+        ],
+        payload: this._task
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result === true)
+      if (result)
       {
-        this.saveNewStatus(EMRBauTaskStatus.STATUS_FINISHED);
+        this.saveNewStatus(EMRBauTaskStatus.STATUS_FINISHED, result.comment);
       }
     });
   }
+
 
   delegateTask(model) {
     const newUser : string = model.assignedUser
@@ -338,7 +359,6 @@ export class TasksdetailComponent implements OnInit {
   onDelegateTaskClicked(model)
   {
     model;
-
     const dialogRef = this._dialog.open(MrbauDelegateTaskDialogComponent, {
       data: { payload: this._task }
     });
@@ -354,20 +374,38 @@ export class TasksdetailComponent implements OnInit {
   onCancelTaskClicked(model)
   {
     model
-    const dialogRef = this._dialog.open(ConfirmDialogComponent, {
+    const dialogRef = this._dialog.open(MrbauConfirmTaskDialogComponent, {
       data: {
-          title: 'Aufgabe Abbrechen',
-          message: 'Eine beendete Aufgabe kann nicht mehr geöffnet werden.',
-          yesLabel: 'Aufgabe Beenden',
-          noLabel: 'Abbrechen',
-        },
-        minWidth: '250px'
+        dialogTitle: 'Aufgabe Abbrechen',
+        dialogMsg: 'Eine beendete Aufgabe kann nicht mehr geöffnet werden.',
+        dialogButtonOK: 'AUFGABE BEENDEN',
+        callQueryData: false,
+        fieldsMain: [
+          {
+            fieldGroupClassName: 'flex-container-min-width',
+            fieldGroup: [
+              {
+                className: 'flex-2',
+                key: 'comment',
+                type: 'textarea',
+                templateOptions: {
+                  label: 'Optionaler Kommentar',
+                  description: 'Kommentar',
+                  maxLength: CONST.MAX_LENGTH_COMMENT,
+                  required: false,
+                },
+              },
+            ]
+          }
+        ],
+        payload: this._task
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result === true)
+      if (result)
       {
-        this.saveNewStatus(EMRBauTaskStatus.STATUS_CANCELED);
+        this.saveNewStatus(EMRBauTaskStatus.STATUS_CANCELED, result.comment);
       }
     });
   }

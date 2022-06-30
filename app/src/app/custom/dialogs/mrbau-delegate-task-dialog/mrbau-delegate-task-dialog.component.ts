@@ -1,12 +1,12 @@
 import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
-import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
-import { FormGroup } from '@angular/forms';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ContentApiService } from '@alfresco/aca-shared';
-import { PeopleContentService,PeopleContentQueryResponse, EcmUserModel} from '@alfresco/adf-core';
+import { PeopleContentService} from '@alfresco/adf-core';
 import { MRBauTask } from '../../mrbau-task-declarations';
 import { CONST } from '../../mrbau-global-declarations';
+import { MrbauBaseTaskDialogComponent, MrbauBaseTaskDialogComponentProps } from '../mrbau-base-task-dialog/mrbau-base-task-dialog.component';
 
 @Component({
   selector: 'aca-mrbau-delegate-task-dialog',
@@ -28,26 +28,19 @@ import { CONST } from '../../mrbau-global-declarations';
   styleUrls: ['../mrbau-dialog-global.scss', '../../form/mrbau-form-global.scss',],
   encapsulation: ViewEncapsulation.None
 })
-export class MrbauDelegateTaskDialogComponent implements OnInit {
-  readonly dialogTitle: string = 'Aufgabe deligieren';
-  readonly dialogMsg: string = 'Aufgabe einer anderen Person übertragen.';
-  readonly dialogButtonCancel: string = 'ABBRECHEN';
-  readonly dialogButtonOK: string = 'DELIGIEREN';
+export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogComponent implements OnInit {
+  dialogTitle: string = 'Aufgabe deligieren';
+  dialogMsg: string = 'Aufgabe einer anderen Person übertragen.';
+  dialogButtonCancel: string = 'ABBRECHEN';
+  dialogButtonOK: string = 'DELIGIEREN';
 
-  errorMessage: string;
-  loaderVisible: boolean;
-
-  form = new FormGroup({});
-  model: any = {};
-  options: FormlyFormOptions = {  };
-  fields : FormlyFieldConfig[] = [ { } ];
-
-  people: EcmUserModel[] = [];
-  taskParentFolderId: string;
-
-  constructor(private contentApi : ContentApiService,
-              private peopleService: PeopleContentService,private dialogRef: MatDialogRef<MrbauDelegateTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any})
+  constructor(public contentApi : ContentApiService,
+    public peopleService: PeopleContentService,
+    public  dialogRef: MatDialogRef<MrbauDelegateTaskDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: MrbauBaseTaskDialogComponentProps
+    )
   {
+    super(contentApi, peopleService, dialogRef, data);
   }
 
   ngOnInit(): void {
@@ -57,30 +50,6 @@ export class MrbauDelegateTaskDialogComponent implements OnInit {
     const task = this.data.payload as MRBauTask;
     this.model.assignedUser = task.assignedUserName;
     this.queryData();
-  }
-
-  queryData() {
-    this.loaderVisible = true;
-    this.errorMessage = null;
-    const promiseGetParentId = this.contentApi.getNodeInfo('-root-', { includeSource: true, include: ['path', 'properties'], relativePath: MRBauTask.TASK_RELATIVE_ROOT_PATH }).toPromise();
-    const promiseGetPeople = this.peopleService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "id", direction: "ASC"}}).toPromise();
-    const allPromise = Promise.all([promiseGetParentId, promiseGetPeople]);
-
-    allPromise.then(values => {
-      const node = values[0];
-      this.taskParentFolderId = node.id;
-      const response = values[1] as PeopleContentQueryResponse;
-      for (let entry of response.entries)
-      {
-        this.people.push(entry);
-      }
-
-      this.loadForm();
-      this.loaderVisible = false;
-    }).catch(error => {
-      this.loaderVisible = false;
-      this.errorMessage = "Error loading data. "+error;
-    });
   }
 
   loadForm()
@@ -93,14 +62,6 @@ export class MrbauDelegateTaskDialogComponent implements OnInit {
     return this.form.invalid || !!this.errorMessage || task.assignedUserName == this.model.assignedUser;
   }
 
-  modelChangeEvent()
-  {
-  }
-
-  onDialogClose(result)
-  {
-    result;
-  }
 
   private delegateTaskForm: FormlyFieldConfig[] = [
     {
