@@ -53,21 +53,13 @@
       </form>
     </mat-expansion-panel>
 
-    <mat-expansion-panel style="margin-top:1rem;">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>attachment</mat-icon>
-          <span class="expansionTitleText">Verknüpfte Dokumente</span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <ul class="associationList">
-        <li *ngFor="let d of task.associatedDocumentName; index as i; first as isFirst">
-          <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(i)" matTooltip="Link Entfernen"><mat-icon>delete</mat-icon></button>
-          <a href="javascript: void(0);" (click)="onAssociationClicked(i)" matTooltip="Dokument Anzeigen">{{d}}</a>
-        </li>
-      </ul>
-      <button mat-raised-button type="button" class="addMarginTop" color="primary" (click)="buttonAddFilesClicked()" matTooltip="Dokumente Hinzufügen">Dokumente hinzufügen</button>
-    </mat-expansion-panel>
+    <aca-task-linked-documents
+      [associatedDocumentRef]="task.associatedDocumentRef"
+      [associatedDocumentName]="task.associatedDocumentName"
+      (onRemoveAssociation)="onRemoveAssociationClicked($event)"
+      (onAssociation)="onAssociationClicked($event)"
+      (onAddAssociation)="buttonAddFilesClicked()"
+    ></aca-task-linked-documents>
 
     <mat-expansion-panel style="margin-top:1rem;">
       <mat-expansion-panel-header>
@@ -76,12 +68,12 @@
           <span class="expansionTitleText">Kommentare</span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <!--
+
       <adf-comments
         [taskId]="this.task.id"
         [readOnly]="true">
       </adf-comments>
-      -->
+
       </mat-expansion-panel>
 
       <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">

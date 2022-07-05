@@ -115,6 +115,7 @@ import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegat
 import { MrbauBaseTaskDialogComponent } from './custom/dialogs/mrbau-base-task-dialog/mrbau-base-task-dialog.component';
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -227,7 +228,8 @@ registerLocaleData(localeSv);
     MrbauDelegateTaskDialogComponent,
     MrbauBaseTaskDialogComponent,
     TaskVersionlistComponent,
-    MrbauConfirmTaskDialogComponent
+    MrbauConfirmTaskDialogComponent,
+    TaskLinkedDocumentsComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

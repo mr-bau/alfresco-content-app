@@ -5,7 +5,7 @@ import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ContentNodeSelectorComponentData, ContentNodeSelectorComponent } from '@alfresco/adf-content-services';
-import { ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { CommentContentService, CommentModel, ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { MinimalNodeEntryEntity, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { CONST } from '../mrbau-global-declarations';
@@ -48,7 +48,7 @@ export class TasksdetailComponent implements OnInit {
     private nodesApiService: NodesApiService,
     private contentService: ContentService,
     private notificationService: NotificationService,
-    //private commentContentService: CommentContentService,
+    private commentContentService: CommentContentService,
     //private contentDialogService: ContentNodeDialogService
     ) {
   }
@@ -68,6 +68,8 @@ export class TasksdetailComponent implements OnInit {
       this.saveNewStatus(this.model.status, this.model.comment);
       this.model.comment = "";
     }
+
+    this.getComments();
 /*
     if (this.model.comment)
     {
@@ -156,7 +158,6 @@ export class TasksdetailComponent implements OnInit {
 
   }
 
-/*
   getComments()
   {
     this.commentContentService.getNodeComments(this._task.id).subscribe(
@@ -179,6 +180,8 @@ export class TasksdetailComponent implements OnInit {
       }
     );
   }
+
+  /*
   addComment(comment: string)
   {
     this.commentContentService.addNodeComment(this._task.id, comment).subscribe(
@@ -305,7 +308,7 @@ export class TasksdetailComponent implements OnInit {
     });
   }
 
-  onAssociationClicked(i:number, doNotShowNotification?:boolean)
+  onAssociationClicked(i:number, suppressNotification?:boolean)
   {
     if (!this._task.associatedDocumentRef[i])
     {
@@ -323,7 +326,7 @@ export class TasksdetailComponent implements OnInit {
         else
         {
           this.fileSelectEvent.emit(null);
-          if (!doNotShowNotification)
+          if (!suppressNotification)
           {
             this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
           }
