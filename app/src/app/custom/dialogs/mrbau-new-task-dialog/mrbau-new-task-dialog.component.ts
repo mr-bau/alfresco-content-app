@@ -21,6 +21,7 @@ import { CONST } from '../../mrbau-global-declarations';
       <form [formGroup]="form">
         <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
       </form>
+
   </mat-dialog-content>
   <mat-dialog-actions>
     <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
@@ -34,6 +35,9 @@ import { CONST } from '../../mrbau-global-declarations';
 export class MrbauNewTaskDialogComponent implements OnInit {
   errorMessage: string;
   loaderVisible: boolean;
+
+  addDocumentsVisible = false;
+
   form = new FormGroup({});
   model: any = {};
   options: FormlyFormOptions = {  };
@@ -111,7 +115,18 @@ export class MrbauNewTaskDialogComponent implements OnInit {
         'nodeId': this.taskParentFolderId
       };
       const accepts = ['application/json'];
-      const postBody = `{
+      let targets = "";
+      if (this.model.fileRefs && this.model.fileRefs.length > 0)
+      {
+        targets = ',"targets": [';
+        for (let i=0; i<this.model.fileRefs.length;i++)
+        {
+          targets += `{"targetId":"${this.model.fileRefs[i]}","assocType":"mrbt:associatedDocument"}`
+          targets += (i == this.model.fileRefs.length-1) ? "]" : ",";
+        }
+      }
+      const postBody = `
+      {
         "name": "-",
         "nodeType": "${MRBauTask.MRBT_TASK}",
         "properties":{
@@ -122,18 +137,9 @@ export class MrbauNewTaskDialogComponent implements OnInit {
           "mrbt:fullDescription": "${this.model.fullDescription ? this.model.fullDescription : ""}",
           "mrbt:dueDate": "${this.model.dueDate ? this.model.dueDate : ""}"
         }
+        ${targets}
       }`;
-/*        "targets": [
-          {
-            "targetId": "string1",
-            "assocType": "string1"
-          },
-          {
-            "targetId": "string2",
-            "assocType": "string2"
-          }
-        ]
-      }`;*/
+
       //console.log(postBody);
       this.nodeApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
         (success) => {
@@ -143,7 +149,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
         })
         .catch((error) => {
           //console.log("Promise rejected with: ");
-          //console.log(error);
+          console.log(error);
           this.notificationService.showError('Fehler: '+error);
         });
     }
@@ -270,5 +276,14 @@ export class MrbauNewTaskDialogComponent implements OnInit {
         required: true,
       },
     },
+    {
+      className: 'flex-3',
+      type: 'taskLinkedDocuments',
+      key: ['fileRefs','fileNames'],
+      templateOptions: {
+        text: 'Dokumente Hinzufügen',
+        description: 'Verknüpfte Dokumente',
+      },
+    }
   ];
 }

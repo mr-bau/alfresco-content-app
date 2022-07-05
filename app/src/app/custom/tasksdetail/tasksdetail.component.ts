@@ -63,23 +63,110 @@ export class TasksdetailComponent implements OnInit {
 
   buttonSaveClicked()
   {
-    if (this.model.status != this._task.status || this.model.comment)
+    this.saveStatusComment(this.model.status, this.model.comment);
+    this.model.comment = "";
+  }
+
+  saveStatusComment(status : EMRBauTaskStatus, comment: string)
+  {
+    if (status != this._task.status)
     {
-      this.saveNewStatus(this.model.status, this.model.comment);
-      this.model.comment = "";
+      this.saveNewStatus(status);
     }
 
-    this.getComments();
-/*
-    if (this.model.comment)
+    if (comment)
     {
-      let comment : string = this.model.comment;
-      comment.trim();
+      comment = comment.trim();
       if (comment.length > 0)
       {
         this.addComment(comment);
       }
-    }*/
+    }
+  }
+
+  getComments()
+  {
+    this.commentContentService.getNodeComments(this._task.id).subscribe(
+      (comments: CommentModel[]) => {
+        if (comments && comments instanceof Array) {
+          console.log(comments.length+" comments received");
+          comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
+              const date1 = new Date(comment1.created);
+              const date2 = new Date(comment2.created);
+              return date1 > date2 ? -1 : date1 < date2 ? 1 : 0;
+          });
+          comments.forEach((comment) => {
+            console.log(comment);
+          });
+        }
+      },
+      (err) => {
+        this.errorMessage = err;
+      }
+    );
+  }
+
+  addComment(comment: string)
+  {
+    this.commentContentService.addNodeComment(this._task.id, comment).subscribe(
+      (res: CommentModel) => {
+        res;
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+      },
+      (err) => {
+        this.errorMessage = (this.errorMessage) ? err : this.errorMessage+"\n"+err;
+      }
+    );
+  }
+
+  saveNewStatus(status : EMRBauTaskStatus)
+  {
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:status": ""+status}};
+
+    this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
+      (nodeEntry) => {
+        this._task.status = status;
+        this._task.updateWithNodeData(nodeEntry.entry);
+        this.resetModel();
+        this.taskChangeEvent.emit(this._task);
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+      })
+      .catch((err) => this.errorMessage = err);
+  }
+
+  resetModel()
+  {
+    this.model = {};
+    this.model.status = this._task.status;
+  }
+
+  queryNewData()
+  {
+    this.errorMessage = null;
+    if (this._task == null)
+    {
+      this.fileSelectEvent.emit(null);
+      return;
+    }
+    this.nodeId = this._task.id;
+    this.resetModel();
+    this.fields = MrbauTaskFormLibrary.getForm(this.task);
+    this.onAssociationClicked(0, false);
+  }
+
+  ngAfterViewInit(): void {
+    // check form validation
+    // workaround for error "Expression has changed after it was checked."
+    setTimeout(() => {
+      this.isTaskComplete = this.form.valid;
+    });
+    this.form.statusChanges.subscribe(res => {
+      this.isTaskComplete = ("VALID" === res as string);
+    })
+  }
+
+  getTaskDescription() : string {
+    return (this.task && this.task.fullDescription) ? this.task.fullDescription : "(keine weitere Beschreibung angegeben)";
   }
 
   buttonAddFilesClicked()
@@ -155,104 +242,6 @@ export class TasksdetailComponent implements OnInit {
     .catch((error) => {
       this.errorMessage = error;
     });
-
-  }
-
-  getComments()
-  {
-    this.commentContentService.getNodeComments(this._task.id).subscribe(
-      (comments: CommentModel[]) => {
-        if (comments && comments instanceof Array) {
-          console.log(comments.length+" comments received");
-          comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
-              const date1 = new Date(comment1.created);
-              const date2 = new Date(comment2.created);
-              return date1 > date2 ? -1 : date1 < date2 ? 1 : 0;
-          });
-          comments.forEach((comment) => {
-            console.log(comment);
-          });
-      }
-      },
-      (err) => {
-        console.log("xxx comment error");
-        console.log(err);
-      }
-    );
-  }
-
-  /*
-  addComment(comment: string)
-  {
-    this.commentContentService.addNodeComment(this._task.id, comment).subscribe(
-      (res: CommentModel) => {
-        console.log("xxx comment added");
-        console.log(res);
-      },
-      (err) => {
-        console.log("xxx comment error");
-        console.log(err);
-      }
-    );
-  }*/
-
-  saveNewStatus(status : EMRBauTaskStatus, commentString? : string)
-  {
-    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:status": ""+status}};
-    let opts;
-    if (commentString)
-    {
-      commentString.trim();
-      if (commentString.length > 0)
-      {
-        opts = {comment : commentString};
-      }
-    }
-
-    this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate, opts).then(
-      (nodeEntry) => {
-        this._task.status = status;
-        this._task.updateWithNodeData(nodeEntry.entry);
-        this.resetModel();
-        this.taskChangeEvent.emit(this._task);
-        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
-      })
-      .catch((err) => this.errorMessage = err);
-  }
-
-  resetModel()
-  {
-    this.model = {};
-    this.model.status = this._task.status;
-  }
-
-  queryNewData()
-  {
-    this.errorMessage = null;
-    if (this._task == null)
-    {
-      this.fileSelectEvent.emit(null);
-      return;
-    }
-    this.nodeId = this._task.id;
-    this.resetModel();
-    this.fields = MrbauTaskFormLibrary.getForm(this.task);
-    this.onAssociationClicked(0, false);
-  }
-
-  ngAfterViewInit(): void {
-    // check form validation
-    // workaround for error "Expression has changed after it was checked."
-    setTimeout(() => {
-      this.isTaskComplete = this.form.valid;
-    });
-    this.form.statusChanges.subscribe(res => {
-      this.isTaskComplete = ("VALID" === res as string);
-    })
-  }
-
-  getTaskDescription() : string {
-    return (this.task && this.task.fullDescription) ? this.task.fullDescription : "(keine weitere Beschreibung angegeben)";
   }
 
   onRemoveAssociationClicked(i:number)
@@ -372,7 +361,7 @@ export class TasksdetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result)
       {
-        this.saveNewStatus(EMRBauTaskStatus.STATUS_FINISHED, result.comment);
+        this.saveStatusComment(EMRBauTaskStatus.STATUS_FINISHED, result.comment);
       }
     });
   }
@@ -444,7 +433,7 @@ export class TasksdetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result)
       {
-        this.saveNewStatus(EMRBauTaskStatus.STATUS_CANCELED, result.comment);
+        this.saveStatusComment(EMRBauTaskStatus.STATUS_CANCELED, result.comment);
       }
     });
   }

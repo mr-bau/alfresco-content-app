@@ -1,6 +1,8 @@
-import { AuthenticationService } from '@alfresco/adf-core';
+import { AuthenticationService, PeopleContentService } from '@alfresco/adf-core';
+import { ProfileState } from '@alfresco/adf-extensions/public-api';
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Observable } from 'rxjs';
 import { IMRBauTasksCategory, MRBauTask} from '../mrbau-task-declarations';
 //import { MRBauTask } from '../mrbau-task-declarations';
 @Component({
@@ -20,8 +22,16 @@ export class TasksComponent implements OnInit {
   modifiedTask :MRBauTask = null;
   taskCategories : IMRBauTasksCategory[];
 
-  constructor(private sanitizer: DomSanitizer, private alfrescoAuthenticationService: AuthenticationService) {
+  profile$: Observable<ProfileState>;
+  appName$: Observable<string>;
+
+  constructor(private sanitizer: DomSanitizer, private alfrescoAuthenticationService: AuthenticationService, private peopleContentService:PeopleContentService) {
     let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
+    this.peopleContentService.getCurrentPerson().toPromise().then(result => console.log(result));
+    // TODO remove hack
+    if (ecmUserName.toLowerCase() == "wolfgang moser")
+      ecmUserName = "Wolfgang Moser";
+
     this.taskCategories = [{
       tabIcon: 'description',
       tabName: 'Aufgaben',
@@ -32,7 +42,8 @@ export class TasksComponent implements OnInit {
         // https://angelborroy.wordpress.com/2018/05/30/alfresco-counting-more-than-1000-elements/
         query: {
           // CONTAINS comparison is necessary to make the comparison case insensitive (getECMUsername does not use the user id but the entered user name from login window)
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
+          //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND B.mrbt:assignedUserName = '${ecmUserName=="admin" ? "*" : ecmUserName}' ORDER BY B.cmis:creationDate DESC`,
           language: 'cmis'
         },
         include: ['properties']

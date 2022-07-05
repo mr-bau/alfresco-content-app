@@ -116,6 +116,7 @@ import { MrbauBaseTaskDialogComponent } from './custom/dialogs/mrbau-base-task-d
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
+import { FormlyFieldTaskLinkedDocumentsComponent } from './custom/formly-field-task-linked-documents/formly-field-task-linked-documents.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -191,6 +192,14 @@ registerLocaleData(localeSv);
       ],
       types: [
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
+        { name: 'taskLinkedDocuments', component: FormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
+        defaultOptions: {
+          templateOptions: {
+              btnType: 'default',
+              type: 'button',
+            },
+          },
+        },
       ],
       extras: {
         checkExpressionOn: 'modelChange',
@@ -229,7 +238,8 @@ registerLocaleData(localeSv);
     MrbauBaseTaskDialogComponent,
     TaskVersionlistComponent,
     MrbauConfirmTaskDialogComponent,
-    TaskLinkedDocumentsComponent
+    TaskLinkedDocumentsComponent,
+    FormlyFieldTaskLinkedDocumentsComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

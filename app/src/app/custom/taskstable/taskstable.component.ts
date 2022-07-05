@@ -63,7 +63,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
         let searchRequest : SearchRequest = JSON.parse(JSON.stringify(tab.searchRequest))
         searchRequest.paging = {
           skipCount: 0,
-          maxItems:  1
+          maxItems:  999
         }
         // HELPER_FORCE_FULL_TEXT_SEARCH is only needed for AFTS search
         //searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
