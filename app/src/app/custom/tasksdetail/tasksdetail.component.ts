@@ -1,17 +1,29 @@
-import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
-import { MrbauTaskFormLibrary } from '../form/mrbau-task-form-library';
-import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
-import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
+
 import { ConfirmDialogComponent, ContentNodeSelectorComponentData, ContentNodeSelectorComponent } from '@alfresco/adf-content-services';
 import { CommentContentService, CommentModel, ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
-import { MinimalNodeEntryEntity, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
-import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
-import { CONST } from '../mrbau-global-declarations';
-import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { NodeBodyUpdate, NodeEntry, Node } from '@alfresco/js-api';
+
+import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
-import { Node } from '@alfresco/js-api';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+
+import { CONST } from '../mrbau-global-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
+import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
+import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { TaskCommentlistComponent } from '../task-commentlist/task-commentlist.component';
+import { MrbauTaskFormLibrary } from '../form/mrbau-task-form-library';
+
+interface TaskBarButton {
+ icon : string;
+ text:string,
+ tooltip:string;
+ class: string;
+ onClick?: (event?:any) => void;
+}
+
 @Component({
   selector: 'aca-tasksdetail',
   templateUrl: './tasksdetail.component.html',
@@ -19,8 +31,11 @@ import { Node } from '@alfresco/js-api';
   encapsulation: ViewEncapsulation.None
 })
 export class TasksdetailComponent implements OnInit {
+  @ViewChild('commentlist') commentList : TaskCommentlistComponent;
+
   @Output() fileSelectEvent = new EventEmitter<string>();
   @Output() taskChangeEvent = new EventEmitter<MRBauTask>();
+
   @Input()
   set task(val: MRBauTask) {
     this._task = val;
@@ -33,7 +48,6 @@ export class TasksdetailComponent implements OnInit {
 
   nodeId : string = null;
   errorMessage: string = null;
-  //isLoading: boolean = false;
 
   form = new FormGroup({});
   model: any = {};
@@ -41,16 +55,52 @@ export class TasksdetailComponent implements OnInit {
   fields : FormlyFieldConfig[] = [];
 
   historyPanelOpened:boolean=false;
+  commentPanelOpened:boolean=false;
 
-  node : MinimalNodeEntryEntity = null;
   isTaskComplete : boolean = false;
+
   constructor(private _dialog: MatDialog,
-    private nodesApiService: NodesApiService,
-    private contentService: ContentService,
-    private notificationService: NotificationService,
-    private commentContentService: CommentContentService,
-    //private contentDialogService: ContentNodeDialogService
+    private _nodesApiService: NodesApiService,
+    private _contentService: ContentService,
+    private _notificationService: NotificationService,
+    private _commentContentService: CommentContentService,
     ) {
+  }
+
+  readonly taskBarButtonsNormal : TaskBarButton[] = [
+    { icon:"done", class:"mat-primary", tooltip:"Aufgabe abschließen", text:"Erledigen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event); } }
+  ];
+
+  readonly taskBarButtonsNotifyState : TaskBarButton[] = [
+    { icon:"done", class:"mat-primary", tooltip:"Aufgabe abschließen", text:"Gelesen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event); } }
+  ];
+
+  readonly taskBarButtonsApprove : TaskBarButton[] = [
+    { icon:"done", class:"mat-primary", tooltip:"Aufgabe genehmigen", text:"Genehmigen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event, 'Aufgabe genehmigen', '', 'AUFGABE GENEHMIGEN'); } },
+    { icon:"done", class:"mat-warn", tooltip:"Aufgabe ablehnen", text:"Ablehnen", onClick: (event?:any) => { this.onDeclineTaskClicked(event); } }
+  ];
+
+  taskBarButtons : TaskBarButton[] = [];
+
+  updateTaskBarButtons()
+  {
+    if (!this._task)
+    {
+      this.taskBarButtons = [];
+      return;
+    }
+    if (this._task.isInNotifyState())
+    {
+      this.taskBarButtons = this.taskBarButtonsNotifyState;
+      return;
+    }
+    if (this._task.category == EMRBauTaskCategory.CommonTaskApprove)
+    {
+      this.taskBarButtons = this.taskBarButtonsApprove;
+      return;
+    }
+
+    this.taskBarButtons = this.taskBarButtonsNormal;
   }
 
   ngOnInit(): void {
@@ -63,17 +113,12 @@ export class TasksdetailComponent implements OnInit {
 
   buttonSaveClicked()
   {
-    this.saveStatusComment(this.model.status, this.model.comment);
+    this.saveStatusCommentUser(this.model.status, this.model.comment);
     this.model.comment = "";
   }
 
-  saveStatusComment(status : EMRBauTaskStatus, comment: string)
+  saveStatusCommentUser(status : EMRBauTaskStatus, comment: string, newUserId?: string)
   {
-    if (status != this._task.status)
-    {
-      this.saveNewStatus(status);
-    }
-
     if (comment)
     {
       comment = comment.trim();
@@ -82,36 +127,22 @@ export class TasksdetailComponent implements OnInit {
         this.addComment(comment);
       }
     }
-  }
 
-  getComments()
-  {
-    this.commentContentService.getNodeComments(this._task.id).subscribe(
-      (comments: CommentModel[]) => {
-        if (comments && comments instanceof Array) {
-          console.log(comments.length+" comments received");
-          comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
-              const date1 = new Date(comment1.created);
-              const date2 = new Date(comment2.created);
-              return date1 > date2 ? -1 : date1 < date2 ? 1 : 0;
-          });
-          comments.forEach((comment) => {
-            console.log(comment);
-          });
-        }
-      },
-      (err) => {
-        this.errorMessage = err;
-      }
-    );
+    if (status != this._task.status || (newUserId && newUserId != this._task.assignedUserName))
+    {
+      this.saveNewStatus(status, newUserId);
+    }
   }
 
   addComment(comment: string)
   {
-    this.commentContentService.addNodeComment(this._task.id, comment).subscribe(
+    this._commentContentService.addNodeComment(this._task.id, comment).subscribe(
       (res: CommentModel) => {
         res;
-        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this.resetModel();
+        // update comment list
+        this.commentList.queryData();
       },
       (err) => {
         this.errorMessage = (this.errorMessage) ? err : this.errorMessage+"\n"+err;
@@ -119,17 +150,21 @@ export class TasksdetailComponent implements OnInit {
     );
   }
 
-  saveNewStatus(status : EMRBauTaskStatus)
+  saveNewStatus(status : EMRBauTaskStatus, newUserId?: string)
   {
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:status": ""+status}};
+    if (newUserId)
+    {
+      nodeBodyUpdate.properties["mrbt:assignedUserName"] = newUserId;
+    }
 
-    this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
+    this._contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
       (nodeEntry) => {
         this._task.status = status;
         this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
         this.taskChangeEvent.emit(this._task);
-        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
       })
       .catch((err) => this.errorMessage = err);
   }
@@ -151,6 +186,7 @@ export class TasksdetailComponent implements OnInit {
     this.nodeId = this._task.id;
     this.resetModel();
     this.fields = MrbauTaskFormLibrary.getForm(this.task);
+    this.updateTaskBarButtons();
     this.onAssociationClicked(0, false);
   }
 
@@ -167,6 +203,16 @@ export class TasksdetailComponent implements OnInit {
 
   getTaskDescription() : string {
     return (this.task && this.task.fullDescription) ? this.task.fullDescription : "(keine weitere Beschreibung angegeben)";
+  }
+
+  isTaskModificationUiVisible() :boolean
+  {
+    return (this.task) ? this.task.isTaskModificationUiVisible() : false;
+  }
+
+  isToolbarVisible() : boolean
+  {
+    return !this._task.isTaskInDoneState();
   }
 
   buttonAddFilesClicked()
@@ -226,7 +272,7 @@ export class TasksdetailComponent implements OnInit {
     const formParams = {};
     const contentTypes = ['application/json'];
     const accepts = ['application/json'];
-    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
+    this._nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
       (success) => {
         success;
         this.resetModel();
@@ -237,7 +283,7 @@ export class TasksdetailComponent implements OnInit {
           this._task.associatedDocumentRef.push(node.id);
         }
         this.taskChangeEvent.emit(this._task);
-        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
     .catch((error) => {
       this.errorMessage = error;
@@ -282,7 +328,7 @@ export class TasksdetailComponent implements OnInit {
     const bodyParams = [];
     const contentTypes = ['application/json'];
     const accepts = ['application/json'];
-    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets/{targetId}", "DELETE", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
+    this._nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets/{targetId}", "DELETE", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
       (success) => {
         success;
         this.resetModel();
@@ -290,7 +336,7 @@ export class TasksdetailComponent implements OnInit {
         this._task.associatedDocumentName.splice(i, 1);
         this._task.associatedDocumentRef.splice(i, 1);
         this.taskChangeEvent.emit(this._task);
-        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
     .catch((error) => {
       this.errorMessage = error;
@@ -306,18 +352,18 @@ export class TasksdetailComponent implements OnInit {
     }
 
     let id : string = this._task.associatedDocumentRef[i];
-    this.contentService.getNode(id).subscribe(
+    this._contentService.getNode(id).subscribe(
       (node: NodeEntry) => {
         if (CONST.isPdfDocument(node))
         {
-          this.fileSelectEvent.emit(this.contentService.getContentUrl(id));
+          this.fileSelectEvent.emit(this._contentService.getContentUrl(id));
         }
         else
         {
           this.fileSelectEvent.emit(null);
           if (!suppressNotification)
           {
-            this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
+            this._notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
           }
         }
       },
@@ -327,14 +373,14 @@ export class TasksdetailComponent implements OnInit {
     );
   }
 
-  onFinishTaskClicked(model)
+  onDeclineTaskClicked(event?:any)
   {
-    model;
+    event;
     const dialogRef = this._dialog.open(MrbauConfirmTaskDialogComponent, {
       data: {
-        dialogTitle: 'Aufgabe Abschließen',
+        dialogTitle: 'Aufgabe Ablehnen',
         dialogMsg: 'Eine abgeschlossene Aufgabe kann nicht mehr geöffnet werden.',
-        dialogButtonOK: 'AUFGABE ERLEDIGEN',
+        dialogButtonOK: 'AUFGABE ABLEHNEN',
         callQueryData: false,
         fieldsMain: [
           {
@@ -361,7 +407,67 @@ export class TasksdetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result)
       {
-        this.saveStatusComment(EMRBauTaskStatus.STATUS_FINISHED, result.comment);
+        this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, result.comment);
+      }
+    });
+  }
+
+  onFinishApproveTaskClicked(event?:any, title? :string, message?: string, okText? : string)
+  {
+    event;
+    // if in notify state finish immediately
+    if (this._task.isInNotifyState() || this._task.category == EMRBauTaskCategory.CommonTaskInfo)
+    {
+      this.saveNewStatus(EMRBauTaskStatus.STATUS_FINISHED);
+      return;
+    }
+
+    const dialogRef = this._dialog.open(MrbauConfirmTaskDialogComponent, {
+      data: {
+        dialogTitle: title ? title : 'Aufgabe Abschließen',
+        dialogMsg: message ? message : 'Eine abgeschlossene Aufgabe kann nicht mehr geöffnet werden.',
+        dialogButtonOK: okText ? okText : 'AUFGABE ERLEDIGEN',
+        callQueryData: false,
+        fieldsMain: [
+          {
+            fieldGroupClassName: 'flex-container-min-width',
+            fieldGroup: [
+              {
+                className: 'flex-2',
+                key: 'comment',
+                type: 'textarea',
+                templateOptions: {
+                  label: 'Optionaler Kommentar',
+                  description: 'Kommentar',
+                  maxLength: CONST.MAX_LENGTH_COMMENT,
+                  required: false,
+                },
+              },
+            ]
+          }
+        ],
+        payload: this._task
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result)
+      {
+        if (this._task.category == EMRBauTaskCategory.CommonTaskApprove)
+        {
+          // notify always to keep approval status in version history
+          this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_NOTIFY_APPROVED, result.comment, this._task.createdUser.id);
+        }
+        else if (this._task.assignedUserName == this._task.createdUser.id || this._task.category == EMRBauTaskCategory.CommonTaskInfo)
+        {
+          // finish immediately and keep assigned user - no need for notify state
+          this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_FINISHED, result.comment);
+        }
+        else
+        {
+          // notify creator
+          this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_NOTIFY_DONE, result.comment, this._task.createdUser.id);
+        }
       }
     });
   }
@@ -373,12 +479,19 @@ export class TasksdetailComponent implements OnInit {
       return;
     }
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUser}};
-    this.contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
+
+    if (this._task.isInNotifyState())
+    {
+      // change state to new
+      nodeBodyUpdate.properties["mrbt:status"] = ""+EMRBauTaskStatus.STATUS_NEW;
+    }
+
+    this._contentService.nodesApi.updateNode(this._task.id, nodeBodyUpdate).then(
       (nodeEntry) => {
         this._task.assignedUserName = newUser;
         this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
-        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
         this.taskChangeEvent.emit(this._task);
       })
       .catch((err) => this.errorMessage = err);
@@ -433,7 +546,7 @@ export class TasksdetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result)
       {
-        this.saveStatusComment(EMRBauTaskStatus.STATUS_CANCELED, result.comment);
+        this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_CANCELED, result.comment, this._task.createdUser.id);
       }
     });
   }

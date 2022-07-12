@@ -51,7 +51,7 @@ export class TaskVersionlistComponent implements OnInit {
   }
 
   queryData() {
-    this.errorMessage="<i>loading...</i>";
+    this.errorMessage="loading...";
     this.versionData = [];
     if (this._nodeId == null || this._isVisible == false)
     {

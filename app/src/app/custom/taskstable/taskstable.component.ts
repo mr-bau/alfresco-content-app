@@ -16,7 +16,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   set taskUpdateEvent(task:MRBauTask) {
     if (task)
     {
-      if (task.status >= EMRBauTaskStatus.STATUS_FINISHED)
+      if (task.status >= EMRBauTaskStatus.STATUS_NOTIFY_DONE)
       {
         // deselect object
         this.selectObject(null);

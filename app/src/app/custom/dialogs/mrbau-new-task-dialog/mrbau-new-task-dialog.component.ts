@@ -53,12 +53,6 @@ export class MrbauNewTaskDialogComponent implements OnInit {
               private peopleContentService: PeopleContentService,
               private notificationService: NotificationService,
               private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
-    // set default date today + 14 days
-    let date = new Date();
-    date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
-    this.model.dueDate = this.datePipe.transform(date, 'yyyy-MM-dd');
-    // set default priority
-    this.model.priority = 2;
 
     if (isDevMode()) {
       this.model.assignedUser = "Wolfgang Moser";
@@ -161,10 +155,32 @@ export class MrbauNewTaskDialogComponent implements OnInit {
     if (cat && cat != this._oldCategory)
     {
       this._oldCategory = cat;
-      let newFieldGroup = this.fieldGroupTBD;
+      let newFieldGroup = this.fieldGroupEmpty;
+
       if (cat > EMRBauTaskCategory.CommonTaskStart && cat < EMRBauTaskCategory.CommonTaskLast)
       {
         newFieldGroup = this.fieldGroupCommonTasks;
+
+        // set default date today + 14 days
+        let date = new Date();
+        date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
+        this.model.dueDate = this.datePipe.transform(date, 'yyyy-MM-dd');
+        // set default priority
+        this.model.priority = 2;
+        // update model parameter according to task
+        if (cat == EMRBauTaskCategory.CommonTaskInfo)
+        {
+          this.model.description = "Zur Information";
+          delete this.model.dueDate;
+        }
+        else if (cat == EMRBauTaskCategory.CommonTaskApprove)
+        {
+          this.model.description = "Überprüfen und Genehmigen";
+        }
+        else
+        {
+          this.model.description = "";
+        }
       }
       else if (cat > EMRBauTaskCategory.InvoiceAuditStart && cat < EMRBauTaskCategory.InvoiceAuditLast)
       {}
@@ -195,9 +211,9 @@ export class MrbauNewTaskDialogComponent implements OnInit {
                   {label: 'Zur Information übermitteln', value: EMRBauTaskCategory.CommonTaskInfo, group: 'Allgemeine Aufgaben'},
                   {label: 'Überprüfen und genehmigen (ein Überprüfer)', value: EMRBauTaskCategory.CommonTaskApprove, group: 'Allgemeine Aufgaben'},
 
-                  {label: 'Spezielle Aufgabe 1', value: '2001', group: 'Spezielle Aufgabe'},
-                  {label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
-                  {label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
+                  //{label: 'Spezielle Aufgabe 1', value: '2001', group: 'Spezielle Aufgabe'},
+                  //{label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
+                  //{label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
                 ],
                 required: true,
               },
@@ -213,7 +229,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
     }
   ];
 
-  fieldGroupTBD = [];
+  fieldGroupEmpty = [];
   fieldGroupCommonTasks = [
     {
       className: 'flex-6',

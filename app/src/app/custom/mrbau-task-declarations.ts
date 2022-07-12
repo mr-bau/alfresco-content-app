@@ -8,6 +8,12 @@ export const enum EMRBauTaskStatus {
   STATUS_IN_PROGRESS = 100,
   STATUS_ON_HOLD     = 101,
 
+
+  // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
+  STATUS_NOTIFY_DONE      = 8000,
+  STATUS_NOTIFY_APPROVED = 8001,
+  STATUS_NOTIFY_DECLINED   = 8002,
+
   STATUS_FINISHED    = 9000,
   STATUS_CANCELED    = 9001
 }
@@ -17,6 +23,11 @@ export const MRBauTaskStatusNames =
   {label: 'Neu', value: EMRBauTaskStatus.STATUS_NEW},
   {label: 'In Bearbeitung', value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
   {label: 'On Hold', value: EMRBauTaskStatus.STATUS_ON_HOLD},
+
+  {label: 'Erledigt', value: EMRBauTaskStatus.STATUS_NOTIFY_DONE},
+  {label: 'Genehmigt', value: EMRBauTaskStatus.STATUS_NOTIFY_APPROVED},
+  {label: 'Abgelehnt', value: EMRBauTaskStatus.STATUS_NOTIFY_DECLINED},
+
   {label: 'Abgeschlossen', value: EMRBauTaskStatus.STATUS_FINISHED},
   {label: 'Abgebrochen', value: EMRBauTaskStatus.STATUS_CANCELED},
 ]
@@ -63,7 +74,7 @@ export const enum EMRBauTaskCategory {
 }
 
 export const MRBauTaskCategoryNames = {
-  1001 : "General",
+  1001 : "Allgemein",
   1002 : "Info",
   1003 : "Approval"
 };
@@ -95,6 +106,7 @@ export class MRBauTask {
   public static readonly MRBT_TASK_FOLDER = "mrbt:tasksFolder";
   public static readonly ASPECT_MRBT_TASK_CORE_DETAILS ="mrbt:taskCoreDetails";
   public static readonly DEFAULT_TASK_DURATION = 14;
+
   id : string;
   category: EMRBauTaskCategory;
   desc: string; // description
@@ -104,7 +116,7 @@ export class MRBauTask {
   fullDescription?: string; // long task description
   createdUser?: UserInfo; // currently assigned user
   createdDate?: Date;   // start date
-  assignedUserName?: string; // currently assigned user
+  assignedUserName?: string; // currently assigned user Id
   dueDate?: Date;
 
   constructor(obj?: any) {
@@ -133,6 +145,22 @@ export class MRBauTask {
     this.dueDate = node.properties["mrbt:dueDate"] ? node.properties["mrbt:dueDate"] : null;
     this.associatedDocumentRef = node.properties["mrbt:associatedDocumentRef"] ? node.properties["mrbt:associatedDocumentRef"] : [];
     this.associatedDocumentName = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
+  }
+
+  public isInNotifyState() : boolean {
+    return this.status >= EMRBauTaskStatus.STATUS_NOTIFY_DONE && this.status < EMRBauTaskStatus.STATUS_FINISHED;
+  }
+
+  public isTaskInDoneState() : boolean {
+    return this.status >= EMRBauTaskStatus.STATUS_FINISHED;
+  }
+
+  public isTaskInNormalState() : boolean {
+    return this.status < EMRBauTaskStatus.STATUS_NOTIFY_DONE;
+  }
+
+  public isTaskModificationUiVisible() : boolean {
+    return this.status < EMRBauTaskStatus.STATUS_NOTIFY_DONE;
   }
 }
 

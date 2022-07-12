@@ -17,6 +17,11 @@ export class TaskIndicatorComponent {
         return "cornflowerblue";
       case EMRBauTaskStatus.STATUS_ON_HOLD:
         return "goldenrod";
+      case EMRBauTaskStatus.STATUS_NOTIFY_DONE:
+      case EMRBauTaskStatus.STATUS_NOTIFY_APPROVED:
+        return "darkgreen";
+      case EMRBauTaskStatus.STATUS_NOTIFY_DECLINED:
+        return "firebrick";
       case EMRBauTaskStatus.STATUS_FINISHED:
         return "darkgreen";
       case EMRBauTaskStatus.STATUS_CANCELED:

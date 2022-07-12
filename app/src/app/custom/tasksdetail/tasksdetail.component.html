@@ -2,35 +2,36 @@
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
   <div *ngIf="task != null; else noTask">
     <adf-toolbar [title]="this.task.desc">
-      <!--
-      <adf-toolbar-divider></adf-toolbar-divider>
-      [disabled]="!form.valid"
-      (click)="clickedDelegate()"
-      -->
-      <button mat-flat-button class="disable-flex-shrink" color="primary" matTooltip="Aufgabe abschließen" [disabled]="!isTaskComplete" (click)="onFinishTaskClicked(model)">
-        <mat-icon>done</mat-icon>Erledigen
-      </button>
 
-      <button mat-icon-button [matMenuTriggerFor]="menu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="onDelegateTaskClicked(model)">
-            <mat-icon>send</mat-icon>
-            <span>Aufgabe Deligieren</span>
+      <div *ngIf="isToolbarVisible()">
+        <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
+          <button mat-flat-button class="disable-flex-shrink toolbar-button-spacing {{b.class}}" [matTooltip]="b.tooltip" (click)="b.onClick($event)">
+            <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
+          </button>
+        </ng-container>
+
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
         </button>
-        <button mat-menu-item (click)="onCancelTaskClicked(model)">
-            <mat-icon>cancel</mat-icon>
-            <span>Aufgabe Abbrechen</span>
-        </button>
-        <button mat-menu-item disabled>
-          <mat-icon>mail</mat-icon>
-          <span>tbd</span>
-      </button>
-      </mat-menu>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onDelegateTaskClicked(model)">
+              <mat-icon>send</mat-icon>
+              <span>Aufgabe Deligieren</span>
+          </button>
+          <button mat-menu-item (click)="onCancelTaskClicked(model)" [disabled]="!isTaskModificationUiVisible()">
+              <mat-icon>cancel</mat-icon>
+              <span>Aufgabe Abbrechen</span>
+          </button>
+        </mat-menu>
+      </div>
+
     </adf-toolbar>
     <mat-card class="addMarginTop" style="background:whitesmoke;">
       <div class="flex-container">
+        <div class="flex-2">{{this.task.category | mrbauTaskCategory}} Task, erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}</div>
+      </div>
+      <div class="flex-container addMarginTop">
+
         <div class="flex-2"><i>Zugewiesen:</i> {{this.task.assignedUserName}} </div>
         <div class="flex-2"><i>Zu erledigen bis:</i> {{this.task.dueDate | date:'mediumDate'}}</div>
         <div class="flex-2"><i>Status:</i> {{this.task.status | mrbauTaskStatus}}</div>
@@ -40,40 +41,39 @@
       </div>
     </mat-card>
     <mat-accordion multi="true">
-    <mat-expansion-panel style="margin-top:1rem;" [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>build</mat-icon>
-          <span class="expansionTitleText">Status ändern oder Kommentar hinzufügen</span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <form [formGroup]="form">
-        <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
-        <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model.status && !this.model.comment">Speichern</button>
-      </form>
-    </mat-expansion-panel>
 
-    <aca-task-linked-documents
-      [associatedDocumentRef]="task.associatedDocumentRef"
-      [associatedDocumentName]="task.associatedDocumentName"
-      (onRemoveAssociation)="onRemoveAssociationClicked($event)"
-      (onAssociation)="onAssociationClicked($event)"
-      (onAddAssociation)="buttonAddFilesClicked()"
-    ></aca-task-linked-documents>
+      <div *ngIf="isTaskModificationUiVisible()">
+        <mat-expansion-panel style="margin-top:1rem;" [expanded]="true" [hidden]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>build</mat-icon>
+              <span class="expansionTitleText">Status ändern oder Kommentar hinzufügen</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <form [formGroup]="form">
+            <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
+            <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model.status && !this.model.comment">Speichern</button>
+          </form>
+        </mat-expansion-panel>
+      </div>
 
-    <mat-expansion-panel style="margin-top:1rem;">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>comment</mat-icon>
-          <span class="expansionTitleText">Kommentare</span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+      <aca-task-linked-documents
+        [buttonsDisabled]="!isTaskModificationUiVisible()"
+        [associatedDocumentRef]="task.associatedDocumentRef"
+        [associatedDocumentName]="task.associatedDocumentName"
+        (onRemoveAssociation)="onRemoveAssociationClicked($event)"
+        (onAssociation)="onAssociationClicked($event)"
+        (onAddAssociation)="buttonAddFilesClicked()"
+      ></aca-task-linked-documents>
 
-      <adf-comments
-        [taskId]="this.task.id"
-        [readOnly]="true">
-      </adf-comments>
-
+      <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>comment</mat-icon>
+            <span class="expansionTitleText">Kommentare</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <aca-task-commentlist #commentlist [nodeId]="nodeId" [isVisible]="commentPanelOpened"></aca-task-commentlist>
       </mat-expansion-panel>
 
       <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">

@@ -3,7 +3,7 @@ import { ProfileState } from '@alfresco/adf-extensions/public-api';
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
-import { IMRBauTasksCategory, MRBauTask} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
 //import { MRBauTask } from '../mrbau-task-declarations';
 @Component({
   selector: 'aca-tasks',
@@ -22,8 +22,7 @@ export class TasksComponent implements OnInit {
   modifiedTask :MRBauTask = null;
   taskCategories : IMRBauTasksCategory[];
 
-  profile$: Observable<ProfileState>;
-  appName$: Observable<string>;
+  user$: Observable<ProfileState>;
 
   constructor(private sanitizer: DomSanitizer, private alfrescoAuthenticationService: AuthenticationService, private peopleContentService:PeopleContentService) {
     let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
@@ -43,14 +42,14 @@ export class TasksComponent implements OnInit {
         query: {
           // CONTAINS comparison is necessary to make the comparison case insensitive (getECMUsername does not use the user id but the entered user name from login window)
           //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND B.mrbt:assignedUserName = '${ecmUserName=="admin" ? "*" : ecmUserName}' ORDER BY B.cmis:creationDate DESC`,
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+ ((ecmUserName=="admin") ? '' : `AND B.mrbt:assignedUserName = '${ecmUserName}' `) + 'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'
         },
         include: ['properties']
       }
     },{
       tabIcon: 'list',
-      tabName: 'Belegprüfung',
+      tabName: 'Benachrichtigungen',
       // InvoiceAuditStart - InvoiceAuditLast
       tabBadge: 0,
       searchRequest: {
@@ -60,8 +59,10 @@ export class TasksComponent implements OnInit {
           //query: '(cm:name:*oemag* or cm:name:*photo*) and +TYPE:\"cm:content\"',
           //query: "+ASPECT:'foer:Foerderungsordner' and cm:name:'aws'",
           //query: 'foer:ProjektNr:*',
-          query: `+TYPE:"mrbt:task" and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd xxxx"`,
-          language: 'afts'
+          //query: `+TYPE:"mrbt:task" and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd xxxx"`,
+          //language: 'afts'
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((ecmUserName=="admin") ? '' : `AND B.mrbt:assignedUserName = '${ecmUserName}' `) + 'ORDER BY B.cmis:creationDate DESC',
+          language: 'cmis'
         },
         //sort: [{type:"FIELD", field:"cm:created",  ascending:true}],
         include: ['properties']
@@ -73,7 +74,8 @@ export class TasksComponent implements OnInit {
       tabBadge: 0,
       searchRequest: {
         query: {
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 9000 AND B.mrbt:status <= 9100 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
+          //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 9000 AND B.mrbt:status <= 9100 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((ecmUserName=="admin") ? '' : `AND B.mrbt:assignedUserName = '${ecmUserName}' `) + 'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'
         },
         include: ['properties']

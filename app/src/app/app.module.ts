@@ -117,6 +117,7 @@ import { TaskVersionlistComponent } from './custom/task-versionlist/task-version
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
 import { FormlyFieldTaskLinkedDocumentsComponent } from './custom/formly-field-task-linked-documents/formly-field-task-linked-documents.component';
+import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -239,7 +240,8 @@ registerLocaleData(localeSv);
     TaskVersionlistComponent,
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
-    FormlyFieldTaskLinkedDocumentsComponent
+    FormlyFieldTaskLinkedDocumentsComponent,
+    TaskCommentlistComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },
