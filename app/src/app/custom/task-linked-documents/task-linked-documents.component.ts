@@ -3,7 +3,7 @@ import { Component, Input, EventEmitter, Output } from '@angular/core';
 @Component({
   selector: 'aca-task-linked-documents',
   template: `
-  <mat-expansion-panel style="margin-top:1rem;">
+  <mat-expansion-panel style="margin-top:1rem;" [expanded]="defaultExpanded">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>attachment</mat-icon>
@@ -25,6 +25,7 @@ export class TaskLinkedDocumentsComponent  {
   @Input() associatedDocumentRef: string[] = [];
   @Input() associatedDocumentName: string[] = [];
   @Input() buttonsDisabled : boolean = false;
+  @Input() defaultExpanded : boolean = false;
   @Output() onRemoveAssociation = new EventEmitter<number>();
   @Output() onAssociation = new EventEmitter<number>();
   @Output() onAddAssociation = new EventEmitter();

@@ -44,7 +44,7 @@
     {
       "id": "mrbau.extension.actions.new-task-dialog",
       "type": "MRBAU_NEW_TASK_DIALOG",
-      "payload": "xxx test payload xxx"
+      "payload": "$(context.selection)"
     }
   ],
   "features": {
@@ -65,6 +65,20 @@
           "route": "mrbau.extension.route.main"
         }
       ]
+    }
+  ],
+  "contextMenu": [
+    {
+      "id": "mrbau.extension.menu.new-task",
+      "title": "Aufgabe erstellen",
+      "order": 301,
+      "icon": "build",
+      "actions": {
+        "click": "mrbau.extension.actions.new-task-dialog"
+      },
+      "rules": {
+        "visible": "app.selection.canDownload"
+      }
     }
   ],
   "create": [
