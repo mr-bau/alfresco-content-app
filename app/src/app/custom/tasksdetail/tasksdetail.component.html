@@ -83,7 +83,11 @@
             <span class="expansionTitleText">Verlauf</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <aca-task-versionlist [nodeId]="nodeId" [isVisible]="historyPanelOpened"></aca-task-versionlist>
+        <aca-task-versionlist
+          [nodeId]="nodeId"
+          [isVisible]="historyPanelOpened"
+          (onAssociation)="onAssociationClickedById($event)"
+          ></aca-task-versionlist>
       </mat-expansion-panel>
     </mat-accordion>
 

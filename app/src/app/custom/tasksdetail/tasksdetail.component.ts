@@ -121,11 +121,7 @@ export class TasksdetailComponent implements OnInit {
   {
     if (comment)
     {
-      comment = comment.trim();
-      if (comment.length > 0)
-      {
-        this.addComment(comment);
-      }
+      this.addComment(comment)
     }
 
     if (status != this._task.status || (newUserId && newUserId != this._task.assignedUserName))
@@ -136,6 +132,11 @@ export class TasksdetailComponent implements OnInit {
 
   addComment(comment: string)
   {
+    comment = comment.trim();
+    if (comment.length == 0)
+    {
+        return;
+    }
     this._commentContentService.addNodeComment(this._task.id, comment).subscribe(
       (res: CommentModel) => {
         res;
@@ -343,15 +344,8 @@ export class TasksdetailComponent implements OnInit {
     });
   }
 
-  onAssociationClicked(i:number, suppressNotification?:boolean)
+  onAssociationClickedById(id : string, suppressNotification?:boolean)
   {
-    if (!this._task.associatedDocumentRef[i])
-    {
-      this.fileSelectEvent.emit(null);
-      return;
-    }
-
-    let id : string = this._task.associatedDocumentRef[i];
     this._contentService.getNode(id).subscribe(
       (node: NodeEntry) => {
         if (CONST.isPdfDocument(node))
@@ -371,6 +365,18 @@ export class TasksdetailComponent implements OnInit {
         this.errorMessage = error;
       }
     );
+  }
+
+  onAssociationClicked(i:number, suppressNotification?:boolean)
+  {
+    if (!this._task.associatedDocumentRef[i])
+    {
+      this.fileSelectEvent.emit(null);
+      return;
+    }
+
+    let id : string = this._task.associatedDocumentRef[i];
+    this.onAssociationClickedById(id, suppressNotification);
   }
 
   onDeclineTaskClicked(event?:any)
@@ -472,14 +478,34 @@ export class TasksdetailComponent implements OnInit {
     });
   }
 
+  onDelegateTaskClicked(model)
+  {
+    model;
+    const dialogRef = this._dialog.open(MrbauDelegateTaskDialogComponent, {
+      data: { payload: this._task }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result)
+      {
+        this.delegateTask(result);
+      }
+    });
+  }
+
   delegateTask(model) {
     const newUser : string = model.assignedUser
     if (!newUser)
     {
       return;
     }
-    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUser}};
 
+    if (model.comment)
+    {
+      this.addComment(model.comment);
+    }
+
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUser}};
     if (this._task.isInNotifyState())
     {
       // change state to new
@@ -495,21 +521,6 @@ export class TasksdetailComponent implements OnInit {
         this.taskChangeEvent.emit(this._task);
       })
       .catch((err) => this.errorMessage = err);
-  }
-
-  onDelegateTaskClicked(model)
-  {
-    model;
-    const dialogRef = this._dialog.open(MrbauDelegateTaskDialogComponent, {
-      data: { payload: this._task }
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result)
-      {
-        this.delegateTask(result);
-      }
-    });
   }
 
   onCancelTaskClicked(model)
