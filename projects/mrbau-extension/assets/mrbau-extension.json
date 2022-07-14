@@ -30,6 +30,15 @@
     "auth": ["app.auth"]
   }
   ],
+  "rules": [
+    {
+      "id": "mrbau.extension.rule.can-inbox-assign",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
+      ]
+    }
+  ],
   "actions": [
     {
         "id": "mrbau.extension.actions.navigate-test",
@@ -45,6 +54,11 @@
       "id": "mrbau.extension.actions.new-task-dialog",
       "type": "MRBAU_NEW_TASK_DIALOG",
       "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.inbox-assign-dialog",
+      "type": "MRBAU_INBOX_ASSIGN_DIALOG",
+      "payload": "$(context.selection)"
     }
   ],
   "features": {
@@ -53,44 +67,74 @@
         "id": "mrbau.extension.nav",
         "items": [
           {
+            "id": "app.navbar.foerdermanager",
+            "order": 500,
+            "icon": "attach_money",
+            "label": "Link",
+            "title": "Fördermanager",
+            "description": "Fördermanager",
+            "route": "foerdermanager"
+          },
+          {
+            "id": "app.navbar.belegsammlung",
+            "order": 600,
+            "icon": "work",
+            "label": "Link",
+            "title": "Belegsammlung",
+            "description": "Belegsammlung",
+            "route": "belege"
+          },
+          {
             "id": "mrbau.extension.tasks",
             "icon": "touch_app",
             "title": "Aufgaben",
             "route": "mrbau.extension.route.tasks"
-        },
-        {
-          "id": "mrbau.extension.tools",
-          "icon": "timeline",
-          "title": "Anwendungen",
-          "route": "mrbau.extension.route.main"
-        }
-      ]
-    }
-  ],
-  "contextMenu": [
-    {
-      "id": "mrbau.extension.menu.new-task",
-      "title": "Aufgabe erstellen",
-      "order": 301,
-      "icon": "build",
-      "actions": {
-        "click": "mrbau.extension.actions.new-task-dialog"
-      },
-      "rules": {
-        "visible": "app.selection.canDownload"
+          },
+          {
+            "id": "mrbau.extension.tools",
+            "icon": "timeline",
+            "title": "Anwendungen",
+            "route": "mrbau.extension.route.main"
+          }
+        ]
       }
-    }
-  ],
-  "create": [
-    {
-        "id": "mrbau.extension.create.new-task",
-        "type": "default",
-        "icon": "build",
+    ],
+    "contextMenu": [
+      {
+        "id": "mrbau.extension.menu.new-task",
         "title": "Aufgabe erstellen",
+        "order": 301,
+        "icon": "build",
         "actions": {
           "click": "mrbau.extension.actions.new-task-dialog"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.only-files-selected"
         }
-    }
-  ]
-}
+      },
+      {
+        "id": "mrbau.extension.menu.inbox-assign",
+        "title": "Dokumente zuordnen",
+        "order": 301,
+        "icon": "inbox",
+        "actions": {
+          "click": "mrbau.extension.actions.inbox-assign-dialog"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.can-inbox-assign"
+        }
+      }
+    ],
+    "create": [
+      {
+          "id": "mrbau.extension.create.new-task",
+          "type": "default",
+          "icon": "build",
+          "title": "Aufgabe erstellen",
+          "actions": {
+            "click": "mrbau.extension.actions.new-task-dialog"
+          }
+      }
+    ]
+  }
 }

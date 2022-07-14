@@ -11,6 +11,7 @@ import { DatePipe } from '@angular/common';
 import { isDevMode } from '@angular/core';
 import { CONST } from '../../mrbau-global-declarations';
 import { SelectionState } from '@alfresco/adf-extensions';
+
 @Component({
   selector: 'aca-mrbau-new-task-dialog',
   template: `
@@ -48,9 +49,9 @@ export class MrbauNewTaskDialogComponent implements OnInit {
   private _oldCategory : EMRBauTaskCategory = null;
 
   constructor(private contentApiService : ContentApiService,
-              private nodeApiService: NodesApiService,
               private datePipe: DatePipe,
               private peopleContentService: PeopleContentService,
+              private nodeApiService: NodesApiService,
               private notificationService: NotificationService,
               private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
 
@@ -60,9 +61,6 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       //this.model.category = EMRBauTaskCategory.CommonTaskGeneral;
       //this.model.dueDate = "";
     }
-
-
-    //console.log(this.data.payload);
 
     const selection = this.data.payload as SelectionState;
     if (selection)
@@ -90,6 +88,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
   }
 
   queryData() {
+
     this.loaderVisible = true;
     this.errorMessage = null;
 

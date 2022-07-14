@@ -63,12 +63,12 @@ export const enum EMRBauTaskCategory {
   CommonTaskLast    = 1999,
 
   NewDocumentStart  = 2000,
-  NewDocument       = 2001,
+  NewDocumentExtractMetadata       = 2001,
   //...
   NewDocumentLast   = 2999,
 
-  InvoiceAuditStart = 3000,
-  InvoiceAudit      = 3001,
+  InvoiceAuditStart           = 3000,
+  InvoiceAudit = 3001,
   //...
   InvoiceAuditLast  = 3999,
 }
@@ -76,7 +76,8 @@ export const enum EMRBauTaskCategory {
 export const MRBauTaskCategoryNames = {
   1001 : "Allgemein",
   1002 : "Info",
-  1003 : "Approval"
+  1003 : "Approval",
+  2001 : "Extract Metadata",
 };
 
 

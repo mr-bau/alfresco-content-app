@@ -112,12 +112,12 @@ import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dia
 import { MrbauFormlyNewTaskStepper, dateFutureValidator } from './custom/form/mrbau-stepper-validators';
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
-import { MrbauBaseTaskDialogComponent } from './custom/dialogs/mrbau-base-task-dialog/mrbau-base-task-dialog.component';
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
 import { FormlyFieldTaskLinkedDocumentsComponent } from './custom/formly-field-task-linked-documents/formly-field-task-linked-documents.component';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
+import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -236,12 +236,12 @@ registerLocaleData(localeSv);
     MRBauTaskStatusPipe,
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,
-    MrbauBaseTaskDialogComponent,
     TaskVersionlistComponent,
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
     FormlyFieldTaskLinkedDocumentsComponent,
-    TaskCommentlistComponent
+    TaskCommentlistComponent,
+    MrbauInboxAssignDialogComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

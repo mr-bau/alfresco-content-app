@@ -87,6 +87,11 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 3 - #{$flex-width-gap}));
 }
 
+.flex-4 {
+  flex: 4;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 4 - #{$flex-width-gap}));
+}
+
 .flex-6 {
   flex: 6;
   min-width: #{$flex-container-width};

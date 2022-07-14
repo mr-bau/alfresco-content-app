@@ -7,8 +7,6 @@ import { ContentApiService } from '@alfresco/aca-shared';
 import { PeopleContentService,PeopleContentQueryResponse, EcmUserModel} from '@alfresco/adf-core';
 import { MRBauTask } from '../../mrbau-task-declarations';
 
-
-
 export interface MrbauBaseTaskDialogComponentProps {
   dialogTitle?: string;
   dialogMsg?: string;
@@ -23,7 +21,7 @@ export interface MrbauBaseTaskDialogComponentProps {
   selector: 'aca-mrbau-base-task-dialog',
   template: ``,
 })
-export class MrbauBaseTaskDialogComponent implements OnInit {
+export abstract class MrbauBaseTaskDialogComponent implements OnInit {
   dialogTitle: string;
   dialogMsg: string;
   dialogButtonCancel: string;

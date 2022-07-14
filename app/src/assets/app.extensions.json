@@ -299,30 +299,7 @@
             "route": "trashcan"
           }
         ]
-      },
-      {
-        "id": "app.navbar.custom.mrbau",
-        "items": [
-          {
-            "id": "app.navbar.foerdermanager",
-            "order": 500,
-            "icon": "attach_money",
-            "label": "Link",
-            "title": "Fördermanager",
-            "description": "Fördermanager",
-            "route": "foerdermanager"
-          },
-          {
-            "id": "app.navbar.belegsammlung",
-            "order": 600,
-            "icon": "work",
-            "label": "Link",
-            "title": "Belegsammlung",
-            "description": "Belegsammlung",
-            "route": "belegsammlung"
-          }
-        ]
-	  }
+      }
     ],
     "toolbar": [
       {

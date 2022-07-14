@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@alfresco/adf-core';
-import {DragDropModule} from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { ExtensionService, provideExtensionConfig } from '@alfresco/adf-extensions';
 import { CoreModule, TRANSLATION_PROVIDER } from '@alfresco/adf-core';
@@ -12,6 +12,7 @@ import { MrbauExtensionService } from './mrbau-extension.service';
 import { MrbauExtensionMainComponent } from './mrbau-extension-main/mrbau-extension-main.component';
 import { MrbauExtensionTasksComponent } from './mrbau-extension-tasks/mrbau-extension-tasks.component';
 import { MrbauExtensionMridComponent } from './mrbau-extension-mrid/mrbau-extension-mrid.component';
+import { MrbauRuleHasOnlyFileSelection } from './mrbau-extension.rules';
 
 export function components() {
     return [MrbauExtensionMainComponent, MrbauExtensionTasksComponent, MrbauExtensionMridComponent];
@@ -43,6 +44,7 @@ export class MrbauExtensionModule {
         });
         extensions.setEvaluators({
            'mrbau-extension.disabled': () => !mrbauService.mrbauSmartViewerEnabled(),
+           'mrbau.extension.rule.only-files-selected': MrbauRuleHasOnlyFileSelection
         });
     }
 }
