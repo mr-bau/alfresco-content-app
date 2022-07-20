@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { MRBauTaskStatusNamesReduced,  } from '../mrbau-task-declarations';
+import { CONST } from '../mrbau-global-declarations';
+import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced,  } from '../mrbau-task-declarations';
+import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
 
 
@@ -10,7 +12,10 @@ import { MrbauConventionsService } from './mrbau-conventions.service';
 })
 export class MrbauFormLibraryService {
 
-  constructor(private mrbauConventionsService:MrbauConventionsService) { }
+  constructor(
+    private mrbauConventionsService:MrbauConventionsService,
+    private mrbauCommonService : MrbauCommonService
+    ) { }
 
   common_comment : FormlyFieldConfig =
   {
@@ -36,6 +41,17 @@ export class MrbauFormLibraryService {
     },
   }
 
+  common_taskLinkedDocuments : FormlyFieldConfig =
+  {
+    className: 'flex-3',
+    type: 'taskLinkedDocuments',
+    key: ['fileRefs','fileNames'],
+    templateOptions: {
+      text: 'Dokumente Hinzufügen',
+      description: 'Verknüpfte Dokumente',
+    },
+  }
+
   mrbt_status : FormlyFieldConfig =
   {
     className: 'flex-1',
@@ -46,6 +62,97 @@ export class MrbauFormLibraryService {
       options: MRBauTaskStatusNamesReduced
     },
   };
+
+  mrbt_description : FormlyFieldConfig =
+  {
+    className: 'flex-6',
+    key: 'description',
+    type: 'input',
+    templateOptions: {
+      label: 'Aufgabe',
+      description: 'Bezeichnung',
+      maxLength: CONST.MAX_LENGTH_TASK_DESC,
+      required: true,
+    },
+  }
+
+  mrbt_fullDescription : FormlyFieldConfig =
+  {
+    className: 'flex-6',
+    key: 'fullDescription',
+    type: 'textarea',
+    templateOptions: {
+      label: 'Beschreibung',
+      description: 'Beschreibung',
+      maxLength: CONST.MAX_LENGTH_TASK_FULL_DESC,
+      required: false,
+    },
+  }
+
+  mrbt_dueDate : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'dueDate',
+    type: 'input',
+    templateOptions: {
+      label: 'Fällig bis',
+      type: 'date',
+    },
+    validators: {
+      validation: ['date-future'],
+    },
+  }
+
+  mrbt_priority : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'priority',
+    type: 'select',
+    templateOptions: {
+      label: 'Priorität',
+      placeholder: 'Placeholder',
+      required: true,
+      options: [
+        { value: 1, label: 'Hoch' },
+        { value: 2, label: 'Mittel', default: true },
+        { value: 3, label: 'Niedrig'  },
+      ],
+    },
+  }
+
+  mrbt_category : FormlyFieldConfig =
+  {
+    className: 'flex-3',
+    key: 'category',
+    type: 'select',
+    templateOptions: {
+      label: 'Aufgabe auswählen',
+      options: [
+        {label: 'Eine Aufgabe sich selbst oder einem Kollegen zuweisen', value: EMRBauTaskCategory.CommonTaskGeneral, group: 'Allgemeine Aufgaben'},
+        {label: 'Zur Information übermitteln', value: EMRBauTaskCategory.CommonTaskInfo, group: 'Allgemeine Aufgaben'},
+        {label: 'Überprüfen und genehmigen (ein Überprüfer)', value: EMRBauTaskCategory.CommonTaskApprove, group: 'Allgemeine Aufgaben'},
+
+        //{label: 'Spezielle Aufgabe 1', value: '2001', group: 'Spezielle Aufgabe'},
+        //{label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
+        //{label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
+      ],
+      required: true,
+    },
+  }
+
+  mrbt_assignedUserName : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'assignedUserName',
+    type: 'select',
+    templateOptions: {
+      label: 'Mitarbeiter',
+      options: this.mrbauCommonService.getPeopleObservable(),
+      valueProp: 'id',
+      labelProp: 'displayName',
+      required: true,
+    },
+  }
 
   mrba_organisationUnit : FormlyFieldConfig =
   {
