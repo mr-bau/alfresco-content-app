@@ -15,3 +15,18 @@ export function MrbauRuleHasOnlyFileSelection(context: RuleContext) : boolean {
   }
   return result;
 }
+
+export function MrbauRuleHasOnlyFileOrNoSelection(context: RuleContext) : boolean {
+  let result = true;
+  if (context && context.selection && !context.selection.isEmpty)
+  {
+    result = true;
+    context.selection.nodes.forEach( node => {
+      if (!node.entry.isFile)
+      {
+        result = false;
+      }
+    });
+  }
+  return result;
+}

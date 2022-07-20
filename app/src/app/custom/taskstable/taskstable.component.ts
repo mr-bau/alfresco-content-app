@@ -82,6 +82,9 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
 
   queryNewData()
   {
+    if (this.taskCategories.length == 0) {
+      return;
+    }
     this.isLoading = true;
     this.errorMessage = null;
     this.selectedTask = null;
@@ -93,7 +96,6 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
       skipCount: this.pagination.value.skipCount,
       maxItems:  this.pagination.value.maxItems
     }
-
     this.searchService.searchByQueryBody(searchRequest).subscribe(
       (nodePaging : NodePaging) => {
         // use queryRemainingBadgeCounts

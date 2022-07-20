@@ -14,7 +14,7 @@ import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-d
 import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskCommentlistComponent } from '../task-commentlist/task-commentlist.component';
-import { MrbauTaskFormLibrary } from '../form/mrbau-task-form-library';
+import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 
 interface TaskBarButton {
  icon : string;
@@ -64,6 +64,7 @@ export class TasksdetailComponent implements OnInit {
     private _contentService: ContentService,
     private _notificationService: NotificationService,
     private _commentContentService: CommentContentService,
+    private _mrbauFormLibraryService : MrbauFormLibraryService,
     ) {
   }
 
@@ -186,7 +187,17 @@ export class TasksdetailComponent implements OnInit {
     }
     this.nodeId = this._task.id;
     this.resetModel();
-    this.fields = MrbauTaskFormLibrary.getForm(this.task);
+    this.fields = [
+      {
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [this._mrbauFormLibraryService.mrbt_status],
+      },
+      {
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [this._mrbauFormLibraryService.common_comment],
+      }
+    ];
+
     this.updateTaskBarButtons();
     this.onAssociationClicked(0, false);
   }

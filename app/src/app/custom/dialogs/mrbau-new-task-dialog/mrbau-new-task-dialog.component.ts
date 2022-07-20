@@ -1,16 +1,15 @@
 import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ContentApiService } from '@alfresco/aca-shared';
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormGroup } from '@angular/forms';
-//import { MrbauDialogFormLibrary, MrbauDialogForms } from '../../form/mrbau-dialog-form-library';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { PeopleContentService,PeopleContentQueryResponse, EcmUserModel, NodesApiService, NotificationService} from '@alfresco/adf-core';
+import { PeopleContentQueryResponse, EcmUserModel, NodesApiService, NotificationService} from '@alfresco/adf-core';
 import { MRBauTask, EMRBauTaskCategory} from '../../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
 import { isDevMode } from '@angular/core';
 import { CONST } from '../../mrbau-global-declarations';
 import { SelectionState } from '@alfresco/adf-extensions';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
 
 @Component({
   selector: 'aca-mrbau-new-task-dialog',
@@ -48,11 +47,10 @@ export class MrbauNewTaskDialogComponent implements OnInit {
   taskParentFolderId: string;
   private _oldCategory : EMRBauTaskCategory = null;
 
-  constructor(private contentApiService : ContentApiService,
-              private datePipe: DatePipe,
-              private peopleContentService: PeopleContentService,
-              private nodeApiService: NodesApiService,
+  constructor(private datePipe: DatePipe,
+              private nodesApiService: NodesApiService,
               private notificationService: NotificationService,
+              private mrbauCommonService : MrbauCommonService,
               private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
 
     if (isDevMode()) {
@@ -70,8 +68,11 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       for (let i=0; i< selection.nodes.length; i++)
       {
         const node = selection.nodes[i];
-        this.model.fileRefs.push(node.entry.id);
-        this.model.fileNames.push(node.entry.name);
+        if (node.entry.isFile)
+        {
+          this.model.fileRefs.push(node.entry.id);
+          this.model.fileNames.push(node.entry.name);
+        }
       }
     }
   }
@@ -91,14 +92,14 @@ export class MrbauNewTaskDialogComponent implements OnInit {
 
     this.loaderVisible = true;
     this.errorMessage = null;
-
-    const promiseGetParentId = this.contentApiService.getNodeInfo('-root-', { includeSource: true, include: ['path', 'properties'], relativePath: MRBauTask.TASK_RELATIVE_ROOT_PATH }).toPromise();
-    const promiseGetPeople = this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "id", direction: "ASC"}}).toPromise();
+    const promiseGetParentId = this.mrbauCommonService.getTaskRootPath();
+    //const promiseGetPeople = this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "id", direction: "ASC"}}).toPromise();
+    const promiseGetPeople = this.mrbauCommonService.getPeople();
     const allPromise = Promise.all([promiseGetParentId, promiseGetPeople]);
 
     allPromise.then(values => {
       const node = values[0];
-      this.taskParentFolderId = node.id;
+      this.taskParentFolderId = node.entry.id;
       const response = values[1] as PeopleContentQueryResponse;
       for (let entry of response.entries)
       {
@@ -151,7 +152,7 @@ export class MrbauNewTaskDialogComponent implements OnInit {
       }`;
 
       //console.log(postBody);
-      this.nodeApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
+      this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
         (success) => {
           //console.log(success);
           success;

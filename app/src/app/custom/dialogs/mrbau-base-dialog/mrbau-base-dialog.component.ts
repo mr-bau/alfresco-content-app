@@ -18,7 +18,7 @@ export abstract class MrbauBaseDialogComponent implements OnInit {
     fields : FormlyFieldConfig[] = [ { } ];
 
     constructor() {
-     }
+    }
 
     ngOnInit(): void {
       console.log('MrbauInboxAssignDialogComponent');

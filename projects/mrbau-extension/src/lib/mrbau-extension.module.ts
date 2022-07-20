@@ -12,7 +12,7 @@ import { MrbauExtensionService } from './mrbau-extension.service';
 import { MrbauExtensionMainComponent } from './mrbau-extension-main/mrbau-extension-main.component';
 import { MrbauExtensionTasksComponent } from './mrbau-extension-tasks/mrbau-extension-tasks.component';
 import { MrbauExtensionMridComponent } from './mrbau-extension-mrid/mrbau-extension-mrid.component';
-import { MrbauRuleHasOnlyFileSelection } from './mrbau-extension.rules';
+import { MrbauRuleHasOnlyFileOrNoSelection, MrbauRuleHasOnlyFileSelection } from './mrbau-extension.rules';
 
 export function components() {
     return [MrbauExtensionMainComponent, MrbauExtensionTasksComponent, MrbauExtensionMridComponent];
@@ -44,7 +44,8 @@ export class MrbauExtensionModule {
         });
         extensions.setEvaluators({
            'mrbau-extension.disabled': () => !mrbauService.mrbauSmartViewerEnabled(),
-           'mrbau.extension.rule.only-files-selected': MrbauRuleHasOnlyFileSelection
+           'mrbau.extension.rule.only-files-selected': MrbauRuleHasOnlyFileSelection,
+           'mrbau.extension.rule.nothing-or-only-files-selected': MrbauRuleHasOnlyFileOrNoSelection
         });
     }
 }

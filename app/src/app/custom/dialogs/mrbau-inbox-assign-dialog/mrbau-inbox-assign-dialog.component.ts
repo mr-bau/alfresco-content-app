@@ -8,6 +8,8 @@ import { SelectionState } from '@alfresco/adf-extensions';
 import { Node } from '@alfresco/js-api';
 import { EMRBauTaskCategory, MRBauTask } from '../../mrbau-task-declarations';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
+import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 
 @Component({
   selector: 'aca-mrbau-inbox-assign-dialog',
@@ -34,8 +36,10 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   constructor(
     private mrbauConventionsService : MrbauConventionsService,
     private datePipe : DatePipe,
-    private nodeApiService: NodesApiService,
     private notificationService: NotificationService,
+    private nodesApiService: NodesApiService,
+    private mrbauCommonService: MrbauCommonService,
+    private mrbauFormLibraryService: MrbauFormLibraryService,
     private dialogRef: MatDialogRef<MrbauInboxAssignDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}
     )
   {
@@ -51,9 +55,25 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     this.model.receiveDate
 
     const date = new Date();
-    this.model.receiveDate = this.datePipe.transform(date, 'yyyy-MM-dd');
-    this.model.client = this.mrbauConventionsService.getDefaultClient();
+    this.model.archivedDateValue = this.datePipe.transform(date, 'yyyy-MM-dd');
+    this.model.organisationUnit = this.mrbauConventionsService.getDefaultOrganisationUnit();
     this.model.fiscalYear = date.getFullYear();
+    this.queryData();
+  }
+
+  taskParentFolderId:string;
+  queryData() {
+    this.loaderVisible = true;
+    this.errorMessage = null;
+    const promiseGetParentId = this.mrbauCommonService.getTaskRootPath();
+    promiseGetParentId.then(node => {
+      this.taskParentFolderId = node.entry.id;
+      console.log(node);
+      this.loaderVisible = false;
+    }).catch(error => {
+      this.loaderVisible = false;
+      this.errorMessage = "Error loading data. "+error;
+    });
   }
 
   onDialogClose(result : boolean)
@@ -82,8 +102,9 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   doCreateTask(node :Node, taskCategory : EMRBauTaskCategory)
   {
     const contentTypes = ['application/json'];
-    const pathParams = {'nodeId': this.mrbauConventionsService.taskParentFolderId };
+    const pathParams = {'nodeId': this.taskParentFolderId };
     const accepts = ['application/json'];
+    // TODO
     const postBody = `
     {
       "name": "-",
@@ -100,7 +121,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     }`;
 
     console.log(postBody);
-    this.nodeApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
+    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
       (success) => {
         //console.log(success);
         success;
@@ -113,61 +134,21 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       });
   }
 
-
   fieldsMain: FormlyFieldConfig[] = [
     {
       templateOptions: { label: 'Kategorisieren' },
       fieldGroupClassName: 'flex-container-min-width',
       fieldGroup: [
-        {
-          className: 'flex-4',
-          key: 'client',
-          type: 'select',
-          templateOptions: {
-            label: 'Mandant auswählen',
-            options: this.mrbauConventionsService.getClientFormOptions(),
-            required: true,
-          },
-        },
-        {
-          className: 'flex-4',
-          key: 'category',
-          type: 'select',
-          templateOptions: {
-            label: 'Dokumenten-Art auswählen',
-            options: this.mrbauConventionsService.getDocumentFormOptions(),
-            required: true,
-          },
-        },
+        this.mrbauFormLibraryService.mrba_organisationUnit,
+        this.mrbauFormLibraryService.common_archiveModelTypes,
       ]
     },
     {
-
       templateOptions: { label: 'Datum' },
       fieldGroupClassName: 'flex-container-min-width',
       fieldGroup: [
-        {
-          className: 'flex-2',
-          key: 'receiveDate',
-          type: 'input',
-          templateOptions: {
-            label: 'Eingangs Datum',
-            type: 'date',
-            required: true,
-          }
-        },
-        {
-          className: 'flex-2',
-          key: 'fiscalYear',
-          type: 'input',
-          templateOptions: {
-            label: 'Fiskal-Jahr',
-            type: 'number',
-            min: new Date().getFullYear()-1,
-            max: new Date().getFullYear()+1,
-            required: true,
-          }
-        }
+        this.mrbauFormLibraryService.mrba_archivedDateValue,
+        this.mrbauFormLibraryService.mrba_fiscalYear
       ]
     }
   ];

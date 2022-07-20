@@ -133,6 +133,9 @@
           "title": "Aufgabe erstellen",
           "actions": {
             "click": "mrbau.extension.actions.new-task-dialog"
+          },
+          "rules": {
+            "visible": "mrbau.extension.rule.nothing-or-only-files-selected"
           }
       }
     ]

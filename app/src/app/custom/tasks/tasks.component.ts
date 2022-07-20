@@ -1,10 +1,7 @@
-import { AuthenticationService, PeopleContentService } from '@alfresco/adf-core';
-import { ProfileState } from '@alfresco/adf-extensions/public-api';
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
 import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
-//import { MRBauTask } from '../mrbau-task-declarations';
+import { MrbauCommonService } from '../services/mrbau-common.service';
 @Component({
   selector: 'aca-tasks',
   templateUrl: './tasks.component.html',
@@ -22,15 +19,38 @@ export class TasksComponent implements OnInit {
   modifiedTask :MRBauTask = null;
   taskCategories : IMRBauTasksCategory[];
 
-  user$: Observable<ProfileState>;
+  currentUser : string;
+  loaderVisible : boolean;
+  errorMessage :string;
 
-  constructor(private sanitizer: DomSanitizer, private alfrescoAuthenticationService: AuthenticationService, private peopleContentService:PeopleContentService) {
-    let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
-    this.peopleContentService.getCurrentPerson().toPromise().then(result => console.log(result));
-    // TODO remove hack
-    if (ecmUserName.toLowerCase() == "wolfgang moser")
-      ecmUserName = "Wolfgang Moser";
+  constructor(
+    private sanitizer: DomSanitizer,
+    //private alfrescoAuthenticationService: AuthenticationService,
+    private mrbauCommonService : MrbauCommonService) {
 
+    //let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
+    //console.log(ecmUserName);
+  }
+
+  ngOnInit(): void {
+    this.queryData();
+  }
+
+  queryData() {
+    this.loaderVisible = true;
+    this.errorMessage = null;
+    this.mrbauCommonService.getCurrentUser().then(user => {
+      this.currentUser = user.entry.id;
+      this.initTaskCategories();
+      this.loaderVisible = false;
+    }).catch(error => {
+      this.loaderVisible = false;
+      this.errorMessage = "Error loading data. "+error;
+    });
+  }
+
+  initTaskCategories()
+  {
     this.taskCategories = [{
       tabIcon: 'description',
       tabName: 'Aufgaben',
@@ -42,7 +62,7 @@ export class TasksComponent implements OnInit {
         query: {
           // CONTAINS comparison is necessary to make the comparison case insensitive (getECMUsername does not use the user id but the entered user name from login window)
           //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+ ((ecmUserName=="admin") ? '' : `AND B.mrbt:assignedUserName = '${ecmUserName}' `) + 'ORDER BY B.cmis:creationDate DESC',
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+ ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) + 'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'
         },
         include: ['properties']
@@ -61,7 +81,7 @@ export class TasksComponent implements OnInit {
           //query: 'foer:ProjektNr:*',
           //query: `+TYPE:"mrbt:task" and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd xxxx"`,
           //language: 'afts'
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((ecmUserName=="admin") ? '' : `AND B.mrbt:assignedUserName = '${ecmUserName}' `) + 'ORDER BY B.cmis:creationDate DESC',
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) + 'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'
         },
         //sort: [{type:"FIELD", field:"cm:created",  ascending:true}],
@@ -75,15 +95,12 @@ export class TasksComponent implements OnInit {
       searchRequest: {
         query: {
           //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 9000 AND B.mrbt:status <= 9100 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((ecmUserName=="admin") ? '' : `AND B.mrbt:assignedUserName = '${ecmUserName}' `) + 'ORDER BY B.cmis:creationDate DESC',
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) + 'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'
         },
         include: ['properties']
       }
     }];
-  }
-
-  ngOnInit(): void {
   }
 
   dragStartEvent(){
