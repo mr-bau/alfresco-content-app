@@ -1,71 +1,19 @@
 <div class="tasks-detail-main">
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
+
   <div *ngIf="task != null; else noTask">
-    <adf-toolbar [title]="this.task.desc">
 
-      <div *ngIf="isToolbarVisible()">
-        <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
-          <button mat-flat-button class="disable-flex-shrink toolbar-button-spacing {{b.class}}" [matTooltip]="b.tooltip" (click)="b.onClick($event)">
-            <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
-          </button>
-        </ng-container>
-
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="onDelegateTaskClicked(model)">
-              <mat-icon>send</mat-icon>
-              <span>Aufgabe Deligieren</span>
-          </button>
-          <button mat-menu-item (click)="onCancelTaskClicked(model)" [disabled]="!isTaskModificationUiVisible()">
-              <mat-icon>cancel</mat-icon>
-              <span>Aufgabe Abbrechen</span>
-          </button>
-        </mat-menu>
-      </div>
-
-    </adf-toolbar>
-    <mat-card class="addMarginTop" style="background:whitesmoke;">
-      <div class="flex-container">
-        <div class="flex-2">{{this.task.category | mrbauTaskCategory}} Task, erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}</div>
-      </div>
-      <div class="flex-container addMarginTop">
-
-        <div class="flex-2"><i>Zugewiesen:</i> {{this.task.assignedUserName}} </div>
-        <div class="flex-2"><i>Zu erledigen bis:</i> {{this.task.dueDate | date:'mediumDate'}}</div>
-        <div class="flex-2"><i>Status:</i> {{this.task.status | mrbauTaskStatus}}</div>
-      </div>
-      <div class="flex-container addMarginTop">
-        <div class="flex-2">{{getTaskDescription()}}</div>
-      </div>
-    </mat-card>
     <mat-accordion multi="true">
-
-      <div *ngIf="isTaskModificationUiVisible()">
-        <mat-expansion-panel style="margin-top:1rem;" [expanded]="true" [hidden]="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <mat-icon>build</mat-icon>
-              <span class="expansionTitleText">Status ändern oder Kommentar hinzufügen</span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <form [formGroup]="form">
-            <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
-            <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model.status && !this.model.comment">Speichern</button>
-          </form>
-        </mat-expansion-panel>
+      <!-- common task panel -->
+      <div *ngIf="this.task && this.task.isCommonTask()">
+        <aca-tasks-detail-common [task]="this.task" (fileSelectEvent)="onAssociationClickedById($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-common>
+      </div>
+      <!-- new document task -->
+      <div *ngIf="this.task && this.task.isNewDocumentTask()">
+        <aca-tasks-detail-new-document [task]="this.task" (fileSelectEvent)="onAssociationClickedById($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-new-document>
       </div>
 
-      <aca-task-linked-documents
-        [buttonsDisabled]="!isTaskModificationUiVisible()"
-        [associatedDocumentRef]="task.associatedDocumentRef"
-        [associatedDocumentName]="task.associatedDocumentName"
-        (onRemoveAssociation)="onRemoveAssociationClicked($event)"
-        (onAssociation)="onAssociationClicked($event)"
-        (onAddAssociation)="buttonAddFilesClicked()"
-      ></aca-task-linked-documents>
-
+      <!-- comments panel -->
       <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -76,6 +24,7 @@
         <aca-task-commentlist #commentlist [nodeId]="nodeId" [isVisible]="commentPanelOpened"></aca-task-commentlist>
       </mat-expansion-panel>
 
+      <!-- history panel -->
       <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
         <mat-expansion-panel-header>
           <mat-panel-title>

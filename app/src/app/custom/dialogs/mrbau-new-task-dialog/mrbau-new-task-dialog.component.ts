@@ -48,7 +48,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
           fieldGroup: [
             this.mrbauFormLibraryService.mrbt_description,
             this.mrbauFormLibraryService.mrbt_fullDescription,
-            this.mrbauFormLibraryService.mrbt_dueDate,
+            this.mrbauFormLibraryService.mrbt_dueDateValue,
             this.mrbauFormLibraryService.mrbt_priority,
             this.mrbauFormLibraryService.mrbt_assignedUserName,
             this.mrbauFormLibraryService.common_taskLinkedDocuments
@@ -125,7 +125,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
           "mrbt:description": "${this.model.description}",
           "mrbt:assignedUserName": "${this.model.assignedUserName}",
           "mrbt:fullDescription": "${this.model.fullDescription ? this.model.fullDescription : ""}",
-          "mrbt:dueDate": "${this.model.dueDate ? this.model.dueDate : ""}"
+          "mrbt:dueDateValue": "${this.model.dueDateValue ? this.model.dueDateValue : ""}"
         }
         ${targets}
       }`;
@@ -153,14 +153,14 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
         // set default date today + 14 days
         let date = new Date();
         date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
-        this.form.get('dueDate').patchValue(this.datePipe.transform(date, 'yyyy-MM-dd'));
+        this.form.get('dueDateValue').patchValue(this.datePipe.transform(date, 'yyyy-MM-dd'));
         // set default priority
         this.form.get('priority').patchValue(2);
         // update model parameter according to task
         if (cat == EMRBauTaskCategory.CommonTaskInfo)
         {
           this.form.get('description').patchValue("Zur Information");
-          this.form.get('dueDate').patchValue(undefined);
+          this.form.get('dueDateValue').patchValue(undefined);
         }
         else if (cat == EMRBauTaskCategory.CommonTaskApprove)
         {
@@ -171,8 +171,6 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
           this.form.get('description').patchValue("");
         }
       }
-      else if (cat > EMRBauTaskCategory.InvoiceAuditStart && cat < EMRBauTaskCategory.InvoiceAuditLast)
-      {}
       else if (cat > EMRBauTaskCategory.NewDocumentStart && cat < EMRBauTaskCategory.NewDocumentLast)
       {}
     }

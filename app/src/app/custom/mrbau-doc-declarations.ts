@@ -56,18 +56,6 @@ export const documentCategoryGroups = new Map<number, DocumentCategoryGroupData>
   [EMRBauDocumentCategoryGroup.CONTRACTS, {category: EMRBauDocumentCategoryGroup.CONTRACTS, label: "Verträge", folder: "02 Verträge"}],
 ]);
 
-
- /* [EMRBauDocumentCategory.LEASE_CONTRACT,           {category: EMRBauDocumentCategory.LEASE_CONTRACT,          label: "Mietvertrag",         folder: "01 Mietverträge",        group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.WAIVE_TERMINATION_RIGHT,  {category: EMRBauDocumentCategory.WAIVE_TERMINATION_RIGHT, label: "Kündigungsverzicht",  folder: "02 Kündigungsverzicht",  group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.MAINTENANCE_CONTRACT,     {category: EMRBauDocumentCategory.MAINTENANCE_CONTRACT,    label: "Wartungsvertrag",     folder: "03 Wartungsverträge",    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.ALL_IN_CONTRACT,          {category: EMRBauDocumentCategory.ALL_IN_CONTRACT,         label: "All-In Vertrag",      folder: "04 All-In",              group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.LICENSE_CONTRACT,         {category: EMRBauDocumentCategory.LICENSE_CONTRACT,        label: "Lizenzvertrag",       folder: "05 Lizenzverträge",      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.TERMINATION,              {category: EMRBauDocumentCategory.TERMINATION,             label: "Kündigung",           folder: "06 Kündigungen",         group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.FUEL_CARD,                {category: EMRBauDocumentCategory.FUEL_CARD,               label: "Tankkarte",           folder: "07 Tankkarten",          group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  [EMRBauDocumentCategory.OTHER_CONTRACT,           {category: EMRBauDocumentCategory.OTHER_CONTRACT,          label: "Sonstiger Verträge",  folder: "99 Sonstige Verträge",   group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS)}],
-  */
-
-
 export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
   {
     title: "doc",
@@ -120,7 +108,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     name : "mrba:addonOrder",
     parent : "mrba:order",
     mandatoryAspects : [
-      "mrba:partialInvoiceIdentityDetails",
+      "mrba:addonOrderDetails",
       "mrba:orderReference",
     ],
     category: EMRBauDocumentCategory.ADDON_ORDER,
@@ -176,12 +164,14 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     mandatoryAspects : [
       "mrba:companyIdentifiers",
       "mrba:documentIdentityDetails",
-      "mrba:amountDetails",
+      "mrba:inboundInvoiceDetails",
       "mrba:taxRate",
       "mrba:paymentConditionDetails",
       "mrba:costCarrierDetails",
       "mrba:orderReference",
       "mrba:deliveryNoteReference",
+      "mrba:inboundInvoiceReference",
+      "mrba_inboundRevokedInvoiceReference",
       "mrba:inboundPartialInvoiceReference",
     ],
     category: EMRBauDocumentCategory.ER,
@@ -225,14 +215,14 @@ export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
     properties: [
       "mrba:documentTopic",
       "mrba:documentNumber",
-      "mrba:documentDate",
-      "mrba:documentDateValue" // date value - kept in sync with mrba:documentDate and set at 00:00 using Europe/Vienna as timezone
+      "mrba:documentDate", // d:text
+      "mrba:documentDateValue" // d:date - date value - kept in sync with mrba:documentDate and set at 00:00 using Europe/Vienna as timezone
     ],
   },
   {
-    name :"mrba:partialInvoiceIdentityDetails",
+    name :"mrba:addonOrderDetails",
     properties: [
-      "mrba:partialInvoiceNumber",
+      "mrba:addonOrderNumber",
     ],
   },
   {
@@ -291,7 +281,7 @@ export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
   {
     name :"mrba:inboundPartialInvoiceReference",
     associations: [
-      "mrba:inboundPartialInvoice"
+      "mrba:inboundInvoice"
     ],
   },
   {
@@ -309,6 +299,7 @@ export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
       "mrba:companyVatID",
       "mrba:companyStreet",
       "mrba:companyZipCode",
+      "mrba:companyCity",
       "mrba:companyCountryCode",
     ],
   },
@@ -318,7 +309,31 @@ export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
       "mrba:costCarrierNumber",
       "mrba:projectName",
     ],
+  },
+  {
+    name:"mrba:fiscalYearDetails",
+    properties: [
+    "mrba:fiscalYear",
+    "mrba:projectName",
+  ],
+  },
+  {
+    name : "mrba:inboundInvoiceDetails",
+    properties: [
+    "mrba:inboundInvoiceType",
+    "mrba:revokedInvoiceNumber",
+    "mrba:partialInvoiceNumber",
+    ]
+  },
+  {
+    name : "mrba:inboundRevokedInvoiceReference",
+    properties: [
+    "mrba:inboundRevokedInvoice"
+    ]
   }
+
+
+
 ];
 
 export const MRBauArchiveModelConstraints = [

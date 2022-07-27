@@ -1,6 +1,9 @@
 import { NodeEntry } from '@alfresco/js-api';
 
+export const MRBAU_DATE_FORMAT = 'dd-MM-yyyy';
 export class CONST {
+
+
 
   public static readonly MAX_LENGTH_TASK_DESC:  number = 500;
   public static readonly MAX_LENGTH_TASK_FULL_DESC:  number = 500;

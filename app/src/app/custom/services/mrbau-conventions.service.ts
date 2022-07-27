@@ -1,16 +1,17 @@
+import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { MRBauArchiveModelTypes, EMRBauDocumentCategory } from '../mrbau-doc-declarations';
-import { EMRBauTaskCategory} from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
 
 interface ClientData {
-  label: string,
   value: EMRBauClientId,
+  label: string,
   folder: string
 }
 export const enum EMRBauClientId {
-  MANDANT_1 = 1,
-  MANDANT_2 = 2,
-  MANDANT_3 = 3,
+  MANDANT_1,
+  MANDANT_2,
+  MANDANT_3,
 }
 
 export interface FormOptionsInterface {
@@ -20,6 +21,7 @@ export interface FormOptionsInterface {
 };
 
 export interface Vendor {
+  "id" : string,
   "mrba:companyName" : string,
   "mrba:companyVatID" : string,
   "mrba:companyStreet" : string,
@@ -34,7 +36,7 @@ export interface Vendor {
 export class MrbauConventionsService {
   // service class to return mrbau related responsibility conventions
   // TODO extract from JSON File
-  constructor()
+  constructor(private datePipe: DatePipe)
   {
   }
 
@@ -61,11 +63,23 @@ export class MrbauConventionsService {
 
   getTaskDescription(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
+    if (task == EMRBauTaskCategory.NewDocumentCategorization)
+    {
+      return "Beleg Dokument ablegen und prüfen"
+    }
+
     return "description for "+task+" "+client+" "+ documentCategory;
   }
   getTaskFullDescription(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     return "full description for "+task+" "+client+" "+ documentCategory;
+  }
+  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  {
+    task;documentCategory;client;
+    let date = new Date();
+    date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
+    return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
   getTaskAssignedUserId(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
@@ -75,25 +89,30 @@ export class MrbauConventionsService {
     return "Wolfgang Moser";
   }
 
-  getVendorList() : Vendor[] {
-    return [
-      {
+  readonly vendorList = new Map<string, Vendor>([
+      ["Net-Solutions",{
+        "id" : "Net-Solutions",
         "mrba:companyName" : "NET-Solutions & EDV-Service GmbH",
         "mrba:companyVatID" : "ATU53033505",
         "mrba:companyStreet" : "Triglavstrasse 1",
         "mrba:companyZipCode" : "9500",
         "mrba:companyCity" : "Villach",
         "mrba:companyCountryCode" : "AT"
-      },
-      {
+      }],
+      ["BMD",{
+        "id" : "BMD",
         "mrba:companyName" : "BMD Systemhaus GesmbH",
         "mrba:companyVatID" : "ATU53033505",
         "mrba:companyStreet" : "Sierningerstraße 190",
         "mrba:companyZipCode" : "4400",
         "mrba:companyCity" : "Steyr",
         "mrba:companyCountryCode" : "AT"
-      },
-    ];
-  }
+      }],
+  ]);
 
+  getVendorListFormOptions() : FormOptionsInterface[] {
+    let result : FormOptionsInterface[] = [];
+    this.vendorList.forEach( (d) => result.push({label: d['mrba:companyName'], value : d.id}));
+    return result;
+  }
 }

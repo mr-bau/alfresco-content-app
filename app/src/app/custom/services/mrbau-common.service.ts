@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { EcmUserModel, PeopleContentService } from '@alfresco/adf-core';
-import { PersonEntry } from '@alfresco/js-api';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService } from '@alfresco/adf-core';
+import {  PersonEntry } from '@alfresco/js-api';
 import { Observable } from 'rxjs';
+import {  MRBauTask } from '../mrbau-task-declarations';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,9 @@ export class MrbauCommonService {
   // TODO implement caching
 
   constructor(
-    private peopleContentService: PeopleContentService,) { }
+    private peopleContentService: PeopleContentService,
+    private commentContentService: CommentContentService,
+    ) { }
 
   getCurrentUser() : Promise<PersonEntry>
   {
@@ -30,4 +33,19 @@ export class MrbauCommonService {
       );
     });
   }
+
+  addComment(task: MRBauTask, comment: string) : Observable<CommentModel>
+  {
+    if (!comment)
+    {
+      return null;
+    }
+    comment = comment.trim();
+    if (comment.length == 0)
+    {
+      return null;
+    }
+    return this.commentContentService.addNodeComment(task.id, comment);
+  }
+
 }

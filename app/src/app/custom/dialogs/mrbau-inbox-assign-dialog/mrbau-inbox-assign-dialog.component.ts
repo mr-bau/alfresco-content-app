@@ -6,7 +6,7 @@ import { DatePipe } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SelectionState } from '@alfresco/adf-extensions';
 import { Node } from '@alfresco/js-api';
-import { EMRBauTaskCategory, MRBauTask } from '../../mrbau-task-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../../mrbau-task-declarations';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 
@@ -87,13 +87,13 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   categorizeNode(node:Node) {
     // TODO adapt document type properties and aspects
     // TODO set receive time stamp and fiscal year
-    // TODO move document to according folder
+    // TODO move document to according folder -> backend
     // TODO create and assign a new task
-    this.doCreateTask(node, EMRBauTaskCategory.NewDocumentExtractMetadata);
+    this.doCreateTask(node, EMRBauTaskCategory.NewDocumentCategorization); //, EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1);
     // TODO add entry to incoming post book
   }
 
-  doCreateTask(node :Node, taskCategory : EMRBauTaskCategory)
+  doCreateTask(node :Node, taskCategory : EMRBauTaskCategory, status?: EMRBauTaskStatus)
   {
     const contentTypes = ['application/json'];
     const pathParams = {'nodeId': '-root-' };
@@ -106,11 +106,12 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       "relativePath": "${MRBauTask.TASK_RELATIVE_ROOT_PATH}",
       "properties":{
         "mrbt:category": ${taskCategory},
+        "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1},
         "mrbt:priority": 2,
         "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory, this.model.category)}",
         "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory, this.model.category)}",
         "mrbt:fullDescription": "${this.mrbauConventionsService.getTaskFullDescription(taskCategory, this.model.category)}",
-        "mrbt:dueDate": "${this.model.dueDate ? this.model.dueDate : ""}"
+        "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory, this.model.category)}"
       },
       "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]
     }`;

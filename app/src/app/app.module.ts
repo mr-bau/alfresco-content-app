@@ -118,6 +118,10 @@ import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/tas
 import { FormlyFieldTaskLinkedDocumentsComponent } from './custom/formly-field-task-linked-documents/formly-field-task-linked-documents.component';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
 import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
+import { TasksDetailCommonComponent } from './custom/tasks-detail-common/tasks-detail-common.component';
+import { TaskSummaryComponent } from './custom/task-summary/task-summary.component';
+import { TasksDetailNewDocumentComponent } from './custom/tasks-detail-new-document/tasks-detail-new-document.component';
+import { TasksMenuDelegateComponent } from './custom/tasks-menu-delegate/tasks-menu-delegate.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -241,7 +245,11 @@ registerLocaleData(localeSv);
     TaskLinkedDocumentsComponent,
     FormlyFieldTaskLinkedDocumentsComponent,
     TaskCommentlistComponent,
-    MrbauInboxAssignDialogComponent
+    MrbauInboxAssignDialogComponent,
+    TasksDetailCommonComponent,
+    TaskSummaryComponent,
+    TasksDetailNewDocumentComponent,
+    TasksMenuDelegateComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

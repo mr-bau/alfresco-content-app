@@ -1,0 +1,51 @@
+      <adf-toolbar [title]="this.task.desc">
+        <div *ngIf="this.task && !this.task.isTaskInDoneState()">
+          <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
+            <button mat-flat-button
+              *ngIf="b.visible ? b.visible() : true"
+              class="disable-flex-shrink toolbar-button-spacing {{b.class}}"
+              [matTooltip]="b.tooltip"
+              (click)="b.onClick($event)"
+              [style.display]="true"
+              [disabled]="b.disabled ? b.disabled() : false">
+              <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
+            </button>
+          </ng-container>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <aca-tasks-menu-delegate [task]="task"></aca-tasks-menu-delegate>
+          </mat-menu>
+        </div>
+      </adf-toolbar>
+
+      <aca-task-summary [task]="this.task"></aca-task-summary>
+
+      <div *ngIf="isTaskModificationUiVisible()">
+        <mat-expansion-panel style="margin-top:1rem;" [expanded]="true" [hidden]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>build</mat-icon>
+              <span class="expansionTitleText">Status ändern oder Kommentar hinzufügen</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <form [formGroup]="form">
+            <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
+            <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model.status && !this.model.comment">Speichern</button>
+          </form>
+        </mat-expansion-panel>
+      </div>
+
+      <aca-task-linked-documents
+        [buttonsDisabled]="!isTaskModificationUiVisible()"
+        [associatedDocumentRef]="task.associatedDocumentRef"
+        [associatedDocumentName]="task.associatedDocumentName"
+        (onRemoveAssociation)="onRemoveAssociationClicked($event)"
+        (onAssociation)="onAssociationClicked($event)"
+        (onAddAssociation)="buttonAddFilesClicked()"
+      ></aca-task-linked-documents>
+
+
+
+

@@ -117,7 +117,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
             desc : task.desc,
             createdUser : nodeEntry.entry.createdByUser.displayName,
             createdDate : nodeEntry.entry.createdAt,
-            dueDate : nodeEntry.entry.properties["mrbt:dueDate"],
+            dueDateValue : nodeEntry.entry.properties["mrbt:dueDateValue"],
             icon : 'material-icons://'+currentTab.tabIcon,
             status: task.status,
           }

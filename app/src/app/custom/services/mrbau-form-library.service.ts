@@ -89,10 +89,10 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_dueDate : FormlyFieldConfig =
+  mrbt_dueDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'dueDate',
+    key: 'dueDateValue',
     type: 'input',
     templateOptions: {
       label: 'Fällig bis',
@@ -166,6 +166,18 @@ export class MrbauFormLibraryService {
     },
   };
 
+  mrba_companyIdentifier : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'companyIdentifier',
+    type: 'select',
+    templateOptions: {
+      label: 'Firma auswählen',
+      options: this.mrbauConventionsService.getVendorListFormOptions(),
+      required: true,
+    },
+  };
+
   mrba_archivedDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
@@ -192,5 +204,170 @@ export class MrbauFormLibraryService {
     }
   }
 
+  mrba_documentTopic : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'documentTopic',
+    type: 'input',
+    templateOptions: {
+      label: 'Bezeichnung',
+      required: true,
+    }
+  }
 
+  mrba_documentNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'documentNumber',
+    type: 'input',
+    templateOptions: {
+      label: 'Nummer',
+      required: true,
+    }
+  }
+
+  mrba_documentDate : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'documentDate',
+    type: 'input',
+    templateOptions: {
+      label: 'Datum',
+      type: 'date',
+      required: true,
+    }
+  }
+
+  mrba_netAmount : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'netAmount',
+    type: 'input',
+    templateOptions: {
+      label: 'Netto Betrag',
+      type: 'number',
+      required: true,
+    }
+  }
+
+  mrba_grossAmount : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'grossAmount',
+    type: 'input',
+    templateOptions: {
+      label: 'Brutto Betrag',
+      type: 'number',
+      required: true,
+    }
+  }
+
+  mrba_taxRate : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'taxRate',
+    type: 'select',
+    templateOptions: {
+      label: 'Steuersatz',
+      options: [
+        {label: '20 %', value: 20},
+        {label: '10 %', value: 10},
+        {label: ' 0 %', value:  0},
+      ],
+      required: true,
+    }
+  }
+
+  mrba_taxRateComment : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'taxRateComment',
+    type: 'input',
+    templateOptions: {
+      label: 'Optionaler Kommentar',
+      type: 'number',
+    }
+  }
+
+  mrba_costCarrierNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'costCarrierNumber',
+    type: 'input',
+    templateOptions: {
+      label: 'Kostenträger',
+      pattern: /^[0-9]*$/,
+      type: 'number',
+      required: true,
+    },
+    validation: {
+      messages: {
+        pattern: () => `Ungültige Nummer`,
+      },
+    },
+  }
+
+  mrba_projectName: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'projectName',
+    type: 'input',
+    templateOptions: {
+      label: 'Projektbezeichnung',
+    }
+  }
+
+
+
+  // ASPEKT GROUPS
+
+  readonly aspect_mrba_documentIdentityDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+        this.mrba_documentTopic,
+        this.mrba_documentNumber,
+        this.mrba_documentDate,
+        //this.mrbauFormLibraryService.mrba_documentDateValue
+    ]
+  };
+
+  readonly aspect_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      //this.mrbauFormLibraryService.mrba_netAmountCents,    // d:int kept in sync with mrba:netAmount
+      this.mrba_netAmount,         // d:text
+      //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:intkept in sync with mrba:netAmount
+      this.mrba_grossAmount,       // d:text
+      this.mrba_taxRate,        // d:text
+      //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
+      this.mrba_taxRateComment, // d:text
+    ]
+  };
+
+  readonly aspect_mrba_amountDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      //this.mrbauFormLibraryService.mrba_netAmountCents,    // d:int kept in sync with mrba:netAmount
+      this.mrba_netAmount,         // d:text
+      //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:intkept in sync with mrba:netAmount
+      this.mrba_grossAmount,       // d:text
+    ]
+  };
+
+  readonly aspect_mrba_taxRate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_taxRate,        // d:text
+      //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
+      this.mrba_taxRateComment, // d:text
+    ]
+  };
+
+  readonly aspect_mrba_costCarrierDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_costCarrierNumber, //d:int
+      this.mrba_projectName, //d:text
+    ]
+  };
 }

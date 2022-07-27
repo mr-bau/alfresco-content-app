@@ -1,28 +1,41 @@
 import { MinimalNode, QueryBody, UserInfo } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
 
-
-
 export const enum EMRBauTaskStatus {
   STATUS_NEW         = 0,
   STATUS_IN_PROGRESS = 100,
   STATUS_ON_HOLD     = 101,
 
+  STATUS_METADATA_EXTRACT_1   = 200,
+  STATUS_METADATA_EXTRACT_2   = 201,
+  STATUS_DUPLICATE_CHECK      = 202,
+  STATUS_FORMAL_REVIEW        = 203,
+  STATUS_INVOICE_VERIFICATION = 204,
+  STATUS_FINAL_APPROVAL       = 205,
+  STATUS_ACCOUNTING           = 206,
 
   // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
   STATUS_NOTIFY_DONE      = 8000,
-  STATUS_NOTIFY_APPROVED = 8001,
-  STATUS_NOTIFY_DECLINED   = 8002,
+  STATUS_NOTIFY_APPROVED  = 8001,
+  STATUS_NOTIFY_DECLINED  = 8002,
 
   STATUS_FINISHED    = 9000,
   STATUS_CANCELED    = 9001
 }
 
-export const MRBauTaskStatusNames =
+const MRBauTaskStatusNames =
 [
   {label: 'Neu', value: EMRBauTaskStatus.STATUS_NEW},
   {label: 'In Bearbeitung', value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
   {label: 'On Hold', value: EMRBauTaskStatus.STATUS_ON_HOLD},
+
+  {label: 'Firmenzuordnung', value: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1  },
+  {label: 'Metadaten Zuweisen', value: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2  },
+  {label: 'Dublettenprüfung', value: EMRBauTaskStatus.STATUS_DUPLICATE_CHECK     },
+  {label: 'Formale Rechnungsprüfung', value: EMRBauTaskStatus.STATUS_FORMAL_REVIEW       },
+  {label: 'Sachliche Rechnungsprüfung', value: EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION},
+  {label: 'Freigabe', value: EMRBauTaskStatus.STATUS_FINAL_APPROVAL      },
+  {label: 'Buchen', value: EMRBauTaskStatus.STATUS_ACCOUNTING          },
 
   {label: 'Erledigt', value: EMRBauTaskStatus.STATUS_NOTIFY_DONE},
   {label: 'Genehmigt', value: EMRBauTaskStatus.STATUS_NOTIFY_APPROVED},
@@ -63,23 +76,17 @@ export const enum EMRBauTaskCategory {
   CommonTaskLast    = 1999,
 
   NewDocumentStart  = 2000,
-  NewDocumentExtractMetadata       = 2001,
+  NewDocumentCategorization  = 2001,
   //...
   NewDocumentLast   = 2999,
-
-  InvoiceAuditStart           = 3000,
-  InvoiceAudit = 3001,
-  //...
-  InvoiceAuditLast  = 3999,
 }
 
 export const MRBauTaskCategoryNames = {
   1001 : "Allgemein",
   1002 : "Info",
   1003 : "Approval",
-  2001 : "Extract Metadata",
+  2001 : "Dokument Kategorisieren und Freigeben",
 };
-
 
 @Pipe({name: 'mrbauTaskCategory'})
 export class MRBauTaskCategoryPipe implements PipeTransform {
@@ -93,7 +100,7 @@ export interface IMRBauTaskListEntry {
   desc:string;
   createdUser:string;
   createdDate: Date;
-  dueDate: Date;
+  dueDateValue: Date;
   icon:string;
   status: EMRBauTaskStatus;
 }
@@ -107,6 +114,7 @@ export class MRBauTask {
   public static readonly MRBT_TASK_FOLDER = "mrbt:tasksFolder";
   public static readonly ASPECT_MRBT_TASK_CORE_DETAILS ="mrbt:taskCoreDetails";
   public static readonly DEFAULT_TASK_DURATION = 14;
+  public static readonly DOCUMENT_DEFAULT_TASK_DURATION = 3;
 
   id : string;
   category: EMRBauTaskCategory;
@@ -118,7 +126,7 @@ export class MRBauTask {
   createdUser?: UserInfo; // currently assigned user
   createdDate?: Date;   // start date
   assignedUserName?: string; // currently assigned user Id
-  dueDate?: Date;
+  dueDateValue?: Date;
 
   constructor(obj?: any) {
     this.id = obj && obj.id || null;
@@ -131,7 +139,7 @@ export class MRBauTask {
     this.createdUser = obj && obj.createdUser;
     this.createdDate = obj && obj.createdDate;
     this.assignedUserName = obj && obj.assignedUserName;
-    this.dueDate = obj && obj.dueDate;
+    this.dueDateValue = obj && obj.dueDateValue;
   }
 
   public updateWithNodeData(node: MinimalNode){
@@ -143,7 +151,7 @@ export class MRBauTask {
     this.createdUser = node.createdByUser;
     this.createdDate = node.createdAt;
     this.assignedUserName = node.properties["mrbt:assignedUserName"];
-    this.dueDate = node.properties["mrbt:dueDate"] ? node.properties["mrbt:dueDate"] : null;
+    this.dueDateValue = node.properties["mrbt:dueDateValue"] ? node.properties["mrbt:dueDateValue"] : null;
     this.associatedDocumentRef = node.properties["mrbt:associatedDocumentRef"] ? node.properties["mrbt:associatedDocumentRef"] : [];
     this.associatedDocumentName = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
   }
@@ -162,6 +170,18 @@ export class MRBauTask {
 
   public isTaskModificationUiVisible() : boolean {
     return this.status < EMRBauTaskStatus.STATUS_NOTIFY_DONE;
+  }
+
+  public isCommonTask() :boolean {
+    return this.category > EMRBauTaskCategory.CommonTaskStart && this.category < EMRBauTaskCategory.CommonTaskLast;
+  }
+
+  public isNewDocumentTask() :boolean {
+    return this.category == EMRBauTaskCategory.NewDocumentCategorization;
+  }
+
+  public getStatusLabel() : string {
+    return new MRBauTaskStatusPipe().transform(this.status);
   }
 }
 
