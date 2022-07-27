@@ -1,8 +1,7 @@
-<div class="tasks-detail-main">
+<div class="tasks-detail-main" >
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
 
   <div *ngIf="task != null; else noTask">
-
     <mat-accordion multi="true">
       <!-- common task panel -->
       <div *ngIf="this.task && this.task.isCommonTask()">

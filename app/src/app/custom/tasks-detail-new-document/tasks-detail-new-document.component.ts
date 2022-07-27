@@ -1,7 +1,8 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
+import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
 
@@ -10,7 +11,7 @@ import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
   templateUrl: './tasks-detail-new-document.component.html',
   styleUrls: ['./tasks-detail-new-document.component.scss']
 })
-export class TasksDetailNewDocumentComponent implements OnInit, AfterViewInit {
+export class TasksDetailNewDocumentComponent implements OnInit {
 
   @Output() fileSelectEvent = new EventEmitter<string>();
   @Output() taskChangeEvent = new EventEmitter<MRBauTask>();
@@ -19,11 +20,14 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewInit {
   private _task : MRBauTask;
   @Input() set task(val : MRBauTask) {
     this._task = val;
-    this.update();
+    this.updateTask();
   }
   get task() : MRBauTask {
     return this._task;
   }
+
+  //private _taskNode : MinimalNodeEntity;
+
   readonly taskBarButtonsNormal : TaskBarButton[]=[
     { icon:"navigate_before", class:"mat-primary", tooltip:"Zurück", text:"Zurück", disabled: () => {return !this.isPrevButtonEnabled();}, onClick: (event?:any) => { this.onPrevClicked(event); } },
     { icon:"navigate_next", class:"mat-primary", tooltip:"Weiter zum nächsten Schritt", text:"Weiter", disabled: () => {return !this.isFormValid();}, onClick: (event?:any) => { this.onNextClicked(event); } },
@@ -35,6 +39,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewInit {
     this.errorEvent.emit(this._errorMessage);
   }
   private _errorMessage: string = null;
+  isLoading: boolean = false;
 
   form = new FormGroup({});
   model: any = {};
@@ -43,20 +48,46 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewInit {
   taskDescription : string =null;
 
   constructor(
+    private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
     private changeDetectorRef: ChangeDetectorRef,
+
   ) {}
 
   ngOnInit(): void {
   }
 
-  ngAfterViewInit():void {
+  updateTask() {
+    this.update();
+    this.queryData();
+  }
+
+  queryData()
+  {
+    //this._taskNode = undefined;
+    if (!(this._task && this._task.associatedDocumentRef.length > 0))
+    {
+      return;
+    }
+
+    this.isLoading = true;
+    this.changeDetectorRef.detectChanges();
+    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).subscribe(
+      (nodeEntry) => {
+        nodeEntry;
+      //  this._taskNode = nodeEntry;
+        this.isLoading = false;
+      },
+      (error) => {
+        this.errorEvent.emit(error);
+        this.isLoading = false;
+      }
+    );
   }
 
   update() {
     this.updateForm();
-
-    // workaroung for ExpressionChangedAfterItHasBeenCheckedError
+    // workaround for ExpressionChangedAfterItHasBeenCheckedError
     // https://stackoverflow.com/questions/43375532/expressionchangedafterithasbeencheckederror-explained
     // https://hackernoon.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
     this.changeDetectorRef.detectChanges();

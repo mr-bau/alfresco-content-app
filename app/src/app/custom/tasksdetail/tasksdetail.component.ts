@@ -35,8 +35,8 @@ export class TasksdetailComponent implements OnInit {
   }
   private _task : MRBauTask = null;
 
-  nodeId : string = null;
-  errorMessage: string = null;
+  nodeId:string = null;
+  errorMessage:string = null;
 
   historyPanelOpened:boolean=false;
   commentPanelOpened:boolean=false;

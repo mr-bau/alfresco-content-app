@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService } from '@alfresco/adf-core';
-import {  PersonEntry } from '@alfresco/js-api';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService } from '@alfresco/adf-core';
+import { MinimalNodeEntity, PersonEntry } from '@alfresco/js-api';
 import { Observable } from 'rxjs';
-import {  MRBauTask } from '../mrbau-task-declarations';
+import { MRBauTask } from '../mrbau-task-declarations';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,7 @@ export class MrbauCommonService {
   constructor(
     private peopleContentService: PeopleContentService,
     private commentContentService: CommentContentService,
+    private contentService: ContentService,
     ) { }
 
   getCurrentUser() : Promise<PersonEntry>
@@ -23,6 +24,10 @@ export class MrbauCommonService {
   //getTaskRootPath() : Promise<NodeEntry> {
   //  return this.nodesApiService.nodesApi.getNode('-root-', { includeSource: true, include: ['path'], relativePath: MRBauTask.TASK_RELATIVE_ROOT_PATH });
   //}
+
+  getNode(nodeId:string, opts?:any) : Observable<MinimalNodeEntity> {
+    return this.contentService.getNode(nodeId, opts);
+  }
 
   getPeopleObservable() : Observable<EcmUserModel[]> {
     return new Observable(observer => {

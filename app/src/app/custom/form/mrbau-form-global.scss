@@ -65,6 +65,7 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
 
 .tasks-detail-main {
   margin: 10px;
+  position: relative;
 }
 
 .status {

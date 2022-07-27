@@ -1,3 +1,5 @@
+<aca-mrbau-loaderoverlay *ngIf="isLoading"></aca-mrbau-loaderoverlay>
+
 <adf-toolbar [title]="this.task.desc">
   <div *ngIf="this.task && !this.task.isTaskInDoneState()">
     <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
@@ -16,6 +18,7 @@
     </button>
     <mat-menu #menu="matMenu">
       <aca-tasks-menu-delegate [task]="task"></aca-tasks-menu-delegate>
+      <aca-tasks-menu-delete [task]="task"></aca-tasks-menu-delete>
     </mat-menu>
   </div>
 </adf-toolbar>
