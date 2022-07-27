@@ -6,7 +6,7 @@ import { MRBauTask } from '../mrbau-task-declarations';
   template: `
   <mat-card class="addMarginTop" style="background:whitesmoke;">
       <div class="flex-container">
-        <div class="flex-2">{{this.task.category | mrbauTaskCategory}}, erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}</div>
+        <div class="flex-2">{{this.task.category | mrbauTaskCategory}}</div>
       </div>
       <div class="flex-container addMarginTop">
 

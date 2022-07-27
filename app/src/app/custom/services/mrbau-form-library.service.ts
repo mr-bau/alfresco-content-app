@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { MRBauArchiveModelTypes } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
 import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced,  } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
@@ -17,6 +18,52 @@ export class MrbauFormLibraryService {
     private mrbauCommonService : MrbauCommonService
     ) { }
 
+  getByName(name : string) : FormlyFieldConfig
+  {
+    let val = eval("this."+name);
+    return val;
+  }
+
+  getFormForNodeType(formTypeName : string, nodeType: string) :FormlyFieldConfig[]
+  {
+    // same for all document types
+    if (formTypeName == 'FIELDS_METADATA_EXTRACT_1') {
+      return [
+        {
+          fieldGroupClassName: 'flex-container',
+          fieldGroup: [this.mrba_companyId],
+        }
+      ];
+    }
+    // extract from doc model types
+    let result : FormlyFieldConfig[] = [];
+    let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
+    if (docModel.length > 0)
+    {
+      const formDefinition = docModel[0].mrbauFormDefinitions[formTypeName]
+      if (formDefinition)
+      {
+        formDefinition.formlyFieldConfigs.forEach((formElement) => result.push(this.getByName(formElement)))
+        result.forEach((fc) => this.patchFormFieldConfigRecursive(fc, formDefinition.mandatoryRequiredProperties));
+      }
+    }
+    return result;
+  }
+
+  patchFormFieldConfigRecursive(formlyFieldConfig: FormlyFieldConfig, mandatoryRequiredProperties: string[])
+  {
+    let key = formlyFieldConfig.key as string;
+    if (key && mandatoryRequiredProperties.indexOf(key) >= 0)
+    {
+      formlyFieldConfig.templateOptions.required = true;
+    }
+    if (formlyFieldConfig.fieldGroup)
+    {
+      formlyFieldConfig.fieldGroup.forEach( (fc) => this.patchFormFieldConfigRecursive(fc, mandatoryRequiredProperties))
+    }
+  }
+
+
   common_comment : FormlyFieldConfig =
   {
     className: 'flex-1',
@@ -32,12 +79,12 @@ export class MrbauFormLibraryService {
   common_archiveModelTypes : FormlyFieldConfig =
   {
     className: 'flex-4',
-    key: 'category',
+    key: 'archiveModelTypes',
     type: 'select',
     templateOptions: {
       label: 'Dokumenten-Art auswählen',
       options: this.mrbauConventionsService.getArchiveModelTypesFormOptions(),
-      required: true,
+
     },
   }
 
@@ -72,7 +119,7 @@ export class MrbauFormLibraryService {
       label: 'Aufgabe',
       description: 'Bezeichnung',
       maxLength: CONST.MAX_LENGTH_TASK_DESC,
-      required: true,
+
     },
   }
 
@@ -111,7 +158,6 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Priorität',
       placeholder: 'Placeholder',
-      required: true,
       options: [
         { value: 1, label: 'Hoch' },
         { value: 2, label: 'Mittel', default: true },
@@ -136,7 +182,7 @@ export class MrbauFormLibraryService {
         //{label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
         //{label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
       ],
-      required: true,
+
     },
   }
 
@@ -150,7 +196,7 @@ export class MrbauFormLibraryService {
       options: this.mrbauCommonService.getPeopleObservable(),
       valueProp: 'id',
       labelProp: 'displayName',
-      required: true,
+
     },
   }
 
@@ -162,14 +208,14 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Mandant auswählen',
       options: this.mrbauConventionsService.getOrganisationUnitFormOptions(),
-      required: true,
+
     },
   };
 
-  mrba_companyIdentifier : FormlyFieldConfig =
+  mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
-    key: 'companyIdentifier',
+    key: 'companyName',//TODO companyId companyName
     type: 'select',
     templateOptions: {
       label: 'Firma auswählen',
@@ -186,7 +232,7 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Eingangs Datum',
       type: 'date',
-      required: true,
+
     }
   };
 
@@ -200,7 +246,7 @@ export class MrbauFormLibraryService {
       type: 'number',
       min: new Date().getFullYear()-1,
       max: new Date().getFullYear()+1,
-      required: true,
+
     }
   }
 
@@ -211,7 +257,7 @@ export class MrbauFormLibraryService {
     type: 'input',
     templateOptions: {
       label: 'Bezeichnung',
-      required: true,
+
     }
   }
 
@@ -222,19 +268,19 @@ export class MrbauFormLibraryService {
     type: 'input',
     templateOptions: {
       label: 'Nummer',
-      required: true,
+
     }
   }
 
-  mrba_documentDate : FormlyFieldConfig =
+  mrba_documentDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'documentDate',
+    key: 'documentDateValue',
     type: 'input',
     templateOptions: {
       label: 'Datum',
       type: 'date',
-      required: true,
+
     }
   }
 
@@ -246,7 +292,6 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Netto Betrag',
       type: 'number',
-      required: true,
     }
   }
 
@@ -258,7 +303,7 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Brutto Betrag',
       type: 'number',
-      required: true,
+
     }
   }
 
@@ -274,7 +319,7 @@ export class MrbauFormLibraryService {
         {label: '10 %', value: 10},
         {label: ' 0 %', value:  0},
       ],
-      required: true,
+
     }
   }
 
@@ -298,7 +343,7 @@ export class MrbauFormLibraryService {
       label: 'Kostenträger',
       pattern: /^[0-9]*$/,
       type: 'number',
-      required: true,
+
     },
     validation: {
       messages: {
@@ -319,24 +364,29 @@ export class MrbauFormLibraryService {
 
 
 
-  // ASPEKT GROUPS
-
+  // ASPECT GROUPS
+  readonly title_mrba_documentIdentityDetails : FormlyFieldConfig = {
+    template: '<i>Dokument Eigenschaften</i>',
+  };
   readonly aspect_mrba_documentIdentityDetails : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
         this.mrba_documentTopic,
         this.mrba_documentNumber,
-        this.mrba_documentDate,
-        //this.mrbauFormLibraryService.mrba_documentDateValue
+        this.mrba_documentDateValue,
+        //this.mrba_documentDate
     ]
   };
 
+  readonly title_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig ={
+    template: '<i>Betrag und Steuersatz</i>',
+  };
   readonly aspect_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
       //this.mrbauFormLibraryService.mrba_netAmountCents,    // d:int kept in sync with mrba:netAmount
       this.mrba_netAmount,         // d:text
-      //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:intkept in sync with mrba:netAmount
+      //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:int kept in sync with mrba:netAmount
       this.mrba_grossAmount,       // d:text
       this.mrba_taxRate,        // d:text
       //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
@@ -363,6 +413,9 @@ export class MrbauFormLibraryService {
     ]
   };
 
+  readonly title_mrba_costCarrierDetails : FormlyFieldConfig ={
+    template: '<i>Kostenträger</i>',
+  };
   readonly aspect_mrba_costCarrierDetails : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [

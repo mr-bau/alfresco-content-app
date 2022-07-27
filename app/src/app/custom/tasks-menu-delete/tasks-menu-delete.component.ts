@@ -27,7 +27,6 @@ export class TasksMenuDeleteComponent {
 
   onDeleteTaskClicked()
   {
-
     this.contentService.nodesApi.deleteNode(this.task.id,{permanent : true}).then(
       () => {
         this.taskChangeEvent.emit(this.task);

@@ -1,3 +1,5 @@
+import { NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { MinimalNodeEntity, NodeBodyUpdate } from '@alfresco/js-api';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
@@ -26,7 +28,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return this._task;
   }
 
-  //private _taskNode : MinimalNodeEntity;
+  private _taskNode : MinimalNodeEntity;
 
   readonly taskBarButtonsNormal : TaskBarButton[]=[
     { icon:"navigate_before", class:"mat-primary", tooltip:"Zurück", text:"Zurück", disabled: () => {return !this.isPrevButtonEnabled();}, onClick: (event?:any) => { this.onPrevClicked(event); } },
@@ -51,22 +53,25 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
     private changeDetectorRef: ChangeDetectorRef,
-
+    private nodesApiService : NodesApiService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
   }
 
   updateTask() {
-    this.update();
+    this.form.reset();
     this.queryData();
   }
 
   queryData()
   {
-    //this._taskNode = undefined;
+    this.fields = [];
+    this._taskNode = undefined;
     if (!(this._task && this._task.associatedDocumentRef.length > 0))
     {
+      this.errorEvent.emit("Dokument-Assoziation fehlt!");
       return;
     }
 
@@ -75,8 +80,9 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).subscribe(
       (nodeEntry) => {
         nodeEntry;
-      //  this._taskNode = nodeEntry;
+        this._taskNode = nodeEntry;
         this.isLoading = false;
+        this.update();
       },
       (error) => {
         this.errorEvent.emit(error);
@@ -105,12 +111,46 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     {
       case (EMRBauTaskStatus.STATUS_NEW):
       case (EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1):
-        this.task.status = EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2;
+        this.writeMetadata(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)
         break;
       case EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2:
+        this.writeMetadata(EMRBauTaskStatus.STATUS_FORMAL_REVIEW);
         break;
+/*
+      STATUS_DUPLICATE_CHECK
+      STATUS_FORMAL_REVIEW
+      STATUS_INVOICE_VERIFICATION
+      STATUS_FINAL_APPROVAL
+      STATUS_ACCOUNTING*/
     }
-    this.update();
+  }
+
+  writeMetadata(nextStatus : EMRBauTaskStatus) {
+    this.isLoading = true;
+    console.log(this.model);
+    let nodeBody : NodeBodyUpdate =  {
+      properties: {
+      }
+    };
+    Object.keys(this.model).forEach( key =>
+    {
+      if (this.model[key])
+      {
+      nodeBody.properties['mrba:'+key] = this.model[key];
+      }
+    })
+    console.log(nodeBody);
+    this.nodesApiService.nodesApi.updateNode(this._taskNode.entry.id, nodeBody, {})
+    .then( () => {
+      this.task.status = nextStatus;
+      this.update();
+      this.isLoading = false;
+    })
+    .catch((error) => {
+      console.log(error);
+      this.isLoading = false;
+      this.notificationService.showError('Fehler: '+error);
+    });
   }
 
   onPrevClicked(event?:any)
@@ -137,44 +177,27 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   updateForm()
   {
     this.taskDescription = this.task.getStatusLabel();
+    const nodeType = this._taskNode.entry.nodeType;
+    // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts
+
+    // TODO init model
+
+    this.form = new FormGroup({});
 
     switch (this.task.status)
     {
       case (EMRBauTaskStatus.STATUS_NEW):
       case (EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1):
-        this.fields = this.FIELDS_METADATA_EXTRACT_1;
+        this.fields = this.mrbauFormLibraryService.getFormForNodeType('FIELDS_METADATA_EXTRACT_1', nodeType);
         break;
       case (EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2):
-        this.fields = this.FIELDS_METADATA_EXTRACT_2;
+        this.fields = this.mrbauFormLibraryService.getFormForNodeType('STATUS_METADATA_EXTRACT_2', nodeType);
         break;
       default:
         this.fields = [];
     }
-    // TODO reset model until the back forward issue has been solved
-    this.form.reset();
-    //console.log(this.model);
+
+
+
   }
-
-  readonly FIELDS_METADATA_EXTRACT_1 : FormlyFieldConfig[] = [
-    {
-      fieldGroupClassName: 'flex-container',
-      fieldGroup: [this.mrbauFormLibraryService.mrba_companyIdentifier],
-    }
-  ];
-
-  readonly FIELDS_METADATA_EXTRACT_2 : FormlyFieldConfig[] = [
-    {
-      template: '<i>Dokument Eigenschaften</i>',
-    },
-    this.mrbauFormLibraryService.aspect_mrba_documentIdentityDetails,
-    {
-      template: '<i>Betrag und Steuersatz</i>',
-    },
-    this.mrbauFormLibraryService.aspect_mrba_amountDetails_mrba_taxRate,
-    {
-      template: '<i>Kostenträger</i>',
-    },
-    this.mrbauFormLibraryService.aspect_mrba_costCarrierDetails,
-  ];
-
 }

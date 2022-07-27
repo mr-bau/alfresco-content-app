@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { MRBauArchiveModelTypes, EMRBauDocumentCategory } from '../mrbau-doc-declarations';
+import { MRBauArchiveModelTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
 
 interface ClientData {
@@ -46,7 +46,6 @@ export class MrbauConventionsService {
     [EMRBauClientId.MANDANT_3, {value: EMRBauClientId.MANDANT_3, label: "Mandant3", folder: "03 Mandant3"}],
   ]);
 
-
   getOrganisationUnitFormOptions() : FormOptionsInterface[] {
     let result : FormOptionsInterface[] = [];
     this.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.value}));
@@ -61,18 +60,32 @@ export class MrbauConventionsService {
     return MRBauArchiveModelTypes.filter( d => d.category != EMRBauDocumentCategory.ARCHIVE_DOCUMENT).map( d => ({label: d.title, value : d.category, group: d.group.label}));
   }
 
+  getArchiveModelNodeTye(category:EMRBauDocumentCategory) : string
+  {
+    let docModel : IMRBauDocumentType[] = MRBauArchiveModelTypes.filter( d => d.category == category);
+    if (docModel.length > 0)
+    {
+      return docModel[0].name;
+    }
+    else
+    {
+      return undefined;
+    }
+  }
+
   getTaskDescription(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
-    if (task == EMRBauTaskCategory.NewDocumentCategorization)
+    if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
     {
-      return "Beleg Dokument ablegen und prüfen"
+      return "Dokument prüfen und archivieren"
     }
 
     return "description for "+task+" "+client+" "+ documentCategory;
   }
   getTaskFullDescription(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
-    return "full description for "+task+" "+client+" "+ documentCategory;
+    task;documentCategory;client;
+    return null;
   }
   getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {

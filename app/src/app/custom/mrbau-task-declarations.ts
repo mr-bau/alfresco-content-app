@@ -76,7 +76,7 @@ export const enum EMRBauTaskCategory {
   CommonTaskLast    = 1999,
 
   NewDocumentStart  = 2000,
-  NewDocumentCategorization  = 2001,
+  NewDocumentValidateAndArchive  = 2001,
   //...
   NewDocumentLast   = 2999,
 }
@@ -85,7 +85,7 @@ export const MRBauTaskCategoryNames = {
   1001 : "Allgemein",
   1002 : "Info",
   1003 : "Approval",
-  2001 : "Dokument Kategorisieren und Freigeben",
+  2001 : "Dokument prüfen und archivieren",
 };
 
 @Pipe({name: 'mrbauTaskCategory'})
@@ -177,7 +177,7 @@ export class MRBauTask {
   }
 
   public isNewDocumentTask() :boolean {
-    return this.category == EMRBauTaskCategory.NewDocumentCategorization;
+    return this.category == EMRBauTaskCategory.NewDocumentValidateAndArchive;
   }
 
   public getStatusLabel() : string {

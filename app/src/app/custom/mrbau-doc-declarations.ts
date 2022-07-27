@@ -35,6 +35,10 @@ export const enum EMRBauDocumentCategoryGroup {
   CONTRACTS    = 1,
 }
 
+export interface IMRBauFormDefinition {
+  formlyFieldConfigs : string[]; // name maps to this.mrbauFormLibraryService.name
+  mandatoryRequiredProperties: string[];
+}
 export interface IMRBauDocumentType {
   title:string,
   name: string,
@@ -43,6 +47,9 @@ export interface IMRBauDocumentType {
   category: EMRBauDocumentCategory,
   folder: string,
   group: DocumentCategoryGroupData,
+  mrbauFormDefinitions: {
+    [key: string]: IMRBauFormDefinition;
+  }
 }
 
 interface DocumentCategoryGroupData {
@@ -68,22 +75,40 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     ],
     category: EMRBauDocumentCategory.ARCHIVE_DOCUMENT,
     folder: "99 doc",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Angebot",
     name : "mrba:offer",
     parent : "mrba:archiveDocument",
     mandatoryAspects : [
-      "mrba:companyIdentifier",
+      "mrba:companyIdentifiers",
       "mrba:documentIdentityDetails",
-      "amountDetails",
-      "taxRate",
-      "costCarrierDetails",
+      "mrba:amountDetails",
+      "mrba:taxRate",
+      "mrba:costCarrierDetails",
     ],
     category: EMRBauDocumentCategory.OFFER,
     folder: "01 Angebote",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : {
+      "STATUS_METADATA_EXTRACT_2" : {
+        formlyFieldConfigs: [
+          'title_mrba_documentIdentityDetails',
+          'aspect_mrba_documentIdentityDetails',
+          'title_mrba_amountDetails_mrba_taxRate',
+          'aspect_mrba_amountDetails_mrba_taxRate',
+          'title_mrba_costCarrierDetails',
+          'aspect_mrba_costCarrierDetails',
+        ],
+        mandatoryRequiredProperties: [
+          'documentDateValue',
+          'costCarrierNumber', //d:int
+          'projectName',
+        ]
+      },
+    },
   },
   {
     title: "Auftrag",
@@ -101,7 +126,8 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     ],
     category: EMRBauDocumentCategory.ORDER,
     folder: "02 Aufträge",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Zusatzauftrag",
@@ -113,7 +139,8 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     ],
     category: EMRBauDocumentCategory.ADDON_ORDER,
     folder: "02 Aufträge",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Vergabeverhandlungsprotokoll",
@@ -128,7 +155,8 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     ],
     category: EMRBauDocumentCategory.ORDER_NEGOTIATION_PROTOCOL,
     folder: "02 Aufträge",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Zahlungskonditionen / Jahresauftrag",
@@ -142,7 +170,8 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     ],
     category: EMRBauDocumentCategory.PAYMENT_TERMS,
     folder: "06 Zahlungskonditionen",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Lieferschein",
@@ -153,9 +182,10 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
       "mrba:documentIdentityDetails",
       "mrba:costCarrierDetails",
     ],
-    category: EMRBauDocumentCategory.PAYMENT_TERMS,
+    category: EMRBauDocumentCategory.DELIVERY_NOTE,
     folder: "03 Lieferscheine",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Eingangsrechnung",
@@ -171,12 +201,13 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
       "mrba:orderReference",
       "mrba:deliveryNoteReference",
       "mrba:inboundInvoiceReference",
-      "mrba_inboundRevokedInvoiceReference",
+      "mrba:inboundRevokedInvoiceReference",
       "mrba:inboundPartialInvoiceReference",
     ],
     category: EMRBauDocumentCategory.ER,
     folder: "04 Eingangsrechnungen",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   },
   {
     title: "Sonstiger Beleg",
@@ -188,7 +219,8 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     ],
     category: EMRBauDocumentCategory.OTHER_BILL,
     folder: "99 Sonstige Belege",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS)
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
   }
 ];
 
@@ -295,6 +327,7 @@ export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
   {
     name :"mrba:companyIdentifiers",
     properties: [
+      "mrba:companyId",
       "mrba:companyName",
       "mrba:companyVatID",
       "mrba:companyStreet",

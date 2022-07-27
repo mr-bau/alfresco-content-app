@@ -5,7 +5,7 @@ import { MrbauBaseDialogComponent } from '../mrbau-base-dialog/mrbau-base-dialog
 import { DatePipe } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SelectionState } from '@alfresco/adf-extensions';
-import { Node } from '@alfresco/js-api';
+import { Node, NodeBodyUpdate } from '@alfresco/js-api';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../../mrbau-task-declarations';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
@@ -85,20 +85,48 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   }
 
   categorizeNode(node:Node) {
-    // TODO adapt document type properties and aspects
-    // TODO set receive time stamp and fiscal year
+    const nodeType = this.mrbauConventionsService.getArchiveModelNodeTye(this.model.archiveModelTypes);
+    console.log(nodeType);
+    if (!nodeType)
+    {
+      this.notificationService.showError('Fehler: NodeType nicht gefunden!');
+      return;
+    }
     // TODO move document to according folder -> backend
-    // TODO create and assign a new task
-    this.doCreateTask(node, EMRBauTaskCategory.NewDocumentCategorization); //, EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1);
     // TODO add entry to incoming post book
+
+    // execute sequentially !
+    // adapt document type and set receive time stamp and fiscal year
+    this.changeDocumentType(node, nodeType)
+    // create and assign a new task
+    .then(() => this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))
+    .then(() => this.notificationService.showInfo('Aufgabe erfolgreich erstellt'))
+    .catch((error) => {
+      console.log(error);
+      this.notificationService.showError('Fehler: '+error);
+    });
+
   }
 
-  doCreateTask(node :Node, taskCategory : EMRBauTaskCategory, status?: EMRBauTaskStatus)
+  changeDocumentType(node :Node, nodeType : string) : Promise<any>
+  {
+    let nodeBody : NodeBodyUpdate =  {
+      nodeType: nodeType,
+      properties: {
+        //"mrba:mrBauId"
+        "mrba:fiscalYear"        : this.model.fiscalYear,
+        "mrba:archivedDateValue" : this.model.archivedDateValue,
+        "mrba:organisationUnit"  : this.model.organisationUnit,
+      }
+    };
+    return this.nodesApiService.nodesApi.updateNode(node.id, nodeBody, {});
+  }
+
+  doCreateTask(node :Node, taskCategory : EMRBauTaskCategory, status?: EMRBauTaskStatus) : Promise<any>
   {
     const contentTypes = ['application/json'];
     const pathParams = {'nodeId': '-root-' };
     const accepts = ['application/json'];
-    // TODO
     const postBody = `
     {
       "name": "-",
@@ -106,7 +134,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       "relativePath": "${MRBauTask.TASK_RELATIVE_ROOT_PATH}",
       "properties":{
         "mrbt:category": ${taskCategory},
-        "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1},
+        "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_NEW},
         "mrbt:priority": 2,
         "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory, this.model.category)}",
         "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory, this.model.category)}",
@@ -117,14 +145,6 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     }`;
 
     //console.log(postBody);
-    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts).then(
-      (success) => {
-        success;
-        this.notificationService.showInfo('Aufgabe erfolgreich erstellt');
-      })
-      .catch((error) => {
-        console.log(error);
-        this.notificationService.showError('Fehler: '+error);
-      });
+    return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts);
   }
 }
