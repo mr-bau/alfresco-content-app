@@ -1,4 +1,4 @@
-      <adf-toolbar [title]="this.task.desc">
+      <adf-toolbar [title]="this.task && this.task.desc">
         <div *ngIf="this.task && !this.task.isTaskInDoneState()">
           <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
             <button mat-flat-button
@@ -15,7 +15,7 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-            <aca-tasks-menu-delegate [task]="task"></aca-tasks-menu-delegate>
+            <aca-tasks-menu-delegate [task]="task" (taskChangeEvent)="taskDelegateChange($event)"></aca-tasks-menu-delegate>
             <aca-tasks-menu-delete [task]="task"></aca-tasks-menu-delete>
           </mat-menu>
         </div>

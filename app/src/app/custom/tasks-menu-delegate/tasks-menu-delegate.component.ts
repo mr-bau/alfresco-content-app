@@ -41,14 +41,12 @@ export class TasksMenuDelegateComponent {
   }
 
   delegateTask(model) {
-    const newUser : string = model.assignedUser
+    const newUser : string = model["mrbt:assignedUserName"]
     if (!newUser)
     {
       return;
     }
-
     this.mrbauCommonService.addComment(this.task, model.comment);
-
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUser}};
     if (this.task.isInNotifyState())
     {

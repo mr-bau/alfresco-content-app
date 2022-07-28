@@ -95,6 +95,11 @@ export class TasksDetailCommonComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  taskDelegateChange(task : MRBauTask)
+  {
+    this.taskChangeEvent.emit(task);
+  }
+
   modelChangeEvent()
   {
     //console.log(this.model);

@@ -3,6 +3,7 @@ import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService
 import { MinimalNodeEntity, PersonEntry } from '@alfresco/js-api';
 import { Observable } from 'rxjs';
 import { MRBauTask } from '../mrbau-task-declarations';
+import { DatePipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class MrbauCommonService {
     private peopleContentService: PeopleContentService,
     private commentContentService: CommentContentService,
     private contentService: ContentService,
+    private datePipe : DatePipe,
     ) { }
 
   getCurrentUser() : Promise<PersonEntry>
@@ -51,6 +53,10 @@ export class MrbauCommonService {
       return null;
     }
     return this.commentContentService.addNodeComment(task.id, comment);
+  }
+
+  getFormDateValue(date: Date) : string {
+    return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 
 }

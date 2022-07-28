@@ -35,7 +35,6 @@ export class BelegsammlungComponent implements OnInit, AfterContentInit {
       include: ['path', 'properties'],
       relativePath: '/Sites/belegsammlung/documentLibrary'
     }).toPromise().then(node => {
-      console.log(node);
       this.documentListStartFolder = node.id;
       this.changeDetector.detectChanges();
     });
@@ -43,7 +42,6 @@ export class BelegsammlungComponent implements OnInit, AfterContentInit {
 
   testPdfLoad()
   {
-    console.log("test");
     this.t = !this.t;
     this.pdf_url = (this.t ? this.pdf_url1 : this.pdf_url2);
     (<HTMLIFrameElement>document.getElementById('my-iframe')).src = this.pdf_url +BelegsammlungComponent.SHOW_TOOLBAR;

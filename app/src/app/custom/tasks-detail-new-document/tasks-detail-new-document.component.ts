@@ -127,7 +127,6 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   writeMetadata(nextStatus : EMRBauTaskStatus) {
     this.isLoading = true;
-    console.log(this.model);
     let nodeBody : NodeBodyUpdate =  {
       properties: {
       }
@@ -136,10 +135,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     {
       if (this.model[key])
       {
-      nodeBody.properties['mrba:'+key] = this.model[key];
+      nodeBody.properties[key] = this.model[key];
       }
     })
-    console.log(nodeBody);
+    //console.log(nodeBody);
     this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {})
     .then( () => {
       this.task.status = nextStatus;
@@ -183,7 +182,6 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
     // TODO init model
 
-    this.form = new FormGroup({});
     switch (this.task.status)
     {
       case (EMRBauTaskStatus.STATUS_NEW):
@@ -197,10 +195,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
         this.fields = [];
     }
     this.updateFormValues();
+    this.form = new FormGroup({});
   }
 
   updateFormValues() {
-    console.log(this._taskNode);
     this.fields.forEach( (field) => this.updateFormValueRecursive(field));
   }
 
@@ -209,10 +207,15 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     let key = formlyFieldConfig.key as string;
     if (key)
     {
-      console.log(key);
-      if (this._taskNode.properties["mrba:"+key])
-        console.log("found");
-
+      if (this._taskNode.properties[key])
+      {
+        let value = this._taskNode.properties[key]
+        if (formlyFieldConfig.templateOptions.type == 'date')
+        {
+          value = this.mrbauCommonService.getFormDateValue(new Date(value));
+        }
+        this.model[key] = value;
+      }
     }
     if (formlyFieldConfig.fieldGroup)
     {

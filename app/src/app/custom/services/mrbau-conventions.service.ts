@@ -1,7 +1,7 @@
-import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { MRBauArchiveModelTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
+import { MrbauCommonService } from './mrbau-common.service';
 
 interface ClientData {
   value: EMRBauClientId,
@@ -36,7 +36,9 @@ export interface Vendor {
 export class MrbauConventionsService {
   // service class to return mrbau related responsibility conventions
   // TODO extract from JSON File
-  constructor(private datePipe: DatePipe)
+  constructor(
+    private mrbauCommonService: MrbauCommonService
+    )
   {
   }
 
@@ -92,7 +94,7 @@ export class MrbauConventionsService {
     task;documentCategory;client;
     let date = new Date();
     date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
-    return this.datePipe.transform(date, 'yyyy-MM-dd');
+    return this.mrbauCommonService.getFormDateValue(date);
   }
   getTaskAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {

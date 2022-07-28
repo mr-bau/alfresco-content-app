@@ -2,13 +2,13 @@ import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { MrbauConventionsService } from '../../services/mrbau-conventions.service';
 import { MrbauBaseDialogComponent } from '../mrbau-base-dialog/mrbau-base-dialog.component';
-import { DatePipe } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SelectionState } from '@alfresco/adf-extensions';
 import { Node, NodeBodyUpdate } from '@alfresco/js-api';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../../mrbau-task-declarations';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
 
 @Component({
   selector: 'aca-mrbau-inbox-assign-dialog',
@@ -51,7 +51,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
 
   constructor(
     private mrbauConventionsService : MrbauConventionsService,
-    private datePipe : DatePipe,
+    private mrbauCommonService : MrbauCommonService,
     private notificationService: NotificationService,
     private nodesApiService: NodesApiService,
     private mrbauFormLibraryService: MrbauFormLibraryService,
@@ -62,9 +62,9 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
 
     this.fields = this.fieldsMain;
     const date = new Date();
-    this.model.archivedDateValue = this.datePipe.transform(date, 'yyyy-MM-dd');
-    this.model.organisationUnit = this.mrbauConventionsService.getDefaultOrganisationUnit();
-    this.model.fiscalYear = date.getFullYear();
+    this.model['mrba:archivedDateValue'] = this.mrbauCommonService.getFormDateValue(date);
+    this.model['mrba:organisationUnit'] = this.mrbauConventionsService.getDefaultOrganisationUnit();
+    this.model['mrba:fiscalYear'] = date.getFullYear();
   }
 
   ngOnInit(): void {
@@ -102,7 +102,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     .then(() => this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))
     .then(() => this.notificationService.showInfo('Aufgabe erfolgreich erstellt'))
     .catch((error) => {
-      console.log(error);
+      //console.log(error);
       this.notificationService.showError('Fehler: '+error);
     });
 
@@ -114,9 +114,9 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       nodeType: nodeType,
       properties: {
         //"mrba:mrBauId"
-        "mrba:fiscalYear"        : this.model.fiscalYear,
-        "mrba:archivedDateValue" : this.model.archivedDateValue,
-        "mrba:organisationUnit"  : this.model.organisationUnit,
+        "mrba:fiscalYear"        : this.model['mrba:fiscalYear'],
+        "mrba:archivedDateValue" : this.model['mrba:archivedDateValue'],
+        "mrba:organisationUnit"  : this.model['mrba:organisationUnit'],
       }
     };
     return this.nodesApiService.nodesApi.updateNode(node.id, nodeBody, {});
@@ -138,7 +138,6 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
         "mrbt:priority": 2,
         "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory )}",
         "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory)}",
-        "mrbt:fullDescription": "${this.mrbauConventionsService.getTaskFullDescription(taskCategory)}",
         "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory)}"
       },
       "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]

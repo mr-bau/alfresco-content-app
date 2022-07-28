@@ -1,18 +1,14 @@
 import { Component, Inject, ViewEncapsulation } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ContentApiService } from '@alfresco/aca-shared';
-import { PeopleContentService } from '@alfresco/adf-core';
 import { MrbauBaseTaskDialogComponent, MrbauBaseTaskDialogComponentProps } from '../mrbau-base-task-dialog/mrbau-base-task-dialog.component';
 
 @Component({
   selector: 'aca-mrbau-finish-task-dialog',
   template: `
   <h2 mat-dialog-title>{{dialogTitle}}</h2>
-  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
   <mat-dialog-content>
     <div>{{dialogMsg}}</div>
-    <aca-mrbau-loaderoverlay *ngIf="loaderVisible"></aca-mrbau-loaderoverlay>
       <form [formGroup]="form">
         <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
       </form>
@@ -26,13 +22,12 @@ import { MrbauBaseTaskDialogComponent, MrbauBaseTaskDialogComponentProps } from 
   encapsulation: ViewEncapsulation.None
 })
 export class MrbauConfirmTaskDialogComponent extends MrbauBaseTaskDialogComponent {
-  constructor(public contentApi : ContentApiService,
-    public peopleService: PeopleContentService,
+  constructor(
     public  dialogRef: MatDialogRef<MrbauConfirmTaskDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MrbauBaseTaskDialogComponentProps
     )
   {
-    super(contentApi, peopleService, dialogRef, data);
+    super(dialogRef, data);
   }
 
   formIsInValid() : boolean

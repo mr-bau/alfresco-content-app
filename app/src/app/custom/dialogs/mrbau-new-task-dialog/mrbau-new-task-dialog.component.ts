@@ -4,11 +4,11 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NodesApiService, NotificationService} from '@alfresco/adf-core';
 import { MRBauTask, EMRBauTaskCategory} from '../../mrbau-task-declarations';
-import { DatePipe } from '@angular/common';
 import { isDevMode } from '@angular/core';
 import { SelectionState } from '@alfresco/adf-extensions';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 import { MrbauBaseDialogComponent } from '../mrbau-base-dialog/mrbau-base-dialog.component';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
 
 @Component({
   selector: 'aca-mrbau-new-task-dialog',
@@ -60,9 +60,10 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
 
   private _oldCategory : EMRBauTaskCategory = null;
 
-  constructor(private datePipe: DatePipe,
+  constructor(
               private nodesApiService: NodesApiService,
               private notificationService: NotificationService,
+              private mrbauCommonService: MrbauCommonService,
               private mrbauFormLibraryService: MrbauFormLibraryService,
               private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
     super();
@@ -136,7 +137,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
           this.notificationService.showInfo('Aufgabe erfolgreich erstellt');
         })
         .catch((error) => {
-          console.log(error);
+          //console.log(error);
           this.notificationService.showError('Fehler: '+error);
         });
     }
@@ -153,7 +154,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
         // set default date today + 14 days
         let date = new Date();
         date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
-        this.form.get('mrbt:dueDateValue').patchValue(this.datePipe.transform(date, 'yyyy-MM-dd'));
+        this.form.get('mrbt:dueDateValue').patchValue(this.mrbauCommonService.getFormDateValue(date));
         // set default priority
         this.form.get('mrbt:priority').patchValue(2);
         // update model parameter according to task

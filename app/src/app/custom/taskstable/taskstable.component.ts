@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { SearchService} from '@alfresco/adf-core';
+import { DataTableAdapter, SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
 import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
@@ -12,6 +12,8 @@ import { NodePaging, SearchRequest } from '@alfresco/js-api';
   styleUrls: ['./taskstable.component.scss']
 })
 export class TasksTableComponent implements OnInit, PaginatedComponent {
+  @ViewChild('dataTable') adfDataTable : DataTableAdapter;
+
   @Input()
   set taskUpdateEvent(task:MRBauTask) {
     if (task)

@@ -9,7 +9,7 @@
         <mat-icon class="tab-icon">{{tab.tabIcon}}</mat-icon>
         <span [matBadge]="tab.tabBadge" matBadgeOverlap="false" [matBadgeHidden]="tab.tabBadge == 0">{{tab.tabName}}</span>
       </ng-template>
-      <adf-datatable
+      <adf-datatable #dataTable
         [data]="data"
         [loading]="isLoading"
         (rowClick)="rowClicked($event)"

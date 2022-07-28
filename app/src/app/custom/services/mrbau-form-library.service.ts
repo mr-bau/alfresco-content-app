@@ -63,7 +63,6 @@ export class MrbauFormLibraryService {
     }
   }
 
-
   common_comment : FormlyFieldConfig =
   {
     className: 'flex-1',

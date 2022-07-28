@@ -2,20 +2,16 @@ import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ContentApiService } from '@alfresco/aca-shared';
-import { PeopleContentService} from '@alfresco/adf-core';
 import { MRBauTask } from '../../mrbau-task-declarations';
-import { CONST } from '../../mrbau-global-declarations';
 import { MrbauBaseTaskDialogComponent, MrbauBaseTaskDialogComponentProps } from '../mrbau-base-task-dialog/mrbau-base-task-dialog.component';
+import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 
 @Component({
   selector: 'aca-mrbau-delegate-task-dialog',
   template: `
   <h2 mat-dialog-title>{{dialogTitle}}</h2>
-  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
   <mat-dialog-content>
     <div>{{dialogMsg}}</div>
-    <aca-mrbau-loaderoverlay *ngIf="loaderVisible"></aca-mrbau-loaderoverlay>
       <form [formGroup]="form">
         <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
       </form>
@@ -34,13 +30,13 @@ export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogCompone
   dialogButtonCancel: string = 'ABBRECHEN';
   dialogButtonOK: string = 'DELIGIEREN';
 
-  constructor(public contentApi : ContentApiService,
-    public peopleService: PeopleContentService,
+  constructor(
+    private mrbauFormLibraryService : MrbauFormLibraryService,
     public  dialogRef: MatDialogRef<MrbauDelegateTaskDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MrbauBaseTaskDialogComponentProps
     )
   {
-    super(contentApi, peopleService, dialogRef, data);
+    super(dialogRef, data);
   }
 
   ngOnInit(): void {
@@ -48,54 +44,24 @@ export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogCompone
       this.onDialogClose(result);
     });
     const task = this.data.payload as MRBauTask;
-    this.model['mrbt:assignedUser'] = task.assignedUserName;
-    this.queryData();
-  }
-
-  loadForm()
-  {
-    this.fields = this.delegateTaskForm;
+    this.model['mrbt:assignedUserName'] = task.assignedUserName;
+    //this.form.get('mrbt:assignedUserName').patchValue(task.assignedUserName);
   }
 
   formIsInValid() : boolean {
     const task = this.data.payload as MRBauTask;
-    return this.form.invalid || !!this.errorMessage || task.assignedUserName == this.model['mrbt:assignedUser'];
+    return this.form.invalid || task.assignedUserName == this.model['mrbt:assignedUserName'];
   }
 
-
-  private delegateTaskForm: FormlyFieldConfig[] = [
+  fields : FormlyFieldConfig[] = [
     {
       fieldGroupClassName: 'flex-container-min-width',
-      fieldGroup: [
-        {
-          className: 'flex-2',
-          key: 'comment',
-          type: 'textarea',
-          templateOptions: {
-            label: 'Optionaler Kommentar',
-            description: 'Kommentar',
-            maxLength: CONST.MAX_LENGTH_COMMENT,
-            required: false,
-          },
-        },
-      ]
+      fieldGroup: [this.mrbauFormLibraryService.common_comment]
     },
     {
       fieldGroupClassName: 'flex-container-min-width',
-      fieldGroup: [
-        {
-          className: 'flex-2',
-          key: 'assignedUser',
-          type: 'select',
-          templateOptions: {
-            label: 'Mitarbeiter',
-            options: this.people,
-            valueProp: 'id',
-            labelProp: 'displayName',
-            required: true,
-          },
-        },
-      ]
+      fieldGroup: [this.mrbauFormLibraryService.mrbt_assignedUserName]
     }
   ];
+
 }
