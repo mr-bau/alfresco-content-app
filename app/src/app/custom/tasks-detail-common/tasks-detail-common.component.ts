@@ -102,7 +102,7 @@ export class TasksDetailCommonComponent implements OnInit {
 
   buttonSaveClicked()
   {
-    this.saveStatusCommentUser(this.model.status, this.model.comment);
+    this.saveStatusCommentUser(this.model['mrbt:status'], this.model.comment);
     this.model.comment = "";
   }
 
@@ -160,7 +160,7 @@ export class TasksDetailCommonComponent implements OnInit {
   resetModel()
   {
     this.model = {};
-    this.model.status = this._task.status;
+    this.model['mrbt:status'] = this._task.status;
   }
 
   queryNewData()

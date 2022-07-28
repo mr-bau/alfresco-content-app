@@ -1,5 +1,5 @@
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
-import { MinimalNodeEntity, NodeBodyUpdate } from '@alfresco/js-api';
+import { Node, NodeBodyUpdate } from '@alfresco/js-api';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
@@ -28,7 +28,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return this._task;
   }
 
-  private _taskNode : MinimalNodeEntity;
+  private _taskNode : Node;
 
   readonly taskBarButtonsNormal : TaskBarButton[]=[
     { icon:"navigate_before", class:"mat-primary", tooltip:"Zurück", text:"Zurück", disabled: () => {return !this.isPrevButtonEnabled();}, onClick: (event?:any) => { this.onPrevClicked(event); } },
@@ -80,7 +80,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).subscribe(
       (nodeEntry) => {
         nodeEntry;
-        this._taskNode = nodeEntry;
+        this._taskNode = nodeEntry.entry;
         this.isLoading = false;
         this.update();
       },
@@ -140,7 +140,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       }
     })
     console.log(nodeBody);
-    this.nodesApiService.nodesApi.updateNode(this._taskNode.entry.id, nodeBody, {})
+    this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {})
     .then( () => {
       this.task.status = nextStatus;
       this.update();
@@ -176,14 +176,14 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   updateForm()
   {
-    this.taskDescription = this.task.getStatusLabel();
-    const nodeType = this._taskNode.entry.nodeType;
+    this.taskDescription = this.task.getStatusLabel()+" "+this._taskNode.name;
+
+    const nodeType = this._taskNode.nodeType;
     // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts
 
     // TODO init model
 
     this.form = new FormGroup({});
-
     switch (this.task.status)
     {
       case (EMRBauTaskStatus.STATUS_NEW):
@@ -196,8 +196,27 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       default:
         this.fields = [];
     }
+    this.updateFormValues();
+  }
 
+  updateFormValues() {
+    console.log(this._taskNode);
+    this.fields.forEach( (field) => this.updateFormValueRecursive(field));
+  }
 
+  updateFormValueRecursive(formlyFieldConfig: FormlyFieldConfig)
+  {
+    let key = formlyFieldConfig.key as string;
+    if (key)
+    {
+      console.log(key);
+      if (this._taskNode.properties["mrba:"+key])
+        console.log("found");
 
+    }
+    if (formlyFieldConfig.fieldGroup)
+    {
+      formlyFieldConfig.fieldGroup.forEach( (fc) => this.updateFormValueRecursive(fc))
+    }
   }
 }

@@ -73,7 +73,7 @@ export class MrbauConventionsService {
     }
   }
 
-  getTaskDescription(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
     {
@@ -82,19 +82,19 @@ export class MrbauConventionsService {
 
     return "description for "+task+" "+client+" "+ documentCategory;
   }
-  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     task;documentCategory;client;
     return null;
   }
-  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     task;documentCategory;client;
     let date = new Date();
     date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
-  getTaskAssignedUserId(task: EMRBauTaskCategory, documentCategory : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     task;
     documentCategory;

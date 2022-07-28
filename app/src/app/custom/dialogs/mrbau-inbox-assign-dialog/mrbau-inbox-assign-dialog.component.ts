@@ -136,10 +136,10 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
         "mrbt:category": ${taskCategory},
         "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_NEW},
         "mrbt:priority": 2,
-        "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory, this.model.category)}",
-        "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory, this.model.category)}",
-        "mrbt:fullDescription": "${this.mrbauConventionsService.getTaskFullDescription(taskCategory, this.model.category)}",
-        "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory, this.model.category)}"
+        "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory )}",
+        "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory)}",
+        "mrbt:fullDescription": "${this.mrbauConventionsService.getTaskFullDescription(taskCategory)}",
+        "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory)}"
       },
       "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]
     }`;

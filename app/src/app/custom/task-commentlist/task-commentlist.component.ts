@@ -66,7 +66,7 @@ export class TaskCommentlistComponent implements OnInit {
     this._commentContentService.getNodeComments(this._nodeId).subscribe(
       (comments: CommentModel[]) => {
         if (comments && comments instanceof Array) {
-          console.log(comments.length+" comments received");
+          //console.log(comments.length+" comments received");
           comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
               const date1 = new Date(comment1.created);
               const date2 = new Date(comment2.created);

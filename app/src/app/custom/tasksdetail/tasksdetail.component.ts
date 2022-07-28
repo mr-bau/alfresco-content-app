@@ -57,7 +57,7 @@ export class TasksdetailComponent implements OnInit {
 
   taskChanged(task : MRBauTask)
   {
-    this.task = JSON.parse(JSON.stringify(task));
+    this.taskChangeEvent.emit(task);
   }
 
   selectedFirstAssociatedFile()

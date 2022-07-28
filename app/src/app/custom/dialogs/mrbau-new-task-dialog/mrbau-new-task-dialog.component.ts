@@ -69,7 +69,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
     this.fields = this.fieldsMain;
 
     if (isDevMode()) {
-      this.model.assignedUserName = "Wolfgang Moser";
+      this.model["mrbt:assignedUserName"] = "Wolfgang Moser";
     }
 
     const selection = this.data.payload as SelectionState;
@@ -120,12 +120,12 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
         "nodeType": "${MRBauTask.MRBT_TASK}",
         "relativePath": "${MRBauTask.TASK_RELATIVE_ROOT_PATH}",
         "properties":{
-          "mrbt:category": ${this.model.category},
-          "mrbt:priority": ${this.model.priority},
-          "mrbt:description": "${this.model.description}",
-          "mrbt:assignedUserName": "${this.model.assignedUserName}",
-          "mrbt:fullDescription": "${this.model.fullDescription ? this.model.fullDescription : ""}",
-          "mrbt:dueDateValue": "${this.model.dueDateValue ? this.model.dueDateValue : ""}"
+          "mrbt:category": ${this.model["mrbt:category"]},
+          "mrbt:priority": ${this.model["mrbt:priority"]},
+          "mrbt:description": "${this.model["mrbt:description"]}",
+          "mrbt:assignedUserName": "${this.model["mrbt:assignedUserName"]}",
+          "mrbt:fullDescription": "${this.model["mrbt:fullDescription"] ? this.model["mrbt:fullDescription"] : ""}",
+          "mrbt:dueDateValue": "${this.model["mrbt:dueDateValue"] ? this.model["mrbt:dueDateValue"] : ""}"
         }
         ${targets}
       }`;
@@ -144,7 +144,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
 
   modelChangeEvent()
   {
-    const cat = this.model['category'];
+    const cat = this.model['mrbt:category'];
     if (cat && cat != this._oldCategory)
     {
       this._oldCategory = cat;
@@ -153,22 +153,22 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
         // set default date today + 14 days
         let date = new Date();
         date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
-        this.form.get('dueDateValue').patchValue(this.datePipe.transform(date, 'yyyy-MM-dd'));
+        this.form.get('mrbt:dueDateValue').patchValue(this.datePipe.transform(date, 'yyyy-MM-dd'));
         // set default priority
-        this.form.get('priority').patchValue(2);
+        this.form.get('mrbt:priority').patchValue(2);
         // update model parameter according to task
         if (cat == EMRBauTaskCategory.CommonTaskInfo)
         {
-          this.form.get('description').patchValue("Zur Information");
-          this.form.get('dueDateValue').patchValue(undefined);
+          this.form.get('mrbt:description').patchValue("Zur Information");
+          this.form.get('mrbt:dueDateValue').patchValue(undefined);
         }
         else if (cat == EMRBauTaskCategory.CommonTaskApprove)
         {
-          this.form.get('description').patchValue("Überprüfen und Genehmigen");
+          this.form.get('mrbt:description').patchValue("Überprüfen und Genehmigen");
         }
         else
         {
-          this.form.get('description').patchValue("");
+          this.form.get('mrbt:description').patchValue("");
         }
       }
       else if (cat > EMRBauTaskCategory.NewDocumentStart && cat < EMRBauTaskCategory.NewDocumentLast)

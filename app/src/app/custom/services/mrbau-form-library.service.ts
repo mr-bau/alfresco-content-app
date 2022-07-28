@@ -84,7 +84,6 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Dokumenten-Art auswählen',
       options: this.mrbauConventionsService.getArchiveModelTypesFormOptions(),
-
     },
   }
 
@@ -103,7 +102,7 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-1',
     type: 'select',
-    key: 'status',
+    key: 'mrbt:status',
     templateOptions: {
       label: 'Status',
       options: MRBauTaskStatusNamesReduced
@@ -113,20 +112,19 @@ export class MrbauFormLibraryService {
   mrbt_description : FormlyFieldConfig =
   {
     className: 'flex-6',
-    key: 'description',
+    key: 'mrbt:description',
     type: 'input',
     templateOptions: {
       label: 'Aufgabe',
       description: 'Bezeichnung',
       maxLength: CONST.MAX_LENGTH_TASK_DESC,
-
     },
   }
 
   mrbt_fullDescription : FormlyFieldConfig =
   {
     className: 'flex-6',
-    key: 'fullDescription',
+    key: 'mrbt:fullDescription',
     type: 'textarea',
     templateOptions: {
       label: 'Beschreibung',
@@ -139,7 +137,7 @@ export class MrbauFormLibraryService {
   mrbt_dueDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'dueDateValue',
+    key: 'mrbt:dueDateValue',
     type: 'input',
     templateOptions: {
       label: 'Fällig bis',
@@ -153,7 +151,7 @@ export class MrbauFormLibraryService {
   mrbt_priority : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'priority',
+    key: 'mrbt:priority',
     type: 'select',
     templateOptions: {
       label: 'Priorität',
@@ -169,7 +167,7 @@ export class MrbauFormLibraryService {
   mrbt_category : FormlyFieldConfig =
   {
     className: 'flex-3',
-    key: 'category',
+    key: 'mrbt:category',
     type: 'select',
     templateOptions: {
       label: 'Aufgabe auswählen',
@@ -182,40 +180,37 @@ export class MrbauFormLibraryService {
         //{label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
         //{label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
       ],
-
     },
   }
 
   mrbt_assignedUserName : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'assignedUserName',
+    key: 'mrbt:assignedUserName',
     type: 'select',
     templateOptions: {
       label: 'Mitarbeiter',
       options: this.mrbauCommonService.getPeopleObservable(),
       valueProp: 'id',
       labelProp: 'displayName',
-
     },
   }
 
   mrba_organisationUnit : FormlyFieldConfig =
   {
     className: 'flex-4',
-    key: 'organisationUnit',
+    key: 'mrba:organisationUnit',
     type: 'select',
     templateOptions: {
       label: 'Mandant auswählen',
       options: this.mrbauConventionsService.getOrganisationUnitFormOptions(),
-
     },
   };
 
   mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
-    key: 'companyName',//TODO companyId companyName
+    key: 'mrba:companyName',//TODO companyId companyName
     type: 'select',
     templateOptions: {
       label: 'Firma auswählen',
@@ -227,33 +222,31 @@ export class MrbauFormLibraryService {
   mrba_archivedDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'archivedDateValue',
+    key: 'mrba:archivedDateValue',
     type: 'input',
     templateOptions: {
       label: 'Eingangs Datum',
       type: 'date',
-
     }
   };
 
   mrba_fiscalYear : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'fiscalYear',
+    key: 'mrba:fiscalYear',
     type: 'input',
     templateOptions: {
       label: 'Fiskal-Jahr',
       type: 'number',
       min: new Date().getFullYear()-1,
       max: new Date().getFullYear()+1,
-
     }
   }
 
   mrba_documentTopic : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'documentTopic',
+    key: 'mrba:documentTopic',
     type: 'input',
     templateOptions: {
       label: 'Bezeichnung',
@@ -264,30 +257,28 @@ export class MrbauFormLibraryService {
   mrba_documentNumber : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'documentNumber',
+    key: 'mrba:documentNumber',
     type: 'input',
     templateOptions: {
       label: 'Nummer',
-
     }
   }
 
   mrba_documentDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'documentDateValue',
+    key: 'mrba:documentDateValue',
     type: 'input',
     templateOptions: {
       label: 'Datum',
       type: 'date',
-
     }
   }
 
   mrba_netAmount : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'netAmount',
+    key: 'mrba:netAmount',
     type: 'input',
     templateOptions: {
       label: 'Netto Betrag',
@@ -298,35 +289,33 @@ export class MrbauFormLibraryService {
   mrba_grossAmount : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'grossAmount',
+    key: 'mrba:grossAmount',
     type: 'input',
     templateOptions: {
       label: 'Brutto Betrag',
       type: 'number',
-
     }
   }
 
   mrba_taxRate : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'taxRate',
+    key: 'mrba:taxRate', // d:text, mrba:germanDecimalOneDecimalPlace
     type: 'select',
     templateOptions: {
       label: 'Steuersatz',
       options: [
-        {label: '20 %', value: 20},
-        {label: '10 %', value: 10},
-        {label: ' 0 %', value:  0},
+        {label: '20 %', value: "20"},
+        {label: '10 %', value: "10"},
+        {label: ' 0 %', value:  "0"},
       ],
-
     }
   }
 
   mrba_taxRateComment : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'taxRateComment',
+    key: 'mrba:taxRateComment',
     type: 'input',
     templateOptions: {
       label: 'Optionaler Kommentar',
@@ -337,17 +326,16 @@ export class MrbauFormLibraryService {
   mrba_costCarrierNumber : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'costCarrierNumber',
+    key: 'mrba:costCarrierNumber',
     type: 'input',
     templateOptions: {
       label: 'Kostenträger',
       pattern: /^[0-9]*$/,
       type: 'number',
-
     },
     validation: {
       messages: {
-        pattern: () => `Ungültige Nummer`,
+        pattern: () => 'Ungültige Nummer',
       },
     },
   }
@@ -355,14 +343,12 @@ export class MrbauFormLibraryService {
   mrba_projectName: FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'projectName',
+    key: 'mrba:projectName',
     type: 'input',
     templateOptions: {
       label: 'Projektbezeichnung',
     }
   }
-
-
 
   // ASPECT GROUPS
   readonly title_mrba_documentIdentityDetails : FormlyFieldConfig = {
@@ -388,7 +374,7 @@ export class MrbauFormLibraryService {
       this.mrba_netAmount,         // d:text
       //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:int kept in sync with mrba:netAmount
       this.mrba_grossAmount,       // d:text
-      this.mrba_taxRate,        // d:text
+      this.mrba_taxRate,        // d:text, mrba:germanDecimalOneDecimalPlace
       //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
       this.mrba_taxRateComment, // d:text
     ]

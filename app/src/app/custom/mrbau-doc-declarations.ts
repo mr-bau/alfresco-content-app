@@ -103,9 +103,9 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
           'aspect_mrba_costCarrierDetails',
         ],
         mandatoryRequiredProperties: [
-          'documentDateValue',
-          'costCarrierNumber', //d:int
-          'projectName',
+          'mrba:documentDateValue',
+          'mrba:costCarrierNumber', //d:int
+          'mrba:projectName',
         ]
       },
     },

@@ -48,7 +48,7 @@ export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogCompone
       this.onDialogClose(result);
     });
     const task = this.data.payload as MRBauTask;
-    this.model.assignedUser = task.assignedUserName;
+    this.model['mrbt:assignedUser'] = task.assignedUserName;
     this.queryData();
   }
 
@@ -59,7 +59,7 @@ export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogCompone
 
   formIsInValid() : boolean {
     const task = this.data.payload as MRBauTask;
-    return this.form.invalid || !!this.errorMessage || task.assignedUserName == this.model.assignedUser;
+    return this.form.invalid || !!this.errorMessage || task.assignedUserName == this.model['mrbt:assignedUser'];
   }
 
 
