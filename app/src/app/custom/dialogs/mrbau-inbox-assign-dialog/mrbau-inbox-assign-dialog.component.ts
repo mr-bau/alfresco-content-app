@@ -55,7 +55,8 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     private notificationService: NotificationService,
     private nodesApiService: NodesApiService,
     private mrbauFormLibraryService: MrbauFormLibraryService,
-    private dialogRef: MatDialogRef<MrbauInboxAssignDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}
+    private dialogRef: MatDialogRef<MrbauInboxAssignDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: {payload: any}
     )
   {
     super();
@@ -142,7 +143,6 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       },
       "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]
     }`;
-
     //console.log(postBody);
     return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts);
   }

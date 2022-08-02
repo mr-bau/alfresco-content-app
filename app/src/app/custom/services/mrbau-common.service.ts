@@ -1,22 +1,26 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService } from '@alfresco/adf-core';
-import { MinimalNodeEntity, PersonEntry } from '@alfresco/js-api';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService } from '@alfresco/adf-core';
+import { ActionsApi, MinimalNodeEntity, PersonEntry } from '@alfresco/js-api';
 import { Observable } from 'rxjs';
 import { MRBauTask } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
+import { SelectionState } from '@alfresco/adf-extensions/public-api';
+import { CONST } from '../mrbau-global-declarations';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MrbauCommonService {
   // TODO implement caching
-
   constructor(
     private peopleContentService: PeopleContentService,
     private commentContentService: CommentContentService,
     private contentService: ContentService,
     private datePipe : DatePipe,
-    ) { }
+    private notificationService : NotificationService,
+    private alfrescoApiService : AlfrescoApiService,
+    ) {
+    }
 
   getCurrentUser() : Promise<PersonEntry>
   {
@@ -58,5 +62,24 @@ export class MrbauCommonService {
   getFormDateValue(date: Date) : string {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
+
+  startOcrTransform(data : any) {
+    if (!data || !data.payload)
+    {
+      return;
+    }
+    const actionsApi = new ActionsApi(this.alfrescoApiService.getInstance());
+    const selection = data.payload as SelectionState;
+    selection.nodes.forEach(node => {
+      actionsApi.actionExec({actionDefinitionId: CONST.START_OCR_ACTION_Id, targetId: node.entry.id, params: {}})
+      .then( () => {
+        this.notificationService.showInfo('OCR wurde erfolgreich gestartet ...');
+      })
+      .catch(error => {
+        this.notificationService.showError('OCR Fehler: '+error);
+      });
+    });
+  }
+
 
 }

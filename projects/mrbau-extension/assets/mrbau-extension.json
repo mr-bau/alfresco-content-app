@@ -37,6 +37,13 @@
       "parameters": [
         { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
       ]
+    },
+    {
+      "id": "mrbau.extension.rule.can-start-ocr",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
+      ]
     }
   ],
   "actions": [
@@ -59,7 +66,13 @@
       "id": "mrbau.extension.actions.inbox-assign-dialog",
       "type": "MRBAU_INBOX_ASSIGN_DIALOG",
       "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.start-ocr",
+      "type": "MRBAU_START_OCR",
+      "payload": "$(context.selection)"
     }
+
   ],
   "features": {
     "navbar": [
@@ -115,13 +128,25 @@
       {
         "id": "mrbau.extension.menu.inbox-assign",
         "title": "Dokumente zuordnen",
-        "order": 301,
+        "order": 302,
         "icon": "inbox",
         "actions": {
           "click": "mrbau.extension.actions.inbox-assign-dialog"
         },
         "rules": {
           "visible": "mrbau.extension.rule.can-inbox-assign"
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.start-ocr",
+        "title": "OCR starten",
+        "order": 303,
+        "icon": "gesture",
+        "actions": {
+          "click": "mrbau.extension.actions.start-ocr"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.can-start-ocr"
         }
       }
     ],
