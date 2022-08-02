@@ -2,9 +2,11 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angul
 import { BehaviorSubject } from 'rxjs';
 import { DataTableAdapter, SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
-import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask
+} from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
 import { NodePaging, SearchRequest } from '@alfresco/js-api';
+import { ITaskChangedData } from '../tasks/tasks.component';
 
 @Component({
   selector: 'aca-taskstable',
@@ -14,20 +16,6 @@ import { NodePaging, SearchRequest } from '@alfresco/js-api';
 export class TasksTableComponent implements OnInit, PaginatedComponent {
   @ViewChild('dataTable') adfDataTable : DataTableAdapter;
 
-  @Input()
-  set taskUpdateEvent(task:MRBauTask) {
-    if (task)
-    {
-      if (task.status >= EMRBauTaskStatus.STATUS_NOTIFY_DONE)
-      {
-        // deselect object
-        this.selectObject(null);
-        //this.selectedTab.setValue();
-      }
-      // load data
-      this.queryNewData();
-    }
-  }
   @Input() taskCategories : IMRBauTasksCategory[] = null;
   @Output() taskSelectEvent = new EventEmitter<MRBauTask>();
 
@@ -52,6 +40,25 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
     // load data
     this.pagination.value.maxItems = this.paginationSizes[0];
     this.tabSelectionChanged(0);
+  }
+
+  taskUpdateEvent(taskChangedData:ITaskChangedData) {
+    if (taskChangedData.queryTasks)
+    {
+      // unselect task and update table
+      this.selectObject(null);
+      this.queryNewData();
+    }
+    else
+    {
+      // update task info in table
+      this.data.getRows().forEach(row => {
+        if (row.obj.task == taskChangedData.task)
+        {
+          row.obj.status = taskChangedData.task.status;
+        }
+      });
+    }
   }
 
   queryRemainingBadgeCounts()

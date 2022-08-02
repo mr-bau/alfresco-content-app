@@ -47,6 +47,31 @@
         (onAddAssociation)="buttonAddFilesClicked()"
       ></aca-task-linked-documents>
 
+      <!-- comments panel -->
+      <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>comment</mat-icon>
+            <span class="expansionTitleText">Kommentare</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <aca-task-commentlist #commentlist [nodeId]="task ? task.id : null" [isVisible]="commentPanelOpened"></aca-task-commentlist>
+      </mat-expansion-panel>
+
+      <!-- history panel -->
+      <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>history</mat-icon>
+            <span class="expansionTitleText">Verlauf</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <aca-task-versionlist
+          [nodeId]="task ? task.id : null"
+          [isVisible]="historyPanelOpened"
+          (onAssociation)="onAssociationClickedById($event)"
+          ></aca-task-versionlist>
+      </mat-expansion-panel>
 
 
 

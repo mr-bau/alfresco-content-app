@@ -14,6 +14,7 @@ import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-d
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
+import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
 
 @Component({
   selector: 'aca-tasks-detail-common',
@@ -22,8 +23,8 @@ import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
   encapsulation: ViewEncapsulation.None
 })
 export class TasksDetailCommonComponent implements OnInit {
-  @Output() fileSelectEvent = new EventEmitter<string>();
-  @Output() taskChangeEvent = new EventEmitter<MRBauTask>();
+  @Output() fileSelectEvent = new EventEmitter<IFileSelectData>();
+  @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
   @Output() errorEvent = new EventEmitter<string>();
 
   @Input()
@@ -46,6 +47,9 @@ export class TasksDetailCommonComponent implements OnInit {
   model: any = {};
   options: FormlyFormOptions = { } ;
   fields : FormlyFieldConfig[] = [];
+
+  commentPanelOpened:boolean=false;
+  historyPanelOpened:boolean=false;
 
   taskBarButtons : TaskBarButton[] = [];
 
@@ -97,7 +101,7 @@ export class TasksDetailCommonComponent implements OnInit {
 
   taskDelegateChange(task : MRBauTask)
   {
-    this.taskChangeEvent.emit(task);
+    this.taskChangeEvent.emit({task : task, queryTasks : true});
   }
 
   modelChangeEvent()
@@ -156,7 +160,7 @@ export class TasksDetailCommonComponent implements OnInit {
         this._task.status = status;
         this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
-        this.taskChangeEvent.emit(this._task);
+        this.taskChangeEvent.emit({task : this._task, queryTasks : this._task.status >= EMRBauTaskStatus.STATUS_NOTIFY_DONE});
         this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
       })
       .catch((err) => this.errorMessage = err);
@@ -258,12 +262,27 @@ export class TasksDetailCommonComponent implements OnInit {
           this._task.associatedDocumentName.push(node.name);
           this._task.associatedDocumentRef.push(node.id);
         }
-        this.taskChangeEvent.emit(this._task);
+        this.taskChangeEvent.emit({task : this._task, queryTasks : false});
         this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
     .catch((error) => {
       this.errorMessage = error;
     });
+  }
+
+  onAssociationClickedById(id : string)
+  {
+    if (!id)
+    {
+      this.fileSelectEvent.emit(null);
+      return;
+    }
+    this.fileSelectEvent.emit({nodeId : id});
+  }
+
+  onAssociationClicked(i:number)
+  {
+    this.onAssociationClickedById(this._task.associatedDocumentRef[i]);
   }
 
   onRemoveAssociationClicked(i:number)
@@ -311,7 +330,7 @@ export class TasksDetailCommonComponent implements OnInit {
         // remove items from list
         this._task.associatedDocumentName.splice(i, 1);
         this._task.associatedDocumentRef.splice(i, 1);
-        this.taskChangeEvent.emit(this._task);
+        this.taskChangeEvent.emit({task : this._task, queryTasks : false});
         this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
     .catch((error) => {
@@ -319,18 +338,6 @@ export class TasksDetailCommonComponent implements OnInit {
     });
   }
 
-  onAssociationClicked(i:number, suppressNotification?:boolean)
-  {
-    suppressNotification;
-    if (!this._task.associatedDocumentRef[i])
-    {
-      this.fileSelectEvent.emit(null);
-      return;
-    }
-
-    let id : string = this._task.associatedDocumentRef[i];
-    this.fileSelectEvent.emit(id);
-  }
 
   onDeclineTaskClicked(event?:any)
   {

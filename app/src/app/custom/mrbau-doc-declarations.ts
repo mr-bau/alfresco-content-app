@@ -143,23 +143,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     mrbauFormDefinitions : { },
   },
   {
-    title: "Vergabeverhandlungsprotokoll",
-    name : "mrba:orderNegotiationProtocol",
-    parent : "mrba:archiveDocument",
-    mandatoryAspects : [
-      "mrba:companyIdentifiers",
-      "mrba:documentIdentityDetails",
-      "mrba:amountDetails",
-      "mrba:taxRate",
-      "mrba:costCarrierDetails",
-    ],
-    category: EMRBauDocumentCategory.ORDER_NEGOTIATION_PROTOCOL,
-    folder: "02 Aufträge",
-    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-    mrbauFormDefinitions : { },
-  },
-  {
-    title: "Zahlungskonditionen / Jahresauftrag",
+    title: "Zahlungsvereinbarungen",
     name : "mrba:frameworkContract",
     parent : "mrba:archiveDocument",
     mandatoryAspects : [
@@ -169,7 +153,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
       "mrba:inboundPartialInvoiceReference",
     ],
     category: EMRBauDocumentCategory.PAYMENT_TERMS,
-    folder: "06 Zahlungskonditionen",
+    folder: "03 Zahlungskonditionen",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
   },
@@ -183,7 +167,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
       "mrba:costCarrierDetails",
     ],
     category: EMRBauDocumentCategory.DELIVERY_NOTE,
-    folder: "03 Lieferscheine",
+    folder: "04 Lieferscheine",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
   },
@@ -205,7 +189,23 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
       "mrba:inboundPartialInvoiceReference",
     ],
     category: EMRBauDocumentCategory.ER,
-    folder: "04 Eingangsrechnungen",
+    folder: "05 Eingangsrechnungen",
+    group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauFormDefinitions : { },
+  },
+  {
+    title: "Vergabeverhandlungsprotokoll",
+    name : "mrba:orderNegotiationProtocol",
+    parent : "mrba:archiveDocument",
+    mandatoryAspects : [
+      "mrba:companyIdentifiers",
+      "mrba:documentIdentityDetails",
+      "mrba:amountDetails",
+      "mrba:taxRate",
+      "mrba:costCarrierDetails",
+    ],
+    category: EMRBauDocumentCategory.ORDER_NEGOTIATION_PROTOCOL,
+    folder: "07 Vergabeverhandlungsprotokolle",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
   },
@@ -364,9 +364,6 @@ export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
     "mrba:inboundRevokedInvoice"
     ]
   }
-
-
-
 ];
 
 export const MRBauArchiveModelConstraints = [

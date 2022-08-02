@@ -6,6 +6,7 @@ import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
+import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
 import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
 
 @Component({
@@ -15,8 +16,8 @@ import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
 })
 export class TasksDetailNewDocumentComponent implements OnInit {
 
-  @Output() fileSelectEvent = new EventEmitter<string>();
-  @Output() taskChangeEvent = new EventEmitter<MRBauTask>();
+  @Output() fileSelectEvent = new EventEmitter<IFileSelectData>();
+  @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
   @Output() errorEvent = new EventEmitter<string>();
 
   private _task : MRBauTask;

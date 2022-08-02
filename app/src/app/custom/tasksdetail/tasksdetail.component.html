@@ -5,38 +5,13 @@
     <mat-accordion multi="true">
       <!-- common task panel -->
       <div *ngIf="this.task && this.task.isCommonTask()">
-        <aca-tasks-detail-common [task]="this.task" (fileSelectEvent)="onAssociationClickedById($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-common>
+        <aca-tasks-detail-common [task]="this.task" (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-common>
       </div>
       <!-- new document task -->
       <div *ngIf="this.task && this.task.isNewDocumentTask()">
-        <aca-tasks-detail-new-document [task]="this.task" (fileSelectEvent)="onAssociationClickedById($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-new-document>
+        <aca-tasks-detail-new-document [task]="this.task" (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-new-document>
       </div>
 
-      <!-- comments panel -->
-      <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>comment</mat-icon>
-            <span class="expansionTitleText">Kommentare</span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <aca-task-commentlist #commentlist [nodeId]="nodeId" [isVisible]="commentPanelOpened"></aca-task-commentlist>
-      </mat-expansion-panel>
-
-      <!-- history panel -->
-      <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>history</mat-icon>
-            <span class="expansionTitleText">Verlauf</span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <aca-task-versionlist
-          [nodeId]="nodeId"
-          [isVisible]="historyPanelOpened"
-          (onAssociation)="onAssociationClickedById($event)"
-          ></aca-task-versionlist>
-      </mat-expansion-panel>
     </mat-accordion>
 
     <div class="status addMarginTop">

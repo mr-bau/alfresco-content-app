@@ -1,7 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { ContentService, NotificationService } from '@alfresco/adf-core';
+import { NodeEntry } from '@alfresco/js-api';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { CONST } from '../mrbau-global-declarations';
 import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
+import { TasksTableComponent } from '../taskstable/taskstable.component';
+
+export interface ITaskChangedData {
+  task : MRBauTask,
+  queryTasks : boolean
+}
+
+export interface IFileSelectData {
+  nodeId : string,
+  suppressNotification? : boolean,
+}
 @Component({
   selector: 'aca-tasks',
   templateUrl: './tasks.component.html',
@@ -9,6 +23,7 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
 
 })
 export class TasksComponent implements OnInit {
+  @ViewChild('TASKS_TABLE') tasksTableComponent : TasksTableComponent;
 
   static readonly MAX_ITEMS : number = 5;
   SHOW_TOOLBAR : string = "#toolbar=1";
@@ -16,7 +31,6 @@ export class TasksComponent implements OnInit {
   private _remember_document_url : SafeResourceUrl = null;
   selectedTask: MRBauTask = null;
 
-  modifiedTask :MRBauTask = null;
   taskCategories : IMRBauTasksCategory[];
 
   currentUser : string;
@@ -26,8 +40,9 @@ export class TasksComponent implements OnInit {
   constructor(
     private sanitizer: DomSanitizer,
     //private alfrescoAuthenticationService: AuthenticationService,
-    private mrbauCommonService : MrbauCommonService) {
-
+    private mrbauCommonService : MrbauCommonService,
+    private contentService : ContentService,
+    private notificationService : NotificationService) {
     //let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
     //console.log(ecmUserName);
   }
@@ -117,9 +132,46 @@ export class TasksComponent implements OnInit {
 
   taskSelected(task : MRBauTask) {
     this.selectedTask = task;
+    this.selectedFirstAssociatedFile();
   }
 
-  fileSelected(fileUrl : string)
+  private selectedFirstAssociatedFile()
+  {
+    if (!this.selectedTask || this.selectedTask.associatedDocumentRef.length == 0)
+    {
+      this.fileSelected(null);
+      return;
+    }
+    this.fileSelected({nodeId : this.selectedTask.associatedDocumentRef[0], suppressNotification : true})
+  }
+
+  fileSelected(fileSelectData : IFileSelectData) {
+    if (!fileSelectData) {
+      this.fileSelectedByUrl(null);
+      return;
+    }
+    this.contentService.getNode(fileSelectData.nodeId).subscribe(
+      (node: NodeEntry) => {
+        if (CONST.isPdfDocument(node))
+        {
+          this.fileSelectedByUrl(this.contentService.getContentUrl(fileSelectData.nodeId));
+        }
+        else
+        {
+          this.fileSelectedByUrl(null);
+          if (!fileSelectData.suppressNotification)
+          {
+            this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
+          }
+        }
+      },
+      error => {
+        this.errorMessage = error;
+      }
+    );
+  }
+
+  private fileSelectedByUrl(fileUrl : string)
   {
     if (fileUrl == null)
     {
@@ -129,9 +181,9 @@ export class TasksComponent implements OnInit {
     this.document_url = this.sanitizeUrl(fileUrl.concat(this.SHOW_TOOLBAR));
   }
 
-  taskChanged(task : MRBauTask)
+  taskChanged(taskChangedData : ITaskChangedData)
   {
-    this.modifiedTask = JSON.parse(JSON.stringify(task));
+    this.tasksTableComponent.taskUpdateEvent(taskChangedData);
   }
 
   sanitizeUrl(url:string) : SafeResourceUrl {
