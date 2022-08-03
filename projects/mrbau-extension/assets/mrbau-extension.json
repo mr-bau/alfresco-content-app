@@ -141,7 +141,7 @@
         "id": "mrbau.extension.menu.start-ocr",
         "title": "OCR starten",
         "order": 303,
-        "icon": "gesture",
+        "icon": "mrbau:ocr",
         "actions": {
           "click": "mrbau.extension.actions.start-ocr"
         },
@@ -162,6 +162,12 @@
           "rules": {
             "visible": "mrbau.extension.rule.nothing-or-only-files-selected"
           }
+      }
+    ],
+    "icons": [
+      {
+        "id" : "mrbau:ocr",
+        "value": "./assets/mrbau-extension/svg/icon-ocr.svg"
       }
     ]
   }
