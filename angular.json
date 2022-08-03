@@ -135,8 +135,8 @@
                 {
                   "type": "bundle",
                   "name": "main",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "6mb",
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "bundle",
