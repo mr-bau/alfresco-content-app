@@ -25,8 +25,8 @@
   "application": {
     "name": "M&R Enterprise Content Management Platform",
     "version": "2.9.0",
-    "logo": "assets/svg/logo_mr.svg",
-    "headerImagePath": "assets/images/mastHead-bg-shapesPattern.svg",
+    "logo": "assets/mrbau-extension/svg/logo_mr.svg",
+    "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
     "copyright": "© 2022 M&R Bauholding GmbH, © 2017–2022 Alfresco Software, Inc. Alle Rechte vorbehalten."
   },
   "viewer.maxRetries": 1,
