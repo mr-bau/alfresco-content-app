@@ -22,6 +22,12 @@ export class MrbauCommonService {
     ) {
     }
 
+  private _actionsApi: ActionsApi;
+  get actionsApi(): ActionsApi {
+    this._actionsApi = this._actionsApi ?? new ActionsApi(this.alfrescoApiService.getInstance());
+    return this._actionsApi;
+  }
+
   getCurrentUser() : Promise<PersonEntry>
   {
     return this.peopleContentService.peopleApi.getPerson('-me-');
@@ -68,10 +74,9 @@ export class MrbauCommonService {
     {
       return;
     }
-    const actionsApi = new ActionsApi(this.alfrescoApiService.getInstance());
     const selection = data.payload as SelectionState;
     selection.nodes.forEach(node => {
-      actionsApi.actionExec({actionDefinitionId: CONST.START_OCR_ACTION_Id, targetId: node.entry.id, params: {}})
+      this.actionsApi.actionExec({actionDefinitionId: CONST.START_OCR_ACTION_Id, targetId: node.entry.id, params: {}})
       .then( () => {
         this.notificationService.showInfo('OCR wurde erfolgreich gestartet ...');
       })
