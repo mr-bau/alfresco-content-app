@@ -123,6 +123,7 @@ import { TaskSummaryComponent } from './custom/task-summary/task-summary.compone
 import { TasksDetailNewDocumentComponent } from './custom/tasks-detail-new-document/tasks-detail-new-document.component';
 import { TasksMenuDelegateComponent } from './custom/tasks-menu-delegate/tasks-menu-delegate.component';
 import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-delete.component';
+import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -251,7 +252,8 @@ registerLocaleData(localeSv);
     TaskSummaryComponent,
     TasksDetailNewDocumentComponent,
     TasksMenuDelegateComponent,
-    TasksMenuDeleteComponent
+    TasksMenuDeleteComponent,
+    TasksMenuOcrComponent
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

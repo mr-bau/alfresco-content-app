@@ -17,21 +17,23 @@
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
+      <aca-tasks-menu-ocr [task]="task"></aca-tasks-menu-ocr>
       <aca-tasks-menu-delegate [task]="task"></aca-tasks-menu-delegate>
       <aca-tasks-menu-delete [task]="task"></aca-tasks-menu-delete>
     </mat-menu>
   </div>
 </adf-toolbar>
 
-<aca-task-summary [task]="this.task"></aca-task-summary>
-
 <div *ngIf="isTaskModificationUiVisible()">
   <mat-expansion-panel style="margin-top:1rem;" [expanded]="true" [hidden]="true">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>build</mat-icon>
-        <span class="expansionTitleText">{{taskDescription}}</span>
+        <span class="expansionTitleText">{{taskTitle}}</span>
       </mat-panel-title>
+      <mat-panel-description>
+        {{taskDescription}}
+      </mat-panel-description>
     </mat-expansion-panel-header>
     <form [formGroup]="form">
       <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>

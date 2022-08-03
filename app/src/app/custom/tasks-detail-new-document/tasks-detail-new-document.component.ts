@@ -48,7 +48,8 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   model: any = {};
   options: FormlyFormOptions = { } ;
   fields : FormlyFieldConfig[] = [];
-  taskDescription : string =null;
+  taskTitle : string;
+  taskDescription : string;
 
   constructor(
     private mrbauCommonService:MrbauCommonService,
@@ -145,6 +146,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       this.task.status = nextStatus;
       this.update();
       this.isLoading = false;
+      // update task meta data
+      this.mrbauCommonService.updateTaskStatus(this._task.id, nextStatus)
+      .then()
+      .catch((err) => this.errorMessage = err);
     })
     .catch((error) => {
       console.log(error);
@@ -176,13 +181,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   updateForm()
   {
-    this.taskDescription = this.task.getStatusLabel()+" "+this._taskNode.name;
+    this.taskTitle = this.task.getStatusLabel();
+    this.taskDescription = this._taskNode.name;
 
     const nodeType = this._taskNode.nodeType;
     // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts
-
-    // TODO init model
-
     switch (this.task.status)
     {
       case (EMRBauTaskStatus.STATUS_NEW):

@@ -15,7 +15,7 @@
     </mat-accordion>
 
     <div class="status addMarginTop">
-      {{this.task.category | mrbauTaskCategory}} Task - ID {{this.task.id }} - erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}
+      Task: {{this.task.category | mrbauTaskCategory}} - ID {{this.task.id }} - erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}
     </div>
   </div>
 

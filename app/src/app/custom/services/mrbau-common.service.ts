@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService } from '@alfresco/adf-core';
-import { ActionsApi, MinimalNodeEntity, PersonEntry } from '@alfresco/js-api';
+import { ActionsApi, MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry } from '@alfresco/js-api';
 import { Observable } from 'rxjs';
-import { MRBauTask } from '../mrbau-task-declarations';
+import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
 import { SelectionState } from '@alfresco/adf-extensions/public-api';
 import { CONST } from '../mrbau-global-declarations';
@@ -51,7 +51,7 @@ export class MrbauCommonService {
     });
   }
 
-  addComment(task: MRBauTask, comment: string) : Observable<CommentModel>
+  addComment(nodeId: string, comment: string) : Observable<CommentModel>
   {
     if (!comment)
     {
@@ -62,7 +62,18 @@ export class MrbauCommonService {
     {
       return null;
     }
-    return this.commentContentService.addNodeComment(task.id, comment);
+    return this.commentContentService.addNodeComment(nodeId, comment);
+  }
+
+  updateTaskStatus(nodeId: string, status : EMRBauTaskStatus, newUserId?: string) :  Promise<NodeEntry>
+  {
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:status": ""+status}};
+    if (newUserId)
+    {
+      nodeBodyUpdate.properties["mrbt:assignedUserName"] = newUserId;
+    }
+
+    return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
   getFormDateValue(date: Date) : string {
@@ -83,6 +94,16 @@ export class MrbauCommonService {
       .catch(error => {
         this.notificationService.showError('OCR Fehler: '+error);
       });
+    });
+  }
+
+  startOcrTransformById(id : string) {
+    this.actionsApi.actionExec({actionDefinitionId: CONST.START_OCR_ACTION_Id, targetId: id, params: {}})
+    .then( () => {
+      this.notificationService.showInfo('OCR wurde erfolgreich gestartet ...');
+    })
+    .catch(error => {
+      this.notificationService.showError('OCR Fehler: '+error);
     });
   }
 
