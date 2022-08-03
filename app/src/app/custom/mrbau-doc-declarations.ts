@@ -1,6 +1,8 @@
 //https://github.com/mr-bau/alfresco-customisations/blob/default/mrbau-alfresco-platform/src/main/resources/alfresco/module/mrbau-alfresco-platform/model/archiveModel.xml
 //https://github.com/mr-bau/alfresco-customisations/blob/default/mrbau-alfresco-platform/src/main/resources/alfresco/module/mrbau-alfresco-platform/messages/archiveModel.properties
 
+import { EMRBauTaskStatus, IMRBauWorkflowState } from './mrbau-task-declarations';
+
 export interface IMRBauDocumentAspect {
   name: string,
   properties?: string[],
@@ -50,6 +52,10 @@ export interface IMRBauDocumentType {
   mrbauFormDefinitions: {
     [key: string]: IMRBauFormDefinition;
   }
+  mrbauWorkflowDefinition: {
+    states: IMRBauWorkflowState[]
+  }
+
 }
 
 interface DocumentCategoryGroupData {
@@ -57,6 +63,13 @@ interface DocumentCategoryGroupData {
   folder: string,
   category: EMRBauDocumentCategoryGroup,
 }
+const METADATA_EXTRACT_1_FORM_DEFINITION = [
+    'title_mrba_companyId',
+    'element_mrba_companyId',
+    'title_mrba_costCarrierDetails',
+    'aspect_mrba_costCarrierDetails',
+  ];
+
 
 export const documentCategoryGroups = new Map<number, DocumentCategoryGroupData>([
   [EMRBauDocumentCategoryGroup.BILLS, {category: EMRBauDocumentCategoryGroup.BILLS, label: "Belege", folder: "01 Belege"}],
@@ -77,6 +90,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "99 doc",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   },
   {
     title: "Angebot",
@@ -87,25 +101,30 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
       "mrba:documentIdentityDetails",
       "mrba:amountDetails",
       "mrba:taxRate",
-      "mrba:costCarrierDetails",
     ],
     category: EMRBauDocumentCategory.OFFER,
     folder: "01 Angebote",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+    mrbauWorkflowDefinition: {states : [
+      {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1, nextState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, prevState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1 },
+      {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, nextState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, prevState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1 },
+    ]},
     mrbauFormDefinitions : {
+      "STATUS_METADATA_EXTRACT_1" : {
+        formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+        mandatoryRequiredProperties: [
+          'mrba:companyId',
+        ]
+      },
       "STATUS_METADATA_EXTRACT_2" : {
         formlyFieldConfigs: [
           'title_mrba_documentIdentityDetails',
           'aspect_mrba_documentIdentityDetails',
           'title_mrba_amountDetails_mrba_taxRate',
           'aspect_mrba_amountDetails_mrba_taxRate',
-          'title_mrba_costCarrierDetails',
-          'aspect_mrba_costCarrierDetails',
         ],
         mandatoryRequiredProperties: [
           'mrba:documentDateValue',
-          'mrba:costCarrierNumber', //d:int
-          'mrba:projectName',
         ]
       },
     },
@@ -127,7 +146,33 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     category: EMRBauDocumentCategory.ORDER,
     folder: "02 Aufträge",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-    mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : [
+      {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1, nextState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, prevState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1 },
+      {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, nextState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, prevState : () => EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1 },
+    ]},
+    mrbauFormDefinitions : {
+      "STATUS_METADATA_EXTRACT_1" : {
+        formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+        mandatoryRequiredProperties: [
+          'mrba:companyId',
+          'mrba:costCarrierNumber', //d:int
+          'mrba:projectName'
+        ]
+      },
+      "STATUS_METADATA_EXTRACT_2" : {
+        formlyFieldConfigs: [
+          'title_mrba_documentIdentityDetails',
+          'aspect_mrba_documentIdentityDetails',
+          'title_mrba_amountDetails_mrba_taxRate',
+          'aspect_mrba_amountDetails_mrba_taxRate',
+          // Zahlungskonditionen
+        ],
+        mandatoryRequiredProperties: [
+          'mrba:documentNumber',
+          'mrba:documentDateValue',
+        ]
+      },
+     },
   },
   {
     title: "Zusatzauftrag",
@@ -141,6 +186,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "02 Aufträge",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   },
   {
     title: "Zahlungsvereinbarungen",
@@ -156,6 +202,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "03 Zahlungskonditionen",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   },
   {
     title: "Lieferschein",
@@ -170,6 +217,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "04 Lieferscheine",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   },
   {
     title: "Eingangsrechnung",
@@ -192,6 +240,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "05 Eingangsrechnungen",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   },
   {
     title: "Vergabeverhandlungsprotokoll",
@@ -208,6 +257,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "07 Vergabeverhandlungsprotokolle",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   },
   {
     title: "Sonstiger Beleg",
@@ -221,6 +271,7 @@ export const MRBauArchiveModelTypes : IMRBauDocumentType[] = [
     folder: "99 Sonstige Belege",
     group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
     mrbauFormDefinitions : { },
+    mrbauWorkflowDefinition: {states : []},
   }
 ];
 

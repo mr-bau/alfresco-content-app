@@ -100,13 +100,12 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     // adapt document type and set receive time stamp and fiscal year
     this.changeDocumentType(node, nodeType)
     // create and assign a new task
-    .then(() => this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))
+    .then(() => this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, EMRBauTaskStatus.STATUS_NEW))
     .then(() => this.notificationService.showInfo('Aufgabe erfolgreich erstellt'))
     .catch((error) => {
       //console.log(error);
       this.notificationService.showError('Fehler: '+error);
     });
-
   }
 
   changeDocumentType(node :Node, nodeType : string) : Promise<any>

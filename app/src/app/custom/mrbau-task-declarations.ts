@@ -23,45 +23,45 @@ export const enum EMRBauTaskStatus {
   STATUS_CANCELED    = 9001
 }
 
-const MRBauTaskStatusNames =
-[
-  {label: 'Neu', value: EMRBauTaskStatus.STATUS_NEW},
-  {label: 'In Bearbeitung', value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
-  {label: 'On Hold', value: EMRBauTaskStatus.STATUS_ON_HOLD},
+export interface MRBauTaskStatusData {
+  state : EMRBauTaskStatus;
+  stateAsString : string;
+  label : string;
+}
 
-  {label: 'Firmenzuordnung', value: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1  },
-  {label: 'Metadaten Zuweisen', value: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2  },
-  {label: 'Dublettenprüfung', value: EMRBauTaskStatus.STATUS_DUPLICATE_CHECK     },
-  {label: 'Formale Rechnungsprüfung', value: EMRBauTaskStatus.STATUS_FORMAL_REVIEW       },
-  {label: 'Sachliche Rechnungsprüfung', value: EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION},
-  {label: 'Freigabe', value: EMRBauTaskStatus.STATUS_FINAL_APPROVAL      },
-  {label: 'Buchen', value: EMRBauTaskStatus.STATUS_ACCOUNTING          },
+export const MRBauTaskStatusDefinition = new Map<number, MRBauTaskStatusData>([
+  [EMRBauTaskStatus.STATUS_NEW, {state: EMRBauTaskStatus.STATUS_NEW, stateAsString: "STATUS_NEW", label: 'Neu'}],
+  [EMRBauTaskStatus.STATUS_IN_PROGRESS, {state: EMRBauTaskStatus.STATUS_IN_PROGRESS, stateAsString: "STATUS_IN_PROGRESS", label: 'In Bearbeitung'}],
+  [EMRBauTaskStatus.STATUS_ON_HOLD, {state: EMRBauTaskStatus.STATUS_ON_HOLD, stateAsString: "STATUS_ON_HOLD", label: 'On Hold'}],
 
-  {label: 'Erledigt', value: EMRBauTaskStatus.STATUS_NOTIFY_DONE},
-  {label: 'Genehmigt', value: EMRBauTaskStatus.STATUS_NOTIFY_APPROVED},
-  {label: 'Abgelehnt', value: EMRBauTaskStatus.STATUS_NOTIFY_DECLINED},
+  [EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1, {state: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1, stateAsString: "STATUS_METADATA_EXTRACT_1", label: 'Firmen- und KT-Zuordnung'}],
+  [EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, {state: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, stateAsString: "STATUS_METADATA_EXTRACT_2", label: 'Metadaten Zuweisen'}],
+  [EMRBauTaskStatus.STATUS_DUPLICATE_CHECK, {state: EMRBauTaskStatus.STATUS_DUPLICATE_CHECK, stateAsString: "STATUS_DUPLICATE_CHECK", label: 'Dublettenprüfung'}],
+  [EMRBauTaskStatus.STATUS_FORMAL_REVIEW, {state: EMRBauTaskStatus.STATUS_FORMAL_REVIEW, stateAsString: "STATUS_FORMAL_REVIEW", label: 'Formale Rechnungsprüfun'}],
 
-  {label: 'Abgeschlossen', value: EMRBauTaskStatus.STATUS_FINISHED},
-  {label: 'Abgebrochen', value: EMRBauTaskStatus.STATUS_CANCELED},
-]
+  [EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, {state: EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, stateAsString: "STATUS_INVOICE_VERIFICATION", label: 'Sachliche Rechnungsprüfung'}],
+  [EMRBauTaskStatus.STATUS_FINAL_APPROVAL, {state: EMRBauTaskStatus.STATUS_FINAL_APPROVAL, stateAsString: "STATUS_FINAL_APPROVAL", label: 'Freigabe'}],
+  [EMRBauTaskStatus.STATUS_ACCOUNTING, {state: EMRBauTaskStatus.STATUS_ACCOUNTING, stateAsString: "STATUS_ACCOUNTING", label: 'Buchen'}],
+
+  [EMRBauTaskStatus.STATUS_NOTIFY_DONE, {state: EMRBauTaskStatus.STATUS_NOTIFY_DONE, stateAsString: "STATUS_NOTIFY_DONE", label: 'Erledigt'}],
+  [EMRBauTaskStatus.STATUS_NOTIFY_APPROVED, {state: EMRBauTaskStatus.STATUS_NOTIFY_APPROVED, stateAsString: "STATUS_NOTIFY_APPROVED", label: 'Genehmigt'}],
+  [EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, {state: EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, stateAsString: "STATUS_NOTIFY_DECLINED", label: 'Abgelehnt'}],
+
+  [EMRBauTaskStatus.STATUS_FINISHED, {state: EMRBauTaskStatus.STATUS_FINISHED, stateAsString: "STATUS_FINISHED", label: 'Abgeschlossen'}],
+  [EMRBauTaskStatus.STATUS_CANCELED, {state: EMRBauTaskStatus.STATUS_CANCELED, stateAsString: "STATUS_CANCELED", label: 'Abgebrochen'}],
+]);
 
 export const MRBauTaskStatusNamesReduced =
 [
-  {label: 'In Bearbeitung', value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
-  {label: 'On Hold', value: EMRBauTaskStatus.STATUS_ON_HOLD},
+  {label: MRBauTaskStatusDefinition.get(EMRBauTaskStatus.STATUS_IN_PROGRESS).label, value: EMRBauTaskStatus.STATUS_IN_PROGRESS},
+  {label: MRBauTaskStatusDefinition.get(EMRBauTaskStatus.STATUS_ON_HOLD).label, value: EMRBauTaskStatus.STATUS_ON_HOLD},
 ]
 
 @Pipe({name: 'mrbauTaskStatus'})
 export class MRBauTaskStatusPipe implements PipeTransform {
   transform(value: EMRBauTaskStatus): string {
-    for (const val in MRBauTaskStatusNames)
-    {
-      if (MRBauTaskStatusNames[val].value == value)
-      {
-        return MRBauTaskStatusNames[val].label;
-      }
-    }
-    return value.toString();
+    const val = MRBauTaskStatusDefinition.get(value);
+    return (val) ? val.label : value.toString();
   }
 }
 
@@ -105,6 +105,11 @@ export interface IMRBauTaskListEntry {
   status: EMRBauTaskStatus;
 }
 
+export interface IMRBauWorkflowState {
+  state: EMRBauTaskStatus;
+  nextState : (data?:any) => EMRBauTaskStatus;
+  prevState : (data?:any) => EMRBauTaskStatus;
+}
 
 export class MRBauTask {
   public static readonly TASK_RELATIVE_ROOT_PATH = "/Aufgaben";
@@ -182,6 +187,12 @@ export class MRBauTask {
 
   public getStatusLabel() : string {
     return new MRBauTaskStatusPipe().transform(this.status);
+  }
+
+  public static getStateAsString(state:EMRBauTaskStatus) : string
+  {
+    const val = MRBauTaskStatusDefinition.get(state);
+    return (val) ? val.stateAsString : state.toString();
   }
 }
 

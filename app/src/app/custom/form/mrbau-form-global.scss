@@ -22,6 +22,11 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   border-color: #bee5eb;
 }
 
+.form-group-title {
+  font-weight: bold;
+  font-style: italic;
+}
+
 .addMarginTop{
   margin-top: 1rem;
 }

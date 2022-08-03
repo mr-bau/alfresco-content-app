@@ -109,25 +109,18 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   onNextClicked(event?:any)
   {
     event;
-    switch (this.task.status)
-    {
-      case (EMRBauTaskStatus.STATUS_NEW):
-      case (EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1):
-        this.writeMetadata(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)
-        break;
-      case EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2:
-        this.writeMetadata(EMRBauTaskStatus.STATUS_FORMAL_REVIEW);
-        break;
-/*
-      STATUS_DUPLICATE_CHECK
-      STATUS_FORMAL_REVIEW
-      STATUS_INVOICE_VERIFICATION
-      STATUS_FINAL_APPROVAL
-      STATUS_ACCOUNTING*/
-    }
+    const newState = this.mrbauFormLibraryService.getNextTaskStateFromNodeType(this._task, this._taskNode)
+    this.writeMetadata(newState);
   }
 
-  writeMetadata(nextStatus : EMRBauTaskStatus) {
+  onPrevClicked(event?:any)
+  {
+    event;
+    const newState = this.mrbauFormLibraryService.getPrevTaskStateFromNodeType(this._task, this._taskNode);
+    this.writeMetadata(newState);
+  }
+
+  writeMetadata(newState : EMRBauTaskStatus) {
     this.isLoading = true;
     let nodeBody : NodeBodyUpdate =  {
       properties: {
@@ -143,11 +136,12 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     //console.log(nodeBody);
     this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {})
     .then( () => {
-      this.task.status = nextStatus;
+      this.task.status = newState;
       this.update();
       this.isLoading = false;
+      this.taskChangeEvent.emit({task : this.task, queryTasks : false});
       // update task meta data
-      this.mrbauCommonService.updateTaskStatus(this._task.id, nextStatus)
+      this.mrbauCommonService.updateTaskStatus(this._task.id, newState)
       .then()
       .catch((err) => this.errorMessage = err);
     })
@@ -158,12 +152,6 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     });
   }
 
-  onPrevClicked(event?:any)
-  {
-    event;
-    this.task.status--;
-    this.update();
-  }
 
   isFormValid()
   {
@@ -185,19 +173,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     this.taskDescription = this._taskNode.name;
 
     const nodeType = this._taskNode.nodeType;
+    this.task.status = this.mrbauFormLibraryService.initTaskStateFromNodeType(this.task.status, nodeType);
+    const stateName = MRBauTask.getStateAsString(this.task.status);
+    this.fields = this.mrbauFormLibraryService.getFormForNodeType(stateName, nodeType);
     // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts
-    switch (this.task.status)
-    {
-      case (EMRBauTaskStatus.STATUS_NEW):
-      case (EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1):
-        this.fields = this.mrbauFormLibraryService.getFormForNodeType('FIELDS_METADATA_EXTRACT_1', nodeType);
-        break;
-      case (EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2):
-        this.fields = this.mrbauFormLibraryService.getFormForNodeType('STATUS_METADATA_EXTRACT_2', nodeType);
-        break;
-      default:
-        this.fields = [];
-    }
     this.updateFormValues();
     this.form = new FormGroup({});
   }

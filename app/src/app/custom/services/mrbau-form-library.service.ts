@@ -3,10 +3,10 @@ import { Injectable } from '@angular/core';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { MRBauArchiveModelTypes } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
-import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced,  } from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask, MRBauTaskStatusNamesReduced } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
-
+import { Node } from '@alfresco/js-api';
 
 @Injectable({
   providedIn: 'root'
@@ -26,18 +26,11 @@ export class MrbauFormLibraryService {
 
   getFormForNodeType(formTypeName : string, nodeType: string) :FormlyFieldConfig[]
   {
-    // same for all document types
-    if (formTypeName == 'FIELDS_METADATA_EXTRACT_1') {
-      return [
-        {
-          fieldGroupClassName: 'flex-container',
-          fieldGroup: [this.mrba_companyId],
-        }
-      ];
-    }
     // extract from doc model types
     let result : FormlyFieldConfig[] = [];
     let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
+    //console.log(formTypeName+" "+nodeType);
+    //console.log(docModel);
     if (docModel.length > 0)
     {
       const formDefinition = docModel[0].mrbauFormDefinitions[formTypeName]
@@ -62,6 +55,67 @@ export class MrbauFormLibraryService {
       formlyFieldConfig.fieldGroup.forEach( (fc) => this.patchFormFieldConfigRecursive(fc, mandatoryRequiredProperties))
     }
   }
+
+  initTaskStateFromNodeType(state : EMRBauTaskStatus, nodeType: string) : EMRBauTaskStatus {
+    let currentState = state;
+    if (state == EMRBauTaskStatus.STATUS_NEW)
+    {
+      // select first status
+      let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
+      if (docModel.length > 0)
+      {
+        const workflowStates = docModel[0].mrbauWorkflowDefinition.states;
+        if (workflowStates.length > 0)
+        {
+          currentState = workflowStates[0].state;
+        }
+      }
+    }
+    return currentState;
+  }
+
+  getNextTaskStateFromNodeType(task : MRBauTask, node: Node) : EMRBauTaskStatus {
+    const state = task.status;
+    const nodeType = node.nodeType;
+    let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
+    if (docModel.length > 0)
+    {
+      const workflowStates = docModel[0].mrbauWorkflowDefinition.states;
+      if (workflowStates.length > 0)
+      {
+        for (let i = 0; i< workflowStates.length; i++ )
+        {
+          if (workflowStates[i].state == state)
+          {
+            return workflowStates[i].nextState({task : task, node : node});
+          }
+        }
+      }
+    }
+    return state;
+  }
+
+  getPrevTaskStateFromNodeType(task : MRBauTask, node: Node) : EMRBauTaskStatus {
+    const state = task.status;
+    const nodeType = node.nodeType;
+    let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
+    if (docModel.length > 0)
+    {
+      const workflowStates = docModel[0].mrbauWorkflowDefinition.states;
+      if (workflowStates.length > 0)
+      {
+        for (let i = workflowStates.length-1; i>0; i-- )
+        {
+          if (workflowStates[i].state == state)
+          {
+            return workflowStates[i].prevState({task : task, node : node});
+          }
+        }
+      }
+    }
+    return state;
+  }
+
 
   common_comment : FormlyFieldConfig =
   {
@@ -214,7 +268,6 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Firma auswählen',
       options: this.mrbauConventionsService.getVendorListFormOptions(),
-      required: true,
     },
   };
 
@@ -350,8 +403,16 @@ export class MrbauFormLibraryService {
   }
 
   // ASPECT GROUPS
+  readonly title_mrba_companyId : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Firma</span>',
+  };
+  readonly element_mrba_companyId : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_companyId],
+  };
+
   readonly title_mrba_documentIdentityDetails : FormlyFieldConfig = {
-    template: '<i>Dokument Eigenschaften</i>',
+    template: '<span class="form-group-title">Dokument Eigenschaften</span>',
   };
   readonly aspect_mrba_documentIdentityDetails : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
@@ -364,7 +425,7 @@ export class MrbauFormLibraryService {
   };
 
   readonly title_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig ={
-    template: '<i>Betrag und Steuersatz</i>',
+    template: '<span class="form-group-title">Betrag und Steuersatz</span>',
   };
   readonly aspect_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
@@ -399,7 +460,7 @@ export class MrbauFormLibraryService {
   };
 
   readonly title_mrba_costCarrierDetails : FormlyFieldConfig ={
-    template: '<i>Kostenträger</i>',
+    template: '<span class="form-group-title">Kostenträger</span>',
   };
   readonly aspect_mrba_costCarrierDetails : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
