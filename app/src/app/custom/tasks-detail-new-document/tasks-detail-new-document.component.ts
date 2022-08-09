@@ -1,9 +1,10 @@
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
-import { Node, NodeBodyUpdate } from '@alfresco/js-api';
+import { Node, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
+import { EMRBauTaskStatus, MRBauTask, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-task-declarations';
+import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
@@ -33,7 +34,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   readonly taskBarButtonsNormal : TaskBarButton[]=[
     { icon:"navigate_before", class:"mat-primary", tooltip:"Zurück", text:"Zurück", disabled: () => {return !this.isPrevButtonEnabled();}, onClick: (event?:any) => { this.onPrevClicked(event); } },
-    { icon:"navigate_next", class:"mat-primary", tooltip:"Weiter zum nächsten Schritt", text:"Weiter", disabled: () => {return !this.isFormValid();}, onClick: (event?:any) => { this.onNextClicked(event); } },
+    { icon:"navigate_next", class:"mat-primary", tooltip:"Weiter zum nächsten Schritt", text:"Weiter", disabled: () => {return !this.isNextButtonEnabled();}, onClick: (event?:any) => { this.onNextClicked(event); } },
   ];
   taskBarButtons : TaskBarButton[] = this.taskBarButtonsNormal;
 
@@ -43,7 +44,6 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   }
   private _errorMessage: string = null;
   isLoading: boolean = false;
-
   form = new FormGroup({});
   model: any = {};
   options: FormlyFormOptions = { } ;
@@ -54,6 +54,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   constructor(
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
+    private mrbauArchiveModelService : MrbauArchiveModelService,
     private changeDetectorRef: ChangeDetectorRef,
     private nodesApiService : NodesApiService,
     private notificationService: NotificationService,
@@ -62,7 +63,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  testId : string;
+
   updateTask() {
+    this.updateButtonText();
     this.form.reset();
     this.queryData();
   }
@@ -84,7 +88,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
         this.isLoading = false;
-        this.update();
+        this.updateFormDC();
       },
       (error) => {
         this.errorEvent.emit(error);
@@ -93,7 +97,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     );
   }
 
-  update() {
+  updateFormDC() {
     this.updateForm();
     // workaround for ExpressionChangedAfterItHasBeenCheckedError
     // https://stackoverflow.com/questions/43375532/expressionchangedafterithasbeencheckederror-explained
@@ -109,19 +113,72 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   onNextClicked(event?:any)
   {
     event;
-    const newState = this.mrbauFormLibraryService.getNextTaskStateFromNodeType(this._task, this._taskNode)
-    this.writeMetadata(newState);
+    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getNextTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode});
   }
 
   onPrevClicked(event?:any)
   {
     event;
-    const newState = this.mrbauFormLibraryService.getPrevTaskStateFromNodeType(this._task, this._taskNode);
-    this.writeMetadata(newState);
+    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode});
   }
 
-  writeMetadata(newState : EMRBauTaskStatus) {
+  private doPerformStateChangePromise(newState, data) : Promise<any> {
+    const performAction = (this._task.status != newState);
+    if (performAction)
+    {
+      this.updateTaskStatusAndButtons(newState);
+      this.updateFormDC();
+      const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType(data);
+      if (workflowState.onEnterAction)
+      {
+        return workflowState.onEnterAction(data);
+      }
+    }
+    return new Promise((resolve) => resolve(null));
+  }
+
+  performStateChangeAction(nextStateFunction : MRBauWorkflowStateCallback, data: MRBauWorkflowStateCallbackData)
+  {
     this.isLoading = true;
+    this.writeMetadata()
+    .then( () => {return nextStateFunction(data);})
+    .then( (newState) => {return this.doPerformStateChangePromise(newState, data)})
+    .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
+    .then( () => this.isLoading = false)
+    .catch((error) => {
+      console.log(error);
+      this.isLoading = false;
+      this.notificationService.showError('Fehler: '+error);
+    });
+  }
+
+  updateButtonText()
+  {
+    if (!this._task)
+    {
+      return;
+    }
+    if (this._task.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW)
+    {
+      this.taskBarButtonsNormal[1].text = "Erledigen";
+      this.taskBarButtonsNormal[1].icon = "done";
+    }
+    else
+    {
+      this.taskBarButtonsNormal[1].text = "Weiter";
+      this.taskBarButtonsNormal[1].icon = "navigate_next";
+    }
+  }
+
+  updateTaskStatusAndButtons(newState : EMRBauTaskStatus)
+  {
+    this.task.status = newState;
+    this.updateButtonText();
+    this.updateButtonText();
+    this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(newState)});
+  }
+
+  writeMetadata() : Promise<NodeEntry> {
     let nodeBody : NodeBodyUpdate =  {
       properties: {
       }
@@ -134,24 +191,8 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       }
     })
     //console.log(nodeBody);
-    this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {})
-    .then( () => {
-      this.task.status = newState;
-      this.update();
-      this.isLoading = false;
-      this.taskChangeEvent.emit({task : this.task, queryTasks : false});
-      // update task meta data
-      this.mrbauCommonService.updateTaskStatus(this._task.id, newState)
-      .then()
-      .catch((err) => this.errorMessage = err);
-    })
-    .catch((error) => {
-      console.log(error);
-      this.isLoading = false;
-      this.notificationService.showError('Fehler: '+error);
-    });
+    return this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {});
   }
-
 
   isFormValid()
   {
@@ -167,13 +208,17 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return this.task && this.task.status > EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
   }
 
+  isNextButtonEnabled() : boolean {
+    return this.isFormValid();
+  }
+
   updateForm()
   {
-    this.taskTitle = this.task.getStatusLabel();
+    this.taskTitle = this.task.getStateLabel();
     this.taskDescription = this._taskNode.name;
 
     const nodeType = this._taskNode.nodeType;
-    this.task.status = this.mrbauFormLibraryService.initTaskStateFromNodeType(this.task.status, nodeType);
+    this.task.status = this.mrbauArchiveModelService.mrbauArchiveModel.initTaskStateFromNodeType(this.task.status, nodeType);
     const stateName = MRBauTask.getStateAsString(this.task.status);
     this.fields = this.mrbauFormLibraryService.getFormForNodeType(stateName, nodeType);
     // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts

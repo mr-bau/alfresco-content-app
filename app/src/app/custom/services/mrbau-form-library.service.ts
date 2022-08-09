@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { MRBauArchiveModelTypes } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
-import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask, MRBauTaskStatusNamesReduced } from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
-import { Node } from '@alfresco/js-api';
+import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +14,8 @@ export class MrbauFormLibraryService {
 
   constructor(
     private mrbauConventionsService:MrbauConventionsService,
-    private mrbauCommonService : MrbauCommonService
+    private mrbauCommonService : MrbauCommonService,
+    private mrbauArchiveModelService : MrbauArchiveModelService
     ) { }
 
   getByName(name : string) : FormlyFieldConfig
@@ -28,7 +28,7 @@ export class MrbauFormLibraryService {
   {
     // extract from doc model types
     let result : FormlyFieldConfig[] = [];
-    let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
+    let docModel = this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter(doc => doc.name == nodeType);
     //console.log(formTypeName+" "+nodeType);
     //console.log(docModel);
     if (docModel.length > 0)
@@ -55,67 +55,6 @@ export class MrbauFormLibraryService {
       formlyFieldConfig.fieldGroup.forEach( (fc) => this.patchFormFieldConfigRecursive(fc, mandatoryRequiredProperties))
     }
   }
-
-  initTaskStateFromNodeType(state : EMRBauTaskStatus, nodeType: string) : EMRBauTaskStatus {
-    let currentState = state;
-    if (state == EMRBauTaskStatus.STATUS_NEW)
-    {
-      // select first status
-      let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
-      if (docModel.length > 0)
-      {
-        const workflowStates = docModel[0].mrbauWorkflowDefinition.states;
-        if (workflowStates.length > 0)
-        {
-          currentState = workflowStates[0].state;
-        }
-      }
-    }
-    return currentState;
-  }
-
-  getNextTaskStateFromNodeType(task : MRBauTask, node: Node) : EMRBauTaskStatus {
-    const state = task.status;
-    const nodeType = node.nodeType;
-    let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
-    if (docModel.length > 0)
-    {
-      const workflowStates = docModel[0].mrbauWorkflowDefinition.states;
-      if (workflowStates.length > 0)
-      {
-        for (let i = 0; i< workflowStates.length; i++ )
-        {
-          if (workflowStates[i].state == state)
-          {
-            return workflowStates[i].nextState({task : task, node : node});
-          }
-        }
-      }
-    }
-    return state;
-  }
-
-  getPrevTaskStateFromNodeType(task : MRBauTask, node: Node) : EMRBauTaskStatus {
-    const state = task.status;
-    const nodeType = node.nodeType;
-    let docModel = MRBauArchiveModelTypes.filter(doc => doc.name == nodeType);
-    if (docModel.length > 0)
-    {
-      const workflowStates = docModel[0].mrbauWorkflowDefinition.states;
-      if (workflowStates.length > 0)
-      {
-        for (let i = workflowStates.length-1; i>0; i-- )
-        {
-          if (workflowStates[i].state == state)
-          {
-            return workflowStates[i].prevState({task : task, node : node});
-          }
-        }
-      }
-    }
-    return state;
-  }
-
 
   common_comment : FormlyFieldConfig =
   {
@@ -401,6 +340,15 @@ export class MrbauFormLibraryService {
       label: 'Projektbezeichnung',
     }
   }
+
+  readonly duplicated_document_form : FormlyFieldConfig ={
+    template: '<span class="form-group-title">DUPLICATED DOCUMENT FOUND: TODO</span>',
+  };
+
+  readonly workflow_all_set_form : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Alles erledigt ....</span>',
+  };
+
 
   // ASPECT GROUPS
   readonly title_mrba_companyId : FormlyFieldConfig ={

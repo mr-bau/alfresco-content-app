@@ -1,4 +1,4 @@
-import { MinimalNode, QueryBody, UserInfo } from '@alfresco/js-api';
+import { Node, MinimalNode, QueryBody, UserInfo } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
 
 export const enum EMRBauTaskStatus {
@@ -8,11 +8,12 @@ export const enum EMRBauTaskStatus {
 
   STATUS_METADATA_EXTRACT_1   = 200,
   STATUS_METADATA_EXTRACT_2   = 201,
-  STATUS_DUPLICATE_CHECK      = 202,
+  STATUS_DUPLICATE            = 202,
   STATUS_FORMAL_REVIEW        = 203,
   STATUS_INVOICE_VERIFICATION = 204,
   STATUS_FINAL_APPROVAL       = 205,
   STATUS_ACCOUNTING           = 206,
+  STATUS_ALL_SET              = 206, //TODO temporary - should be 207
 
   // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
   STATUS_NOTIFY_DONE      = 8000,
@@ -36,18 +37,20 @@ export const MRBauTaskStatusDefinition = new Map<number, MRBauTaskStatusData>([
 
   [EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1, {state: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1, stateAsString: "STATUS_METADATA_EXTRACT_1", label: 'Firmen- und KT-Zuordnung'}],
   [EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, {state: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, stateAsString: "STATUS_METADATA_EXTRACT_2", label: 'Metadaten Zuweisen'}],
-  [EMRBauTaskStatus.STATUS_DUPLICATE_CHECK, {state: EMRBauTaskStatus.STATUS_DUPLICATE_CHECK, stateAsString: "STATUS_DUPLICATE_CHECK", label: 'Dublettenprüfung'}],
+  [EMRBauTaskStatus.STATUS_DUPLICATE, {state: EMRBauTaskStatus.STATUS_DUPLICATE, stateAsString: "STATUS_DUPLICATE", label: 'Dublettenprüfung'}],
   [EMRBauTaskStatus.STATUS_FORMAL_REVIEW, {state: EMRBauTaskStatus.STATUS_FORMAL_REVIEW, stateAsString: "STATUS_FORMAL_REVIEW", label: 'Formale Rechnungsprüfun'}],
 
   [EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, {state: EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, stateAsString: "STATUS_INVOICE_VERIFICATION", label: 'Sachliche Rechnungsprüfung'}],
   [EMRBauTaskStatus.STATUS_FINAL_APPROVAL, {state: EMRBauTaskStatus.STATUS_FINAL_APPROVAL, stateAsString: "STATUS_FINAL_APPROVAL", label: 'Freigabe'}],
   [EMRBauTaskStatus.STATUS_ACCOUNTING, {state: EMRBauTaskStatus.STATUS_ACCOUNTING, stateAsString: "STATUS_ACCOUNTING", label: 'Buchen'}],
+  [EMRBauTaskStatus.STATUS_ALL_SET, {state: EMRBauTaskStatus.STATUS_ALL_SET, stateAsString: "STATUS_ALL_SET", label: 'Workflow abschließen'}],
+
 
   [EMRBauTaskStatus.STATUS_NOTIFY_DONE, {state: EMRBauTaskStatus.STATUS_NOTIFY_DONE, stateAsString: "STATUS_NOTIFY_DONE", label: 'Erledigt'}],
   [EMRBauTaskStatus.STATUS_NOTIFY_APPROVED, {state: EMRBauTaskStatus.STATUS_NOTIFY_APPROVED, stateAsString: "STATUS_NOTIFY_APPROVED", label: 'Genehmigt'}],
   [EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, {state: EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, stateAsString: "STATUS_NOTIFY_DECLINED", label: 'Abgelehnt'}],
 
-  [EMRBauTaskStatus.STATUS_FINISHED, {state: EMRBauTaskStatus.STATUS_FINISHED, stateAsString: "STATUS_FINISHED", label: 'Abgeschlossen'}],
+  [EMRBauTaskStatus.STATUS_FINISHED, {state: EMRBauTaskStatus.STATUS_FINISHED, stateAsString: "STATUS_FINISHED", label: 'Fertiggestellt'}],
   [EMRBauTaskStatus.STATUS_CANCELED, {state: EMRBauTaskStatus.STATUS_CANCELED, stateAsString: "STATUS_CANCELED", label: 'Abgebrochen'}],
 ]);
 
@@ -105,10 +108,17 @@ export interface IMRBauTaskListEntry {
   status: EMRBauTaskStatus;
 }
 
+export interface MRBauWorkflowStateCallbackData {
+  task?: MRBauTask,
+  node?: Node,
+  model?: any,
+}
+export type MRBauWorkflowStateCallback = (data?:MRBauWorkflowStateCallbackData) => Promise<any>;
 export interface IMRBauWorkflowState {
   state: EMRBauTaskStatus;
-  nextState : (data?:any) => EMRBauTaskStatus;
-  prevState : (data?:any) => EMRBauTaskStatus;
+  nextState : MRBauWorkflowStateCallback; // get next State
+  prevState : MRBauWorkflowStateCallback; // get previous State
+  onEnterAction? : MRBauWorkflowStateCallback; // perform on enter action
 }
 
 export class MRBauTask {
@@ -177,7 +187,7 @@ export class MRBauTask {
     return this.status < EMRBauTaskStatus.STATUS_NOTIFY_DONE;
   }
 
-  public isCommonTask() :boolean {
+  public isCommonTask() : boolean {
     return this.category > EMRBauTaskCategory.CommonTaskStart && this.category < EMRBauTaskCategory.CommonTaskLast;
   }
 
@@ -185,8 +195,26 @@ export class MRBauTask {
     return this.category == EMRBauTaskCategory.NewDocumentValidateAndArchive;
   }
 
-  public getStatusLabel() : string {
-    return new MRBauTaskStatusPipe().transform(this.status);
+  public getStateLabel() : string {
+    return MRBauTask.getStateLabel(this.status);
+  }
+
+  public static getStateLabel(state:EMRBauTaskStatus) : string {
+    const val = MRBauTaskStatusDefinition.get(state);
+    return (val) ? val.label : state.toString();
+  }
+
+  public isTaskInNotifyOrDoneState() : boolean {
+    return MRBauTask.isTaskInNotifyOrDoneState(this.status);
+  }
+
+  public static isTaskInNotifyOrDoneState(state : EMRBauTaskStatus) : boolean {
+    return state >= EMRBauTaskStatus.STATUS_NOTIFY_DONE;
+  }
+
+  public getStateAsString() : string
+  {
+    return MRBauTask.getStateAsString(this.status);
   }
 
   public static getStateAsString(state:EMRBauTaskStatus) : string

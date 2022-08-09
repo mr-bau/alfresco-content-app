@@ -63,11 +63,11 @@ export class TasksDetailCommonComponent implements OnInit {
   }
 
   readonly taskBarButtonsNormal : TaskBarButton[] = [
-    { icon:"done", class:"mat-primary", tooltip:"Aufgabe abschließen", text:"Erledigen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event); } }
+    { icon:"done", class:"mat-primary", tooltip:"Aufgabe fertigstellen", text:"Erledigen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event); } }
   ];
 
   readonly taskBarButtonsNotifyState : TaskBarButton[] = [
-    { icon:"done", class:"mat-primary", tooltip:"Aufgabe abschließen", text:"Gelesen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event); } }
+    { icon:"done", class:"mat-primary", tooltip:"Aufgabe fertigstellen", text:"Gelesen", onClick: (event?:any) => { this.onFinishApproveTaskClicked(event); } }
   ];
 
   readonly taskBarButtonsApprove : TaskBarButton[] = [
@@ -160,7 +160,7 @@ export class TasksDetailCommonComponent implements OnInit {
         this._task.status = status;
         this._task.updateWithNodeData(nodeEntry.entry);
         this.resetModel();
-        this.taskChangeEvent.emit({task : this._task, queryTasks : this._task.status >= EMRBauTaskStatus.STATUS_NOTIFY_DONE});
+        this.taskChangeEvent.emit({task : this._task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(status)});
         this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
       })
       .catch((err) => this.errorMessage = err);
@@ -390,8 +390,8 @@ export class TasksDetailCommonComponent implements OnInit {
 
     const dialogRef = this._dialog.open(MrbauConfirmTaskDialogComponent, {
       data: {
-        dialogTitle: title ? title : 'Aufgabe Abschließen',
-        dialogMsg: message ? message : 'Eine abgeschlossene Aufgabe kann nicht mehr geöffnet werden.',
+        dialogTitle: title ? title : 'Aufgabe Fertigstellen',
+        dialogMsg: message ? message : 'Eine fertiggestellte Aufgabe kann nicht mehr geöffnet werden.',
         dialogButtonOK: okText ? okText : 'AUFGABE ERLEDIGEN',
         callQueryData: false,
         fieldsMain: [

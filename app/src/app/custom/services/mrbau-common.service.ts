@@ -65,6 +65,12 @@ export class MrbauCommonService {
     return this.commentContentService.addNodeComment(nodeId, comment);
   }
 
+  testTaskStatus(data?:any) {
+    console.log("testTaskStatus");
+    console.log(data);
+    return null;
+  }
+
   updateTaskStatus(nodeId: string, status : EMRBauTaskStatus, newUserId?: string) :  Promise<NodeEntry>
   {
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:status": ""+status}};

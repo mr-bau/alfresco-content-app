@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { MRBauArchiveModelTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
+import { MrbauArchiveModelService } from './mrbau-archive-model.service';
+import { EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 
 interface ClientData {
   value: EMRBauClientId,
@@ -37,7 +38,8 @@ export class MrbauConventionsService {
   // service class to return mrbau related responsibility conventions
   // TODO extract from JSON File
   constructor(
-    private mrbauCommonService: MrbauCommonService
+    private mrbauCommonService: MrbauCommonService,
+    private mrbauArchiveModelService: MrbauArchiveModelService
     )
   {
   }
@@ -59,12 +61,12 @@ export class MrbauConventionsService {
   }
 
   getArchiveModelTypesFormOptions() : FormOptionsInterface[] {
-    return MRBauArchiveModelTypes.filter( d => d.category != EMRBauDocumentCategory.ARCHIVE_DOCUMENT).map( d => ({label: d.title, value : d.category, group: d.group.label}));
+    return this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category != EMRBauDocumentCategory.ARCHIVE_DOCUMENT).map( d => ({label: d.title, value : d.category, group: d.group.label}));
   }
 
   getArchiveModelNodeTye(category:EMRBauDocumentCategory) : string
   {
-    let docModel : IMRBauDocumentType[] = MRBauArchiveModelTypes.filter( d => d.category == category);
+    let docModel : IMRBauDocumentType[] = this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category == category);
     if (docModel.length > 0)
     {
       return docModel[0].name;
