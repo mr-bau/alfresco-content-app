@@ -342,7 +342,8 @@ export class MrbauFormLibraryService {
   }
 
   readonly duplicated_document_form : FormlyFieldConfig ={
-    template: '<span class="form-group-title">DUPLICATED DOCUMENT FOUND: TODO</span>',
+    key: 'mrbauFormlyDuplicatedDocument',
+    type: 'mrbauFormlyDuplicatedDocument',
   };
 
   readonly workflow_all_set_form : FormlyFieldConfig = {
