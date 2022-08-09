@@ -341,7 +341,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  readonly duplicated_document_form : FormlyFieldConfig ={
+  readonly duplicated_document_form : FormlyFieldConfig = {
     key: 'mrbauFormlyDuplicatedDocument',
     type: 'mrbauFormlyDuplicatedDocument',
   };
