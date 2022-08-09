@@ -345,8 +345,9 @@ export class MrbauFormLibraryService {
     template: '<span class="form-group-title">DUPLICATED DOCUMENT FOUND: TODO</span>',
   };
 
-  readonly workflow_all_set_form : FormlyFieldConfig ={
-    template: '<span class="form-group-title">Alles erledigt ....</span>',
+  readonly workflow_all_set_form : FormlyFieldConfig = {
+      key: 'mrbauFormlyAllSet',
+      type: 'mrbauFormlyAllSet',
   };
 
 

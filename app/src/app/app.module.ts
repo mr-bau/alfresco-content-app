@@ -110,13 +110,15 @@ import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.c
 import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
 import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauFormlyNewTaskStepper } from './custom/form/mrbau-formly-new-task-stepper.component';
+import { MrbauFormlyAllSetComponent } from './custom/form/mrbau-formly-all-set.component';
 import { dateFutureValidator } from './custom/form/mrbau-formly-validators';
+
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
-import { FormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrbau-formly-field-task-linked-documents.component';
+import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrbau-formly-field-task-linked-documents.component';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
 import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 import { TasksDetailCommonComponent } from './custom/tasks-detail-common/tasks-detail-common.component';
@@ -200,7 +202,8 @@ registerLocaleData(localeSv);
       ],
       types: [
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
-        { name: 'taskLinkedDocuments', component: FormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
+        { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { templateOptions: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}},},
+        { name: 'taskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
         defaultOptions: {
           templateOptions: {
               btnType: 'default',
@@ -240,13 +243,14 @@ registerLocaleData(localeSv);
     TasksdetailComponent,
     MrbauNewTaskDialogComponent,
     MrbauFormlyNewTaskStepper,
+    MrbauFormlyFieldTaskLinkedDocumentsComponent,
+    MrbauFormlyAllSetComponent,
     MRBauTaskStatusPipe,
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,
     TaskVersionlistComponent,
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
-    FormlyFieldTaskLinkedDocumentsComponent,
     TaskCommentlistComponent,
     MrbauInboxAssignDialogComponent,
     TasksDetailCommonComponent,
@@ -254,7 +258,7 @@ registerLocaleData(localeSv);
     TasksDetailNewDocumentComponent,
     TasksMenuDelegateComponent,
     TasksMenuDeleteComponent,
-    TasksMenuOcrComponent
+    TasksMenuOcrComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

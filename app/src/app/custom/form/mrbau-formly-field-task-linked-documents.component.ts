@@ -11,7 +11,7 @@ import { Node } from '@alfresco/js-api';
       <aca-task-linked-documents [defaultExpanded]="defaultExpanded" [associatedDocumentName]="associatedDocumentName" [associatedDocumentRef]="associatedDocumentRef" (onAddAssociation)="onAdd()" (onRemoveAssociation)="onRemove($event)"></aca-task-linked-documents>
   `,
 })
-export class FormlyFieldTaskLinkedDocumentsComponent extends FieldType implements OnInit {
+export class MrbauFormlyFieldTaskLinkedDocumentsComponent extends FieldType implements OnInit {
   associatedDocumentRef: string[] = [];
   associatedDocumentName: string[] = [];
   defaultExpanded: boolean = false;
