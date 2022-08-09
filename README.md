@@ -2,7 +2,8 @@
 
 # Fork of the Alfresco Content Application for MRBau
 
-## How to build
+## How to build (locally)
+
 ```bash
 # create/copy .env file
 
@@ -11,6 +12,16 @@ npm install
 npm run prebuild
 npm start
 ```
+
+## How to build (Docker)
+
+In order to deploy the customisations of this project within the context of the [M&R Bau Alfresco deployment template](https://github.com/mr-bau/alfresco-deployment), a Docker image must be built. This can be done without having Node / NPM installed locally by moving the build inside the Docker build pipeline. The build of the Docker image can be triggered by executing the following command:
+
+```
+docker build -t mrbau/alfresco-content-app:latest .
+```
+
+This build only requires that the Docker container engine is installed and running locally, as well that access to the central Docker hub (hub.docker.io) is allowed to pull the underyling base image(s).
 
 ## Documentation
 
