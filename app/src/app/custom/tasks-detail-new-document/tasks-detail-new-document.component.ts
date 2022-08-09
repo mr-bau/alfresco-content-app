@@ -51,6 +51,8 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   taskTitle : string;
   taskDescription : string;
 
+  submitButtonText : string;
+
   constructor(
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
@@ -154,11 +156,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   updateButtonText()
   {
-    if (!this._task)
+    if (!this.task)
     {
       return;
     }
-    if (this._task.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW)
+    if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET)
     {
       this.taskBarButtonsNormal[1].text = "Erledigen";
       this.taskBarButtonsNormal[1].icon = "done";
@@ -168,12 +170,12 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       this.taskBarButtonsNormal[1].text = "Weiter";
       this.taskBarButtonsNormal[1].icon = "navigate_next";
     }
+    this.submitButtonText = this.taskBarButtonsNormal[1].text
   }
 
   updateTaskStatusAndButtons(newState : EMRBauTaskStatus)
   {
     this.task.status = newState;
-    this.updateButtonText();
     this.updateButtonText();
     this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(newState)});
   }

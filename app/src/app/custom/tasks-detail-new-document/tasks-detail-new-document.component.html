@@ -38,7 +38,7 @@
     </mat-expansion-panel-header>
     <form [formGroup]="form">
       <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
-      <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="onButtonSubmitClicked()" matTooltip="Weiter" [disabled]="!isFormValid()">Weiter</button>
+      <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="onButtonSubmitClicked()" matTooltip="Weiter" [disabled]="!isFormValid()">{{submitButtonText}}</button>
     </form>
   </mat-expansion-panel>
 </div>
