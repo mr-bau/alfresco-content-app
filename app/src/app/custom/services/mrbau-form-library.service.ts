@@ -48,9 +48,17 @@ export class MrbauFormLibraryService {
   patchFormFieldConfigRecursive(formlyFieldConfig: FormlyFieldConfig, mandatoryRequiredProperties: string[])
   {
     let key = formlyFieldConfig.key as string;
-    if (key && mandatoryRequiredProperties.indexOf(key) >= 0)
+    if (key)
     {
-      formlyFieldConfig.templateOptions.required = true;
+      if (mandatoryRequiredProperties.indexOf(key) >= 0)
+      {
+        formlyFieldConfig.templateOptions.required = true;
+      }
+      // else set not required
+      else if (formlyFieldConfig.templateOptions.required)
+      {
+        formlyFieldConfig.templateOptions.required = false;
+      }
     }
     if (formlyFieldConfig.fieldGroup)
     {

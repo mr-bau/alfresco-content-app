@@ -62,7 +62,6 @@ export const DocumentOrderTypes = new Map<number, IDocumentOrderTypeData>([
   [EMRBauOrderTypes.ZUSATZAUFTRAG, {category: EMRBauOrderTypes.ZUSATZAUFTRAG, label: "Zusatzauftrag", value:"Zusatzauftrag"}],
 ]);
 
-
 export interface IMRBauFormDefinition {
   formlyFieldConfigs : string[]; // name maps to this.mrbauFormLibraryService.name
   mandatoryRequiredProperties: string[];
@@ -304,8 +303,6 @@ export class MrbauArchiveModel {
             'aspect_mrba_amountDetails_mrba_taxRate',
             'title_mrba_paymentConditionDetails',
             'aspect_mrba_paymentConditionDetails',
-
-
           ],
           mandatoryRequiredProperties: [
             'mrba:documentNumber',
@@ -338,15 +335,79 @@ export class MrbauArchiveModel {
       //parent : "mrba:archiveDocument",
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
+      // TODO mrba:documentIdentityDetails
       //  "mrba:paymentConditionDetails",
       //  "mrba:inboundInvoiceReference",
       //  "mrba:inboundPartialInvoiceReference",
       //],
       category: EMRBauDocumentCategory.PAYMENT_TERMS,
-      folder: "03 Zahlungskonditionen",
+      folder: "03 Zahlungsvereinbarungen",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: [
+            'title_mrba_companyId',
+            'element_mrba_companyId',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+            'mrba:reviewDaysFinalInvoice',
+            'mrba:paymentTargetDays',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      },
     },
     {
       title: "Lieferschein",

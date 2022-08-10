@@ -9,6 +9,7 @@ import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../../mrbau-tas
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 import { MrbauCommonService } from '../../services/mrbau-common.service';
+import { EMRBauDocumentCategory } from '../../mrbau-doc-declarations';
 
 @Component({
   selector: 'aca-mrbau-inbox-assign-dialog',
@@ -86,7 +87,8 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   }
 
   categorizeNode(node:Node) {
-    const nodeType = this.mrbauConventionsService.getArchiveModelNodeTye(this.model.archiveModelTypes);
+    const docCategory : EMRBauDocumentCategory = this.model.archiveModelTypes;
+    const nodeType = this.mrbauConventionsService.getArchiveModelNodeTye(docCategory);
     console.log(nodeType);
     if (!nodeType)
     {
@@ -100,7 +102,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     // adapt document type and set receive time stamp and fiscal year
     this.changeDocumentType(node, nodeType)
     // create and assign a new task
-    .then(() => this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, EMRBauTaskStatus.STATUS_NEW))
+    .then(() => this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, docCategory, EMRBauTaskStatus.STATUS_NEW))
     .then(() => this.notificationService.showInfo('Aufgabe erfolgreich erstellt'))
     .catch((error) => {
       //console.log(error);
@@ -122,7 +124,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     return this.nodesApiService.nodesApi.updateNode(node.id, nodeBody, {});
   }
 
-  doCreateTask(node :Node, taskCategory : EMRBauTaskCategory, status?: EMRBauTaskStatus) : Promise<any>
+  doCreateTask(node :Node, taskCategory : EMRBauTaskCategory, docCategory? : EMRBauDocumentCategory, status?: EMRBauTaskStatus) : Promise<any>
   {
     const contentTypes = ['application/json'];
     const pathParams = {'nodeId': '-root-' };
@@ -136,7 +138,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
         "mrbt:category": ${taskCategory},
         "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_NEW},
         "mrbt:priority": 2,
-        "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory )}",
+        "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory, docCategory)}",
         "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory)}",
         "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory)}"
       },

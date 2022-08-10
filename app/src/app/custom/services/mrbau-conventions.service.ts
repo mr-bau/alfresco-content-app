@@ -77,11 +77,24 @@ export class MrbauConventionsService {
     }
   }
 
+  getArchiveModelNodeTitle(category:EMRBauDocumentCategory) : string
+  {
+    let docModel : IMRBauDocumentType[] = this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category == category);
+    if (docModel.length > 0)
+    {
+      return docModel[0].title;
+    }
+    else
+    {
+      return undefined;
+    }
+  }
+
   getTaskDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
     {
-      return "Dokument prüfen und archivieren"
+      return "Dokument prüfen und archivieren" + (documentCategory ? " - "+this.getArchiveModelNodeTitle(documentCategory) : "");
     }
 
     return "description for "+task+" "+client+" "+ documentCategory;
