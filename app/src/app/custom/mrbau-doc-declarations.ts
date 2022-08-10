@@ -37,6 +37,31 @@ export const enum EMRBauDocumentCategoryGroup {
   BILLS        = 0,
   CONTRACTS    = 1,
 }
+interface IDocumentCategoryGroupData {
+  category: EMRBauDocumentCategoryGroup,
+  label: string,
+  folder: string,
+}
+export const DocumentCategoryGroups = new Map<number, IDocumentCategoryGroupData>([
+  [EMRBauDocumentCategoryGroup.BILLS, {category: EMRBauDocumentCategoryGroup.BILLS, label: "Belege", folder: "01 Belege"}],
+  [EMRBauDocumentCategoryGroup.CONTRACTS, {category: EMRBauDocumentCategoryGroup.CONTRACTS, label: "Verträge", folder: "02 Verträge"}],
+]);
+
+
+export const enum EMRBauOrderTypes {
+  AUFTRAG       = 0,
+  ZUSATZAUFTRAG = 1,
+}
+interface IDocumentOrderTypeData {
+  category: EMRBauOrderTypes,
+  label: string,
+  value: string,
+}
+export const DocumentOrderTypes = new Map<number, IDocumentOrderTypeData>([
+  [EMRBauOrderTypes.AUFTRAG, {category: EMRBauOrderTypes.AUFTRAG, label :"Auftrag", value :"Auftrag"}],
+  [EMRBauOrderTypes.ZUSATZAUFTRAG, {category: EMRBauOrderTypes.ZUSATZAUFTRAG, label: "Zusatzauftrag", value:"Zusatzauftrag"}],
+]);
+
 
 export interface IMRBauFormDefinition {
   formlyFieldConfigs : string[]; // name maps to this.mrbauFormLibraryService.name
@@ -49,7 +74,7 @@ export interface IMRBauDocumentType {
   mandatoryAspects?: string[],
   category: EMRBauDocumentCategory,
   folder: string,
-  group: DocumentCategoryGroupData,
+  group: IDocumentCategoryGroupData,
   mrbauFormDefinitions: {
     [key: string]: IMRBauFormDefinition;
   }
@@ -58,11 +83,7 @@ export interface IMRBauDocumentType {
   }
 }
 
-interface DocumentCategoryGroupData {
-  label: string,
-  folder: string,
-  category: EMRBauDocumentCategoryGroup,
-}
+// COMMONLY USED DEFINITIONS
 const METADATA_EXTRACT_1_FORM_DEFINITION = [
     'title_mrba_companyId',
     'element_mrba_companyId',
@@ -70,11 +91,7 @@ const METADATA_EXTRACT_1_FORM_DEFINITION = [
     'aspect_mrba_costCarrierDetails',
   ];
 
-export const documentCategoryGroups = new Map<number, DocumentCategoryGroupData>([
-  [EMRBauDocumentCategoryGroup.BILLS, {category: EMRBauDocumentCategoryGroup.BILLS, label: "Belege", folder: "01 Belege"}],
-  [EMRBauDocumentCategoryGroup.CONTRACTS, {category: EMRBauDocumentCategoryGroup.CONTRACTS, label: "Verträge", folder: "02 Verträge"}],
-]);
-
+// ARCHIVE MODEL
 export class MrbauArchiveModel {
   constructor(
     private mrbauWorkflowService : MrbauWorkflowService,
@@ -142,7 +159,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.ARCHIVE_DOCUMENT,
       folder: "99 doc",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauFormDefinitions : { },
       mrbauWorkflowDefinition: {states : []},
     },
@@ -158,7 +175,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.OFFER,
       folder: "01 Angebote",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
           nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
@@ -195,6 +212,8 @@ export class MrbauArchiveModel {
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
+            'title_mrba_orderType',
+            'element_mrba_orderType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
@@ -203,6 +222,7 @@ export class MrbauArchiveModel {
           mandatoryRequiredProperties: [
             'mrba:documentNumber',
             'mrba:documentDateValue',
+            'mrba:orderType',
           ]
         },
         'STATUS_DUPLICATE' : {
@@ -228,26 +248,44 @@ export class MrbauArchiveModel {
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
       //  "mrba:documentIdentityDetails",
+      //  "mrba:costCarrierDetails",
+      //  "mrba:orderDetails",
       //  "mrba:amountDetails",
       //  "mrba:taxRate",
       //  "mrba:paymentConditionDetails",
-      //  "mrba:costCarrierDetails",
+
       //  "mrba:offerReference",
       //  "mrba:frameworkContractReference",
       //],
       category: EMRBauDocumentCategory.ORDER,
       folder: "02 Aufträge",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
           nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_DUPLICATE)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -264,11 +302,18 @@ export class MrbauArchiveModel {
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
             'aspect_mrba_amountDetails_mrba_taxRate',
-            // Zahlungskonditionen
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
+
+
           ],
           mandatoryRequiredProperties: [
             'mrba:documentNumber',
             'mrba:documentDateValue',
+            'mrba:netAmount',
+            'mrba:grossAmount',
+            'mrba:reviewDaysFinalInvoice',
+            'mrba:paymentTargetDays',
           ]
         },
         'STATUS_DUPLICATE' : {
@@ -285,21 +330,7 @@ export class MrbauArchiveModel {
             mandatoryRequiredProperties: [
             ]
         }
-       },
-    },
-    {
-      title: "Zusatzauftrag",
-      name : "mrba:addonOrder",
-      //parent : "mrba:order",
-      //mandatoryAspects : [
-      //  "mrba:addonOrderDetails",
-      //  "mrba:orderReference",
-      //],
-      category: EMRBauDocumentCategory.ADDON_ORDER,
-      folder: "02 Aufträge",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      }
     },
     {
       title: "Zahlungsvereinbarungen",
@@ -313,7 +344,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.PAYMENT_TERMS,
       folder: "03 Zahlungskonditionen",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauFormDefinitions : { },
       mrbauWorkflowDefinition: {states : []},
     },
@@ -328,7 +359,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.DELIVERY_NOTE,
       folder: "04 Lieferscheine",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauFormDefinitions : { },
       mrbauWorkflowDefinition: {states : []},
     },
@@ -339,6 +370,7 @@ export class MrbauArchiveModel {
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
       //  "mrba:documentIdentityDetails",
+      //  "mrba:fiscalYearDetails", ?
       //  "mrba:inboundInvoiceDetails",
       //  "mrba:taxRate",
       //  "mrba:paymentConditionDetails",
@@ -351,7 +383,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.ER,
       folder: "05 Eingangsrechnungen",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauFormDefinitions : { },
       mrbauWorkflowDefinition: {states : []},
     },
@@ -368,7 +400,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.ORDER_NEGOTIATION_PROTOCOL,
       folder: "07 Vergabeverhandlungsprotokolle",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauFormDefinitions : { },
       mrbauWorkflowDefinition: {states : []},
     },
@@ -382,7 +414,7 @@ export class MrbauArchiveModel {
       //],
       category: EMRBauDocumentCategory.OTHER_BILL,
       folder: "99 Sonstige Belege",
-      group : documentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauFormDefinitions : { },
       mrbauWorkflowDefinition: {states : []},
     }

@@ -13,7 +13,7 @@ export const enum EMRBauTaskStatus {
   STATUS_INVOICE_VERIFICATION = 204,
   STATUS_FINAL_APPROVAL       = 205,
   STATUS_ACCOUNTING           = 206,
-  STATUS_ALL_SET              = 206, //TODO temporary - should be 207
+  STATUS_ALL_SET              = 207,
 
   // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
   STATUS_NOTIFY_DONE      = 8000,

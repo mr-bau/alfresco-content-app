@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
-import { EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
+import { DocumentOrderTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 
 interface ClientData {
   value: EMRBauClientId,
@@ -106,6 +106,9 @@ export class MrbauConventionsService {
     return "Wolfgang Moser";
   }
 
+  readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
+  readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
+  readonly discountDefaultValues = ['3,00', '2,00','1,00'];
   readonly vendorList = new Map<string, Vendor>([
       ["Net-Solutions",{
         "id" : "Net-Solutions",
@@ -130,6 +133,12 @@ export class MrbauConventionsService {
   getVendorListFormOptions() : FormOptionsInterface[] {
     let result : FormOptionsInterface[] = [];
     this.vendorList.forEach( (d) => result.push({label: d['mrba:companyName'], value : d.id}));
+    return result;
+  }
+
+  getOrderTypeFormOptions() : FormOptionsInterface[] {
+    let result : FormOptionsInterface[] = [];
+    DocumentOrderTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
     return result;
   }
 }

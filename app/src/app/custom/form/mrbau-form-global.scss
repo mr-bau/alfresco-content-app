@@ -23,8 +23,9 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
 }
 
 .form-group-title {
-  font-weight: bold;
+  font-size: 120% ;
   font-style: italic;
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .addMarginTop{

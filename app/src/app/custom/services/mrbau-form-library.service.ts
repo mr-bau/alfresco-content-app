@@ -6,6 +6,8 @@ import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced } from '../mrbau-task-d
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
+import { of } from 'rxjs';
+import { notAValidValueValidationMessage, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +58,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  common_comment : FormlyFieldConfig =
+  readonly common_comment : FormlyFieldConfig =
   {
     className: 'flex-1',
     key: 'comment',
@@ -68,7 +70,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  common_archiveModelTypes : FormlyFieldConfig =
+  readonly common_archiveModelTypes : FormlyFieldConfig =
   {
     className: 'flex-4',
     key: 'archiveModelTypes',
@@ -79,7 +81,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  common_taskLinkedDocuments : FormlyFieldConfig =
+  readonly common_taskLinkedDocuments : FormlyFieldConfig =
   {
     className: 'flex-3',
     type: 'taskLinkedDocuments',
@@ -90,7 +92,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_status : FormlyFieldConfig =
+  readonly mrbt_status : FormlyFieldConfig =
   {
     className: 'flex-1',
     type: 'select',
@@ -101,7 +103,7 @@ export class MrbauFormLibraryService {
     },
   };
 
-  mrbt_description : FormlyFieldConfig =
+  readonly mrbt_description : FormlyFieldConfig =
   {
     className: 'flex-6',
     key: 'mrbt:description',
@@ -113,7 +115,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_fullDescription : FormlyFieldConfig =
+  readonly mrbt_fullDescription : FormlyFieldConfig =
   {
     className: 'flex-6',
     key: 'mrbt:fullDescription',
@@ -126,7 +128,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_dueDateValue : FormlyFieldConfig =
+  readonly mrbt_dueDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrbt:dueDateValue',
@@ -140,7 +142,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_priority : FormlyFieldConfig =
+  readonly mrbt_priority : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrbt:priority',
@@ -156,7 +158,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_category : FormlyFieldConfig =
+  readonly mrbt_category : FormlyFieldConfig =
   {
     className: 'flex-3',
     key: 'mrbt:category',
@@ -175,7 +177,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrbt_assignedUserName : FormlyFieldConfig =
+  readonly mrbt_assignedUserName : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrbt:assignedUserName',
@@ -188,7 +190,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrba_organisationUnit : FormlyFieldConfig =
+  readonly mrba_organisationUnit : FormlyFieldConfig =
   {
     className: 'flex-4',
     key: 'mrba:organisationUnit',
@@ -199,10 +201,10 @@ export class MrbauFormLibraryService {
     },
   };
 
-  mrba_companyId : FormlyFieldConfig =
+  readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
-    key: 'mrba:companyName',//TODO companyId companyName
+    key: 'mrba:companyId',
     type: 'select',
     templateOptions: {
       label: 'Firma auswählen',
@@ -210,7 +212,7 @@ export class MrbauFormLibraryService {
     },
   };
 
-  mrba_archivedDateValue : FormlyFieldConfig =
+  readonly mrba_archivedDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:archivedDateValue',
@@ -221,7 +223,7 @@ export class MrbauFormLibraryService {
     }
   };
 
-  mrba_fiscalYear : FormlyFieldConfig =
+  readonly mrba_fiscalYear : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:fiscalYear',
@@ -234,7 +236,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  mrba_documentTopic : FormlyFieldConfig =
+  readonly mrba_documentTopic : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:documentTopic',
@@ -245,7 +247,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  mrba_documentNumber : FormlyFieldConfig =
+  readonly mrba_documentNumber : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:documentNumber',
@@ -255,7 +257,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  mrba_documentDateValue : FormlyFieldConfig =
+  readonly mrba_documentDateValue : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:documentDateValue',
@@ -266,44 +268,45 @@ export class MrbauFormLibraryService {
     }
   }
 
-  mrba_netAmount : FormlyFieldConfig =
+  readonly mrba_netAmount : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:netAmount',
     type: 'input',
     templateOptions: {
       label: 'Netto Betrag',
-      type: 'number',
+      placeholder: 'Netto Betrag (e.g € 1.005,20)',
+      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
     }
   }
 
-  mrba_grossAmount : FormlyFieldConfig =
+  readonly mrba_grossAmount : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:grossAmount',
     type: 'input',
     templateOptions: {
       label: 'Brutto Betrag',
-      type: 'number',
+      placeholder: 'Brutto Betrag (e.g € 1.005,20)',
+      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
     }
   }
 
-  mrba_taxRate : FormlyFieldConfig =
+  readonly mrba_taxRate : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:taxRate', // d:text, mrba:germanDecimalOneDecimalPlace
-    type: 'select',
+    type: 'mrbauFormlyAutocomplete',
     templateOptions: {
       label: 'Steuersatz',
-      options: [
-        {label: '20 %', value: "20"},
-        {label: '10 %', value: "10"},
-        {label: ' 0 %', value:  "0"},
-      ],
+      placeholder: 'Steuersatz in % z.B. 20,00',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.taxRateDefaultValues) : this.mrbauConventionsService.taxRateDefaultValues.slice()),
+      pattern: REGEX_mrba_germanDecimalOneDecimalPlace,
     }
   }
 
-  mrba_taxRateComment : FormlyFieldConfig =
+
+  readonly mrba_taxRateComment : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:taxRateComment',
@@ -314,7 +317,7 @@ export class MrbauFormLibraryService {
     }
   }
 
-  mrba_costCarrierNumber : FormlyFieldConfig =
+  readonly mrba_costCarrierNumber : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:costCarrierNumber',
@@ -331,7 +334,7 @@ export class MrbauFormLibraryService {
     },
   }
 
-  mrba_projectName: FormlyFieldConfig =
+  readonly mrba_projectName: FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:projectName',
@@ -351,8 +354,160 @@ export class MrbauFormLibraryService {
       type: 'mrbauFormlyAllSet',
   };
 
+  readonly mrba_orderType : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:orderType',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getOrderTypeFormOptions()[0].value,
+    templateOptions: {
+      label: 'Auftrags-Typ auswählen',
+      options: this.mrbauConventionsService.getOrderTypeFormOptions(),
+      required: true,
+    },
+  };
+/*
+  filterDiscountDefaultValues(name: string) {
+    return this.mrbauConventionsService.discountDefaultValues.filter(state =>
+      state.toLowerCase().indexOf(name.toLowerCase()) === 0);
+  }*/
+
+  filterDefaultValues(name: string, values: string[]) {
+    return values.filter(state =>
+      state.toLowerCase().indexOf(name.toLowerCase()) === 0);
+  }
+
+  readonly mrba_reviewDaysPartialInvoice: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysPartialInvoice',
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Prüffrist Anzahlungsrechnungen (Tage)',
+      placeholder: 'z.B. 14',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+
+  readonly mrba_reviewDaysFinalInvoice: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysFinalInvoice',
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Prüffrist Schlussrechnungen (Tage)',
+      placeholder: 'z.B. 30',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+
+  readonly mrba_paymentTargetDays: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentTargetDays',
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Nettofrist (Tage)',
+      placeholder: 'z.B. 60',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+  readonly mrba_earlyPaymentDiscountDays1: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays1',
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Skontofrist 1 (Tage)',
+      placeholder: 'z.B. 28',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+  readonly mrba_earlyPaymentDiscountDays2: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays2',
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Skontofrist 2 (Tage)',
+      placeholder: 'z.B. 36',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+  readonly mrba_earlyPaymentDiscountPercent1 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent1', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Skonto 1 (%)',
+      placeholder: 'Skonto in % z.B. 3,00',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
+    },
+  }
+
+  readonly mrba_earlyPaymentDiscountPercent2 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent2', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyAutocomplete',
+    templateOptions: {
+      label: 'Skonto 2 (%)',
+      placeholder: 'Skonto in % z.B. 2,00',
+      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
+    },
+    validation: {
+      messages: {pattern: notAValidValueValidationMessage},
+    },
+  }
 
   // ASPECT GROUPS
+  readonly title_mrba_paymentConditionDetails : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Zahlungskonditionen</span>',
+  };
+  readonly aspect_mrba_paymentConditionDetails : FormlyFieldConfig = {
+    //fieldGroupClassName: 'flex-container',
+    fieldGroup: [ {
+      fieldGroupClassName: 'flex-container',
+      fieldGroup: [
+        // netto
+        this.mrba_paymentTargetDays,
+        // Prüffristen
+        this.mrba_reviewDaysFinalInvoice,
+        this.mrba_reviewDaysPartialInvoice,
+      ]},{
+      fieldGroupClassName: 'flex-container',
+      fieldGroup: [
+        // Skonto 1
+        this.mrba_earlyPaymentDiscountPercent1, // text
+        //this.mrba_earlyPaymentDiscountPercentNumericValue1 //d:double kept in sync
+        this.mrba_earlyPaymentDiscountDays1,
+      ]},{
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [
+        // Skonte 2
+        this.mrba_earlyPaymentDiscountPercent2, // text
+        //this.mrba_earlyPaymentDiscountPercentNumericValue2 //d:double kept in sync
+        this.mrba_earlyPaymentDiscountDays2,
+      ]}
+    ]
+  };
+
+  readonly title_mrba_orderType : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Auftrags-Typ</span>',
+  };
+  readonly element_mrba_orderType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_orderType],
+  };
+
   readonly title_mrba_companyId : FormlyFieldConfig ={
     template: '<span class="form-group-title">Firma</span>',
   };
@@ -420,3 +575,5 @@ export class MrbauFormLibraryService {
     ]
   };
 }
+
+

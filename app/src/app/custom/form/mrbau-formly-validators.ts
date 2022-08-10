@@ -1,9 +1,38 @@
 import { FormControl, ValidationErrors } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
+export const PAYMENT_DAYS_VALID_RANGE_MIN = 1;
+export const PAYMENT_DAYS_VALID_RANGE_MAX = 300;
+
+export function requiredValidationMessage(err, field) {
+  err;field;
+  return 'Dieses Feld ist erforderlich.';
+}
+
 export function maxlengthValidationMessage(err, field) {
   err;
-  return `Die Anzahl der Zeichen muss kleiner als ${field.templateOptions.maxLength} sein`;
+  return `Die Anzahl der Zeichen muss kleiner gleich ${field.templateOptions.maxLength} sein.`;
+}
+
+export function minlengthValidationMessage(err, field) {
+  err;
+  return `Die Anzahl der Zeichen muss mindestens ${field.templateOptions.minLength} betragen.`;
+}
+
+
+export function minValidationMessage(err, field) {
+  err;
+  return `Der Wert muss mindestens ${field.templateOptions.min} betragen.`;
+}
+
+export function maxValidationMessage(err, field) {
+  err;
+  return `Der Wert muss kleiner gleich ${field.templateOptions.max} sein.`;
+}
+
+export function notAValidValueValidationMessage(err, field) {
+  err;
+  return `'${field.formControl.value}' ist keine gültige Angabe für dieses Feld.`;
 }
 
 export function dateFutureValidator(control: FormControl, field: FormlyFieldConfig, options = {}): ValidationErrors {
@@ -20,3 +49,14 @@ export function dateFutureValidator(control: FormControl, field: FormlyFieldConf
   }
   return (msg) ? { 'date-future': { message: msg } } : null;
 }
+
+export const REGEX_mrba_datePattern : RegExp = /^(0?[1-9]|[12][0-9]|3[01])\.(0?[1-9]|1[012])\.(19|20)[0-9]{2}$/;
+export const REGEX_mrba_nonNegative : RegExp = /^-?\d{1,3}(\.\d{3})*,\d{1}$/;
+export const REGEX_mrba_germanDecimalOneDecimalPlace : RegExp = /^-?\d{1,3}(\.\d{3})*,\d{1}$/;
+export const REGEX_mrba_germanDecimalTwoDecimalPlace : RegExp = /^-?\d{1,3}(\.\d{3})*,\d{2}$/;
+export const REGEX_mrba_companyCountryCodeIso_3611_1_Alpha_2 : RegExp = /^[A-Z]{2}$/;
+
+// custom constraints
+export const REGEX_nonNegativeInt : RegExp = /^[0-9]+$/;
+export const REGEX_Int : RegExp = /^[-]?\d+$/;
+export const REGEX_germanDecimalTwoDecimalPlaceNotNegative : RegExp = /^\d{1,3}(\.\d{3})*,\d{2}$/;

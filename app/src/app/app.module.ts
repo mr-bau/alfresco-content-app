@@ -95,6 +95,8 @@ import 'echarts/theme/royal.js';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { MatStepperModule } from '@angular/material/stepper';
+//import { MatInputModule } from '@angular/material/input';
+//import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // custom imports
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
@@ -113,7 +115,8 @@ import { MrbauFormlyNewTaskStepper } from './custom/form/mrbau-formly-new-task-s
 import { MrbauFormlyAllSetComponent } from './custom/form/mrbau-formly-all-set.component';
 import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrbau-formly-field-task-linked-documents.component';
 import { MrbauFormlyDuplicatedDocumentComponent } from  './custom/form/mrbau-formly-duplicated-document.component';
-import { dateFutureValidator } from './custom/form/mrbau-formly-validators';
+import { MrbauFormlyAutocompleteTypeComponent } from  './custom/form/mrbau-formly-autocomplete.component';
+import { dateFutureValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage } from './custom/form/mrbau-formly-validators';
 
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
@@ -184,6 +187,8 @@ registerLocaleData(localeSv);
     MatSortModule,
     MatPaginatorModule,
     MatStepperModule,
+    //MatInputModule,
+    //MatAutocompleteModule,
     AngularSplitModule,
     NgxEchartsModule.forRoot({
       /**
@@ -194,6 +199,14 @@ registerLocaleData(localeSv);
       echarts: () => import('echarts'), // or import('./path-to-my-custom-echarts')
     }),
     FormlyModule.forRoot({
+      validationMessages: [
+        { name: 'required', message: requiredValidationMessage },
+        { name: 'minlength', message: minlengthValidationMessage },
+        { name: 'maxlength', message: maxlengthValidationMessage },
+        { name: 'min', message: minValidationMessage },
+        { name: 'max', message: maxValidationMessage },
+        { name: 'pattern', message: notAValidValueValidationMessage},
+      ],
       validators: [
         {
           name: 'date-future',
@@ -205,6 +218,7 @@ registerLocaleData(localeSv);
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
         { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { templateOptions: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
         { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { templateOptions: {required: true}}},
+        { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteTypeComponent, wrappers: ['form-field']},
         { name: 'taskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
         defaultOptions: {
           templateOptions: {
@@ -248,6 +262,7 @@ registerLocaleData(localeSv);
     MrbauFormlyFieldTaskLinkedDocumentsComponent,
     MrbauFormlyAllSetComponent,
     MrbauFormlyDuplicatedDocumentComponent,
+    MrbauFormlyAutocompleteTypeComponent,
     MRBauTaskStatusPipe,
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,
