@@ -421,8 +421,67 @@ export class MrbauArchiveModel {
       category: EMRBauDocumentCategory.DELIVERY_NOTE,
       folder: "04 Lieferscheine",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName'
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentNumber',
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
     },
     {
       title: "Eingangsrechnung",
@@ -462,8 +521,75 @@ export class MrbauArchiveModel {
       category: EMRBauDocumentCategory.ORDER_NEGOTIATION_PROTOCOL,
       folder: "07 Vergabeverhandlungsprotokolle",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName'
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+            'title_mrba_amountDetails_mrba_taxRate',
+            'aspect_mrba_amountDetails_mrba_taxRate',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentNumber',
+            'mrba:documentDateValue',
+            'mrba:netAmount',
+            'mrba:grossAmount',
+            'mrba:reviewDaysFinalInvoice',
+            'mrba:paymentTargetDays',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
     },
     {
       title: "Sonstiger Beleg",
@@ -472,12 +598,69 @@ export class MrbauArchiveModel {
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
       //  "mrba:documentIdentityDetails",
+      //  TODO "mrba:costCarrierDetails",
       //],
       category: EMRBauDocumentCategory.OTHER_BILL,
       folder: "99 Sonstige Belege",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
     }
   ];
 }
