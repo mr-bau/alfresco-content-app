@@ -133,49 +133,16 @@ export class MrbauConventionsService {
   readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
   readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
   readonly discountDefaultValues = ['3,00', '2,00','1,00'];
-  /*readonly vendorList = new Map<string, Vendor>([
-      ["Net-Solutions",{
-        "mrba:companyId" : "Net-Solutions",
-        "mrba:companyName" : "NET-Solutions & EDV-Service GmbH",
-        "mrba:companyVatID" : "ATU53033505",
-        "mrba:companyStreet" : "Triglavstrasse 1",
-        "mrba:companyZipCode" : "9500",
-        "mrba:companyCity" : "Villach",
-        "mrba:companyCountryCode" : "AT"
-      }],
-      ["BMD",{
-        "mrba:companyId" : "BMD",
-        "mrba:companyName" : "BMD Systemhaus GesmbH",
-        "mrba:companyVatID" : "ATU53033505",
-        "mrba:companyStreet" : "Sierningerstraße 190",
-        "mrba:companyZipCode" : "4400",
-        "mrba:companyCity" : "Steyr",
-        "mrba:companyCountryCode" : "AT"
-      }],
-  ]);*/
-
-  readonly vendorList = {
-    "Net-Solutions" : {
-      "mrba:companyId" : "Net-Solutions",
-      "mrba:companyName" : "NET-Solutions & EDV-Service GmbH",
-      "mrba:companyVatID" : "ATU53033505",
-      "mrba:companyStreet" : "Triglavstrasse 1",
-      "mrba:companyZipCode" : "9500",
-      "mrba:companyCity" : "Villach",
-      "mrba:companyCountryCode" : "AT"
-    },
-    "BMD" : {
-      "mrba:companyId" : "BMD",
-      "mrba:companyName" : "BMD Systemhaus GesmbH",
-      "mrba:companyVatID" : "ATU53033505",
-      "mrba:companyStreet" : "Sierningerstraße 190",
-      "mrba:companyZipCode" : "4400",
-      "mrba:companyCity" : "Steyr",
-      "mrba:companyCountryCode" : "AT"
-    }
-  };
 
   private _vendorListFormOptions : SelectFormOptions[];
+  private createVendorString(v:Vendor) : string {
+    let result = v['mrba:companyName'];
+    result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
+    result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
+    result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
+    result = (v['mrba:companyCountryCode']) ? result.concat(', ').concat(v['mrba:companyCountryCode']) : result;
+    return result;
+  }
   getVendorListFormOptions() : SelectFormOptions[] {
     if (this._vendorListFormOptions) {
       return this._vendorListFormOptions;
@@ -183,7 +150,7 @@ export class MrbauConventionsService {
     let result : SelectFormOptions[] = [];
     for (const key in jsonVendorList) {
       const d = jsonVendorList[key] as Vendor;
-      result.push({label: d['mrba:companyName'], value : d['mrba:companyId']})
+      result.push({label: this.createVendorString(d), value : d['mrba:companyId']})
     }
     result = result.sort((a,b) => a.label.localeCompare(b.label));
     //this.vendorList.forEach( (d) => result.push({label: d['mrba:companyName'], value : d['mrba:companyId']}));
