@@ -4,6 +4,9 @@ import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 import { DocumentOrderTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 
+//import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
+import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
+
 interface ClientData {
   value: EMRBauClientId,
   label: string,
@@ -15,20 +18,25 @@ export const enum EMRBauClientId {
   MANDANT_3,
 }
 
-export interface FormOptionsInterface {
+export interface SelectFormOptions {
   label: string,
   value: any,
   group?: string,
 };
 
 export interface Vendor {
-  "id" : string,
+  "mrba:companyId" : string,
   "mrba:companyName" : string,
   "mrba:companyVatID" : string,
   "mrba:companyStreet" : string,
   "mrba:companyZipCode" : string,
   "mrba:companyCity" : string,
   "mrba:companyCountryCode": string,
+  "ZZiel"?: string,
+  "SktoProz1"?: string,
+  "SktoTage1"?: string,
+  "Ohne Steuer"?: string,
+  "-"?: string,
 }
 
 @Injectable({
@@ -50,8 +58,11 @@ export class MrbauConventionsService {
     [EMRBauClientId.MANDANT_3, {value: EMRBauClientId.MANDANT_3, label: "Mandant3", folder: "03 Mandant3"}],
   ]);
 
-  getOrganisationUnitFormOptions() : FormOptionsInterface[] {
-    let result : FormOptionsInterface[] = [];
+  getOrganisationUnitFormOptions() : SelectFormOptions[] {
+    //console.log(jsonKtList);
+    console.log(jsonVendorList);
+
+    let result : SelectFormOptions[] = [];
     this.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.value}));
     return result;
   }
@@ -60,7 +71,7 @@ export class MrbauConventionsService {
     return EMRBauClientId.MANDANT_1;
   }
 
-  getArchiveModelTypesFormOptions() : FormOptionsInterface[] {
+  getArchiveModelTypesFormOptions() : SelectFormOptions[] {
     return this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category != EMRBauDocumentCategory.ARCHIVE_DOCUMENT).map( d => ({label: d.title, value : d.category, group: d.group.label}));
   }
 
@@ -122,9 +133,9 @@ export class MrbauConventionsService {
   readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
   readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
   readonly discountDefaultValues = ['3,00', '2,00','1,00'];
-  readonly vendorList = new Map<string, Vendor>([
+  /*readonly vendorList = new Map<string, Vendor>([
       ["Net-Solutions",{
-        "id" : "Net-Solutions",
+        "mrba:companyId" : "Net-Solutions",
         "mrba:companyName" : "NET-Solutions & EDV-Service GmbH",
         "mrba:companyVatID" : "ATU53033505",
         "mrba:companyStreet" : "Triglavstrasse 1",
@@ -133,7 +144,7 @@ export class MrbauConventionsService {
         "mrba:companyCountryCode" : "AT"
       }],
       ["BMD",{
-        "id" : "BMD",
+        "mrba:companyId" : "BMD",
         "mrba:companyName" : "BMD Systemhaus GesmbH",
         "mrba:companyVatID" : "ATU53033505",
         "mrba:companyStreet" : "Sierningerstraße 190",
@@ -141,16 +152,47 @@ export class MrbauConventionsService {
         "mrba:companyCity" : "Steyr",
         "mrba:companyCountryCode" : "AT"
       }],
-  ]);
+  ]);*/
 
-  getVendorListFormOptions() : FormOptionsInterface[] {
-    let result : FormOptionsInterface[] = [];
-    this.vendorList.forEach( (d) => result.push({label: d['mrba:companyName'], value : d.id}));
+  readonly vendorList = {
+    "Net-Solutions" : {
+      "mrba:companyId" : "Net-Solutions",
+      "mrba:companyName" : "NET-Solutions & EDV-Service GmbH",
+      "mrba:companyVatID" : "ATU53033505",
+      "mrba:companyStreet" : "Triglavstrasse 1",
+      "mrba:companyZipCode" : "9500",
+      "mrba:companyCity" : "Villach",
+      "mrba:companyCountryCode" : "AT"
+    },
+    "BMD" : {
+      "mrba:companyId" : "BMD",
+      "mrba:companyName" : "BMD Systemhaus GesmbH",
+      "mrba:companyVatID" : "ATU53033505",
+      "mrba:companyStreet" : "Sierningerstraße 190",
+      "mrba:companyZipCode" : "4400",
+      "mrba:companyCity" : "Steyr",
+      "mrba:companyCountryCode" : "AT"
+    }
+  };
+
+  private _vendorListFormOptions : SelectFormOptions[];
+  getVendorListFormOptions() : SelectFormOptions[] {
+    if (this._vendorListFormOptions) {
+      return this._vendorListFormOptions;
+    }
+    let result : SelectFormOptions[] = [];
+    for (const key in jsonVendorList) {
+      const d = jsonVendorList[key] as Vendor;
+      result.push({label: d['mrba:companyName'], value : d['mrba:companyId']})
+    }
+    result = result.sort((a,b) => a.label.localeCompare(b.label));
+    //this.vendorList.forEach( (d) => result.push({label: d['mrba:companyName'], value : d['mrba:companyId']}));
+    this._vendorListFormOptions = result;
     return result;
   }
 
-  getOrderTypeFormOptions() : FormOptionsInterface[] {
-    let result : FormOptionsInterface[] = [];
+  getOrderTypeFormOptions() : SelectFormOptions[] {
+    let result : SelectFormOptions[] = [];
     DocumentOrderTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
     return result;
   }

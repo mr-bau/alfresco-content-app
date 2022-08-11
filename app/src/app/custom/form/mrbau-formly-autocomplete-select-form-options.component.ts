@@ -5,9 +5,10 @@ import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { SelectFormOptions } from '../services/mrbau-conventions.service';
 
 @Component({
-  selector: 'aca-mrbau-formly-autocomplete',
+  selector: 'aca-mrbau-formly-autocomplete-select-form-options',
   template: `
     <input matInput
       [matAutocomplete]="auto"
@@ -15,14 +16,14 @@ import { FormControl } from '@angular/forms';
       [formlyAttributes]="field"
       [placeholder]="to.placeholder"
       [errorStateMatcher]="errorStateMatcher">
-    <mat-autocomplete #auto="matAutocomplete">
+    <mat-autocomplete #auto="matAutocomplete"  [displayWith]="displayFn">
       <mat-option *ngFor="let value of filter | async" [value]="value">
-        {{ value }}
+        {{ value.label }}
       </mat-option>
     </mat-autocomplete>
   `,
 })
-export class MrbauFormlyAutocompleteComponent extends FieldType implements OnInit, AfterViewInit {
+export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType implements OnInit, AfterViewInit {
   @ViewChild(MatInput) formFieldControl: MatInput;
   @ViewChild(MatAutocompleteTrigger) autocomplete: MatAutocompleteTrigger;
 
@@ -35,6 +36,10 @@ export class MrbauFormlyAutocompleteComponent extends FieldType implements OnIni
         startWith(''),
         switchMap(term => this.to.filter(term)),
       );
+  }
+
+  displayFn(data : SelectFormOptions): string {
+    return data && data.label ? data.label : '';;
   }
 
   ngAfterViewInit() {

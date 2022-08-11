@@ -115,7 +115,8 @@ import { MrbauFormlyNewTaskStepper } from './custom/form/mrbau-formly-new-task-s
 import { MrbauFormlyAllSetComponent } from './custom/form/mrbau-formly-all-set.component';
 import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrbau-formly-field-task-linked-documents.component';
 import { MrbauFormlyDuplicatedDocumentComponent } from  './custom/form/mrbau-formly-duplicated-document.component';
-import { MrbauFormlyAutocompleteTypeComponent } from  './custom/form/mrbau-formly-autocomplete.component';
+import { MrbauFormlyAutocompleteComponent } from  './custom/form/mrbau-formly-autocomplete.component';
+import { MrbauFormlyAutocompleteSelectFormOptionsComponent } from  './custom/form/mrbau-formly-autocomplete-select-form-options.component';
 import { dateFutureValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage } from './custom/form/mrbau-formly-validators';
 
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
@@ -218,7 +219,8 @@ registerLocaleData(localeSv);
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
         { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { templateOptions: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
         { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { templateOptions: {required: true}}},
-        { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteTypeComponent, wrappers: ['form-field']},
+        { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
+        { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
         { name: 'taskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
         defaultOptions: {
           templateOptions: {
@@ -262,7 +264,8 @@ registerLocaleData(localeSv);
     MrbauFormlyFieldTaskLinkedDocumentsComponent,
     MrbauFormlyAllSetComponent,
     MrbauFormlyDuplicatedDocumentComponent,
-    MrbauFormlyAutocompleteTypeComponent,
+    MrbauFormlyAutocompleteComponent,
+    MrbauFormlyAutocompleteSelectFormOptionsComponent,
     MRBauTaskStatusPipe,
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,

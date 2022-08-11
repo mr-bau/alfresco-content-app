@@ -4,7 +4,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { CONST } from '../mrbau-global-declarations';
 import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { MrbauConventionsService } from './mrbau-conventions.service';
+import { MrbauConventionsService, SelectFormOptions } from './mrbau-conventions.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 import { of } from 'rxjs';
 import { notAValidValueValidationMessage, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
@@ -19,6 +19,18 @@ export class MrbauFormLibraryService {
     private mrbauCommonService : MrbauCommonService,
     private mrbauArchiveModelService : MrbauArchiveModelService
     ) { }
+
+    filterDefaultValues(name: string, values: string[]) {
+      return values.filter(state =>
+        state.toLowerCase().indexOf(name.toLowerCase()) === 0);
+    }
+
+    filterDefaultValuesSelectFormOptions(value: SelectFormOptions, values: SelectFormOptions[]) {
+      const name = typeof value === 'string' ? value : value?.label;
+      return values.filter(state =>
+        state.label.toLowerCase().indexOf(name.toLowerCase()) === 0);
+    }
+
 
   getByName(name : string) : FormlyFieldConfig
   {
@@ -209,7 +221,7 @@ export class MrbauFormLibraryService {
     },
   };
 
-  readonly mrba_companyId : FormlyFieldConfig =
+  /*readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
     key: 'mrba:companyId',
@@ -219,6 +231,17 @@ export class MrbauFormLibraryService {
       options: this.mrbauConventionsService.getVendorListFormOptions(),
     },
   };
+*/
+  readonly mrba_companyId : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:companyId',
+    type: 'mrbauFormlyAutocompleteSelectFormOptions',
+    templateOptions: {
+      label: 'Firma auswählen',
+      filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getVendorListFormOptions()) : this.mrbauConventionsService.getVendorListFormOptions().slice()),
+    }
+  }
 
   readonly mrba_archivedDateValue : FormlyFieldConfig =
   {
@@ -374,16 +397,6 @@ export class MrbauFormLibraryService {
       required: true,
     },
   };
-/*
-  filterDiscountDefaultValues(name: string) {
-    return this.mrbauConventionsService.discountDefaultValues.filter(state =>
-      state.toLowerCase().indexOf(name.toLowerCase()) === 0);
-  }*/
-
-  filterDefaultValues(name: string, values: string[]) {
-    return values.filter(state =>
-      state.toLowerCase().indexOf(name.toLowerCase()) === 0);
-  }
 
   readonly mrba_reviewDaysPartialInvoice: FormlyFieldConfig =
   {
