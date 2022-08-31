@@ -69,7 +69,7 @@ export class MrbauConventionsService {
 
   getOrganisationUnitFormOptions() : SelectFormOptions[] {
     //console.log(jsonKtList);
-    console.log(jsonVendorList);
+    //console.log(jsonVendorList);
 
     let result : SelectFormOptions[] = [];
     this.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.value}));

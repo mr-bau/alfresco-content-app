@@ -238,7 +238,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     let key = formlyFieldConfig.key as string;
     if (key)
     {
-      if (this._taskNode.properties[key])
+      if (this._taskNode.properties[key] || this._taskNode.properties[key] === 0  || this._taskNode.properties[key] === false)
       {
         let value = this._taskNode.properties[key]
         if (formlyFieldConfig.templateOptions.type == 'date')
