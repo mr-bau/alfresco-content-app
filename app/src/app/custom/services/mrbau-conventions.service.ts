@@ -166,6 +166,10 @@ export class MrbauConventionsService {
     this._vendorListFormOptions = result;
     return result;
   }
+  getVendorListFormOption(mrba_companyId : string) : SelectFormOptions {
+    const result = this.getVendorListFormOptions().filter( d => d.value == mrba_companyId);
+    return (result.length > 0) ? result[0] : undefined;
+  }
   getVendor(key : string) : Vendor {
     return jsonVendorList[key] as Vendor
   }
@@ -189,6 +193,10 @@ export class MrbauConventionsService {
     result = result.sort((a,b) => a.label.localeCompare(b.label));
     this._ktListFormOptions = result;
     return result;
+  }
+  getKtListFormOption(mrba_costCarrierNumber : string) : SelectFormOptions {
+    const result = this.getKtListFormOptions().filter( d => d.value == mrba_costCarrierNumber);
+    return (result.length > 0) ? result[0] : undefined;
   }
   getCostCarrier(key : string) : ICostCarrier {
     return jsonKtList[key] as ICostCarrier

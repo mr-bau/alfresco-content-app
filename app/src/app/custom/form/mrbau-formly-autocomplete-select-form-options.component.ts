@@ -33,9 +33,18 @@ export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType
   formControl: FormControl;
   ngOnInit() {
     super.ngOnInit();
+
+    // initialize value
+    const k = this.key as string;
+    let startString = '';
+    if (this.model[k]) {
+      startString = this.model[k];
+      this.ngControl.setValue(this.model[k]);
+    }
+
     this.filter = this.formControl.valueChanges
       .pipe(
-        startWith(''),
+        startWith(startString),
         switchMap(term => this.to.filter(term)),
       );
   }

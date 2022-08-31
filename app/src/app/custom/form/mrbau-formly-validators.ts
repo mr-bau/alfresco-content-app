@@ -46,6 +46,7 @@ export function autocompleteNotValidValidationMessage(err, field) {
 function instanceOfSelectFormOptions(value: any): value is SelectFormOptions {
   return !!value // truthy
   && typeof value !== 'string' // Not just string input in the autocomplete
+  && typeof value !== 'number' // Not just a number
   && 'label' in value; // Has some qualifying property of Character type
 }
 

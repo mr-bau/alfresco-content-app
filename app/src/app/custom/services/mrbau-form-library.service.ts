@@ -250,6 +250,16 @@ export class MrbauFormLibraryService {
         }
       }
     },
+    hooks: {
+      onInit : (field : FormlyFieldConfig) => {
+          const key = field.key as string;
+          if (field.model[key] || field.model[key] === 0)
+          {
+            // replace id value with entry object from list
+            field.model[key] = this.mrbauConventionsService.getVendorListFormOption(field.model[key]);
+          }
+      }
+    },
     validators: {
       validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getVendorListFormOptions() } }],
     },
@@ -399,6 +409,16 @@ export class MrbauFormLibraryService {
             }
           }
         }
+      }
+    },
+    hooks: {
+      onInit : (field : FormlyFieldConfig) => {
+          const key = field.key as string;
+          if (field.model[key] || field.model[key] === 0)
+          {
+            // replace id value with entry object from list
+            field.model[key] = this.mrbauConventionsService.getKtListFormOption(field.model[key]);
+          }
       }
     },
     validators: {
