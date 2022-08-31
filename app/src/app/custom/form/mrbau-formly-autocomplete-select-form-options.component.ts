@@ -15,8 +15,10 @@ import { SelectFormOptions } from '../services/mrbau-conventions.service';
       [formControl]="formControl"
       [formlyAttributes]="field"
       [placeholder]="to.placeholder"
-      [errorStateMatcher]="errorStateMatcher">
-    <mat-autocomplete #auto="matAutocomplete"  [displayWith]="displayFn">
+      [errorStateMatcher]="errorStateMatcher"
+      >
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
+      (optionSelected)="to.change && to.change(field, $event)">
       <mat-option *ngFor="let value of filter | async" [value]="value">
         {{ value.label }}
       </mat-option>
@@ -37,7 +39,6 @@ export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType
         switchMap(term => this.to.filter(term)),
       );
   }
-
   displayFn(data : SelectFormOptions): string {
     return data && data.label ? data.label : '';;
   }

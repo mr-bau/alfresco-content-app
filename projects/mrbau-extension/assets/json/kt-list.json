@@ -1,4 +1,10 @@
 {
+    "9000": {
+        "Kostentyp": "2",
+        "mrba:costCarrierNumber": "9000",
+        "mrba:projectName": "Zentralregie",
+        "-": ""
+    },
     "3798": {
         "Kostentyp": "2",
         "mrba:costCarrierNumber": "3798",

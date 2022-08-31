@@ -10,14 +10,14 @@ export class MrbauWorkflowService {
 
   performDuplicateCheck(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     data;
-    //console.log("performDuplicateCheck 1");
+    console.log("performDuplicateCheck 1");
     return new Promise((resolve) => {
       setTimeout(this.dummyDuplicateCheck, 1000, resolve)});
   }
 
   dummyDuplicateCheck(resolve)
   {
-    //console.log("performDuplicateCheck 2");
+    console.log("performDuplicateCheck 2");
     resolve(null);
   }
 

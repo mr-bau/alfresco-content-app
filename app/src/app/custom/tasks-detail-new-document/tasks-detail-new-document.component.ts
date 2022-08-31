@@ -187,9 +187,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     };
     Object.keys(this.model).forEach( key =>
     {
-      if (this.model[key])
+      if (this.model[key] || this.model[key] === 0)
       {
-      nodeBody.properties[key] = this.model[key];
+        // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
+        nodeBody.properties[key] =  (this.model[key].value) ? (this.model[key].value) : this.model[key];
       }
     })
     //console.log(nodeBody);
@@ -251,5 +252,9 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     {
       formlyFieldConfig.fieldGroup.forEach( (fc) => this.updateFormValueRecursive(fc))
     }
+  }
+
+  onModelChangeEvent(model :any) {
+    model;
   }
 }

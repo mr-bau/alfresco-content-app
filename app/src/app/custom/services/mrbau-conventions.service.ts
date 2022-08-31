@@ -4,7 +4,7 @@ import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 import { DocumentOrderTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 
-//import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
+import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
 
 interface ClientData {
@@ -32,11 +32,20 @@ export interface Vendor {
   "mrba:companyZipCode" : string,
   "mrba:companyCity" : string,
   "mrba:companyCountryCode": string,
+  // v--- not used but present in exported json
   "ZZiel"?: string,
   "SktoProz1"?: string,
   "SktoTage1"?: string,
   "Ohne Steuer"?: string,
   "-"?: string,
+}
+
+interface ICostCarrier {
+  'mrba:costCarrierNumber' : string
+  'mrba:projectName' : string,
+  // v--- not used but present in exported json
+  'Kostentyp' : string,
+  '-' : string,
 }
 
 @Injectable({
@@ -134,7 +143,6 @@ export class MrbauConventionsService {
   readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
   readonly discountDefaultValues = ['3,00', '2,00','1,00'];
 
-  private _vendorListFormOptions : SelectFormOptions[];
   private createVendorString(v:Vendor) : string {
     let result = v['mrba:companyName'];
     result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
@@ -143,6 +151,8 @@ export class MrbauConventionsService {
     result = (v['mrba:companyCountryCode']) ? result.concat(', ').concat(v['mrba:companyCountryCode']) : result;
     return result;
   }
+
+  private _vendorListFormOptions : SelectFormOptions[];
   getVendorListFormOptions() : SelectFormOptions[] {
     if (this._vendorListFormOptions) {
       return this._vendorListFormOptions;
@@ -153,9 +163,35 @@ export class MrbauConventionsService {
       result.push({label: this.createVendorString(d), value : d['mrba:companyId']})
     }
     result = result.sort((a,b) => a.label.localeCompare(b.label));
-    //this.vendorList.forEach( (d) => result.push({label: d['mrba:companyName'], value : d['mrba:companyId']}));
     this._vendorListFormOptions = result;
     return result;
+  }
+  getVendor(key : string) : Vendor {
+    return jsonVendorList[key] as Vendor
+  }
+
+  private createKtString(v:ICostCarrier) : string {
+    let result = v['mrba:costCarrierNumber'];
+    result = (v['mrba:projectName']) ? result.concat(', ').concat(v['mrba:projectName']) : result;
+    return result;
+  }
+
+  private _ktListFormOptions : SelectFormOptions[];
+  getKtListFormOptions() : SelectFormOptions[] {
+    if (this._ktListFormOptions) {
+      return this._ktListFormOptions;
+    }
+    let result : SelectFormOptions[] = [];
+    for (const key in jsonKtList) {
+      const d = jsonKtList[key] as ICostCarrier;
+      result.push({label: this.createKtString(d), value : d['mrba:costCarrierNumber']})
+    }
+    result = result.sort((a,b) => a.label.localeCompare(b.label));
+    this._ktListFormOptions = result;
+    return result;
+  }
+  getCostCarrier(key : string) : ICostCarrier {
+    return jsonKtList[key] as ICostCarrier
   }
 
   getOrderTypeFormOptions() : SelectFormOptions[] {

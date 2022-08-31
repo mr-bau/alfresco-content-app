@@ -1,5 +1,7 @@
 import { FormControl, ValidationErrors } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { SelectFormOptions } from '../services/mrbau-conventions.service';
+
 
 export const PAYMENT_DAYS_VALID_RANGE_MIN = 1;
 export const PAYMENT_DAYS_VALID_RANGE_MAX = 300;
@@ -33,6 +35,29 @@ export function maxValidationMessage(err, field) {
 export function notAValidValueValidationMessage(err, field) {
   err;
   return `'${field.formControl.value}' ist keine gültige Angabe für dieses Feld.`;
+}
+
+export function autocompleteNotValidValidationMessage(err, field) {
+  err;
+  const value = typeof field.formControl.value === 'string' ? field.formControl.value : field.formControl.value.label;
+  return `${value} ist ungültig - wählen Sie einen Wert aus der Vorschlagsliste.`;
+}
+
+function instanceOfSelectFormOptions(value: any): value is SelectFormOptions {
+  return !!value // truthy
+  && typeof value !== 'string' // Not just string input in the autocomplete
+  && 'label' in value; // Has some qualifying property of Character type
+}
+
+export function autocompleteValueFromListValidator(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
+  field;
+  options;
+  let msg = 'error';
+  if ( instanceOfSelectFormOptions(control.value) )
+  {
+    msg = null;
+  }
+  return (msg) ? {'autocomplete': 'fehler'} : null;
 }
 
 export function dateFutureValidator(control: FormControl, field: FormlyFieldConfig, options = {}): ValidationErrors {

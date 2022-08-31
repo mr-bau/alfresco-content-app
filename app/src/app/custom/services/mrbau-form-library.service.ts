@@ -67,7 +67,7 @@ export class MrbauFormLibraryService {
         formlyFieldConfig.templateOptions.required = true;
       }
       // else set not required
-      else if (formlyFieldConfig.templateOptions.required)
+      else if (formlyFieldConfig.templateOptions && formlyFieldConfig.templateOptions.required)
       {
         formlyFieldConfig.templateOptions.required = false;
       }
@@ -221,17 +221,6 @@ export class MrbauFormLibraryService {
     },
   };
 
-  /*readonly mrba_companyId : FormlyFieldConfig =
-  {
-    className: 'flex-4',
-    key: 'mrba:companyId',
-    type: 'select',
-    templateOptions: {
-      label: 'Firma auswählen',
-      options: this.mrbauConventionsService.getVendorListFormOptions(),
-    },
-  };
-*/
   readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -240,7 +229,30 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Firma auswählen',
       filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getVendorListFormOptions()) : this.mrbauConventionsService.getVendorListFormOptions().slice()),
-    }
+      change: (field: FormlyFieldConfig) => {
+        const mrba_company_fields = [
+          'mrba:companyName',
+          'mrba:companyVatID',
+          'mrba:companyStreet',
+          'mrba:companyZipCode',
+          'mrba:companyCity',
+          'mrba:companyCountryCode',
+          ];
+        if (field)
+        {
+          const data = field.model[field.key as string];
+          const value = (data) ? data.value : undefined;
+          const vendor = this.mrbauConventionsService.getVendor(value);
+          for (const key of mrba_company_fields)
+          {
+            field.model[key] = (vendor) ? vendor[key] : undefined;
+          }
+        }
+      }
+    },
+    validators: {
+      validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getVendorListFormOptions() } }],
+    },
   }
 
   readonly mrba_archivedDateValue : FormlyFieldConfig =
@@ -336,7 +348,6 @@ export class MrbauFormLibraryService {
     }
   }
 
-
   readonly mrba_taxRateComment : FormlyFieldConfig =
   {
     className: 'flex-2',
@@ -347,7 +358,7 @@ export class MrbauFormLibraryService {
       type: 'number',
     }
   }
-
+/*
   readonly mrba_costCarrierNumber : FormlyFieldConfig =
   {
     className: 'flex-2',
@@ -362,6 +373,36 @@ export class MrbauFormLibraryService {
       messages: {
         pattern: () => 'Ungültige Nummer',
       },
+    },
+  }
+*/
+  readonly mrba_costCarrierNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlyAutocompleteSelectFormOptions',
+    templateOptions: {
+      label: 'Kostenträger',
+      filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getKtListFormOptions()) : this.mrbauConventionsService.getKtListFormOptions().slice()),
+      change: (field: FormlyFieldConfig) => {
+        if (field)
+        {
+          const data = field.model[field.key as string];
+          const value = (data) ? data.value : undefined;
+          const kt = this.mrbauConventionsService.getCostCarrier(value);
+          if (kt)
+          {
+            const control = field.form.get('mrba:projectName');
+            if (control)
+            {
+              control.setValue(kt['mrba:projectName']);
+            }
+          }
+        }
+      }
+    },
+    validators: {
+      validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getKtListFormOptions() } }],
     },
   }
 

@@ -117,7 +117,7 @@ import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrba
 import { MrbauFormlyDuplicatedDocumentComponent } from  './custom/form/mrbau-formly-duplicated-document.component';
 import { MrbauFormlyAutocompleteComponent } from  './custom/form/mrbau-formly-autocomplete.component';
 import { MrbauFormlyAutocompleteSelectFormOptionsComponent } from  './custom/form/mrbau-formly-autocomplete-select-form-options.component';
-import { dateFutureValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage } from './custom/form/mrbau-formly-validators';
+import { autocompleteNotValidValidationMessage, dateFutureValidator, autocompleteValueFromListValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage } from './custom/form/mrbau-formly-validators';
 
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
@@ -207,13 +207,11 @@ registerLocaleData(localeSv);
         { name: 'min', message: minValidationMessage },
         { name: 'max', message: maxValidationMessage },
         { name: 'pattern', message: notAValidValueValidationMessage},
+        { name: 'autocomplete', message: autocompleteNotValidValidationMessage},
       ],
       validators: [
-        {
-          name: 'date-future',
-          validation: dateFutureValidator,
-          options: { days: 0 },
-        },
+        { name: 'date-future', validation: dateFutureValidator, options: { days: 0 }   },
+        { name: 'mrbauAutocompleteValidator', validation: autocompleteValueFromListValidator, options: {} }
       ],
       types: [
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
