@@ -66,22 +66,25 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
   return (msg) ? {'autocomplete': true} : null;
 }
 
-export function currencyValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options = {}): ValidationErrors {
+export function germanDecimalValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
   control;
   field;
   options;
   if (!control.value)
     return null;
 
+  const regExp : RegExp = (options.regExp) ? options.regExp : /[€. ]/gi;
+  const fractionDigits : number =  (options.fractionDigits) ? (options.fractionDigits) : 2;
+
   let origValue = control.value as string;
   // convert/trim string for parseFloat
-  let value = origValue.replace(/[€. ]/gi,'').replace(',','.');
+  let value = origValue.replace(regExp,'').replace(',','.');
   const valueFloat = parseFloat(value);
   // check if value is a number
   if (isNaN(value as any) || isNaN(valueFloat))
     return { 'pattern' : true };
   // convert value into
-  value = valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+  value = valueFloat.toLocaleString('de-De', {minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits})
   if (value != origValue)
     control.setValue(value);
   return null;
@@ -106,6 +109,9 @@ export function dateFutureValidator(control: FormControl, field: FormlyFieldConf
   }
   return (msg) ? { 'date-future': { message: msg } } : null;
 }
+
+export const REGEX_mrba_currencyIgnoreCharacters : RegExp = /[€. ]/gi;
+export const REGEX_mrba_taxRateIgnoreCharacters : RegExp = /[%. ]/gi;
 
 export const REGEX_mrba_datePattern : RegExp = /^(0?[1-9]|[12][0-9]|3[01])\.(0?[1-9]|1[012])\.(19|20)[0-9]{2}$/;
 export const REGEX_mrba_nonNegative : RegExp = /^-?\d{1,3}(\.\d{3})*,\d{1}$/;

@@ -7,7 +7,7 @@ import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService, SelectFormOptions } from './mrbau-conventions.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 import { of } from 'rxjs';
-import { notAValidValueValidationMessage, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
+import { REGEX_mrba_currencyIgnoreCharacters, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_mrba_taxRateIgnoreCharacters, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
 
 @Injectable({
   providedIn: 'root'
@@ -327,7 +327,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:netAmount',
     type: 'input',
     templateOptions: {
-      label: 'Netto Betrag',
+      label: 'Netto Betrag [€]',
       placeholder: 'Netto Betrag (z.B. 1.005,20)',
     },
     modelOptions: {
@@ -335,7 +335,7 @@ export class MrbauFormLibraryService {
     },
     validators: {
       validation: [
-        { name: 'mrbauCurrencyValidatorAndConverter' },
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
         { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
       ],
     }
@@ -347,7 +347,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:grossAmount',
     type: 'input',
     templateOptions: {
-      label: 'Brutto Betrag',
+      label: 'Brutto Betrag [€]',
       placeholder: 'Brutto Betrag (z.B. 1.005,20)',
     },
     modelOptions: {
@@ -355,7 +355,7 @@ export class MrbauFormLibraryService {
     },
     validators: {
       validation: [
-        { name: 'mrbauCurrencyValidatorAndConverter' },
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
         { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
       ],
     }
@@ -368,10 +368,18 @@ export class MrbauFormLibraryService {
     key: 'mrba:taxRate', // d:text, mrba:germanDecimalOneDecimalPlace
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Steuersatz',
-      placeholder: 'Steuersatz in % z.B. 20,00',
+      label: 'Steuersatz [%]',
+      placeholder: 'Steuersatz in % z.B. 20,0',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.taxRateDefaultValues) : this.mrbauConventionsService.taxRateDefaultValues.slice()),
-      pattern: REGEX_mrba_germanDecimalOneDecimalPlace,
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 1 } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalOneDecimalPlace },
+      ],
     }
   }
 
@@ -382,7 +390,6 @@ export class MrbauFormLibraryService {
     type: 'input',
     templateOptions: {
       label: 'Optionaler Kommentar',
-      type: 'number',
     }
   }
 /*
@@ -548,8 +555,16 @@ export class MrbauFormLibraryService {
       label: 'Skonto 1 (%)',
       placeholder: 'Skonto in % z.B. 3,00',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
-      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
     },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
   }
 
   readonly mrba_earlyPaymentDiscountPercent2 : FormlyFieldConfig =
@@ -561,11 +576,16 @@ export class MrbauFormLibraryService {
       label: 'Skonto 2 (%)',
       placeholder: 'Skonto in % z.B. 2,00',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
-      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
     },
-    validation: {
-      messages: {pattern: notAValidValueValidationMessage},
+    modelOptions: {
+      updateOn: 'blur',
     },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
   }
 
   // ASPECT GROUPS
