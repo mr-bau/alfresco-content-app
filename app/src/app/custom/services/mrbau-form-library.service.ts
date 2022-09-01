@@ -477,6 +477,16 @@ export class MrbauFormLibraryService {
       type: 'mrbauFormlyAllSet',
   };
 
+  readonly workflow_formal_review : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    templateOptions: {
+      icon : 'send',
+      title : 'Formale Rechnungsprüfung abgeschlossen.',
+      subtitle : 'Klicken Sie auf Weiterleiten um die Sachliche Rechnungsprüfung zu starten.'
+    }
+  };
+
   readonly mrba_orderType : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -594,6 +604,19 @@ export class MrbauFormLibraryService {
     }
   }
 
+  readonly mrba_inboundInvoiceType : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:inboundInvoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getInvoiceTypeFormOptions()[0].value,
+    templateOptions: {
+      label: 'Rechnungs-Typ auswählen',
+      options: this.mrbauConventionsService.getInvoiceTypeFormOptions(),
+      required: true,
+    },
+  }
+
   // ASPECT GROUPS
   readonly title_mrba_paymentConditionDetails : FormlyFieldConfig ={
     template: '<span class="form-group-title">Zahlungskonditionen</span>',
@@ -624,6 +647,14 @@ export class MrbauFormLibraryService {
         this.mrba_earlyPaymentDiscountDays2,
       ]}
     ]
+  };
+
+  readonly title_mrba_inboundInvoiceType : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Rechnungs-Typ</span>',
+  };
+  readonly element_mrba_inboundInvoiceType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_inboundInvoiceType],
   };
 
   readonly title_mrba_orderType : FormlyFieldConfig ={

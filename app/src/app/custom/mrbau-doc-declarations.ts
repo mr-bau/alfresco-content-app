@@ -47,7 +47,6 @@ export const DocumentCategoryGroups = new Map<number, IDocumentCategoryGroupData
   [EMRBauDocumentCategoryGroup.CONTRACTS, {category: EMRBauDocumentCategoryGroup.CONTRACTS, label: "Verträge", folder: "02 Verträge"}],
 ]);
 
-
 export const enum EMRBauOrderTypes {
   AUFTRAG       = 0,
   ZUSATZAUFTRAG = 1,
@@ -60,6 +59,22 @@ interface IDocumentOrderTypeData {
 export const DocumentOrderTypes = new Map<number, IDocumentOrderTypeData>([
   [EMRBauOrderTypes.AUFTRAG, {category: EMRBauOrderTypes.AUFTRAG, label :"Auftrag", value :"Auftrag"}],
   [EMRBauOrderTypes.ZUSATZAUFTRAG, {category: EMRBauOrderTypes.ZUSATZAUFTRAG, label: "Zusatzauftrag", value:"Zusatzauftrag"}],
+]);
+
+export const enum EMRBauInvoiceTypes {
+  EINZELRECHNUNG  = 0,
+  SCHLUSSRECHNUNG = 1,
+  ANZAHLUNG = 2,
+}
+interface IDocumentInvoiceTypeData {
+  category: EMRBauInvoiceTypes,
+  label: string,
+  value: string,
+}
+export const DocumentInvoiceTypes = new Map<number, IDocumentInvoiceTypeData>([
+  [EMRBauInvoiceTypes.EINZELRECHNUNG, {category: EMRBauInvoiceTypes.EINZELRECHNUNG, label :"Einzelrechnung", value :"Einzelrechnung"}],
+  [EMRBauInvoiceTypes.SCHLUSSRECHNUNG, {category: EMRBauInvoiceTypes.SCHLUSSRECHNUNG, label: "Schlussrechnung", value:"Schlussrechnung"}],
+  [EMRBauInvoiceTypes.ANZAHLUNG, {category: EMRBauInvoiceTypes.ANZAHLUNG, label: "Teil-/Anzahlungsrechnung", value:"Anzahlung"}],
 ]);
 
 export interface IMRBauFormDefinition {
@@ -211,8 +226,6 @@ export class MrbauArchiveModel {
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
-            'title_mrba_orderType',
-            'element_mrba_orderType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
@@ -221,7 +234,6 @@ export class MrbauArchiveModel {
           mandatoryRequiredProperties: [
             'mrba:documentNumber',
             'mrba:documentDateValue',
-            'mrba:orderType',
           ]
         },
         'STATUS_DUPLICATE' : {
@@ -297,6 +309,8 @@ export class MrbauArchiveModel {
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
+            'title_mrba_orderType',
+            'element_mrba_orderType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
@@ -305,6 +319,7 @@ export class MrbauArchiveModel {
             'aspect_mrba_paymentConditionDetails',
           ],
           mandatoryRequiredProperties: [
+            'mrba:orderType',
             'mrba:documentNumber',
             'mrba:documentDateValue',
             'mrba:netAmount',
@@ -505,8 +520,128 @@ export class MrbauArchiveModel {
       category: EMRBauDocumentCategory.ER,
       folder: "05 Eingangsrechnungen",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_FORMAL_REVIEW);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FORMAL_REVIEW)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.assignNewUser(data)
+            .then( () => { resolve( EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINAL_APPROVAL)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FORMAL_REVIEW)),
+        },
+        {state : EMRBauTaskStatus.STATUS_FINAL_APPROVAL,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ACCOUNTING)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ACCOUNTING))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName'
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_inboundInvoiceType',
+            'element_mrba_inboundInvoiceType',
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+            'title_mrba_amountDetails_mrba_taxRate',
+            'aspect_mrba_amountDetails_mrba_taxRate',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:inboundInvoiceType',
+            'mrba:documentNumber',
+            'mrba:documentDateValue',
+            'mrba:netAmount',
+            'mrba:grossAmount',
+            'mrba:taxRate',
+            'mrba:reviewDaysFinalInvoice',
+            'mrba:paymentTargetDays',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_FORMAL_REVIEW' : {
+          formlyFieldConfigs: [
+            'workflow_formal_review',
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_INVOICE_VERIFICATION' : {
+          formlyFieldConfigs: [
+          // todo
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_FINAL_APPROVAL' : {
+          formlyFieldConfigs: [
+          // todo
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ACCOUNTING' : {
+          formlyFieldConfigs: [
+          // todo
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+
     },
     {
       title: "Vergabeverhandlungsprotokoll",

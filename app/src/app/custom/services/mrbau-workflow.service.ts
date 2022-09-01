@@ -8,6 +8,14 @@ export class MrbauWorkflowService {
 
   constructor() { }
 
+  assignNewUser(data:MRBauWorkflowStateCallbackData) : Promise<any> {
+    data;
+    console.log("assignNewUser");
+    console.log(data);
+    return new Promise((resolve) => {
+      setTimeout(this.dummyDuplicateCheck, 1000, resolve)});
+  }
+
   performDuplicateCheck(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     data;
     console.log("performDuplicateCheck 1");

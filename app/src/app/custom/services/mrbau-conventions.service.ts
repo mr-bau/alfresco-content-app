@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
-import { DocumentOrderTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
 
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
@@ -206,5 +206,12 @@ export class MrbauConventionsService {
     let result : SelectFormOptions[] = [];
     DocumentOrderTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
     return result;
+  }
+
+  getInvoiceTypeFormOptions() : SelectFormOptions[] {
+    let result : SelectFormOptions[] = [];
+    DocumentInvoiceTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
+    return result;
+
   }
 }

@@ -166,6 +166,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       this.taskBarButtonsNormal[1].text = "Erledigen";
       this.taskBarButtonsNormal[1].icon = "done";
     }
+    else if (this.task.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW)
+    {
+      this.taskBarButtonsNormal[1].text = "Weiterleiten";
+      this.taskBarButtonsNormal[1].icon = "send";
+    }
     else
     {
       this.taskBarButtonsNormal[1].text = "Weiter";
