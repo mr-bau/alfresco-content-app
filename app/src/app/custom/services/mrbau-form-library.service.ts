@@ -286,6 +286,11 @@ export class MrbauFormLibraryService {
       type: 'number',
       min: new Date().getFullYear()-1,
       max: new Date().getFullYear()+1,
+    },
+    validators : {
+      validation: [
+        { name: 'mrbauRegexValidator', options: REGEX_nonNegativeInt }
+      ],
     }
   }
 
@@ -296,7 +301,6 @@ export class MrbauFormLibraryService {
     type: 'input',
     templateOptions: {
       label: 'Bezeichnung',
-
     }
   }
 
@@ -421,7 +425,6 @@ export class MrbauFormLibraryService {
       change: (field: FormlyFieldConfig) => {
         if (field)
         {
-
           const data = field.model[field.key as string];
           const value = (data) ? data.value : undefined;
           const kt = this.mrbauConventionsService.getCostCarrier(value);
@@ -490,7 +493,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:reviewDaysPartialInvoice',
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Prüffrist Anzahlungsrechnungen (Tage)',
+      label: 'Prüffrist Anzahlungsrechnungen [Tage]',
       placeholder: 'z.B. 14',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       pattern: REGEX_nonNegativeInt,
@@ -503,7 +506,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:reviewDaysFinalInvoice',
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Prüffrist Schlussrechnungen (Tage)',
+      label: 'Prüffrist Schlussrechnungen [Tage]',
       placeholder: 'z.B. 30',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       pattern: REGEX_nonNegativeInt,
@@ -516,7 +519,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:paymentTargetDays',
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Nettofrist (Tage)',
+      label: 'Nettofrist [Tage]',
       placeholder: 'z.B. 60',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       pattern: REGEX_nonNegativeInt,
@@ -528,7 +531,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:earlyPaymentDiscountDays1',
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Skontofrist 1 (Tage)',
+      label: 'Skontofrist 1 [Tage]',
       placeholder: 'z.B. 28',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       pattern: REGEX_nonNegativeInt,
@@ -540,7 +543,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:earlyPaymentDiscountDays2',
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Skontofrist 2 (Tage)',
+      label: 'Skontofrist 2 [Tage]',
       placeholder: 'z.B. 36',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       pattern: REGEX_nonNegativeInt,
@@ -552,7 +555,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:earlyPaymentDiscountPercent1', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Skonto 1 (%)',
+      label: 'Skonto 1 [%]',
       placeholder: 'Skonto in % z.B. 3,00',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
     },
@@ -573,7 +576,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:earlyPaymentDiscountPercent2', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyAutocomplete',
     templateOptions: {
-      label: 'Skonto 2 (%)',
+      label: 'Skonto 2 [%]',
       placeholder: 'Skonto in % z.B. 2,00',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
     },
