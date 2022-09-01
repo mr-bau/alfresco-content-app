@@ -117,8 +117,7 @@ import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrba
 import { MrbauFormlyDuplicatedDocumentComponent } from  './custom/form/mrbau-formly-duplicated-document.component';
 import { MrbauFormlyAutocompleteComponent } from  './custom/form/mrbau-formly-autocomplete.component';
 import { MrbauFormlyAutocompleteSelectFormOptionsComponent } from  './custom/form/mrbau-formly-autocomplete-select-form-options.component';
-import { autocompleteNotValidValidationMessage, dateFutureValidator, autocompleteValueFromListValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage } from './custom/form/mrbau-formly-validators';
-
+import { autocompleteNotValidValidationMessage, dateFutureValidator, autocompleteValueFromListValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage, regexValidator, currencyValidatorAndConverter } from './custom/form/mrbau-formly-validators';
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
@@ -210,8 +209,10 @@ registerLocaleData(localeSv);
         { name: 'autocomplete', message: autocompleteNotValidValidationMessage},
       ],
       validators: [
-        { name: 'date-future', validation: dateFutureValidator, options: { days: 0 }   },
-        { name: 'mrbauAutocompleteValidator', validation: autocompleteValueFromListValidator, options: {} }
+        { name: 'date-future', validation: dateFutureValidator, options: { days: 0 } },
+        { name: 'mrbauAutocompleteValidator', validation: autocompleteValueFromListValidator, options: {} },
+        { name: 'mrbauCurrencyValidatorAndConverter', validation: currencyValidatorAndConverter, options:{} },
+        { name: 'mrbauRegexValidator', validation: regexValidator, options: {} }
       ],
       types: [
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },

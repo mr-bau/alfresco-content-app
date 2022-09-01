@@ -261,7 +261,7 @@ export class MrbauFormLibraryService {
       }
     },
     validators: {
-      validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getVendorListFormOptions() } }],
+      validation: [{ name: 'mrbauAutocompleteValidator'}],
     },
   }
 
@@ -328,8 +328,16 @@ export class MrbauFormLibraryService {
     type: 'input',
     templateOptions: {
       label: 'Netto Betrag',
-      placeholder: 'Netto Betrag (e.g € 1.005,20)',
-      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
+      placeholder: 'Netto Betrag (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauCurrencyValidatorAndConverter' },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
     }
   }
 
@@ -340,9 +348,18 @@ export class MrbauFormLibraryService {
     type: 'input',
     templateOptions: {
       label: 'Brutto Betrag',
-      placeholder: 'Brutto Betrag (e.g € 1.005,20)',
-      pattern: REGEX_mrba_germanDecimalTwoDecimalPlace,
+      placeholder: 'Brutto Betrag (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauCurrencyValidatorAndConverter' },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
     }
+
   }
 
   readonly mrba_taxRate : FormlyFieldConfig =
@@ -397,6 +414,7 @@ export class MrbauFormLibraryService {
       change: (field: FormlyFieldConfig) => {
         if (field)
         {
+
           const data = field.model[field.key as string];
           const value = (data) ? data.value : undefined;
           const kt = this.mrbauConventionsService.getCostCarrier(value);

@@ -22,6 +22,7 @@ export function minlengthValidationMessage(err, field) {
 }
 
 
+
 export function minValidationMessage(err, field) {
   err;
   return `Der Wert muss mindestens ${field.templateOptions.min} betragen.`;
@@ -39,6 +40,10 @@ export function notAValidValueValidationMessage(err, field) {
 
 export function autocompleteNotValidValidationMessage(err, field) {
   err;
+  if (field.formControl.value == null)
+  {
+    return 'Wählen Sie einen Wert aus der Vorschlagsliste.';
+  }
   const value = typeof field.formControl.value === 'string' ? field.formControl.value : field.formControl.value.label;
   return `${value} ist ungültig - wählen Sie einen Wert aus der Vorschlagsliste.`;
 }
@@ -58,7 +63,33 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
   {
     msg = null;
   }
-  return (msg) ? {'autocomplete': 'fehler'} : null;
+  return (msg) ? {'autocomplete': true} : null;
+}
+
+export function currencyValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options = {}): ValidationErrors {
+  control;
+  field;
+  options;
+  if (!control.value)
+    return null;
+
+  let origValue = control.value as string;
+  // convert/trim string for parseFloat
+  let value = origValue.replace(/[€. ]/gi,'').replace(',','.');
+  const valueFloat = parseFloat(value);
+  // check if value is a number
+  if (isNaN(value as any) || isNaN(valueFloat))
+    return { 'pattern' : true };
+  // convert value into
+  value = valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+  if (value != origValue)
+    control.setValue(value);
+  return null;
+}
+
+export function regexValidator(control: FormControl, field: FormlyFieldConfig, options): ValidationErrors {
+  field;
+  return !control.value || options.test(control.value) ? null : { 'pattern' : true };
 }
 
 export function dateFutureValidator(control: FormControl, field: FormlyFieldConfig, options = {}): ValidationErrors {

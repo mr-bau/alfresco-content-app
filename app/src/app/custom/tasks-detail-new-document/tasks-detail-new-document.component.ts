@@ -69,6 +69,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   updateTask() {
     this.updateButtonText();
+    this.model = {};
     this.form.reset();
     this.queryData();
   }
@@ -82,13 +83,13 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       this.errorEvent.emit("Dokument-Assoziation fehlt!");
       return;
     }
-
     this.isLoading = true;
     this.changeDetectorRef.detectChanges();
     this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).subscribe(
       (nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
+        //console.log(nodeEntry.entry);
         this.isLoading = false;
         this.updateFormDC();
       },
@@ -146,7 +147,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     .then( () => {return nextStateFunction(data);})
     .then( (newState) => {return this.doPerformStateChangePromise(newState, data)})
     .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
-    .then( () => this.isLoading = false)
+    .then( () => {this.emitTaskChangeEvent(); this.isLoading = false;})
     .catch((error) => {
       console.log(error);
       this.isLoading = false;
@@ -177,7 +178,12 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   {
     this.task.status = newState;
     this.updateButtonText();
-    this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(newState)});
+    //this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(newState)});
+  }
+
+  emitTaskChangeEvent()
+  {
+    this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(this.task.status)});
   }
 
   writeMetadata() : Promise<NodeEntry> {
