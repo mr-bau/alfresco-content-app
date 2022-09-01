@@ -117,7 +117,7 @@ import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrba
 import { MrbauFormlyDuplicatedDocumentComponent } from  './custom/form/mrbau-formly-duplicated-document.component';
 import { MrbauFormlyAutocompleteComponent } from  './custom/form/mrbau-formly-autocomplete.component';
 import { MrbauFormlyAutocompleteSelectFormOptionsComponent } from  './custom/form/mrbau-formly-autocomplete-select-form-options.component';
-import { autocompleteNotValidValidationMessage, dateFutureValidator, autocompleteValueFromListValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage, regexValidator, germanDecimalValidatorAndConverter } from './custom/form/mrbau-formly-validators';
+import { autocompleteNotValidValidationMessage, dateFutureValidator, autocompleteValueFromListValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage, regexValidator, germanDecimalValidatorAndConverter, netGrossTaxRateValidatorAndConverter, netGrossTaxMismatchMessage } from './custom/form/mrbau-formly-validators';
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
@@ -207,11 +207,13 @@ registerLocaleData(localeSv);
         { name: 'max', message: maxValidationMessage },
         { name: 'pattern', message: notAValidValueValidationMessage},
         { name: 'autocomplete', message: autocompleteNotValidValidationMessage},
+        { name: 'netGrossTaxMismatch', message: netGrossTaxMismatchMessage },
       ],
       validators: [
         { name: 'date-future', validation: dateFutureValidator, options: { days: 0 } },
         { name: 'mrbauAutocompleteValidator', validation: autocompleteValueFromListValidator, options: {} },
         { name: 'mrbauGermanDecimalValidatorAndConverter', validation: germanDecimalValidatorAndConverter, options: {} },
+        { name: 'mrbauNetGrossTaxRateValidatorAndConverter', validation: netGrossTaxRateValidatorAndConverter, options: {} },
         { name: 'mrbauRegexValidator', validation: regexValidator, options: {} }
       ],
       types: [

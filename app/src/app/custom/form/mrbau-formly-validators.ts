@@ -21,8 +21,6 @@ export function minlengthValidationMessage(err, field) {
   return `Die Anzahl der Zeichen muss mindestens ${field.templateOptions.minLength} betragen.`;
 }
 
-
-
 export function minValidationMessage(err, field) {
   err;
   return `Der Wert muss mindestens ${field.templateOptions.min} betragen.`;
@@ -48,6 +46,11 @@ export function autocompleteNotValidValidationMessage(err, field) {
   return `${value} ist ungültig - wählen Sie einen Wert aus der Vorschlagsliste.`;
 }
 
+export function netGrossTaxMismatchMessage(err, field) {
+  field;
+  return `Netto, Brutto und Steuersatz stimmen nicht überein (Diff. ${err}).`;
+}
+
 function instanceOfSelectFormOptions(value: any): value is SelectFormOptions {
   return !!value // truthy
   && typeof value !== 'string' // Not just string input in the autocomplete
@@ -66,6 +69,18 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
   return (msg) ? {'autocomplete': true} : null;
 }
 
+function germanParseFloat(value : string) : number {
+  if (value == null)
+    return undefined;
+    value = value.replace( /[. ]/gi,'').replace(',','.');
+  const valueFloat = parseFloat(value);
+  if (isNaN(value as any) || isNaN(valueFloat))
+  {
+    return undefined;
+  }
+  return valueFloat;
+}
+
 export function germanDecimalValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
   control;
   field;
@@ -78,15 +93,67 @@ export function germanDecimalValidatorAndConverter(control: FormControl, field: 
 
   let origValue = control.value as string;
   // convert/trim string for parseFloat
-  let value = origValue.replace(regExp,'').replace(',','.');
-  const valueFloat = parseFloat(value);
-  // check if value is a number
-  if (isNaN(value as any) || isNaN(valueFloat))
+  let value = origValue.replace(regExp,'');
+  // convert string to float
+  const valueFloat = germanParseFloat(value);
+  if (!valueFloat && valueFloat !== 0)
     return { 'pattern' : true };
   // convert value into
   value = valueFloat.toLocaleString('de-De', {minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits})
   if (value != origValue)
     control.setValue(value);
+  return null;
+}
+
+export function netGrossTaxRateValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
+  control;
+  field;
+  options;
+  if (!control.value)
+    return null;
+
+  const netAmount = field.form.get('mrba:netAmount') ? germanParseFloat(field.form.get('mrba:netAmount').value) : undefined;
+  const grossAmount = field.form.get('mrba:grossAmount') ? germanParseFloat(field.form.get('mrba:grossAmount').value) : undefined;
+  const taxRate = field.form.get('mrba:taxRate') ? germanParseFloat(field.form.get('mrba:taxRate').value) : undefined;
+
+  // autofill grossAmount
+  if (grossAmount == null && netAmount != null && taxRate != null && field.form.get('mrba:grossAmount'))
+  {
+    const grossValue = netAmount * (1 + taxRate / 100);
+    field.form.get('mrba:grossAmount').setValue(grossValue.toLocaleString('de-De'));
+    return null;
+  }
+
+  // autofill netAmount
+  if (grossAmount != null && netAmount == null && taxRate != null && field.form.get('mrba:netAmount'))
+  {
+    const netValue = grossAmount / (1 + taxRate / 100);
+    field.form.get('mrba:netAmount').setValue(netValue.toLocaleString('de-De'));
+    return null;
+  }
+
+  // autofill taxRate
+  if (grossAmount != null && netAmount != null && taxRate == null && field.form.get('mrba:taxRate'))
+  {
+    const taxValue = (grossAmount / netAmount - 1) * 100;
+    field.form.get('mrba:taxRate').setValue(taxValue.toLocaleString('de-De'));
+    return null;
+  }
+
+  // ignore - not all values filled
+  if (netAmount == null || grossAmount == null || taxRate == null)
+  {
+    return null;
+  }
+
+  // check if values are valid with 1 cent tolerance
+  const diff = grossAmount - netAmount * (1 + taxRate / 100);
+  if (Math.abs(diff) > 0.01)
+  {
+    console.log(diff);
+    return { 'netGrossTaxMismatch' : diff.toLocaleString('de-De') };
+  }
+
   return null;
 }
 
