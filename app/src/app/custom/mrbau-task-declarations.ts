@@ -1,5 +1,6 @@
 import { Node, MinimalNode, QueryBody, UserInfo } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 
 export const enum EMRBauTaskStatus {
   STATUS_NEW         = 0,
@@ -14,6 +15,7 @@ export const enum EMRBauTaskStatus {
   STATUS_FINAL_APPROVAL       = 205,
   STATUS_ACCOUNTING           = 206,
   STATUS_ALL_SET              = 207,
+  STATUS_INVOICE_REVIEW       = 208,
 
   // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
   STATUS_NOTIFY_DONE      = 8000,
@@ -39,8 +41,8 @@ export const MRBauTaskStatusDefinition = new Map<number, MRBauTaskStatusData>([
   [EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, {state: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, stateAsString: "STATUS_METADATA_EXTRACT_2", label: 'Metadaten Zuweisen'}],
   [EMRBauTaskStatus.STATUS_DUPLICATE, {state: EMRBauTaskStatus.STATUS_DUPLICATE, stateAsString: "STATUS_DUPLICATE", label: 'Dublettenprüfung'}],
   [EMRBauTaskStatus.STATUS_FORMAL_REVIEW, {state: EMRBauTaskStatus.STATUS_FORMAL_REVIEW, stateAsString: "STATUS_FORMAL_REVIEW", label: 'Formale Rechnungsprüfun'}],
-
   [EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, {state: EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, stateAsString: "STATUS_INVOICE_VERIFICATION", label: 'Sachliche Rechnungsprüfung'}],
+  [EMRBauTaskStatus.STATUS_INVOICE_REVIEW, {state: EMRBauTaskStatus.STATUS_INVOICE_REVIEW, stateAsString: "STATUS_INVOICE_REVIEW", label: 'Sachliche Rechnungsprüfung Freigabe'}],
   [EMRBauTaskStatus.STATUS_FINAL_APPROVAL, {state: EMRBauTaskStatus.STATUS_FINAL_APPROVAL, stateAsString: "STATUS_FINAL_APPROVAL", label: 'Freigabe'}],
   [EMRBauTaskStatus.STATUS_ACCOUNTING, {state: EMRBauTaskStatus.STATUS_ACCOUNTING, stateAsString: "STATUS_ACCOUNTING", label: 'Buchen'}],
   [EMRBauTaskStatus.STATUS_ALL_SET, {state: EMRBauTaskStatus.STATUS_ALL_SET, stateAsString: "STATUS_ALL_SET", label: 'Workflow abschließen'}],
@@ -112,6 +114,7 @@ export interface MRBauWorkflowStateCallbackData {
   task?: MRBauTask,
   node?: Node,
   model?: any,
+  form?: FormGroup,
 }
 export type MRBauWorkflowStateCallback = (data?:MRBauWorkflowStateCallbackData) => Promise<any>;
 export interface IMRBauWorkflowState {

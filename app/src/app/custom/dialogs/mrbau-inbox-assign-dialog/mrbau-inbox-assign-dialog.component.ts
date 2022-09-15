@@ -10,6 +10,7 @@ import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 import { MrbauCommonService } from '../../services/mrbau-common.service';
 import { EMRBauDocumentCategory } from '../../mrbau-doc-declarations';
+import { MrbauArchiveModelService } from '../../services/mrbau-archive-model.service';
 
 @Component({
   selector: 'aca-mrbau-inbox-assign-dialog',
@@ -53,6 +54,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   constructor(
     private mrbauConventionsService : MrbauConventionsService,
     private mrbauCommonService : MrbauCommonService,
+    private mrbauArchiveModelService: MrbauArchiveModelService,
     private notificationService: NotificationService,
     private nodesApiService: NodesApiService,
     private mrbauFormLibraryService: MrbauFormLibraryService,
@@ -88,7 +90,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
 
   categorizeNode(node:Node) {
     const docCategory : EMRBauDocumentCategory = this.model.archiveModelTypes;
-    const nodeType = this.mrbauConventionsService.getArchiveModelNodeTye(docCategory);
+    const nodeType = this.mrbauArchiveModelService.getArchiveModelNodeTye(docCategory);
     console.log(nodeType);
     if (!nodeType)
     {
@@ -138,8 +140,8 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
         "mrbt:category": ${taskCategory},
         "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_NEW},
         "mrbt:priority": 2,
-        "mrbt:description": "${this.mrbauConventionsService.getTaskDescription(taskCategory, docCategory)}",
-        "mrbt:assignedUserName": "${this.mrbauConventionsService.getTaskAssignedUserId(taskCategory)}",
+        "mrbt:description": "${this.mrbauArchiveModelService.getTaskDescription(taskCategory, docCategory)}",
+        "mrbt:assignedUserName": "${this.mrbauConventionsService.getNewTaskDefaultAssignedUserId(taskCategory)}",
         "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory)}"
       },
       "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]

@@ -496,7 +496,7 @@ export class MrbauArchiveModel {
             ],
             mandatoryRequiredProperties: [
             ]
-        }
+        },
       }
     },
     {
@@ -542,18 +542,31 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.assignNewUser(data)
-            .then( () => { resolve( EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
+            this.mrbauWorkflowService.assignNewUser(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            .then( () => { resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
             .catch( (error) => reject(error))
           }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINAL_APPROVAL)),
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_REVIEW)),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FORMAL_REVIEW)),
+          onEnterAction : (data) => this.mrbauWorkflowService.invoiceVerificationPrefillValues(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_INVOICE_REVIEW,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.assignNewUser(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
+            .then( () => { resolve(EMRBauTaskStatus.STATUS_FINAL_APPROVAL); })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
         },
         {state : EMRBauTaskStatus.STATUS_FINAL_APPROVAL,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ACCOUNTING)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.assignNewUser(data, EMRBauTaskStatus.STATUS_ACCOUNTING)
+            .then( () => { resolve(EMRBauTaskStatus.STATUS_ACCOUNTING); })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
         },
         {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
@@ -614,21 +627,54 @@ export class MrbauArchiveModel {
         },
         'STATUS_INVOICE_VERIFICATION' : {
           formlyFieldConfigs: [
-          // todo
+            'title_mrba_verifyData',
+            'aspect_mrba_verifyData',
+            'title_mrba_verifyData2',
+            'aspect_mrba_verifyData2',
+
+            'title_mrba_documentSummary',
+            'label_group_reviewDays',
+            'label_group_netPayment',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
           ],
           mandatoryRequiredProperties: [
+            'mrba:netAmountVerified',
+            'mrba:verifyDateValue',
+            'mrba:paymentDateNet',
           ]
+        },
+        'STATUS_INVOICE_REVIEW' : {
+          formlyFieldConfigs: [
+            'workflow_invoice_review',
+            'title_mrba_verifyData',
+            'label_group_paymentNet',
+            'label_group_paymentDiscount1',
+            'label_group_paymentDiscount2',
+            'label_group_taxRate',
+            ],
+            mandatoryRequiredProperties: [
+            ]
         },
         'STATUS_FINAL_APPROVAL' : {
           formlyFieldConfigs: [
-          // todo
+            'workflow_invoice_approval',
+            'title_mrba_verifyData',
+            'label_group_paymentNet',
+            'label_group_paymentDiscount1',
+            'label_group_paymentDiscount2',
+            'label_group_taxRate',
           ],
           mandatoryRequiredProperties: [
           ]
         },
         'STATUS_ACCOUNTING' : {
           formlyFieldConfigs: [
-          // todo
+            'title_mrba_verifyData',
+            'label_group_paymentNet',
+            'label_group_paymentDiscount1',
+            'label_group_paymentDiscount2',
+            'label_group_taxRate',
           ],
           mandatoryRequiredProperties: [
           ]

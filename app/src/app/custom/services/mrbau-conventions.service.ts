@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { EMRBauTaskCategory, MRBauTask} from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask, MRBauWorkflowStateCallbackData} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { MrbauArchiveModelService } from './mrbau-archive-model.service';
-import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, IMRBauDocumentType } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory } from '../mrbau-doc-declarations';
 
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
@@ -56,7 +55,6 @@ export class MrbauConventionsService {
   // TODO extract from JSON File
   constructor(
     private mrbauCommonService: MrbauCommonService,
-    private mrbauArchiveModelService: MrbauArchiveModelService
     )
   {
   }
@@ -80,45 +78,15 @@ export class MrbauConventionsService {
     return EMRBauClientId.MANDANT_1;
   }
 
-  getArchiveModelTypesFormOptions() : SelectFormOptions[] {
-    return this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category != EMRBauDocumentCategory.ARCHIVE_DOCUMENT).map( d => ({label: d.title, value : d.category, group: d.group.label}));
-  }
-
-  getArchiveModelNodeTye(category:EMRBauDocumentCategory) : string
+  getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : string
   {
-    let docModel : IMRBauDocumentType[] = this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category == category);
-    if (docModel.length > 0)
-    {
-      return docModel[0].name;
-    }
-    else
-    {
-      return undefined;
-    }
+    data;
+    status;
+    console.log("assign new user for state "+status);
+    return "Wolfgang Moser";
+    //return "admin";
   }
 
-  getArchiveModelNodeTitle(category:EMRBauDocumentCategory) : string
-  {
-    let docModel : IMRBauDocumentType[] = this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category == category);
-    if (docModel.length > 0)
-    {
-      return docModel[0].title;
-    }
-    else
-    {
-      return undefined;
-    }
-  }
-
-  getTaskDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
-  {
-    if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
-    {
-      return "Dokument prüfen und archivieren" + (documentCategory ? " - "+this.getArchiveModelNodeTitle(documentCategory) : "");
-    }
-
-    return "description for "+task+" "+client+" "+ documentCategory;
-  }
   getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     task;documentCategory;client;
@@ -131,7 +99,7 @@ export class MrbauConventionsService {
     date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
     return this.mrbauCommonService.getFormDateValue(date);
   }
-  getTaskAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getNewTaskDefaultAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
   {
     task;
     documentCategory;

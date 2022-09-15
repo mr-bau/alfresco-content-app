@@ -131,6 +131,8 @@ import { TasksDetailNewDocumentComponent } from './custom/tasks-detail-new-docum
 import { TasksMenuDelegateComponent } from './custom/tasks-menu-delegate/tasks-menu-delegate.component';
 import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-delete.component';
 import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
+import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
+import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -216,11 +218,15 @@ registerLocaleData(localeSv);
         { name: 'mrbauNetGrossTaxRateValidatorAndConverter', validation: netGrossTaxRateValidatorAndConverter, options: {} },
         { name: 'mrbauRegexValidator', validation: regexValidator, options: {} }
       ],
+      wrappers: [
+        { name: 'mrbauFormlyLabelWrapper', component: MrbauFormlyLabelWrapperComponent },
+      ],
       types: [
         { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
         { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { templateOptions: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
         { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { templateOptions: {required: true}}},
         { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
+        { name: 'mrbauFormlyLabel', component: MrbauFormlyLabelComponent, wrappers: ['mrbauFormlyLabelWrapper']},
         { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
         { name: 'taskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
         defaultOptions: {
@@ -267,6 +273,8 @@ registerLocaleData(localeSv);
     MrbauFormlyDuplicatedDocumentComponent,
     MrbauFormlyAutocompleteComponent,
     MrbauFormlyAutocompleteSelectFormOptionsComponent,
+    MrbauFormlyLabelComponent,
+    MrbauFormlyLabelWrapperComponent,
     MRBauTaskStatusPipe,
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,

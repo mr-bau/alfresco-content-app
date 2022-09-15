@@ -69,7 +69,7 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
   return (msg) ? {'autocomplete': true} : null;
 }
 
-function germanParseFloat(value : string) : number {
+export function germanParseFloat(value : string) : number {
   if (value == null)
     return undefined;
     value = value.replace( /[. ]/gi,'').replace(',','.');

@@ -7,7 +7,7 @@ import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService, SelectFormOptions } from './mrbau-conventions.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 import { of } from 'rxjs';
-import { REGEX_mrba_currencyIgnoreCharacters, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_mrba_taxRateIgnoreCharacters, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
+import { germanParseFloat, REGEX_mrba_currencyIgnoreCharacters, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_mrba_taxRateIgnoreCharacters, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
 
 @Injectable({
   providedIn: 'root'
@@ -97,7 +97,7 @@ export class MrbauFormLibraryService {
     type: 'select',
     templateOptions: {
       label: 'Dokumenten-Art auswählen',
-      options: this.mrbauConventionsService.getArchiveModelTypesFormOptions(),
+      options: this.mrbauArchiveModelService.getArchiveModelTypesFormOptions(),
     },
   }
 
@@ -487,6 +487,26 @@ export class MrbauFormLibraryService {
     }
   };
 
+  readonly workflow_invoice_review : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    templateOptions: {
+      icon : 'send',
+      title : 'Sachliche Rechnungsprüfung abgeschlossen.',
+      subtitle : 'Klicken Sie auf Weiterleiten um die Rechnung an die Buchhaltung weiterzuleiten.'
+    }
+  };
+
+  readonly workflow_invoice_approval : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    templateOptions: {
+      icon : 'send',
+      title : 'Freigabe',
+      subtitle : 'Klicken Sie auf Weiterleiten um die Rechnung an die Buchhaltung weiterzuleiten.'
+    }
+  };
+
   readonly mrba_orderType : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -729,6 +749,399 @@ export class MrbauFormLibraryService {
     fieldGroup: [
       this.mrba_costCarrierNumber, //d:int
       this.mrba_projectName, //d:text
+    ]
+  };
+
+
+  // Labels
+
+  readonly title_mrba_documentSummary : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Rechnungsangaben</span>',
+  };
+
+
+  readonly label_mrba_taxRate : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:taxRate',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Steuersatz [%]',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_taxRateComment : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:taxRateComment',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Optionaler Kommentar',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:taxRateComment'] == null,
+  }
+
+  readonly label_mrba_archivedDateValue : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:archivedDateValue',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Eingangs Datum',
+      type: 'date',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_netAmount : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:netAmount',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Netto Betrag [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_paymentTargetDays : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentTargetDays',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Nettofrist [Tage]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_reviewDaysPartialInvoice : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysPartialInvoice',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Prüffrist Anzahlungsrechnungen [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:reviewDaysPartialInvoice'] == null,
+  }
+
+  readonly label_mrba_reviewDaysFinalInvoice : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysFinalInvoice',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Prüffrist Schlussrechnungen [Tage]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_earlyPaymentDiscountPercent1 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent1',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Skonto 1 [%]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_mrba_earlyPaymentDiscountDays1 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays1', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Skontofrist 1 [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_mrba_earlyPaymentDiscountPercent2 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent2',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Skonto 2 [%]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+  readonly label_mrba_earlyPaymentDiscountDays2 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays2', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Skontofrist 2 [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+  readonly label_mrba_netAmountVerified : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:netAmountVerified', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Geprüfter Betrag Netto [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_verifyDateValue : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:verifyDateValue',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Prüfdatum',
+      type: 'date',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_paymentDateNet : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentDateNet',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Überweisungsdatum Netto',
+      type: 'date',
+      readonly: true,
+    },
+  }
+
+  multiplyPercent(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  {
+    let val = germanParseFloat(field.form.get(nameValue) == null ? undefined : field.form.get(nameValue).value);
+    const percent = germanParseFloat(field.form.get(namePercent) == null ? undefined : field.form.get(namePercent).value);
+    const valueFloat = val*(100-percent)/100;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  readonly label_calcPaymentValueDiscount1 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcPaymentValueDiscount1',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Betrag Skonto 1 [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercent(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent1','ignore:calcPaymentValueDiscount1');
+      },
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_calcPaymentValueDiscount2 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcPaymentValueDiscount2',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Betrag Skonto 2 [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercent(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent2','ignore:calcPaymentValueDiscount2');
+      },
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+  readonly label_mrba_paymentDateDiscount1 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount1',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Überweisungsdatum Skonto 1',
+      type: 'date',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_mrba_paymentDateDiscount2 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount2',
+    type: 'mrbauFormlyLabel',
+    templateOptions: {
+      label: 'Überweisungsdatum Skonto 2',
+      type: 'date',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+
+  readonly label_group_taxRate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_taxRate,
+      this.label_mrba_taxRateComment,
+    ]
+  };
+
+  readonly label_group_paymentNet : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_netAmountVerified,
+      this.label_mrba_paymentDateNet,
+    ]
+  };
+
+  readonly label_group_paymentDiscount1 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_calcPaymentValueDiscount1,
+      this.label_mrba_earlyPaymentDiscountPercent1,
+      this.label_mrba_paymentDateDiscount1,
+    ]
+  };
+
+  readonly label_group_paymentDiscount2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_calcPaymentValueDiscount2,
+      this.label_mrba_earlyPaymentDiscountPercent2,
+      this.label_mrba_paymentDateDiscount2,
+    ]
+  };
+
+  readonly label_group_reviewDays : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_archivedDateValue,
+      this.label_mrba_reviewDaysFinalInvoice,
+      this.label_mrba_reviewDaysPartialInvoice,
+    ]
+  };
+
+  readonly label_group_netPayment : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_netAmount,
+      this.label_mrba_paymentTargetDays,
+    ]
+  };
+
+  readonly label_group_earlyPaymentDiscount1 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_earlyPaymentDiscountPercent1,
+      this.label_mrba_earlyPaymentDiscountDays1,
+    ]
+  };
+
+  readonly label_group_earlyPaymentDiscount2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_earlyPaymentDiscountPercent2,
+      this.label_mrba_earlyPaymentDiscountDays2,
+    ]
+  };
+
+  // TODO sachliche Rechnungskorrektur
+
+
+
+  readonly mrba_netAmountVerified : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:netAmountVerified',
+    type: 'input',
+    templateOptions: {
+      label: 'Geprüfter Betrag Netto [€]',
+      placeholder: 'Netto Betrag geprüft (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+        { name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+      ],
+    }
+  }
+  readonly mrba_verifyDateValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:verifyDateValue',
+    type: 'input',
+    templateOptions: {
+      label: 'Prüfdatum',
+      type: 'date',
+    }
+  }
+  readonly mrba_paymentDateNetValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentDateNet',
+    type: 'input',
+    templateOptions: {
+      label: 'Überweisungsdatum Netto',
+      type: 'date',
+    }
+  }
+  readonly mrba_paymentDateDiscount1Value : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount1',
+    type: 'input',
+    templateOptions: {
+      label: 'Überweisungsdatum Skonto 1',
+      type: 'date',
+    }
+  }
+  readonly mrba_paymentDateDiscount2Value : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount2',
+    type: 'input',
+    templateOptions: {
+      label: 'Überweisungsdatum Skonto 2',
+      type: 'date',
+    }
+  }
+
+  readonly title_mrba_verifyData : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Geprüfter Betrag</span>',
+  };
+  readonly title_mrba_verifyData2: FormlyFieldConfig ={
+    template: '<span class="form-group-title">Datum Zahlung</span>',
+  };
+  readonly aspect_mrba_verifyData : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_netAmountVerified,
+    ]
+  };
+  readonly aspect_mrba_verifyData2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_verifyDateValue,
+      this.mrba_paymentDateNetValue,
+      this.mrba_paymentDateDiscount1Value,
+      this.mrba_paymentDateDiscount2Value,
     ]
   };
 }

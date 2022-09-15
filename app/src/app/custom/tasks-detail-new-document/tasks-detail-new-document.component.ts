@@ -89,9 +89,23 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       (nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
-        //console.log(nodeEntry.entry);
-        this.isLoading = false;
+        // update Form
         this.updateFormDC();
+
+        // execute onEnterAction
+        const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType({task : this._task, node: this._taskNode, model: this.model, form: this.form});
+        if (workflowState.onEnterAction)
+        {
+          workflowState.onEnterAction({task : this._task, node: this._taskNode, model: this.model, form: this.form}).finally( () =>
+          {
+            this.form = new FormGroup({});
+            this.isLoading = false;
+          });
+        }
+        else {
+          this.form = new FormGroup({}); // create new form to reflect data from model
+          this.isLoading = false;
+        }
       },
       (error) => {
         this.errorEvent.emit(error);
@@ -116,13 +130,13 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   onNextClicked(event?:any)
   {
     event;
-    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getNextTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode});
+    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getNextTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode, model: this.model, form: this.form});
   }
 
   onPrevClicked(event?:any)
   {
     event;
-    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode});
+    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode, model: this.model, form: this.form});
   }
 
   private doPerformStateChangePromise(newState, data) : Promise<any> {
@@ -147,7 +161,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     .then( () => {return nextStateFunction(data);})
     .then( (newState) => {return this.doPerformStateChangePromise(newState, data)})
     .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
-    .then( () => {this.emitTaskChangeEvent(); this.isLoading = false;})
+    .then( () => {
+      this.emitTaskChangeEvent();
+      this.form = new FormGroup({}); // create new form to reflect data from model
+      this.isLoading = false;})
     .catch((error) => {
       console.log(error);
       this.isLoading = false;
@@ -166,7 +183,9 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       this.taskBarButtonsNormal[1].text = "Erledigen";
       this.taskBarButtonsNormal[1].icon = "done";
     }
-    else if (this.task.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW)
+    else if (this.task.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW
+          || this.task.status == EMRBauTaskStatus.STATUS_INVOICE_REVIEW
+          || this.task.status == EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
     {
       this.taskBarButtonsNormal[1].text = "Weiterleiten";
       this.taskBarButtonsNormal[1].icon = "send";
@@ -188,7 +207,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   emitTaskChangeEvent()
   {
-    this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(this.task.status)});
+    this.taskChangeEvent.emit({task : this.task, queryTasks : this.shouldQueryTasks()});
+  }
+
+  private shouldQueryTasks() : boolean {
+    return MRBauTask.isTaskInNotifyOrDoneState(this.task.status);
   }
 
   writeMetadata() : Promise<NodeEntry> {
@@ -200,8 +223,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     {
       if (this.model[key] || this.model[key] === 0)
       {
-        // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
-        nodeBody.properties[key] =  (this.model[key].value) ? (this.model[key].value) : this.model[key];
+        if (!key.startsWith('ignore:'))// ignore fields where the key starts with ignore: e.g. calculated values
+        {
+            // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
+            nodeBody.properties[key] =  (this.model[key].value) ? (this.model[key].value) : this.model[key];
+        }
       }
     })
     //console.log(nodeBody);
@@ -237,7 +263,9 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     this.fields = this.mrbauFormLibraryService.getFormForNodeType(stateName, nodeType);
     // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts
     this.updateFormValues();
-    this.form = new FormGroup({});
+
+    // new FormGroup is delayed to allow additional model changes in onEnterAction. Is done in performStateChangeAction
+    //this.form = new FormGroup({});
   }
 
   updateFormValues() {

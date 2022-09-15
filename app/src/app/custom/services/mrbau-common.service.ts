@@ -82,6 +82,12 @@ export class MrbauCommonService {
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
+  updateTaskAssignNewUser(nodeId: string, newUserId: string) :  Promise<NodeEntry>
+  {
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUserId}};
+    return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
+  }
+
   getFormDateValue(date: Date) : string {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }

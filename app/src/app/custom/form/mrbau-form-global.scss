@@ -13,6 +13,28 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   color: rgba(0, 0, 0, 0.87);
 }
 
+.adf-form-label-title {
+  font-size: 90% ;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.54);
+}
+.adf-form-label-wrapper {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  width: auto;
+  padding: 0 0.5rem;
+  margin-bottom: 10px;
+  background-color: #f1f1f1;
+  border-color: #e1e1e1;
+}
+/*
+.mat-form-field {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}*/
+
 .toolbar-text-button {
   border: 1px solid transparent;
   border-radius: .25rem;

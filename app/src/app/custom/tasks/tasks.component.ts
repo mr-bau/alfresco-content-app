@@ -183,6 +183,11 @@ export class TasksComponent implements OnInit {
 
   taskChanged(taskChangedData : ITaskChangedData)
   {
+    // if new user got assigned reload tasks
+    if (this.currentUser != taskChangedData.task.assignedUserName)
+    {
+      taskChangedData.queryTasks = true;
+    }
     this.tasksTableComponent.taskUpdateEvent(taskChangedData);
   }
 
