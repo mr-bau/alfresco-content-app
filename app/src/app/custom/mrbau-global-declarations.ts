@@ -1,4 +1,4 @@
-import { NodeEntry } from '@alfresco/js-api';
+import { NodeEntry, VersionEntry } from '@alfresco/js-api';
 
 export const MRBAU_DATE_FORMAT = 'dd-MM-yyyy';
 export class CONST {
@@ -17,7 +17,7 @@ export class CONST {
   public static readonly START_OCR_ACTION_Id:   string = "embed-metadata";
   static readonly HELPER_FORCE_FULL_TEXT_SEARCH: string =  " and ISNODE:T";
 
-  static isPdfDocument(node: NodeEntry) : boolean
+  static isPdfDocument(node: NodeEntry | VersionEntry) : boolean
   {
     if ( node != null && node.entry.isFolder == false && node.entry.content["mimeType"] == "application/pdf")
     {
@@ -25,6 +25,5 @@ export class CONST {
     }
     return false;
   }
-
 }
 

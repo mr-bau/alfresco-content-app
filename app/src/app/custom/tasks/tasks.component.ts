@@ -1,7 +1,8 @@
 import { ContentService, NotificationService } from '@alfresco/adf-core';
-import { NodeEntry } from '@alfresco/js-api';
+import { NodeEntry, VersionEntry } from '@alfresco/js-api';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
 import { CONST } from '../mrbau-global-declarations';
 import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
@@ -14,6 +15,7 @@ export interface ITaskChangedData {
 
 export interface IFileSelectData {
   nodeId : string,
+  versionId? : string,
   suppressNotification? : boolean,
 }
 @Component({
@@ -42,6 +44,7 @@ export class TasksComponent implements OnInit {
     //private alfrescoAuthenticationService: AuthenticationService,
     private mrbauCommonService : MrbauCommonService,
     private contentService : ContentService,
+    private contentApiService: ContentApiService,
     private notificationService : NotificationService) {
     //let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
     //console.log(ecmUserName);
@@ -150,25 +153,56 @@ export class TasksComponent implements OnInit {
       this.fileSelectedByUrl(null);
       return;
     }
-    this.contentService.getNode(fileSelectData.nodeId).subscribe(
-      (node: NodeEntry) => {
-        if (CONST.isPdfDocument(node))
-        {
-          this.fileSelectedByUrl(this.contentService.getContentUrl(fileSelectData.nodeId));
-        }
-        else
-        {
-          this.fileSelectedByUrl(null);
-          if (!fileSelectData.suppressNotification)
+
+    if (fileSelectData.versionId)
+    {
+      this.contentApiService._versionsApi.getVersion(fileSelectData.nodeId, fileSelectData.versionId)
+      .then(
+        (versionEntry : VersionEntry) => {
+          if (CONST.isPdfDocument(versionEntry))
           {
-            this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
+            console.log(versionEntry);
+            versionEntry.entry.versionComment
+            this.fileSelectedByUrl(this.contentApiService.getVersionContentUrl(fileSelectData.nodeId, fileSelectData.versionId));
+          }
+          else
+          {
+            this.fileSelectedByUrl(null);
+            if (!fileSelectData.suppressNotification)
+            {
+              this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
+            }
           }
         }
-      },
-      error => {
-        this.errorMessage = error;
-      }
-    );
+      )
+      .catch(
+        error => {
+          this.errorMessage = error;
+        }
+      );
+    }
+    else
+    {
+      this.contentService.getNode(fileSelectData.nodeId).subscribe(
+        (nodeEntry: NodeEntry) => {
+          if (CONST.isPdfDocument(nodeEntry))
+          {
+            this.fileSelectedByUrl(this.contentService.getContentUrl(fileSelectData.nodeId));
+          }
+          else
+          {
+            this.fileSelectedByUrl(null);
+            if (!fileSelectData.suppressNotification)
+            {
+              this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
+            }
+          }
+        },
+        error => {
+          this.errorMessage = error;
+        }
+      );
+    }
   }
 
   private fileSelectedByUrl(fileUrl : string)

@@ -42,3 +42,19 @@
     </form>
   </mat-expansion-panel>
 </div>
+
+<!-- history panel -->
+<mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>history</mat-icon>
+      <span class="expansionTitleText">Verlauf</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <aca-task-versionlist-invoice-workflow
+    [taskId]="task ? task.id : null"
+    [nodeId]="taskNode ? taskNode.id : null"
+    [isVisible]="historyPanelOpened"
+    (onAssociation)="onAssociationClicked($event)"
+    ></aca-task-versionlist-invoice-workflow>
+</mat-expansion-panel>

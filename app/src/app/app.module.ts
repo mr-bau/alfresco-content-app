@@ -121,6 +121,7 @@ import { autocompleteNotValidValidationMessage, dateFutureValidator, autocomplet
 import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
 import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
+import { TaskVersionlistInvoiceWorkflowComponent } from './custom/task-versionlist/task-versionlist-invoice-workflow';
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
@@ -279,6 +280,7 @@ registerLocaleData(localeSv);
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,
     TaskVersionlistComponent,
+    TaskVersionlistInvoiceWorkflowComponent,
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
     TaskCommentlistComponent,

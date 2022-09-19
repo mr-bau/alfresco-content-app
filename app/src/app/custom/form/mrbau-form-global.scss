@@ -35,6 +35,10 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   border-color: #bee5eb;
 }*/
 
+.version-history-tabgroup {
+  min-height:200px;
+}
+
 .toolbar-text-button {
   border: 1px solid transparent;
   border-radius: .25rem;

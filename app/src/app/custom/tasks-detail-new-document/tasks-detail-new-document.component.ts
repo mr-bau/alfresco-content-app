@@ -31,6 +31,12 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   }
 
   private _taskNode : Node;
+  get taskNode() : Node {
+    return this._taskNode;
+  }
+
+  commentPanelOpened:boolean=false;
+  historyPanelOpened:boolean=false;
 
   readonly taskBarButtonsNormal : TaskBarButton[]=[
     { icon:"navigate_before", class:"mat-primary", tooltip:"Zurück", text:"Zurück", disabled: () => {return !this.isPrevButtonEnabled();}, onClick: (event?:any) => { this.onPrevClicked(event); } },
@@ -295,5 +301,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   onModelChangeEvent(model :any) {
     model;
+  }
+
+  onAssociationClicked(data : IFileSelectData)
+  {
+    this.fileSelectEvent.emit(data);
   }
 }
