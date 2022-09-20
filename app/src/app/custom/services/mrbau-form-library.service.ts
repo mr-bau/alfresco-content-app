@@ -910,9 +910,9 @@ export class MrbauFormLibraryService {
     }
   }
 
-  readonly label_mrba_paymentDateNet : FormlyFieldConfig = {
+  readonly label_mrba_paymentDateNetValue : FormlyFieldConfig = {
     className: 'flex-2',
-    key: 'mrba:paymentDateNet',
+    key: 'mrba:paymentDateNetValue',
     type: 'mrbauFormlyLabel',
     templateOptions: {
       label: 'Überweisungsdatum Netto',
@@ -966,9 +966,9 @@ export class MrbauFormLibraryService {
     hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
   }
 
-  readonly label_mrba_paymentDateDiscount1 : FormlyFieldConfig = {
+  readonly label_mrba_paymentDateDiscount1Value : FormlyFieldConfig = {
     className: 'flex-2',
-    key: 'mrba:paymentDateDiscount1',
+    key: 'mrba:paymentDateDiscount1Value',
     type: 'mrbauFormlyLabel',
     templateOptions: {
       label: 'Überweisungsdatum Skonto 1',
@@ -978,9 +978,9 @@ export class MrbauFormLibraryService {
     hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
   }
 
-  readonly label_mrba_paymentDateDiscount2 : FormlyFieldConfig = {
+  readonly label_mrba_paymentDateDiscount2Value : FormlyFieldConfig = {
     className: 'flex-2',
-    key: 'mrba:paymentDateDiscount2',
+    key: 'mrba:paymentDateDiscount2Value',
     type: 'mrbauFormlyLabel',
     templateOptions: {
       label: 'Überweisungsdatum Skonto 2',
@@ -1003,7 +1003,7 @@ export class MrbauFormLibraryService {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
       this.label_mrba_netAmountVerified,
-      this.label_mrba_paymentDateNet,
+      this.label_mrba_paymentDateNetValue,
     ]
   };
 
@@ -1012,7 +1012,7 @@ export class MrbauFormLibraryService {
     fieldGroup: [
       this.label_calcPaymentValueDiscount1,
       this.label_mrba_earlyPaymentDiscountPercent1,
-      this.label_mrba_paymentDateDiscount1,
+      this.label_mrba_paymentDateDiscount1Value,
     ]
   };
 
@@ -1021,7 +1021,7 @@ export class MrbauFormLibraryService {
     fieldGroup: [
       this.label_calcPaymentValueDiscount2,
       this.label_mrba_earlyPaymentDiscountPercent2,
-      this.label_mrba_paymentDateDiscount2,
+      this.label_mrba_paymentDateDiscount2Value,
     ]
   };
 
@@ -1095,7 +1095,7 @@ export class MrbauFormLibraryService {
   readonly mrba_paymentDateNetValue : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'mrba:paymentDateNet',
+    key: 'mrba:paymentDateNetValue',
     type: 'input',
     templateOptions: {
       label: 'Überweisungsdatum Netto',
@@ -1105,7 +1105,7 @@ export class MrbauFormLibraryService {
   readonly mrba_paymentDateDiscount1Value : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'mrba:paymentDateDiscount1',
+    key: 'mrba:paymentDateDiscount1Value',
     type: 'input',
     templateOptions: {
       label: 'Überweisungsdatum Skonto 1',
@@ -1115,7 +1115,7 @@ export class MrbauFormLibraryService {
   readonly mrba_paymentDateDiscount2Value : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'mrba:paymentDateDiscount2',
+    key: 'mrba:paymentDateDiscount2Value',
     type: 'input',
     templateOptions: {
       label: 'Überweisungsdatum Skonto 2',

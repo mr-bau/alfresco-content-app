@@ -65,31 +65,33 @@ export class MrbauWorkflowService {
       const reviewDays = props['mrba:inboundInvoiceType'] == 'Anzahlung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
       reviewDate.setDate(reviewDate.getDate() + reviewDays);
       this.correctWeekend(reviewDate);
+      console.log(props);
+      console.log(reviewDate);
       data.model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
     }
 
-    if (data.model['mrba:paymentDateNet'] == null && props['mrba:paymentTargetDays'])
+    if (data.model['mrba:paymentDateNetValue'] == null && props['mrba:paymentTargetDays'])
     {
       let date = new Date();
       date.setDate(reviewDate.getDate() + props['mrba:paymentTargetDays']);
       this.correctWeekend(date);
-      data.model['mrba:paymentDateNet'] = this.mrbauCommonService.getFormDateValue(date);
+      data.model['mrba:paymentDateNetValue'] = this.mrbauCommonService.getFormDateValue(date);
     }
 
-    if (data.model['mrba:paymentDateDiscount1'] == null && props['mrba:earlyPaymentDiscountDays1'])
+    if (data.model['mrba:paymentDateDiscount1Value'] == null && props['mrba:earlyPaymentDiscountDays1'])
     {
       let date = new Date();
       date.setDate(reviewDate.getDate() + props['mrba:earlyPaymentDiscountDays1']);
       this.correctWeekend(date);
-      data.model['mrba:paymentDateDiscount1'] = this.mrbauCommonService.getFormDateValue(date);
+      data.model['mrba:paymentDateDiscount1Value'] = this.mrbauCommonService.getFormDateValue(date);
     }
 
-    if (data.model['mrba:paymentDateDiscount2'] == null && props['mrba:earlyPaymentDiscountDays2'])
+    if (data.model['mrba:paymentDateDiscount2Value'] == null && props['mrba:earlyPaymentDiscountDays2'])
     {
       let date = new Date();
       date.setDate(reviewDate.getDate() + props['mrba:earlyPaymentDiscountDays2']);
       this.correctWeekend(date);
-      data.model['mrba:paymentDateDiscount2'] = this.mrbauCommonService.getFormDateValue(date);
+      data.model['mrba:paymentDateDiscount2Value'] = this.mrbauCommonService.getFormDateValue(date);
     }
 
     return new Promise((resolve) => resolve(null));

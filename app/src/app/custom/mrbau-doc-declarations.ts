@@ -641,7 +641,7 @@ export class MrbauArchiveModel {
           mandatoryRequiredProperties: [
             'mrba:netAmountVerified',
             'mrba:verifyDateValue',
-            'mrba:paymentDateNet',
+            'mrba:paymentDateNetValue',
           ]
         },
         'STATUS_INVOICE_REVIEW' : {

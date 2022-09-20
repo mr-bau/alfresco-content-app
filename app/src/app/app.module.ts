@@ -124,6 +124,7 @@ import { TaskVersionlistComponent } from './custom/task-versionlist/task-version
 import { TaskVersionlistInvoiceWorkflowComponent } from './custom/task-versionlist/task-versionlist-invoice-workflow';
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
+import { TaskLinkedDocumentsInvoiceWorkflowComponent } from './custom/task-linked-documents/task-linked-documents-invoice-workflow';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
 import { TaskCommentlistInvoiceWorkflowComponent } from './custom/task-commentlist/task-commentlist-invoice-workflow';
 import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
@@ -285,6 +286,7 @@ registerLocaleData(localeSv);
     TaskVersionlistInvoiceWorkflowComponent,
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
+    TaskLinkedDocumentsInvoiceWorkflowComponent,
     TaskCommentlistComponent,
     TaskCommentlistInvoiceWorkflowComponent,
     MrbauInboxAssignDialogComponent,
