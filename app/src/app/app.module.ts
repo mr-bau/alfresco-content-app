@@ -125,6 +125,7 @@ import { TaskVersionlistInvoiceWorkflowComponent } from './custom/task-versionli
 import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
+import { TaskCommentlistInvoiceWorkflowComponent } from './custom/task-commentlist/task-commentlist-invoice-workflow';
 import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 import { TasksDetailCommonComponent } from './custom/tasks-detail-common/tasks-detail-common.component';
 import { TaskSummaryComponent } from './custom/task-summary/task-summary.component';
@@ -134,6 +135,7 @@ import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-
 import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
 import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
+
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -284,6 +286,7 @@ registerLocaleData(localeSv);
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
     TaskCommentlistComponent,
+    TaskCommentlistInvoiceWorkflowComponent,
     MrbauInboxAssignDialogComponent,
     TasksDetailCommonComponent,
     TaskSummaryComponent,

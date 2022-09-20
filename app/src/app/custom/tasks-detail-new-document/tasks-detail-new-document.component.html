@@ -43,6 +43,29 @@
   </mat-expansion-panel>
 </div>
 
+<!-- linked documents -->
+<aca-task-linked-documents
+[associatedDocumentRef]=""
+[associatedDocumentName]=""
+
+></aca-task-linked-documents>
+<!--
+(onRemoveAssociation)="onRemoveAssociationClicked($event)"
+(onAssociation)="onAssociationClicked($event)"
+(onAddAssociation)="buttonAddFilesClicked()"
+
+-->
+<!-- comments panel -->
+<mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>comment</mat-icon>
+      <span class="expansionTitleText">Kommentare</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <aca-task-commentlist-invoice-workflow #commentlist [nodeId]="taskNode ? taskNode.id : null" [isVisible]="commentPanelOpened"></aca-task-commentlist-invoice-workflow>
+</mat-expansion-panel>
+
 <!-- history panel -->
 <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
   <mat-expansion-panel-header>

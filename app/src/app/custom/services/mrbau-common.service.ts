@@ -51,6 +51,11 @@ export class MrbauCommonService {
     });
   }
 
+  getNodeComments(nodeId : string) : Observable<CommentModel[]>
+  {
+    return this.commentContentService.getNodeComments(nodeId);
+  }
+
   addComment(nodeId: string, comment: string) : Observable<CommentModel>
   {
     if (!comment)
@@ -63,6 +68,10 @@ export class MrbauCommonService {
       return null;
     }
     return this.commentContentService.addNodeComment(nodeId, comment);
+  }
+
+  showInfo(message:string) {
+    this.notificationService.showInfo(message);
   }
 
   testTaskStatus(data?:any) {

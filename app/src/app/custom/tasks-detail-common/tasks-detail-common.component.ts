@@ -1,11 +1,11 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
 
 import { ConfirmDialogComponent, ContentNodeSelectorComponentData, ContentNodeSelectorComponent } from '@alfresco/adf-content-services';
-import { CommentContentService, CommentModel, ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { CommentModel, ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { NodeBodyUpdate, Node } from '@alfresco/js-api';
 
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -15,6 +15,7 @@ import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-d
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
 import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
+import { MrbauCommonService } from '../services/mrbau-common.service';
 
 @Component({
   selector: 'aca-tasks-detail-common',
@@ -57,8 +58,8 @@ export class TasksDetailCommonComponent implements OnInit {
     private _nodesApiService: NodesApiService,
     private _contentService: ContentService,
     private _notificationService: NotificationService,
-    private _commentContentService: CommentContentService,
     private _mrbauFormLibraryService : MrbauFormLibraryService,
+    private _mrbauCommonService : MrbauCommonService,
     ) {
   }
 
@@ -130,12 +131,12 @@ export class TasksDetailCommonComponent implements OnInit {
 
   addComment(comment: string)
   {
-    comment = comment.trim();
-    if (comment.length == 0)
+    const result : Observable<CommentModel> = this._mrbauCommonService.addComment(this._task.id, comment);
+    if (result == null)
     {
-        return;
+      return;
     }
-    this._commentContentService.addNodeComment(this._task.id, comment).subscribe(
+    result.subscribe(
       (res: CommentModel) => {
         res;
         this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
