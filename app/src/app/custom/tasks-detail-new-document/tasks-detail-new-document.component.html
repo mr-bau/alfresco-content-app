@@ -45,12 +45,12 @@
 
 <!-- linked documents -->
 <aca-task-linked-documents-invoice-workflow
-[associatedDocumentRef]=""
-[associatedDocumentName]=""
-
+[associatedDocuments]="taskNodeAssociations"
+(onAddAssociation)="onButtonAddFilesClicked()"
+(onRemoveAssociation)="onRemoveAssociationClicked($event)"
 ></aca-task-linked-documents-invoice-workflow>
 <!--
-(onRemoveAssociation)="onRemoveAssociationClicked($event)"
+
 (onAssociation)="onAssociationClicked($event)"
 (onAddAssociation)="buttonAddFilesClicked()"
 

@@ -65,8 +65,6 @@ export class MrbauWorkflowService {
       const reviewDays = props['mrba:inboundInvoiceType'] == 'Anzahlung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
       reviewDate.setDate(reviewDate.getDate() + reviewDays);
       this.correctWeekend(reviewDate);
-      console.log(props);
-      console.log(reviewDate);
       data.model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
     }
 

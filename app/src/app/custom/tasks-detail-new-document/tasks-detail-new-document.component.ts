@@ -1,8 +1,11 @@
+import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
-import { Node, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
+import { Node, NodeAssociationEntry, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
+import { DocumentAssociations, DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOrderTypes } from '../mrbau-doc-declarations';
 import { EMRBauTaskStatus, MRBauTask, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
@@ -34,6 +37,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   get taskNode() : Node {
     return this._taskNode;
   }
+  private _taskNodeAssociations : NodeAssociationEntry[];
+  get taskNodeAssociations() : NodeAssociationEntry[] {
+    return this._taskNodeAssociations;
+  }
+
 
   commentPanelOpened:boolean=false;
   historyPanelOpened:boolean=false;
@@ -60,6 +68,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   submitButtonText : string;
 
   constructor(
+    private dialog: MatDialog,
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
     private mrbauArchiveModelService : MrbauArchiveModelService,
@@ -91,13 +100,18 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     }
     this.isLoading = true;
     this.changeDetectorRef.detectChanges();
-    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).subscribe(
-      (nodeEntry) => {
+    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).toPromise()
+    .then((nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
+        return this.nodesApiService.nodesApi.listTargetAssociations(nodeEntry.entry.id, {skipCount:0, maxItems: 999});
+      }
+    )
+    .then(
+      (result) => {
+        this._taskNodeAssociations = result.list.entries;
         // update Form
         this.updateFormDC();
-
         // execute onEnterAction
         const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType({task : this._task, node: this._taskNode, model: this.model, form: this.form});
         if (workflowState.onEnterAction)
@@ -112,12 +126,13 @@ export class TasksDetailNewDocumentComponent implements OnInit {
           this.form = new FormGroup({}); // create new form to reflect data from model
           this.isLoading = false;
         }
-      },
-      (error) => {
-        this.errorEvent.emit(error);
-        this.isLoading = false;
       }
-    );
+    )
+    .catch((error) => {
+      this.errorEvent.emit(error);
+      this.isLoading = false;
+    });
+
   }
 
   updateFormDC() {
@@ -307,5 +322,133 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   onAssociationClicked(data : IFileSelectData)
   {
     this.fileSelectEvent.emit(data);
+  }
+
+  setErrorMessage(error:string)
+  {
+    this.errorMessage = error;
+  }
+  onButtonAddFilesClicked()
+  {
+    this.mrbauCommonService.openLinkFilesDialog(this.addFiles.bind(this), this.setErrorMessage.bind(this));
+  }
+
+  onRemoveAssociationClicked(i:number)
+  {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+          title: 'Verknüpfung Löschen',
+          message: 'Soll die Verknüpfung entfernt werden?',
+          yesLabel: 'Verknüpfung Löschen',
+          noLabel: 'Abbrechen',
+        },
+        minWidth: '250px'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true)
+      {
+        this.deleteAssociation(i);
+      }
+    });
+  }
+
+  deleteAssociation(i:number)
+  {
+    this._taskNodeAssociations
+    if (!this._taskNodeAssociations[i])
+    {
+      return;
+    }
+    this.nodesApiService.nodesApi.deleteAssociation(this._taskNode.id, this._taskNodeAssociations[i].entry.id)
+    .then((success) => {
+        console.log(success);
+        this._taskNodeAssociations.splice(i, 1);
+        this.taskChangeEvent.emit({task : this._task, queryTasks : false});
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+    })
+    .catch((error) => {
+        this.errorMessage = error;
+    });
+  }
+
+  getAssocTypeByNodeType(node:Node) : string
+  {
+    // special cases
+    if (node.nodeType == 'mrba:order')
+    {
+      if (node.properties['mrba:orderType'] == DocumentOrderTypes.get(EMRBauOrderTypes.AUFTRAG).value)
+      {
+        return DocumentAssociations.get(EMRBauDocumentAssociations.ORDER_REFERENCE).associationName;
+      }
+      if (node.properties['mrba:orderType'] == DocumentOrderTypes.get(EMRBauOrderTypes.ZUSATZAUFTRAG).value)
+      {
+        return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE).associationName;
+      }
+    }
+    if (node.nodeType == 'mrba:inboundInvoice')
+    {
+      if (node.properties['mrba:orderType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.ANZAHLUNG).value)
+      {
+        return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE).associationName;
+      }
+      return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE).associationName;
+      // return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE).associationName;
+    }
+
+    // standard cases
+    const associations = Array.from(DocumentAssociations.values()).filter((item) => item.category != EMRBauDocumentAssociations.DOCUMENT_REFERENCE && item.targetClass == node.nodeType);
+    if (associations.length == 1)
+    {
+      return associations[0].associationName;
+    }
+
+    return DocumentAssociations.get(EMRBauDocumentAssociations.DOCUMENT_REFERENCE).associationName;
+  }
+
+  addFiles(selectedNodes: Node[])
+  {
+    // remove folders
+    const nodes = selectedNodes.filter((value:Node) => value.isFile)
+    if (nodes.length == 0)
+    {
+      return;
+    }
+
+    let bodyParams = [];
+    for (let i=0; i< nodes.length; i++)
+    {
+      const nodeAssocType = this.getAssocTypeByNodeType(nodes[i]);
+      bodyParams.push({
+        targetId : nodes[i].id,
+        assocType : nodeAssocType}
+      );
+    };
+
+    const pathParams = {
+      'nodeId': this._taskNode.id
+    };
+    const queryParams = {include:'association'};
+    const headerParams= {};
+    const formParams = {};
+    const contentTypes = ['application/json'];
+    const accepts = ['application/json'];
+    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
+      (success) => {
+        success;
+        for (let i=0; i< nodes.length; i++)
+        {
+          const node = nodes[i];
+          const bodyParam = bodyParams[i];
+          this._taskNodeAssociations.push({entry: {association: {assocType : bodyParam.assocType}, id:node.id, isFolder:node.isFolder, isFile:node.isFile, name: node.name,
+            nodeType: node.nodeType, modifiedAt: node.modifiedAt, modifiedByUser: node.modifiedByUser, createdAt:node.createdAt, createdByUser:node.createdByUser}});
+        }
+        // TODO fix update
+        this.taskChangeEvent.emit({task : this._task, queryTasks : false});
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+    })
+    .catch((error) => {
+      this.errorMessage = error;
+    });
   }
 }

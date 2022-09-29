@@ -21,10 +21,6 @@ interface CommentData {
     {{errorMessage}}
   </ng-template>
   <ng-template #elseBlock>
-    <form [formGroup]="form" class="addMarginBottom">
-      <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
-      <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonAddComment()" matTooltip="Neuen Kommentar hinzufügen" [disabled]="!this.model.comment">Hinzufügen</button>
-    </form>
     <div *ngIf="commentData && commentData.length > 0; then commentBlock else noComments"></div>
     <ng-template #commentBlock>
       <ul>
@@ -36,6 +32,10 @@ interface CommentData {
     <ng-template #noComments>
         Keine Kommentare vorhanden.
     </ng-template>
+    <form [formGroup]="form" class="addMarginBottom">
+      <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
+      <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonAddComment()" matTooltip="Neuen Kommentar hinzufügen" [disabled]="!this.model.comment">Hinzufügen</button>
+    </form>
   </ng-template>
   `,
   styles: []

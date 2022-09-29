@@ -1,11 +1,11 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
 
-import { ConfirmDialogComponent, ContentNodeSelectorComponentData, ContentNodeSelectorComponent } from '@alfresco/adf-content-services';
+import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 import { CommentModel, ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { NodeBodyUpdate, Node } from '@alfresco/js-api';
 
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -198,39 +198,17 @@ export class TasksDetailCommonComponent implements OnInit {
 
   buttonAddFilesClicked()
   {
-    const data: ContentNodeSelectorComponentData = {
-        title: "Datei auswählen",
-        dropdownHideMyFiles: true,
-        selectionMode: 'multiple',
-        currentFolderId: null,
-        select: new Subject<Node[]>()
-    };
-
-    this._dialog.open(
-        ContentNodeSelectorComponent,
-        {
-            data,
-            panelClass: 'adf-content-node-selector-dialog',
-            minWidth: '630px'
-        },
-    );
-
-    data.select.subscribe((selections: Node[]) => {
-        // Use or store selection...
-        this.addFiles(selections);
-    },
-    (error)=>{
-        //your error handling
-        this.errorMessage = error;
-    },
-    ()=>{
-        //action called when an action or cancel is clicked on the dialog
-        this._dialog.closeAll();
-    });
+    this._mrbauCommonService.openLinkFilesDialog(this.addFiles.bind(this), this.setErrorMessage.bind(this));
   }
-
-  addFiles(nodes: Node[])
+  setErrorMessage(error:string)
   {
+    this.errorMessage = error;
+  }
+  addFiles(selectedNodes: Node[])
+  {
+    // remove folders
+    const nodes = selectedNodes.filter((value:Node) => value.isFile)
+
     if (nodes.length == 0)
     {
       return;

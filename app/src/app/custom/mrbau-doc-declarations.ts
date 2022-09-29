@@ -1,14 +1,76 @@
 //https://github.com/mr-bau/alfresco-customisations/blob/default/mrbau-alfresco-platform/src/main/resources/alfresco/module/mrbau-alfresco-platform/model/archiveModel.xml
 //https://github.com/mr-bau/alfresco-customisations/blob/default/mrbau-alfresco-platform/src/main/resources/alfresco/module/mrbau-alfresco-platform/messages/archiveModel.properties
 
+// * Base Type
+// ================
+// title: "doc",      name : "mrba:archiveDocument",
+
+// * Document Types
+// ================
+// title: "Angebot",                    name : "mrba:offer",
+// title: "Auftrag",                    name : "mrba:order",
+// title: "Zahlungsvereinbarungen",     name : "mrba:frameworkContract",
+// title: "Lieferschein",               name : "mrba:deliveryNote",
+// title: "Eingangsrechnung",           name : "mrba:inboundInvoice",
+// title: "Vergabeverhandlungsprotokoll",   name : "mrba:orderNegotiationProtocol",
+// title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
+
+//
+// * Associations
+// ================
+// mrba:order                     mrba:order
+// mrba:addonOrder                mrba:order
+// mrba:frameworkContract         mrba:frameworkContract
+// mrba:deliveryNote              mrba:deliveryNote
+// mrba:inboundInvoice            mrba:inboundInvoice
+// mrba:inboundRevokedInvoice     mrba:inboundInvoice
+// mrba:inboundPartialInvoice     mrba:inboundInvoice
+// mrba:archiveDocument           mrba:archiveDocument
+// mrba:document                  mrba:document
+//
+
+import { NodeAssociationEntry } from '@alfresco/js-api';
+import { Pipe, PipeTransform } from '@angular/core';
 import { EMRBauTaskStatus, IMRBauWorkflowState, MRBauWorkflowStateCallbackData } from './mrbau-task-declarations';
 import { MrbauWorkflowService } from './services/mrbau-workflow.service';
 
-export interface IMRBauDocumentAspect {
-  name: string,
-  properties?: string[],
-  associations?: string[]
+@Pipe({name: 'mrbauNodeAssociationEntryFilterPipe'})
+export class MRBauNodeAssociationEntryFilterPipe implements PipeTransform {
+  transform(values: NodeAssociationEntry[], ...args: any[]): NodeAssociationEntry[] {
+    return values ? values.filter(v => v.entry.association.assocType == args[0]) : values;
+  }
 }
+
+export const enum EMRBauDocumentAssociations {
+  DOCUMENT_REFERENCE,
+  ARCHIVE_DOCUMENT_REFERENCE,
+  OFFER_REFERENCE,
+  ORDER_REFERENCE,
+  ADDON_ORDER_REFERENCE,
+  FRAMEWORK_CONTRACT_REFERENCE,
+  DELIVERY_NOTE_REFERENCE,
+  INBOUND_INVOICE_REFERENCE,
+  INBOUND_REVOKED_INVOICE_REFERENCE,
+  INBOUND_PARTIAL_INVOICE_REFERENCE,
+}
+interface IDocumentAssociations {
+  category: EMRBauDocumentAssociations,
+  aspectName: string,
+  associationName: string,
+  targetClass: string,
+}
+export const DocumentAssociations = new Map<number, IDocumentAssociations>([
+  [EMRBauDocumentAssociations.DOCUMENT_REFERENCE, {category: EMRBauDocumentAssociations.DOCUMENT_REFERENCE,  aspectName: "mrba:documentReference", associationName: "mrba:document", targetClass: "cm:content"}],
+  [EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE, {category: EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE,  aspectName: "mrba:archiveDocumentReference", associationName: "mrba:archiveDocument", targetClass: "mrba:archiveDocument"}],
+  [EMRBauDocumentAssociations.OFFER_REFERENCE, {category: EMRBauDocumentAssociations.OFFER_REFERENCE,  aspectName: "mrba:offerReference", associationName: "mrba:offer", targetClass: "mrba:offer"}],
+  [EMRBauDocumentAssociations.ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ORDER_REFERENCE,  aspectName: "mrba:orderReference", associationName: "mrba:order", targetClass: "mrba:order"}],
+  [EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE,  aspectName: "mrba:addonOrderReference", associationName: "mrba:addonOrder", targetClass: "mrba:order"}],
+  [EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE,  aspectName: "mrba:frameworkContractReference", associationName: "mrba:frameworkContract", targetClass: "mrba:frameworkContract"}],
+  [EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE, {category: EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE,  aspectName: "mrba:deliveryNoteReference", associationName: "mrba:deliveryNote", targetClass: "mrba:deliveryNote"}],
+  [EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE,  aspectName: "mrba:inboundInvoiceReference", associationName: "mrba:inboundInvoice", targetClass: "mrba:inboundInvoice"}],
+  [EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE,  aspectName: "mrba:inboundRevokedInvoiceReference", associationName: "mrba:inboundRevokedInvoice", targetClass: "mrba:inboundInvoice"}],
+  [EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:inboundPartialInvoiceReference", associationName: "mrba:inboundPartialInvoice", targetClass: "mrba:inboundInvoice"}],
+]);
 
 export const enum EMRBauDocumentCategory {
   // BILLS
