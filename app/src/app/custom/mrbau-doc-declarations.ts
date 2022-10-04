@@ -34,8 +34,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { EMRBauTaskStatus, IMRBauWorkflowState, MRBauWorkflowStateCallbackData } from './mrbau-task-declarations';
 import { MrbauWorkflowService } from './services/mrbau-workflow.service';
 
-@Pipe({name: 'mrbauNodeAssociationEntryFilterPipe'})
-export class MRBauNodeAssociationEntryFilterPipe implements PipeTransform {
+@Pipe({name: 'mrbauNodeAssociationEntryFilterPipeImpure', pure: false})
+export class MRBauNodeAssociationEntryFilterPipeImpure implements PipeTransform {
   transform(values: NodeAssociationEntry[], ...args: any[]): NodeAssociationEntry[] {
     return values ? values.filter(v => v.entry.association.assocType == args[0]) : values;
   }

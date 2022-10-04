@@ -136,7 +136,7 @@ import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-
 import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
 import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
-import { MRBauNodeAssociationEntryFilterPipe } from './custom/mrbau-doc-declarations';
+import { MRBauNodeAssociationEntryFilterPipeImpure } from './custom/mrbau-doc-declarations';
 
 
 registerLocaleData(localeFr);
@@ -281,7 +281,7 @@ registerLocaleData(localeSv);
     MrbauFormlyLabelComponent,
     MrbauFormlyLabelWrapperComponent,
     MRBauTaskStatusPipe,
-    MRBauNodeAssociationEntryFilterPipe,
+    MRBauNodeAssociationEntryFilterPipeImpure,
     MRBauTaskCategoryPipe,
     MrbauDelegateTaskDialogComponent,
     TaskVersionlistComponent,

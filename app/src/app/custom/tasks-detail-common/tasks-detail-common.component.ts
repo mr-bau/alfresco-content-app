@@ -100,9 +100,16 @@ export class TasksDetailCommonComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  taskDelegateChange(task : MRBauTask)
+  emitTaskChangeEvent(taskChangedData?:ITaskChangedData)
   {
-    this.taskChangeEvent.emit({task : task, queryTasks : true});
+    if (taskChangedData)
+    {
+      this.taskChangeEvent.emit(taskChangedData);
+    }
+    else
+    {
+      this.taskChangeEvent.emit({task : this.task, queryTasks : true});
+    }
   }
 
   modelChangeEvent()
@@ -191,9 +198,17 @@ export class TasksDetailCommonComponent implements OnInit {
     this.updateTaskBarButtons();
   }
 
+  isTaskAdditionalToolbarButtonsVisible() : boolean{
+    return this._mrbauCommonService.isAdminUser() || this.isTaskToolbarButtonsVisible();
+  }
+
+  isTaskToolbarButtonsVisible() : boolean{
+    return this.task && !this.task.isTaskInDoneState();
+  }
+
   isTaskModificationUiVisible() :boolean
   {
-    return (this.task) ? this.task.isTaskModificationUiVisible() : false;
+    return this.task && this.task.isTaskModificationUiVisible();
   }
 
   buttonAddFilesClicked()

@@ -1,7 +1,7 @@
 <aca-mrbau-loaderoverlay *ngIf="isLoading"></aca-mrbau-loaderoverlay>
 
 <adf-toolbar [title]="this.task.desc">
-  <div *ngIf="this.task && !this.task.isTaskInDoneState()">
+  <div *ngIf="isTaskToolbarButtonsVisible()">
     <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
       <button mat-flat-button
         *ngIf="b.visible ? b.visible() : true"
@@ -13,13 +13,15 @@
         <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
       </button>
     </ng-container>
+  </div>
+  <div *ngIf="isTaskAdditionalToolbarButtonsVisible()">
     <button mat-icon-button [matMenuTriggerFor]="menu">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
       <aca-tasks-menu-ocr [task]="task"></aca-tasks-menu-ocr>
-      <aca-tasks-menu-delegate [task]="task"></aca-tasks-menu-delegate>
-      <aca-tasks-menu-delete [task]="task"></aca-tasks-menu-delete>
+      <aca-tasks-menu-delegate [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-delegate>
+      <aca-tasks-menu-delete [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-delete>
     </mat-menu>
   </div>
 </adf-toolbar>
@@ -46,15 +48,13 @@
 <!-- linked documents -->
 <aca-task-linked-documents-invoice-workflow
 [associatedDocuments]="taskNodeAssociations"
+[taskNode]="taskNode"
 (onAddAssociation)="onButtonAddFilesClicked()"
 (onRemoveAssociation)="onRemoveAssociationClicked($event)"
+(onAssociation)="onAssociationClickedByNodeAssociationIndex($event)"
+(onTaskNode)="onTaskNodeClicked()"
 ></aca-task-linked-documents-invoice-workflow>
-<!--
 
-(onAssociation)="onAssociationClicked($event)"
-(onAddAssociation)="buttonAddFilesClicked()"
-
--->
 <!-- comments panel -->
 <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
   <mat-expansion-panel-header>

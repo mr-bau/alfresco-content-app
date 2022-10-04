@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService } from '@alfresco/adf-core';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService, AuthenticationService } from '@alfresco/adf-core';
 import { ActionsApi, MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
@@ -24,6 +24,7 @@ export class MrbauCommonService {
     private datePipe : DatePipe,
     private notificationService : NotificationService,
     private alfrescoApiService : AlfrescoApiService,
+    private authenticationService : AuthenticationService
     ) {
     }
 
@@ -32,7 +33,6 @@ export class MrbauCommonService {
     this._actionsApi = this._actionsApi ?? new ActionsApi(this.alfrescoApiService.getInstance());
     return this._actionsApi;
   }
-
 
   async openLinkFilesDialog(callback:(val: Node[]) => void, callbackError:(val: string) => void) {
 
@@ -88,6 +88,10 @@ export class MrbauCommonService {
   getCurrentUser() : Promise<PersonEntry>
   {
     return this.peopleContentService.peopleApi.getPerson('-me-');
+  }
+
+  isAdminUser() : boolean {
+    return (this.authenticationService.getEcmUsername() == 'admin')
   }
 
   //getTaskRootPath() : Promise<NodeEntry> {

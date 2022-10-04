@@ -1,6 +1,8 @@
-import { AuthenticationService, ContentService, NotificationService } from '@alfresco/adf-core';
+import { ContentService, NotificationService } from '@alfresco/adf-core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MRBauTask } from '../mrbau-task-declarations';
+import { MrbauCommonService } from '../services/mrbau-common.service';
+import { ITaskChangedData } from '../tasks/tasks.component';
 
 @Component({
   selector: 'aca-tasks-menu-delete',
@@ -13,23 +15,23 @@ import { MRBauTask } from '../mrbau-task-declarations';
 })
 export class TasksMenuDeleteComponent {
   @Input() task: MRBauTask;
-  @Output() taskChangeEvent = new EventEmitter<MRBauTask>();
+  @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
 
   constructor(
     private contentService: ContentService,
     private notificationService:NotificationService,
-    private authenticationService:AuthenticationService,
+    private mrbauCommonService: MrbauCommonService,
     ) { }
 
   isDisabled() : boolean {
-    return this.authenticationService.getEcmUsername() != 'admin';
+    return !this.mrbauCommonService.isAdminUser();
   }
 
   onDeleteTaskClicked()
   {
     this.contentService.nodesApi.deleteNode(this.task.id,{permanent : true}).then(
       () => {
-        this.taskChangeEvent.emit(this.task);
+        this.taskChangeEvent.emit({task : this.task, queryTasks : true});
         this.notificationService.showInfo('Aufgabe wurde gelöscht');
       })
       .catch(

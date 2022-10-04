@@ -226,9 +226,16 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     //this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(newState)});
   }
 
-  emitTaskChangeEvent()
+  emitTaskChangeEvent(taskChangedData?:ITaskChangedData)
   {
-    this.taskChangeEvent.emit({task : this.task, queryTasks : this.shouldQueryTasks()});
+    if (taskChangedData)
+    {
+      this.taskChangeEvent.emit(taskChangedData);
+    }
+    else
+    {
+      this.taskChangeEvent.emit({task : this.task, queryTasks : this.shouldQueryTasks()});
+    }
   }
 
   private shouldQueryTasks() : boolean {
@@ -260,9 +267,17 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return this.form && !this.form.invalid;
   }
 
+  isTaskAdditionalToolbarButtonsVisible() : boolean{
+    return this.mrbauCommonService.isAdminUser() || this.isTaskToolbarButtonsVisible();
+  }
+
+  isTaskToolbarButtonsVisible() : boolean{
+    return this.task && !this.task.isTaskInDoneState();
+  }
+
   isTaskModificationUiVisible() :boolean
   {
-    return (this.task) ? this.task.isTaskModificationUiVisible() : false;
+    return this.task && this.task.isTaskModificationUiVisible();
   }
 
   isPrevButtonEnabled() : boolean {
@@ -317,6 +332,16 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   onModelChangeEvent(model :any) {
     model;
+  }
+
+  onTaskNodeClicked()
+  {
+    this.fileSelectEvent.emit({nodeId : this._taskNode.id});
+  }
+
+  onAssociationClickedByNodeAssociationIndex(i:number)
+  {
+    this.fileSelectEvent.emit({nodeId : this._taskNodeAssociations[i].entry.id});
   }
 
   onAssociationClicked(data : IFileSelectData)

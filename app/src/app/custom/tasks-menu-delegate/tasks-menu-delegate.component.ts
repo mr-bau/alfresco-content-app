@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MrbauDelegateTaskDialogComponent } from '../dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
 import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
+import { ITaskChangedData } from '../tasks/tasks.component';
 
 @Component({
   selector: 'aca-tasks-menu-delegate',
@@ -17,7 +18,7 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
 })
 export class TasksMenuDelegateComponent {
   @Input() task: MRBauTask;
-  @Output() taskChangeEvent = new EventEmitter<MRBauTask>();
+  @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
 
   constructor(
     private dialog: MatDialog,
@@ -59,7 +60,7 @@ export class TasksMenuDelegateComponent {
         this.task.assignedUserName = newUser;
         this.task.updateWithNodeData(nodeEntry.entry);
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
-        this.taskChangeEvent.emit(this.task);
+        this.taskChangeEvent.emit({task : this.task, queryTasks : true});
       })
       .catch(
         (err) => {

@@ -1,6 +1,5 @@
-import { NodeAssociationEntry } from '@alfresco/js-api';
+import { Node, NodeAssociationEntry } from '@alfresco/js-api';
 import { Component, Input, EventEmitter, Output } from '@angular/core';
-
 interface ILinkedDocumentsCategories {
   filter: string,
   name: string,
@@ -15,20 +14,25 @@ interface ILinkedDocumentsCategories {
         <span class="expansionTitleText">Verknüpfte Dokumente</span>
       </mat-panel-title>
     </mat-expansion-panel-header>
-      <ng-container *ngFor="let category of linkedDocumentsCategories">
-        <!--<ng-container *ngIf="(associatedDocuments | mrbauNodeAssociationEntryFilterPipe:category.filter) as filteredAssociatedDocuments">-->
-        <ng-container *ngIf="associatedDocuments as filteredAssociatedDocuments">
-          <ng-container *ngIf="filteredAssociatedDocuments.length > 0">
-            <span class="expansionTitleText">{{category.name}}</span>
-            <ul class="associationList">
-              <li *ngFor="let d of associatedDocuments; index as i">
-                <ng-container *ngIf="d.entry.association.assocType==category.filter">
+    <div *ngIf="taskNode">
+      <details open>
+        <summary class="expansionTitleText">Haupt-Dokument:</summary>
+        <ul class="associationList">
+          <li class="addMarginLeft"><a href="javascript: void(0);" (click)="onTaskNodeClicked()" matTooltip="Dokument Anzeigen">{{taskNode.name}}</a></li>
+        </ul>
+      </details>
+    </div>
+    <ng-container *ngFor="let category of linkedDocumentsCategories">
+        <ng-container *ngIf="(associatedDocuments | mrbauNodeAssociationEntryFilterPipeImpure:category.filter) as filteredAssociatedDocuments">
+            <details open [hidden]="filteredAssociatedDocuments.length == 0">
+              <summary class="expansionTitleText">{{category.name}}</summary>
+              <ul class="associationList">
+                <li *ngFor="let d of filteredAssociatedDocuments; index as i">
                   <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(i)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
                   <a href="javascript: void(0);" (click)="onAssociationClicked(i)" matTooltip="Dokument Anzeigen">{{d.entry.name}}</a>
-                </ng-container>
-              </li>
-            </ul>
-          </ng-container>
+                </li>
+              </ul>
+            </details>
         </ng-container>
       </ng-container>
     <button mat-raised-button type="button" class="addMarginTop" color="primary" (click)="buttonAddFilesClicked()" matTooltip="Dokumente Hinzufügen" [disabled]="buttonsDisabled">Dokumente hinzufügen</button>
@@ -40,13 +44,14 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   @Input() associatedDocuments : NodeAssociationEntry[] = []
   @Input() buttonsDisabled : boolean = false;
   @Input() defaultExpanded : boolean = false;
+  @Input() taskNode : Node = new Node();
   @Output() onRemoveAssociation = new EventEmitter<number>();
-  @Output() onAssociation = new EventEmitter<number>();
   @Output() onAddAssociation = new EventEmitter();
-
-  // TODO optimize *ngFor loop. Current implementation is ugly.
+  @Output() onAssociation = new EventEmitter<number>();
+  @Output() onTaskNode = new EventEmitter();
 
   readonly linkedDocumentsCategories : ILinkedDocumentsCategories[] = [
+    {filter:'mrba:offer', name:'Angebote'},
     {filter:'mrba:order', name:'Aufträge'},
     {filter:'mrba:addonOrder', name:'Zusatzaufträge'},
     {filter:'mrba:frameworkContract', name:'Zahlungsvereinbarungen'},
@@ -66,6 +71,11 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   onAssociationClicked(i:number)
   {
     this.onAssociation.emit(i);
+  }
+
+  onTaskNodeClicked()
+  {
+    this.onTaskNode.emit();
   }
 
   buttonAddFilesClicked()
