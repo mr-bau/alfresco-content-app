@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask, MRBauWorkflowStateCallbackData} from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';

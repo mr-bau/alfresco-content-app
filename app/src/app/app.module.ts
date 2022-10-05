@@ -137,6 +137,7 @@ import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.co
 import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
 import { MRBauNodeAssociationEntryFilterPipeImpure } from './custom/mrbau-doc-declarations';
+import { TaskProposeMatchingDocuments } from './custom/task-linked-documents/task-propose-matching-documents';
 
 
 registerLocaleData(localeFr);
@@ -233,6 +234,7 @@ registerLocaleData(localeSv);
         { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
         { name: 'mrbauFormlyLabel', component: MrbauFormlyLabelComponent, wrappers: ['mrbauFormlyLabelWrapper']},
         { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
+
         { name: 'taskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
         defaultOptions: {
           templateOptions: {
@@ -280,6 +282,7 @@ registerLocaleData(localeSv);
     MrbauFormlyAutocompleteSelectFormOptionsComponent,
     MrbauFormlyLabelComponent,
     MrbauFormlyLabelWrapperComponent,
+
     MRBauTaskStatusPipe,
     MRBauNodeAssociationEntryFilterPipeImpure,
     MRBauTaskCategoryPipe,
@@ -289,6 +292,7 @@ registerLocaleData(localeSv);
     MrbauConfirmTaskDialogComponent,
     TaskLinkedDocumentsComponent,
     TaskLinkedDocumentsInvoiceWorkflowComponent,
+    TaskProposeMatchingDocuments,
     TaskCommentlistComponent,
     TaskCommentlistInvoiceWorkflowComponent,
     MrbauInboxAssignDialogComponent,

@@ -29,10 +29,11 @@
 // mrba:document                  mrba:document
 //
 
-import { NodeAssociationEntry } from '@alfresco/js-api';
+import { NodeAssociationEntry  } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
-import { EMRBauTaskStatus, IMRBauWorkflowState, MRBauWorkflowStateCallbackData } from './mrbau-task-declarations';
+import { EMRBauTaskStatus } from './mrbau-task-declarations';
 import { MrbauWorkflowService } from './services/mrbau-workflow.service';
+import { TasksDetailNewDocumentComponent } from './tasks-detail-new-document/tasks-detail-new-document.component';
 
 @Pipe({name: 'mrbauNodeAssociationEntryFilterPipeImpure', pure: false})
 export class MRBauNodeAssociationEntryFilterPipeImpure implements PipeTransform {
@@ -159,6 +160,23 @@ export interface IMRBauDocumentType {
   }
 }
 
+export interface MRBauWorkflowStateCallbackData {
+  taskDetailNewDocument : TasksDetailNewDocumentComponent,
+  /*task: MRBauTask,
+  node: Node,
+  nodeAssociations: NodeAssociationEntry[],
+  model: any,
+  form: FormGroup,*/
+}
+export type MRBauWorkflowStateCallback = (data?:MRBauWorkflowStateCallbackData) => Promise<any>;
+export interface IMRBauWorkflowState {
+  state: EMRBauTaskStatus;
+  nextState : MRBauWorkflowStateCallback; // get next State
+  prevState : MRBauWorkflowStateCallback; // get previous State
+  onEnterAction? : MRBauWorkflowStateCallback; // perform on enter action
+}
+
+
 // COMMONLY USED DEFINITIONS
 const METADATA_EXTRACT_1_FORM_DEFINITION = [
     'title_mrba_companyId',
@@ -166,6 +184,8 @@ const METADATA_EXTRACT_1_FORM_DEFINITION = [
     'title_mrba_costCarrierDetails',
     'aspect_mrba_costCarrierDetails',
   ];
+
+
 
 // ARCHIVE MODEL
 export class MrbauArchiveModel {
@@ -193,8 +213,8 @@ export class MrbauArchiveModel {
   }
 
   getWorkFlowStateFromNodeType(data:MRBauWorkflowStateCallbackData) : IMRBauWorkflowState {
-    const state = data.task.status;
-    const nodeType = data.node.nodeType;
+    const state = data.taskDetailNewDocument.task.status;
+    const nodeType = data.taskDetailNewDocument.taskNode.nodeType;
     let docModel = this.mrbauArchiveModelTypes.filter(doc => doc.name == nodeType);
     if (docModel.length > 0)
     {
@@ -215,12 +235,12 @@ export class MrbauArchiveModel {
 
   getNextTaskStateFromNodeType(data:MRBauWorkflowStateCallbackData) : Promise<EMRBauTaskStatus> {
     const workflowState = this.getWorkFlowStateFromNodeType(data);
-    return (workflowState) ? workflowState.nextState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.task.status));
+    return (workflowState) ? workflowState.nextState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.taskDetailNewDocument.task.status));
   }
 
   getPrevTaskStateFromNodeType(data:MRBauWorkflowStateCallbackData) : Promise<EMRBauTaskStatus> {
     const workflowState = this.getWorkFlowStateFromNodeType(data);
-    return (workflowState) ? workflowState.prevState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.task.status));
+    return (workflowState) ? workflowState.prevState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.taskDetailNewDocument.task.status));
   }
 
   readonly mrbauArchiveModelTypes : IMRBauDocumentType[] = [
@@ -335,8 +355,18 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
+            .then( () =>
+            {
+              resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2);
+            })
+            .catch( (error) => reject(error))
+            }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
@@ -346,7 +376,7 @@ export class MrbauArchiveModel {
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
@@ -368,6 +398,10 @@ export class MrbauArchiveModel {
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName'
           ]
+        },
+        'STATUS_LINK_DOCUMENTS' : {
+          formlyFieldConfigs: [],
+          mandatoryRequiredProperties: []
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
@@ -584,8 +618,18 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
+            .then( () =>
+            {
+              resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2);
+            })
+            .catch( (error) => reject(error))
+            }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
@@ -595,7 +639,7 @@ export class MrbauArchiveModel {
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
@@ -650,6 +694,10 @@ export class MrbauArchiveModel {
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName'
           ]
+        },
+        'STATUS_LINK_DOCUMENTS' : {
+          formlyFieldConfigs: [],
+          mandatoryRequiredProperties: []
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [

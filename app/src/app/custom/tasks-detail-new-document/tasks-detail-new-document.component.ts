@@ -1,15 +1,16 @@
 import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { Node, NodeAssociationEntry, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { DocumentAssociations, DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOrderTypes } from '../mrbau-doc-declarations';
-import { EMRBauTaskStatus, MRBauTask, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-task-declarations';
+import { DocumentAssociations, DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOrderTypes, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
+import { TaskProposeMatchingDocuments } from '../task-linked-documents/task-propose-matching-documents';
 import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
 import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
 
@@ -19,6 +20,7 @@ import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
   styleUrls: ['./tasks-detail-new-document.component.scss']
 })
 export class TasksDetailNewDocumentComponent implements OnInit {
+  @ViewChild('taskProposeMatchingDocuments') taskProposeMatchingDocuments : TaskProposeMatchingDocuments;
 
   @Output() fileSelectEvent = new EventEmitter<IFileSelectData>();
   @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
@@ -113,10 +115,10 @@ export class TasksDetailNewDocumentComponent implements OnInit {
         // update Form
         this.updateFormDC();
         // execute onEnterAction
-        const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType({task : this._task, node: this._taskNode, model: this.model, form: this.form});
+        const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType({taskDetailNewDocument: this});
         if (workflowState.onEnterAction)
         {
-          workflowState.onEnterAction({task : this._task, node: this._taskNode, model: this.model, form: this.form}).finally( () =>
+          workflowState.onEnterAction({taskDetailNewDocument:this}).finally( () =>
           {
             this.form = new FormGroup({});
             this.isLoading = false;
@@ -151,13 +153,13 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   onNextClicked(event?:any)
   {
     event;
-    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getNextTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode, model: this.model, form: this.form});
+    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getNextTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {taskDetailNewDocument: this});
   }
 
   onPrevClicked(event?:any)
   {
     event;
-    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {task : this._task, node: this._taskNode, model: this.model, form: this.form});
+    this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {taskDetailNewDocument: this});
   }
 
   private doPerformStateChangePromise(newState, data) : Promise<any> {
@@ -267,6 +269,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return this.form && !this.form.invalid;
   }
 
+  isProposeMatchingDocumentsVisible() : boolean
+  {
+    return this.task && this.task.status == EMRBauTaskStatus.STATUS_LINK_DOCUMENTS;
+  }
+
   isTaskAdditionalToolbarButtonsVisible() : boolean{
     return this.mrbauCommonService.isAdminUser() || this.isTaskToolbarButtonsVisible();
   }
@@ -355,7 +362,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   }
   onButtonAddFilesClicked()
   {
-    this.mrbauCommonService.openLinkFilesDialog(this.addFiles.bind(this), this.setErrorMessage.bind(this));
+    this.mrbauCommonService.openLinkFilesDialog(this.addAssociations.bind(this), this.setErrorMessage.bind(this));
   }
 
   onRemoveAssociationClicked(i:number)
@@ -387,8 +394,9 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     }
     this.nodesApiService.nodesApi.deleteAssociation(this._taskNode.id, this._taskNodeAssociations[i].entry.id)
     .then((success) => {
-        console.log(success);
+        success;
         this._taskNodeAssociations.splice(i, 1);
+        this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
         this.taskChangeEvent.emit({task : this._task, queryTasks : false});
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
@@ -431,7 +439,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return DocumentAssociations.get(EMRBauDocumentAssociations.DOCUMENT_REFERENCE).associationName;
   }
 
-  addFiles(selectedNodes: Node[])
+  async addAssociations(selectedNodes: Node[])
   {
     // remove folders
     const nodes = selectedNodes.filter((value:Node) => value.isFile)
@@ -468,12 +476,20 @@ export class TasksDetailNewDocumentComponent implements OnInit {
           this._taskNodeAssociations.push({entry: {association: {assocType : bodyParam.assocType}, id:node.id, isFolder:node.isFolder, isFile:node.isFile, name: node.name,
             nodeType: node.nodeType, modifiedAt: node.modifiedAt, modifiedByUser: node.modifiedByUser, createdAt:node.createdAt, createdByUser:node.createdByUser}});
         }
-        // TODO fix update
+        this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
         this.taskChangeEvent.emit({task : this._task, queryTasks : false});
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
     })
     .catch((error) => {
       this.errorMessage = error;
     });
+  }
+
+  async addProposedMatchingDocuments() : Promise<any>
+  {
+    const nodes = this.taskProposeMatchingDocuments.resultNodes.filter((val)=> this.taskProposeMatchingDocuments.selectedOptions.includes(val.id))
+    await this.addAssociations(nodes);
+   // console.log(this.taskProposeMatchingDocuments.selectedOptions);
+   // return new Promise((resolve) =>  resolve(null));
   }
 }

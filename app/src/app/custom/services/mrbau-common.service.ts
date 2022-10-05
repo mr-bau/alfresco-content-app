@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService, AuthenticationService } from '@alfresco/adf-core';
-import { ActionsApi, MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node } from '@alfresco/js-api';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService, AuthenticationService,  } from '@alfresco/adf-core';
+import { ActionsApi, MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
@@ -24,7 +24,7 @@ export class MrbauCommonService {
     private datePipe : DatePipe,
     private notificationService : NotificationService,
     private alfrescoApiService : AlfrescoApiService,
-    private authenticationService : AuthenticationService
+    private authenticationService : AuthenticationService,
     ) {
     }
 
@@ -189,5 +189,9 @@ export class MrbauCommonService {
     });
   }
 
+  queryNodes(searchRequest: SearchRequest) : Promise<ResultSetPaging>
+  {
+    return this.contentApiService.search(searchRequest).toPromise();
+  }
 
 }

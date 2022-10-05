@@ -107,7 +107,6 @@ export class TaskVersionlistInvoiceWorkflowComponent implements OnInit {
   }
   @Output() onAssociation = new EventEmitter<IFileSelectData>();
 
-
   private _isVisible : boolean = false;
   private _nodeId : string = null;
   private _taskId : string = null;
