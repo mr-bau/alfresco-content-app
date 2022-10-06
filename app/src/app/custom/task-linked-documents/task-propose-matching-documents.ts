@@ -1,4 +1,5 @@
 
+import { NodesApiService } from '@alfresco/adf-core';
 import { NodeAssociationEntry, Node } from '@alfresco/js-api';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { MrbauWorkflowService } from '../services/mrbau-workflow.service';
@@ -38,6 +39,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
 
   constructor(
     private mrbauWorkflowService : MrbauWorkflowService,
+    private nodesApiService : NodesApiService,
   )
   {}
 
@@ -49,12 +51,16 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     }
     else if (changes.taskNodeAssociations != null)
     {
-      this.filterSuggestions();
+      this.filterCurrentAssociations();
     }
   }
 
   querySuggestions()
   {
+    if (this.node == null)
+      return;
+
+    this.errorMessage = "Loading...";
     let newProposedNodes : Node[] = [];
     // query
     this.mrbauWorkflowService.queryProposedDocuments(this.node)
@@ -69,15 +75,80 @@ export class TaskProposeMatchingDocuments implements OnChanges {
         newProposedNodes.push(node);
       }
       this.proposedNodes = newProposedNodes;
-      this.filterSuggestions();
-      this.errorMessage = null;
+      this.filterProposedNodes();
     })
     .catch((error) => {
         this.errorMessage = error;
     });
   }
 
-  filterSuggestions()
+  async queryAssociationsAndFilter()
+  {
+    this.errorMessage = "Loading...";
+    for (let i=this.resultNodes.length-1; i>=0; i--)
+    {
+      const node = this.resultNodes[i];
+      await this.nodesApiService.nodesApi.listSourceAssociations(node.id, {skipCount:0, maxItems: 999})
+      .then((result) => {
+        if (this.shouldFilterNode(node.nodeType, result.list.entries))
+        {
+          this.resultNodes.splice(i);
+        }
+      })
+      .catch((error) => {
+        this.errorMessage = error;
+        return;
+      });
+    }
+    this.errorMessage = null;
+  }
+
+  shouldFilterNode(nodeType:string, sourceAssociations:NodeAssociationEntry[] ) : boolean
+  {
+    if (nodeType == "mrba:frameworkContract")
+    {
+      return false;
+    }
+    // only list document if it has not been associated already at least one time
+    for (const sa of sourceAssociations)
+    {
+      if (sa.entry.association.assocType == nodeType)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async filterProposedNodes() {
+    this.errorMessage = "Filtering...";
+    this.filterCurrentAssociations();
+    this.filterLatestFrameworkContract();
+    await this.queryAssociationsAndFilter();
+  }
+
+  filterLatestFrameworkContract()
+  {
+    let frameworkContracts : Node[] = this.resultNodes.filter((node) => node.nodeType == "mrba:frameworkContract");
+    if (frameworkContracts.length > 1)
+    {
+      frameworkContracts.sort((a,b) => (a.modifiedAt.getTime() - b.createdAt.getTime()));
+      let newResultNodes : Node[] = this.resultNodes.filter((node) => node.nodeType != "mrba:frameworkContract");
+      newResultNodes.push(frameworkContracts[0]);
+      this.resultNodes = newResultNodes;
+    }
+  }
+
+  updateCurrentAssociations()
+  {
+    if (this.errorMessage != null)
+    {
+      return;
+    }
+    this.filterProposedNodes();
+  }
+
+  filterCurrentAssociations()
   {
     let newResultNodes : Node[] = [];
     if (this.taskNodeAssociations ==  null)

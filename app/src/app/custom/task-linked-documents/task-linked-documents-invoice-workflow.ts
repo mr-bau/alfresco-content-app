@@ -1,5 +1,6 @@
 import { Node, NodeAssociationEntry } from '@alfresco/js-api';
 import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { IFileSelectData } from '../tasks/tasks.component';
 interface ILinkedDocumentsCategories {
   filter: string,
   name: string,
@@ -28,8 +29,8 @@ interface ILinkedDocumentsCategories {
               <summary class="expansionTitleText">{{category.name}}</summary>
               <ul class="associationList">
                 <li *ngFor="let d of filteredAssociatedDocuments; index as i">
-                  <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(i)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
-                  <a href="javascript: void(0);" (click)="onAssociationClicked(i)" matTooltip="Dokument Anzeigen">{{d.entry.name}}</a>
+                  <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(d.entry.id)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
+                  <a href="javascript: void(0);" (click)="onAssociationClicked(d.entry.id)" matTooltip="Dokument Anzeigen">{{d.entry.name}}</a>
                 </li>
               </ul>
             </details>
@@ -45,9 +46,9 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   @Input() buttonsDisabled : boolean = false;
   @Input() defaultExpanded : boolean = false;
   @Input() taskNode : Node = new Node();
-  @Output() onRemoveAssociation = new EventEmitter<number>();
+  @Output() onRemoveAssociation = new EventEmitter<string>();
   @Output() onAddAssociation = new EventEmitter();
-  @Output() onAssociation = new EventEmitter<number>();
+  @Output() onAssociation = new EventEmitter<IFileSelectData>();
   @Output() onTaskNode = new EventEmitter();
 
   readonly linkedDocumentsCategories : ILinkedDocumentsCategories[] = [
@@ -63,14 +64,14 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
     {filter:'mrba:document', name:'Andere Dokumente'}
   ];
 
-  onRemoveAssociationClicked(i:number)
+  onRemoveAssociationClicked(id:string)
   {
-    this.onRemoveAssociation.emit(i);
+    this.onRemoveAssociation.emit(id);
   }
 
-  onAssociationClicked(i:number)
+  onAssociationClicked(id:string)
   {
-    this.onAssociation.emit(i);
+    this.onAssociation.emit({nodeId:id});
   }
 
   onTaskNodeClicked()

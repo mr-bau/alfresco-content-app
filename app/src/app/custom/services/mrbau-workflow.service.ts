@@ -112,12 +112,11 @@ export class MrbauWorkflowService {
   queryProposedDocuments(node: Node) : Promise<NodePaging>
   {
     let query : SearchRequest;
-    if (node != null && node.nodeType == 'mrba:order')
+    if (node != null)
     {
-      // TODO only offers without source associations
       query = {
         query: {
-          query: 'TYPE:"mrba:offer" OR TYPE:"mrba:frameworkContract"',
+          query: '*',
           language: 'afts'
         },
         filterQueries: [
@@ -125,6 +124,7 @@ export class MrbauWorkflowService {
           { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
         ],
         fields: [
+          // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
           'id',
           'name',
           'nodeType',
@@ -149,7 +149,22 @@ export class MrbauWorkflowService {
           },
         ]
       };
-      // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+    }
+    if (node.nodeType == 'mrba:offer' || node.nodeType == 'mrba:order')
+    {
+      query.filterQueries.push({ query: `(=TYPE:"mrba:offer" AND cm:created:[NOW/DAY-120DAYS TO NOW/DAY+1DAY]) OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+    }
+    else if (node.nodeType == 'mrba:orderNegotiationProtocol')
+    {
+      query.filterQueries.push({ query: `=TYPE:"mrba:order" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
+    }
+    else if (node.nodeType == 'mrba:inboundInvoice')
+    {
+      query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+    }
+    else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument')
+    {
+      query = null;
     }
 
     if (query != null)

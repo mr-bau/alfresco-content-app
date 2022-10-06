@@ -365,7 +365,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     this.mrbauCommonService.openLinkFilesDialog(this.addAssociations.bind(this), this.setErrorMessage.bind(this));
   }
 
-  onRemoveAssociationClicked(i:number)
+  onRemoveAssociationClicked(id:string)
   {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -380,22 +380,23 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true)
       {
-        this.deleteAssociation(i);
+        this.deleteAssociation(id);
       }
     });
   }
 
-  deleteAssociation(i:number)
+  deleteAssociation(id:string)
   {
-    this._taskNodeAssociations
-    if (!this._taskNodeAssociations[i])
+
+    const index = this._taskNodeAssociations.findIndex((value) => value.entry.id == id)
+    if (index < 0)
     {
       return;
     }
-    this.nodesApiService.nodesApi.deleteAssociation(this._taskNode.id, this._taskNodeAssociations[i].entry.id)
+    this.nodesApiService.nodesApi.deleteAssociation(this._taskNode.id, id)
     .then((success) => {
         success;
-        this._taskNodeAssociations.splice(i, 1);
+        this._taskNodeAssociations.splice(index, 1);
         this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
         this.taskChangeEvent.emit({task : this._task, queryTasks : false});
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
