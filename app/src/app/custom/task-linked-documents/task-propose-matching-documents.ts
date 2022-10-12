@@ -2,6 +2,7 @@
 import { NodesApiService } from '@alfresco/adf-core';
 import { NodeAssociationEntry, Node } from '@alfresco/js-api';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Mutex } from 'async-mutex';
 import { MrbauWorkflowService } from '../services/mrbau-workflow.service';
 import { IFileSelectData } from '../tasks/tasks.component';
 
@@ -43,39 +44,50 @@ export class TaskProposeMatchingDocuments implements OnChanges {
   )
   {}
 
-  ngOnChanges(changes: SimpleChanges)
+  mutex = new Mutex();
+  async ngOnChanges(changes: SimpleChanges)
   {
-    if (changes.node != null)
-    {
-      this.querySuggestions();
-    }
-    else if (changes.taskNodeAssociations != null)
-    {
-      this.filterCurrentAssociations();
-    }
+    // make sure that only one query is running at a time
+    await this.mutex.runExclusive(async() => {
+      //console.log('start query');
+      //await new Promise((resolve) => { console.log('in');
+      //setTimeout((resolve) => resolve(null), 5000, resolve)});
+      //console.log('finished query');
+      if (changes.node != null)
+      {
+        await this.querySuggestions(); // fill proposedNodes
+        await this.filterProposedNodes(); // filter proposed Nodes and create resultNodes
+      }
+      else if (changes.taskNodeAssociations != null)
+      {
+        await this.filterProposedNodes();
+      }
+     });
   }
 
-  querySuggestions()
+  async querySuggestions()
   {
+    this.proposedNodes = [];
     if (this.node == null)
+    {
       return;
+    }
 
     this.errorMessage = "Loading...";
     let newProposedNodes : Node[] = [];
     // query
-    this.mrbauWorkflowService.queryProposedDocuments(this.node)
+    await this.mrbauWorkflowService.queryProposedDocuments(this.node)
     .then((result) => {
       if (result == null)
       {
         return;
       }
-      for (let i = 0; i< result.list.entries.length; i++)
+      for (const e of result.list.entries)
       {
-        const node = result.list.entries[i].entry;
+        const node = e.entry;
         newProposedNodes.push(node);
       }
       this.proposedNodes = newProposedNodes;
-      this.filterProposedNodes();
     })
     .catch((error) => {
         this.errorMessage = error;
@@ -84,7 +96,6 @@ export class TaskProposeMatchingDocuments implements OnChanges {
 
   async queryAssociationsAndFilter()
   {
-    this.errorMessage = "Loading...";
     for (let i=this.resultNodes.length-1; i>=0; i--)
     {
       const node = this.resultNodes[i];
@@ -139,30 +150,19 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     }
   }
 
-  updateCurrentAssociations()
-  {
-    if (this.errorMessage != null)
-    {
-      return;
-    }
-    this.filterProposedNodes();
-  }
-
   filterCurrentAssociations()
   {
     let newResultNodes : Node[] = [];
     if (this.taskNodeAssociations ==  null)
     {
-      for (let i=this.proposedNodes.length - 1; i>= 0; i--)
+      for (const n of this.proposedNodes)
       {
-        newResultNodes.push(this.proposedNodes[i]);
+        newResultNodes.push(n);
       }
     }
-    else for (let i=this.proposedNodes.length - 1; i>= 0; i--)
+    else for (const n of this.proposedNodes)
     {
-      const n = this.proposedNodes[i];
       const filteredResult = this.taskNodeAssociations.filter((element) => element.entry.id == n.id);
-
       if (filteredResult.length == 0)
       {
         newResultNodes.push(n);

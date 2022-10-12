@@ -29,6 +29,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   private _task : MRBauTask;
   @Input() set task(val : MRBauTask) {
     this._task = val;
+    this.setErrorMessage(null);
     this.updateTask();
   }
   get task() : MRBauTask {
@@ -440,13 +441,13 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     return DocumentAssociations.get(EMRBauDocumentAssociations.DOCUMENT_REFERENCE).associationName;
   }
 
-  async addAssociations(selectedNodes: Node[])
+  async addAssociations(selectedNodes: Node[]) : Promise<any>
   {
-    // remove folders
+    // remove folders from list
     const nodes = selectedNodes.filter((value:Node) => value.isFile)
     if (nodes.length == 0)
     {
-      return;
+      return Promise.resolve(null);
     }
 
     let bodyParams = [];
@@ -467,7 +468,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     const formParams = {};
     const contentTypes = ['application/json'];
     const accepts = ['application/json'];
-    this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
+    await this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
       (success) => {
         success;
         for (let i=0; i< nodes.length; i++)
@@ -480,17 +481,17 @@ export class TasksDetailNewDocumentComponent implements OnInit {
         this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
         this.taskChangeEvent.emit({task : this._task, queryTasks : false});
         this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+        return Promise.resolve(null);
     })
     .catch((error) => {
       this.errorMessage = error;
+      return Promise.reject(new Error(error));
     });
   }
 
   async addProposedMatchingDocuments() : Promise<any>
   {
     const nodes = this.taskProposeMatchingDocuments.resultNodes.filter((val)=> this.taskProposeMatchingDocuments.selectedOptions.includes(val.id))
-    await this.addAssociations(nodes);
-   // console.log(this.taskProposeMatchingDocuments.selectedOptions);
-   // return new Promise((resolve) =>  resolve(null));
+    return this.addAssociations(nodes);
   }
 }
