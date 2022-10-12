@@ -102,12 +102,11 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       return;
     }
     this.isLoading = true;
-    this.changeDetectorRef.detectChanges();
     this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).toPromise()
     .then((nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
-        return this.nodesApiService.nodesApi.listTargetAssociations(nodeEntry.entry.id, {skipCount:0, maxItems: 999});
+        return this.nodesApiService.nodesApi.listTargetAssociations(nodeEntry.entry.id, {skipCount:0, maxItems: 999, include: ['properties']});
       }
     )
     .then(
@@ -187,6 +186,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
     .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
     .then( () => {
       this.emitTaskChangeEvent();
+      this.changeDetectorRef.detectChanges();
       this.form = new FormGroup({}); // create new form to reflect data from model
       this.isLoading = false;})
     .catch((error) => {

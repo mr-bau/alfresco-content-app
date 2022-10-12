@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Node, NodePaging, SearchRequest } from '@alfresco/js-api';
+import { Node, NodeAssociation, NodeAssociationEntry, NodePaging, SearchRequest } from '@alfresco/js-api';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
@@ -37,26 +37,66 @@ export class MrbauWorkflowService {
     data;
     console.log("performDuplicateCheck 1");
     return new Promise((resolve) => {
-      setTimeout(this.dummyDuplicateCheck, 1000, resolve)});
-  }
-
-  dummyDuplicateCheck(resolve)
-  {
-    console.log("performDuplicateCheck 2");
-    resolve(null);
+      setTimeout(resolve => resolve(null), 1000, resolve)});
   }
 
   cloneMetadataFromLinkedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {
-    data;
-    console.log("cloneMetadataFromLinkedDocuments 1");
-    return new Promise((resolve) => {
-      setTimeout(this.dummyCloneMetadataFromLinkedDocuments, 1000, resolve)});
+    if (data == null || data.taskDetailNewDocument == null || data.taskDetailNewDocument.taskNode == null || data.taskDetailNewDocument.taskNodeAssociations == null)
+    {
+
+      return Promise.resolve(null);
+    }
+    const associations = data.taskDetailNewDocument.taskNodeAssociations;
+    let filteredAssociations : NodeAssociationEntry[] = [];
+    const nodeTypePriorityList : string[] = [
+      "mrba:orderNegotiationProtocol",
+      "mrba:order",
+      "mrba:frameworkContract",
+      "mrba:offer",
+    ];
+    let documentCount = 0;
+    let propertyCount = 0;
+    for (const priority of nodeTypePriorityList)
+    {
+      filteredAssociations = associations.filter((entry) => (entry.entry.nodeType == priority));
+      if (filteredAssociations.length > 0)
+      {
+        propertyCount += this.clonePaymentMetaData(data, filteredAssociations[0].entry);
+        documentCount++;
+      }
+    }
+    this.mrbauCommonService.showInfo(propertyCount+" Eigenschaften von "+documentCount+" Dokumenten übertragen");
+    return Promise.resolve(null);
   }
 
-  dummyCloneMetadataFromLinkedDocuments(resolve)
+  private clonePaymentMetaData(data:MRBauWorkflowStateCallbackData, association: NodeAssociation) : number
   {
-    console.log("cloneMetadataFromLinkedDocuments 2");
-    resolve(null);
+    let numPropertiesCopied = 0;
+    const fieldList = [
+      "mrba:paymentTargetDays",
+      "mrba:reviewDaysFinalInvoice",
+      "mrba:reviewDaysPartialInvoice",
+      "mrba:earlyPaymentDiscountPercent1",
+      "mrba:earlyPaymentDiscountDays1",
+      "mrba:earlyPaymentDiscountPercent2",
+      "mrba:earlyPaymentDiscountDays2",
+      "mrba:netAmount",
+      "mrba:grossAmount",
+      "mrba:taxRate",
+      "mrba:taxRateComment",
+    ];
+    for (const property of fieldList)
+    {
+      if (data.taskDetailNewDocument.model[property] == null || data.taskDetailNewDocument.model[property] == "")
+      {
+        if (association.properties[property] != null)
+        {
+          data.taskDetailNewDocument.model[property] = String(association.properties[property]);
+          numPropertiesCopied++;
+        }
+      }
+    }
+    return numPropertiesCopied;
   }
 
   private correctWeekend(date : Date) {
