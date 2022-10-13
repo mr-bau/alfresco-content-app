@@ -65,7 +65,10 @@ export class MrbauWorkflowService {
         documentCount++;
       }
     }
-    this.mrbauCommonService.showInfo(propertyCount+" Eigenschaften von "+documentCount+" Dokumenten übertragen");
+    if (propertyCount > 0)
+    {
+      this.mrbauCommonService.showInfo(propertyCount+" Eigenschaften von "+documentCount+" Dokumenten übertragen");
+    }
     return Promise.resolve(null);
   }
 
