@@ -65,6 +65,14 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     super();
 
     this.fields = this.fieldsMain;
+    // make all fields mandatory
+    for (const f of this.fields)
+    {
+      for (const fg of f.fieldGroup)
+      {
+        fg.templateOptions.required = true;
+      }
+    }
     const date = new Date();
     this.model['mrba:archivedDateValue'] = this.mrbauCommonService.getFormDateValue(date);
     this.model['mrba:organisationUnit'] = this.mrbauConventionsService.getDefaultOrganisationUnit();
