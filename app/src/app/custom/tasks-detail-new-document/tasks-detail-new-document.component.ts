@@ -1,7 +1,7 @@
 import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
 import { NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { Node, NodeAssociationEntry, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
@@ -19,7 +19,7 @@ import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
   templateUrl: './tasks-detail-new-document.component.html',
   styleUrls: ['./tasks-detail-new-document.component.scss']
 })
-export class TasksDetailNewDocumentComponent implements OnInit {
+export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked  {
   @ViewChild('taskProposeMatchingDocuments') taskProposeMatchingDocuments : TaskProposeMatchingDocuments;
 
   @Output() fileSelectEvent = new EventEmitter<IFileSelectData>();
@@ -44,7 +44,6 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   get taskNodeAssociations() : NodeAssociationEntry[] {
     return this._taskNodeAssociations;
   }
-
 
   commentPanelOpened:boolean=false;
   historyPanelOpened:boolean=false;
@@ -71,19 +70,25 @@ export class TasksDetailNewDocumentComponent implements OnInit {
   submitButtonText : string;
 
   constructor(
+    private changeDetectorRef: ChangeDetectorRef,
     private dialog: MatDialog,
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
     private mrbauArchiveModelService : MrbauArchiveModelService,
-    private changeDetectorRef: ChangeDetectorRef,
     private nodesApiService : NodesApiService,
     private notificationService: NotificationService,
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
   }
 
-  testId : string;
+  ngAfterViewChecked(): void {
+    // workaround for ExpressionChangedAfterItHasBeenCheckedError
+    // https://stackoverflow.com/questions/43375532/expressionchangedafterithasbeencheckederror-explained
+    // https://hackernoon.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
+    // this.changeDetectorRef.detectChanges();
+  }
 
   updateTask() {
     this.updateButtonText();
@@ -101,7 +106,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
       this.errorEvent.emit("Dokument-Assoziation fehlt!");
       return;
     }
-    this.isLoading = true;
+    this.startLoading();
     this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).toPromise()
     .then((nodeEntry) => {
         nodeEntry;
@@ -120,28 +125,38 @@ export class TasksDetailNewDocumentComponent implements OnInit {
         {
           workflowState.onEnterAction({taskDetailNewDocument:this}).finally( () =>
           {
-            this.form = new FormGroup({});
-            this.isLoading = false;
+            this.recreateForm();
+            this.finishLoading();
           });
         }
         else {
-          this.form = new FormGroup({}); // create new form to reflect data from model
-          this.isLoading = false;
+          this.recreateForm();// create new form to reflect data from model
+          this.finishLoading();
         }
       }
     )
     .catch((error) => {
       this.errorEvent.emit(error);
-      this.isLoading = false;
+      this.finishLoading();
     });
-
   }
 
+  recreateForm()
+  {
+    this.form = new FormGroup({});
+    this.changeDetectorRef.detectChanges();
+  }
+  startLoading()
+  {
+    this.isLoading = true;
+  }
+
+  finishLoading()
+  {
+    this.isLoading = false;
+  }
   updateFormDC() {
     this.updateForm();
-    // workaround for ExpressionChangedAfterItHasBeenCheckedError
-    // https://stackoverflow.com/questions/43375532/expressionchangedafterithasbeencheckederror-explained
-    // https://hackernoon.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
     this.changeDetectorRef.detectChanges();
   }
 
@@ -179,19 +194,18 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   performStateChangeAction(nextStateFunction : MRBauWorkflowStateCallback, data: MRBauWorkflowStateCallbackData)
   {
-    this.isLoading = true;
+    this.startLoading();
     this.writeMetadata()
     .then( () => {return nextStateFunction(data);})
     .then( (newState) => {return this.doPerformStateChangePromise(newState, data)})
     .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
     .then( () => {
       this.emitTaskChangeEvent();
-      this.changeDetectorRef.detectChanges();
-      this.form = new FormGroup({}); // create new form to reflect data from model
-      this.isLoading = false;})
+      this.recreateForm(); // create new form to reflect data from model
+      this.finishLoading();})
     .catch((error) => {
       console.log(error);
-      this.isLoading = false;
+      this.finishLoading();
       this.notificationService.showError('Fehler: '+error);
     });
   }
@@ -267,7 +281,7 @@ export class TasksDetailNewDocumentComponent implements OnInit {
 
   isFormValid()
   {
-    return this.form && !this.form.invalid;
+    return this.form && this.form.valid;
   }
 
   isProposeMatchingDocumentsVisible() : boolean
