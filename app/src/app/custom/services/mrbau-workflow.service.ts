@@ -4,6 +4,7 @@ import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
 import { MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { EMRBauDuplicateResolveOptions } from '../form/mrbau-formly-duplicated-document.component';
 
 @Injectable({
   providedIn: 'root'
@@ -34,10 +35,95 @@ export class MrbauWorkflowService {
   }
 
   performDuplicateCheck(data:MRBauWorkflowStateCallbackData) : Promise<any> {
-    data;
-    console.log("performDuplicateCheck 1");
-    return new Promise((resolve) => {
-      setTimeout(resolve => resolve(null), 1000, resolve)});
+    const nodeTypesForDuplicateCheck : string[] = [
+      "mrba:offer",
+      "mrba:frameworkContract",
+      "mrba:invoice",
+    ];
+    const node = data.taskDetailNewDocument.taskNode;
+    if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) >= 0)
+    {
+      let query : SearchRequest = {
+        query: {
+          query: '*',
+          language: 'afts'
+        },
+        filterQueries: [
+          { query: '=SITE:belegsammlung'},
+          { query: `=TYPE:"${node.nodeType}"`},
+          { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the actual document
+          { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+          { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
+          { query: `=mrba:documentNumber:"${node.properties['mrba:documentNumber']}"`},
+          { query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents
+        ],
+        fields: [
+          // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+          'id',
+          'name',
+          'nodeType',
+          'isFolder',
+          'isFile',
+          'modifiedAt',
+          'modifiedByUser',
+          'createdAt',
+          'createdByUser',
+        ],
+        include: [
+          'path'
+        ]
+      };
+      return new Promise((resolve, reject) => {
+        this.mrbauCommonService.queryNodes(query)
+        .then((result) => {
+          if (result.list.entries.length > 0)
+          {
+            data.taskDetailNewDocument.duplicateNode = result.list.entries[0].entry as Node;
+            resolve(result.list.entries[0]);
+          }
+          else
+          {
+            data.taskDetailNewDocument.duplicateNode = undefined;
+            resolve(null);
+          }
+        })
+        .catch((error) => reject(new Error(error)));
+      });
+    }
+
+    return new Promise((resolve) => resolve(null));
+  }
+
+  resolveDuplicateIssue(data:MRBauWorkflowStateCallbackData) : Promise<any>
+  {
+    const resolveSelection = data.taskDetailNewDocument.model['ignore:mrbauFormlyDuplicatedDocument'];
+    if (resolveSelection!=null)
+    {
+      const nodeId = data.taskDetailNewDocument.taskNode.id;
+      switch (resolveSelection)
+      {
+        default:
+        case EMRBauDuplicateResolveOptions.IGNORE:
+          return Promise.resolve(EMRBauTaskStatus.STATUS_ALL_SET);
+        case EMRBauDuplicateResolveOptions.DELETE:
+          return new Promise((resolve, reject) =>
+            {
+              this.mrbauCommonService.discardDocumentWithConfirmDialog(nodeId)
+              .then(
+              (result) => {
+                  // successfully deleted
+                  return resolve(result ? EMRBauTaskStatus.STATUS_FINISHED : EMRBauTaskStatus.STATUS_DUPLICATE);
+              })
+              .catch((error) => reject(error));
+            }
+          );
+        case EMRBauDuplicateResolveOptions.NEW_VERSION:
+          //TODO...
+          break;
+      }
+      console.log(resolveSelection);
+    }
+    return Promise.resolve(null);
   }
 
   cloneMetadataFromLinkedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {

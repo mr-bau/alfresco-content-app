@@ -9,6 +9,7 @@ import { CONST } from '../mrbau-global-declarations';
 import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData } from '@alfresco/adf-content-services';
 import { MatDialog } from '@angular/material/dialog';
 import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
+import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -194,4 +195,64 @@ export class MrbauCommonService {
     return this.contentApiService.search(searchRequest).toPromise();
   }
 
+  discardDocument(nodeId : string) : Promise<MinimalNodeEntity>
+  {
+    const date = new Date();
+    const nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrba:discardDate": this.getFormDateValue(date)}};
+    return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
+  }
+
+  discardDocumentWithConfirmDialog(nodeId : string) : Promise<boolean>
+  {
+    return new Promise((resolve, reject) =>
+      {
+        // dialog
+        const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+          data: {
+            dialogTitle: 'Dokument Löschen',
+            dialogMsg: 'Dokument endgültig löschen?',
+            dialogButtonOK: 'DOKUMENT LÖSCHEN',
+            callQueryData: false,
+            fieldsMain: [
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                  {
+                    className: 'flex-2',
+                    key: 'comment',
+                    type: 'textarea',
+                    templateOptions: {
+                      label: 'Optionaler Kommentar',
+                      description: 'Kommentar',
+                      maxLength: CONST.MAX_LENGTH_COMMENT,
+                      required: false,
+                    },
+                  },
+                ]
+              }
+            ],
+            payload: null
+          }
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result)
+          {
+            if (result.comment)
+            {
+              this.addComment(nodeId, result.comment);
+            }
+
+            this.discardDocument(nodeId)
+            .then(() =>
+            {
+              return resolve(true);
+            })
+            .catch((error) => reject(error));
+          }
+          return resolve(false);
+        });
+      }
+    )
+  }
 }

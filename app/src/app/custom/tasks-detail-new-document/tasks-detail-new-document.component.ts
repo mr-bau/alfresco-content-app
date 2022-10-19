@@ -10,6 +10,7 @@ import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
+import { MrbauWorkflowService } from '../services/mrbau-workflow.service';
 import { TaskProposeMatchingDocuments } from '../task-linked-documents/task-propose-matching-documents';
 import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
 import { TaskBarButton } from '../tasksdetail/tasksdetail.component';
@@ -44,6 +45,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   get taskNodeAssociations() : NodeAssociationEntry[] {
     return this._taskNodeAssociations;
   }
+  duplicateNode : Node;
 
   commentPanelOpened:boolean=false;
   historyPanelOpened:boolean=false;
@@ -72,6 +74,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
     private dialog: MatDialog,
+    private mrbauWorkflowService:MrbauWorkflowService,
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
     private mrbauArchiveModelService : MrbauArchiveModelService,
@@ -275,6 +278,11 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         }
       }
     })
+    if (Object.keys(nodeBody.properties).length == 0)
+    {
+      //console.log('writeMetadata nothing to do');
+      return new Promise((resolve) => resolve(null));
+    }
     //console.log(nodeBody);
     return this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {});
   }
@@ -345,10 +353,35 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         }
         this.model[key] = value;
       }
+
+      if (formlyFieldConfig.type == 'mrbauFormlyDuplicatedDocument')
+      {
+       //
+       this.model['ignore:taskNode'] = this.taskNode;
+       this.model['ignore:duplicateNode'] = this.duplicateNode;
+       this.model['ignore:callback'] = this.mrbauFormlyDuplicatedDocumentCallback.bind(this);
+      }
     }
     if (formlyFieldConfig.fieldGroup)
     {
       formlyFieldConfig.fieldGroup.forEach( (fc) => this.updateFormValueRecursive(fc))
+    }
+  }
+
+  mrbauFormlyDuplicatedDocumentCallback(nodeId?:string)
+  {
+    if (!nodeId)
+    {
+      this.mrbauWorkflowService.performDuplicateCheck({taskDetailNewDocument: this})
+      .then((result) => {
+        result;
+        this.model['ignore:duplicateNode'] = this.duplicateNode;
+      })
+      .catch((error) => this.setErrorMessage(error));
+    }
+    else
+    {
+      this.fileSelectEvent.emit({nodeId : nodeId});
     }
   }
 

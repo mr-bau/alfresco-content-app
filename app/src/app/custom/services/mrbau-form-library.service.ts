@@ -468,8 +468,11 @@ export class MrbauFormLibraryService {
   }
 
   readonly duplicated_document_form : FormlyFieldConfig = {
-    key: 'mrbauFormlyDuplicatedDocument',
+    key: 'ignore:mrbauFormlyDuplicatedDocument',
     type: 'mrbauFormlyDuplicatedDocument',
+    templateOptions: {
+      required : true,
+    }
   };
 
   readonly workflow_all_set_form : FormlyFieldConfig = {

@@ -289,7 +289,15 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              resolve(result);
+            })
+            .catch( (error) => reject(error))
+            //
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
