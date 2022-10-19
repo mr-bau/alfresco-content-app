@@ -44,6 +44,7 @@ export abstract class MrbauBaseTaskDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fields = this.data.fieldsMain;
     this.dialogRef.afterClosed().subscribe(result => {
       this.onDialogClose(result);
     });
