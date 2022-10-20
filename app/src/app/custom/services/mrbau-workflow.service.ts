@@ -125,7 +125,13 @@ export class MrbauWorkflowService {
             }
           );
         case EMRBauDuplicateResolveOptions.NEW_VERSION:
-            return Promise.reject('TODO');
+          const duplicateNode = data.taskDetailNewDocument.duplicateNode;
+          if (!duplicateNode)
+          {
+            Promise.reject('Error: duplicate node not set');
+          }
+
+          return Promise.reject('TODO');
       }
     }
     return Promise.reject('Unknown Resolve Selection');

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MRBauTask } from '../mrbau-task-declarations';
-import { MrbauCommonService } from '../services/mrbau-common.service';
+import { MrbauActionService } from '../services/mrbau-action.service';
 @Component({
   selector: 'aca-tasks-menu-ocr',
   template: `
@@ -14,7 +14,7 @@ export class TasksMenuOcrComponent {
   @Input() task: MRBauTask;
 
   constructor(
-    private mrbauCommonService: MrbauCommonService,
+    private mrbauActionService: MrbauActionService,
     ) { }
 
   isDisabled() : boolean {
@@ -27,6 +27,6 @@ export class TasksMenuOcrComponent {
     {
       return;
     }
-    this.mrbauCommonService.startOcrTransformById(this.task.associatedDocumentRef[0])
+    this.mrbauActionService.startOcrTransformById(this.task.associatedDocumentRef[0])
   }
 }

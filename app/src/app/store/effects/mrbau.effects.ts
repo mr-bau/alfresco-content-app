@@ -6,14 +6,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { MRBAU_NEW_TASK_DIALOG, MRBAU_INBOX_ASSIGN_DIALOG, MRBAU_START_OCR, MrbauNewTaskDialogAction, MrbauInboxAssignDialogAction, MrbauStartOcrAction} from '../actions/mrbau.actions';
 import { MrbauNewTaskDialogComponent } from '../../custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauInboxAssignDialogComponent } from '../../custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
-import { MrbauCommonService } from '../../custom/services/mrbau-common.service';
+import { MrbauActionService } from '../../custom/services/mrbau-action.service';
 
 @Injectable()
 export class MrbauEffects {
   constructor(
     private actions$: Actions,
     private dialog: MatDialog,
-    private mrbauCommonService : MrbauCommonService
+    private mrbauActionService : MrbauActionService
     ) {}
 
   mrbauNewTaskDialog$ = createEffect(
@@ -44,7 +44,7 @@ export class MrbauEffects {
     () => this.actions$.pipe(
       ofType<MrbauStartOcrAction>(MRBAU_START_OCR),
       map((action) => {
-          this.mrbauCommonService.startOcrTransform({payload: action.payload });
+          this.mrbauActionService.startOcrTransform({payload: action.payload });
       })
     ),
     { dispatch: false }

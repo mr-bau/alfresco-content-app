@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AlfrescoApiService, AuthenticationService,  } from '@alfresco/adf-core';
-import { ActionsApi, MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging } from '@alfresco/js-api';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AuthenticationService,  } from '@alfresco/adf-core';
+import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
-import { SelectionState } from '@alfresco/adf-extensions/public-api';
 import { CONST } from '../mrbau-global-declarations';
 import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData } from '@alfresco/adf-content-services';
 import { MatDialog } from '@angular/material/dialog';
@@ -24,16 +23,9 @@ export class MrbauCommonService {
     private contentApiService: ContentApiService,
     private datePipe : DatePipe,
     private notificationService : NotificationService,
-    private alfrescoApiService : AlfrescoApiService,
     private authenticationService : AuthenticationService,
     ) {
     }
-
-  private _actionsApi: ActionsApi;
-  get actionsApi(): ActionsApi {
-    this._actionsApi = this._actionsApi ?? new ActionsApi(this.alfrescoApiService.getInstance());
-    return this._actionsApi;
-  }
 
   async openLinkFilesDialog(callback:(val: Node[]) => void, callbackError:(val: string) => void) {
 
@@ -157,32 +149,7 @@ export class MrbauCommonService {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 
-  startOcrTransform(data : any) {
-    if (!data || !data.payload)
-    {
-      return;
-    }
-    const selection = data.payload as SelectionState;
-    selection.nodes.forEach(node => {
-      this.actionsApi.actionExec({actionDefinitionId: CONST.START_OCR_ACTION_Id, targetId: node.entry.id, params: {}})
-      .then( () => {
-        this.notificationService.showInfo('OCR wurde erfolgreich gestartet ...');
-      })
-      .catch(error => {
-        this.notificationService.showError('OCR Fehler: '+error);
-      });
-    });
-  }
 
-  startOcrTransformById(id : string) {
-    this.actionsApi.actionExec({actionDefinitionId: CONST.START_OCR_ACTION_Id, targetId: id, params: {}})
-    .then( () => {
-      this.notificationService.showInfo('OCR wurde erfolgreich gestartet ...');
-    })
-    .catch(error => {
-      this.notificationService.showError('OCR Fehler: '+error);
-    });
-  }
 
   queryNodes(searchRequest: SearchRequest) : Promise<ResultSetPaging>
   {
