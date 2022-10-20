@@ -110,7 +110,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       return;
     }
     this.startLoading();
-    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0]).toPromise()
+    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: ['path', 'properties']}).toPromise()
     .then((nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
@@ -198,7 +198,8 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   performStateChangeAction(nextStateFunction : MRBauWorkflowStateCallback, data: MRBauWorkflowStateCallbackData)
   {
     this.startLoading();
-    this.writeMetadata()
+    this.writeMetadata() // update document meta data
+    .then( () => {return this.updateTaskNodeMetadataFromServer();}) // update local document meta data
     .then( () => {return nextStateFunction(data);})
     .then( (newState) => {return this.doPerformStateChangePromise(newState, data)})
     .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
@@ -262,6 +263,18 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     return MRBauTask.isTaskInNotifyOrDoneState(this.task.status);
   }
 
+  private keyIsValid(key:string) : boolean
+  {
+    if (this.model[key] || this.model[key] === 0)
+    {
+      if (!key.startsWith('ignore:'))// ignore fields where the key starts with ignore: e.g. calculated values
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   writeMetadata() : Promise<NodeEntry> {
     let nodeBody : NodeBodyUpdate =  {
       properties: {
@@ -269,13 +282,10 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     };
     Object.keys(this.model).forEach( key =>
     {
-      if (this.model[key] || this.model[key] === 0)
+      if (this.keyIsValid(key))
       {
-        if (!key.startsWith('ignore:'))// ignore fields where the key starts with ignore: e.g. calculated values
-        {
-            // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
-            nodeBody.properties[key] =  (this.model[key].value) ? (this.model[key].value) : this.model[key];
-        }
+        // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
+        nodeBody.properties[key] =  (this.model[key].value) ? (this.model[key].value) : this.model[key];
       }
     })
     if (Object.keys(nodeBody.properties).length == 0)
@@ -285,6 +295,31 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     }
     //console.log(nodeBody);
     return this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {});
+  }
+
+  updateTaskNodeMetadata() : Promise<any>
+  {
+    Object.keys(this.model).forEach( key =>
+    {
+      if (this.keyIsValid(key))
+      {
+        this._taskNode.properties[key] = this.model[key];
+      }
+    });
+    return Promise.resolve(null);
+  }
+
+  updateTaskNodeMetadataFromServer() : Promise<any>
+  {
+    return new Promise( (resolve, reject) =>
+    {
+      this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: ['path', 'properties']}).toPromise()
+      .then((nodeEntry) => {
+        this._taskNode = nodeEntry.entry;
+        return resolve(null);
+      })
+      .catch((error) => {return reject(error);})
+    });
   }
 
   isFormValid()

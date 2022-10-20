@@ -100,6 +100,12 @@ export class MrbauWorkflowService {
     if (resolveSelection!=null)
     {
       const nodeId = data.taskDetailNewDocument.taskNode.id;
+      if (data.taskDetailNewDocument.taskNode.properties['mrba:discardDate'])
+      {
+        // already discarded
+        console.log("Document already discarded: "+data.taskDetailNewDocument.taskNode.properties['mrba:discardDate']);
+        return Promise.resolve(EMRBauTaskStatus.STATUS_FINISHED);
+      }
       switch (resolveSelection)
       {
         default:
@@ -111,19 +117,18 @@ export class MrbauWorkflowService {
               this.mrbauCommonService.discardDocumentWithConfirmDialog(nodeId)
               .then(
               (result) => {
-                  // successfully deleted
-                  return resolve(result ? EMRBauTaskStatus.STATUS_FINISHED : EMRBauTaskStatus.STATUS_DUPLICATE);
+                  // successfully deleted or canceled
+                  const stat = (result === true) ? EMRBauTaskStatus.STATUS_FINISHED : EMRBauTaskStatus.STATUS_DUPLICATE
+                  return resolve(stat);
               })
               .catch((error) => reject(error));
             }
           );
         case EMRBauDuplicateResolveOptions.NEW_VERSION:
-          //TODO...
-          break;
+            return Promise.reject('TODO');
       }
-      console.log(resolveSelection);
     }
-    return Promise.resolve(null);
+    return Promise.reject('Unknown Resolve Selection');
   }
 
   cloneMetadataFromLinkedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {
