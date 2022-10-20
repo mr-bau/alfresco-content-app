@@ -8,7 +8,7 @@ import { MrbauBaseTaskDialogComponent, MrbauBaseTaskDialogComponentProps } from 
   template: `
   <h2 mat-dialog-title>{{dialogTitle}}</h2>
   <mat-dialog-content>
-    <div>{{dialogMsg}}</div>
+    <div class="addMarginBottom">{{dialogMsg}}</div>
       <form [formGroup]="form">
         <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
       </form>
