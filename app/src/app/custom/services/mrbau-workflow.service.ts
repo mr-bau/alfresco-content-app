@@ -229,12 +229,9 @@ export class MrbauWorkflowService {
         dialogRef.afterClosed().subscribe((result) => {
           if (result)
           {
-            if (result.comment)
-            {
-              this.mrbauCommonService.addComment(nodeId, result.comment);
-            }
             //console.log(result);
-            this.mrbauActionService.mrbauResetArchiveTypeWebscript(nodeId, result.newArchiveType)
+            this.mrbauCommonService.addComment(nodeId, result.comment)
+            .then( () => {return this.mrbauActionService.mrbauResetArchiveTypeWebscript(nodeId, result.newArchiveType);})
             .then((result) =>
             {
               console.log(result);

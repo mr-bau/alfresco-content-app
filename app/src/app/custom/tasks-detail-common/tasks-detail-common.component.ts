@@ -1,11 +1,10 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
 
 import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
-import { CommentModel, ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
 import { NodeBodyUpdate, Node } from '@alfresco/js-api';
 
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
-import { Observable } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -138,21 +137,13 @@ export class TasksDetailCommonComponent implements OnInit {
 
   addComment(comment: string)
   {
-    const result : Observable<CommentModel> = this._mrbauCommonService.addComment(this._task.id, comment);
-    if (result == null)
-    {
-      return;
-    }
-    result.subscribe(
-      (res: CommentModel) => {
-        res;
-        this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
-        this.resetModel();
-      },
-      (err) => {
-        this.errorMessage = (this.errorMessage) ? err : this.errorMessage+"\n"+err;
-      }
-    );
+    this._mrbauCommonService.addComment(this._task.id, comment)
+    .then(() => {
+
+      this._notificationService.showInfo('Änderungen erfolgreich gespeichert');
+      this.resetModel();
+    })
+    .catch(err => this.errorMessage = (this.errorMessage) ? err : this.errorMessage+"\n"+err)
   }
 
   saveNewStatus(status : EMRBauTaskStatus, newUserId?: string)

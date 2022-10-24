@@ -47,7 +47,7 @@ export class TasksMenuDelegateComponent {
     {
       return;
     }
-    this.mrbauCommonService.addComment(this.task.id, model.comment);
+
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": newUser}};
     if (this.task.isInNotifyState())
     {
@@ -55,7 +55,9 @@ export class TasksMenuDelegateComponent {
       nodeBodyUpdate.properties["mrbt:status"] = ""+EMRBauTaskStatus.STATUS_NEW;
     }
 
-    this.contentService.nodesApi.updateNode(this.task.id, nodeBodyUpdate).then(
+    this.mrbauCommonService.addComment(this.task.id, model.comment)
+    .then(() => {return this.contentService.nodesApi.updateNode(this.task.id, nodeBodyUpdate);})
+    .then(
       (nodeEntry) => {
         this.task.assignedUserName = newUser;
         this.task.updateWithNodeData(nodeEntry.entry);

@@ -110,18 +110,19 @@ export class MrbauCommonService {
     return this.commentContentService.getNodeComments(nodeId);
   }
 
-  addComment(nodeId: string, comment: string) : Observable<CommentModel>
+  addComment(nodeId: string, comment: string) : Promise<CommentModel>
   {
-    if (!comment)
+    if (!comment || !nodeId)
     {
-      return null;
+      return Promise.resolve(null);
     }
     comment = comment.trim();
     if (comment.length == 0)
     {
-      return null;
+      return Promise.resolve(null);
     }
-    return this.commentContentService.addNodeComment(nodeId, comment);
+
+    return this.commentContentService.addNodeComment(nodeId, comment).toPromise();
   }
 
   showInfo(message:string) {
@@ -203,12 +204,8 @@ export class MrbauCommonService {
         dialogRef.afterClosed().subscribe((result) => {
           if (result)
           {
-            if (result.comment)
-            {
-              this.addComment(nodeId, result.comment);
-            }
-
-            this.discardDocument(nodeId)
+            this.addComment(nodeId, result.comment)
+            .then(() => {return this.discardDocument(nodeId)})
             .then((result) =>
             {
               console.log(result);

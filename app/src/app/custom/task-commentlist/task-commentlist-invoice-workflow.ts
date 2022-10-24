@@ -3,7 +3,6 @@ import { CommentModel } from '@alfresco/adf-core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
-import { Observable } from 'rxjs';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 
 interface CommentData {
@@ -120,22 +119,13 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
 
   addComment(comment: string)
   {
-    const result : Observable<CommentModel> = this._mrbauCommonService.addComment(this._nodeId, comment);
-    if (result == null)
-    {
-      return;
-    }
-    result.subscribe(
-      (res: CommentModel) => {
-        res;
-        this._mrbauCommonService.showInfo('Änderungen erfolgreich gespeichert');
-        this.model = {};
-        this.queryData()
-      },
-      (err) => {
-        this.errorMessage = (this.errorMessage) ? err : this.errorMessage+"\n"+err;
-      }
-    );
+    this._mrbauCommonService.addComment(this._nodeId, comment)
+    .then(() => {
+      this._mrbauCommonService.showInfo('Änderungen erfolgreich gespeichert');
+      this.model = {};
+      this.queryData()
+    })
+    .catch(err => this.errorMessage = (this.errorMessage) ? err : this.errorMessage+"\n"+err)
   }
 }
 
