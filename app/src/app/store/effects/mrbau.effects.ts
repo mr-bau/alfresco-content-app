@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { createEffect } from '@ngrx/effects';
 import { MatDialog } from '@angular/material/dialog';
-import { MRBAU_NEW_TASK_DIALOG, MRBAU_INBOX_ASSIGN_DIALOG, MRBAU_START_OCR, MrbauNewTaskDialogAction, MrbauInboxAssignDialogAction, MrbauStartOcrAction} from '../actions/mrbau.actions';
+import { MRBAU_NEW_TASK_DIALOG, MRBAU_INBOX_ASSIGN_DIALOG, MRBAU_START_OCR, MrbauNewTaskDialogAction, MrbauInboxAssignDialogAction, MrbauStartOcrAction, MrbauUseAsNewVersion, MRBAU_USE_AS_NEW_VERSION, MrbauResetArchiveType, MRBAU_RESET_ARCHIVE_TYPE} from '../actions/mrbau.actions';
 import { MrbauNewTaskDialogComponent } from '../../custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauInboxAssignDialogComponent } from '../../custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 import { MrbauActionService } from '../../custom/services/mrbau-action.service';
@@ -45,6 +45,26 @@ export class MrbauEffects {
       ofType<MrbauStartOcrAction>(MRBAU_START_OCR),
       map((action) => {
           this.mrbauActionService.startOcrTransform({payload: action.payload });
+      })
+    ),
+    { dispatch: false }
+  );
+
+  mrbauUseAsNewVersion$ = createEffect(
+    () => this.actions$.pipe(
+      ofType<MrbauUseAsNewVersion>(MRBAU_USE_AS_NEW_VERSION),
+      map((action) => {
+          this.mrbauActionService.mrbauUseAsNewVersion({payload: action.payload });
+      })
+    ),
+    { dispatch: false }
+  );
+
+  mrbauResetArchiveType$ = createEffect(
+    () => this.actions$.pipe(
+      ofType<MrbauResetArchiveType>(MRBAU_RESET_ARCHIVE_TYPE),
+      map((action) => {
+          this.mrbauActionService.mrbauResetArchiveType({payload: action.payload });
       })
     ),
     { dispatch: false }

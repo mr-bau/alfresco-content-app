@@ -14,7 +14,7 @@ export class CONST {
   public static readonly CM_DESC:               string = "cm:description";
   public static readonly CM_FOLDER:             string = "cm:folder";
 
-  public static readonly START_OCR_ACTION_Id:   string = "embed-metadata";
+
   static readonly HELPER_FORCE_FULL_TEXT_SEARCH: string =  " and ISNODE:T";
 
   static isPdfDocument(node: NodeEntry | VersionEntry) : boolean

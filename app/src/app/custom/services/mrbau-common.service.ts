@@ -149,7 +149,11 @@ export class MrbauCommonService {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 
+  getNodeRefFromNodeId(nodeId : string) : string
+  {
 
+    return 'workspace://SpacesStore/'+nodeId;
+  }
 
   queryNodes(searchRequest: SearchRequest) : Promise<ResultSetPaging>
   {

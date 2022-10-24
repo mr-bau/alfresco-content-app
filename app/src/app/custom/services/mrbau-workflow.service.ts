@@ -5,6 +5,11 @@ import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
 import { MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 import { EMRBauDuplicateResolveOptions } from '../form/mrbau-formly-duplicated-document.component';
+import { MrbauActionService } from './mrbau-action.service';
+import { CONST } from '../mrbau-global-declarations';
+import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +17,10 @@ import { EMRBauDuplicateResolveOptions } from '../form/mrbau-formly-duplicated-d
 export class MrbauWorkflowService {
 
   constructor(
+    private mrbauActionService: MrbauActionService,
     private mrbauCommonService: MrbauCommonService,
     private mrbauConventionsService: MrbauConventionsService,
-
+    private dialog: MatDialog,
     ) { }
 
   assignNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<any> {
@@ -128,13 +134,121 @@ export class MrbauWorkflowService {
           const duplicateNode = data.taskDetailNewDocument.duplicateNode;
           if (!duplicateNode)
           {
-            Promise.reject('Error: duplicate node not set');
+            return Promise.reject('Error: duplicate node not set');
           }
-
-          return Promise.reject('TODO');
+          return new Promise((resolve, reject) =>
+          {
+            //this.mrbauActionService.mrbauUseAsNewVersionActionApi(nodeId, duplicateNode.id, 'Neue Dokument Version von Dublettenprüfung (Node ID '+duplicateNode.id+', Task ID '+data.taskDetailNewDocument.task.id+')')
+            this.mrbauActionService.mrbauUseAsNewVersionWebScript(nodeId, duplicateNode.id, 'Neue Dokument Version von Dublettenprüfung (Node ID '+duplicateNode.id+', Task ID '+data.taskDetailNewDocument.task.id+')')
+            .then((result) => {
+              console.log(result);
+              return reject('TODO resolve task'); // temporary TODO remove
+              return resolve(EMRBauTaskStatus.STATUS_FINISHED);
+            })
+            .catch((error) => {return reject(error)});
+          });
       }
     }
     return Promise.reject('Unknown Resolve Selection');
+  }
+
+  private getResetArchiveTypeFormlyOptions(): Observable<any[]> {
+    return new Observable((observer) => {
+      this.mrbauActionService.mrbauResetArchiveTypeGetFormDefinition()
+      .then(result => {
+        const fields = result.data.definition.fields.filter(val => val.name=="newType");
+        if (fields && fields.length > 0 && fields[0].constraints[0].parameters.allowedValues)
+        {
+          const results = fields[0].constraints[0].parameters.allowedValues.map(val => {const split=val.split('|'); return {id:split[0], name:split[1]}});
+          observer.next(results);
+          observer.complete();
+        }
+        else
+        {
+          console.log(result);
+          observer.next([]);
+          observer.complete();
+        }
+      })
+      .catch(error => observer.error(error))
+    });
+
+  }
+
+  resetArchiveTypeWithConfirmDialog(nodeId : string) : Promise<boolean>
+  {
+    return new Promise((resolve, reject) =>
+      {
+        // dialog
+        const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+          data: {
+            dialogTitle: 'Neuen Dokumenttyp zuweisen',
+            dialogMsg: 'Neuen Dokumenttyp zuweisen?',
+            dialogButtonOK: 'ZUWEISEN',
+            callQueryData: false,
+            fieldsMain: [
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                  {
+                    className: 'flex-2',
+                    key: 'comment',
+                    type: 'textarea',
+                    templateOptions: {
+                      label: 'Optionaler Kommentar',
+                      description: 'Kommentar',
+                      maxLength: CONST.MAX_LENGTH_COMMENT,
+                      required: false,
+                    },
+                  }
+                ]
+              },
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                  {
+                    className: 'flex-2',
+                    key: 'newArchiveType',
+                    type: 'select',
+                    templateOptions: {
+                      label: 'Neuer Dokument Typ',
+                      description: 'Neuer Dokument Typ',
+                      required: true,
+                      options: this.getResetArchiveTypeFormlyOptions(),
+                      valueProp: 'id',
+                      labelProp: 'name',
+                    },
+                  },
+                ]
+              }
+            ],
+            payload: null
+          }
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result)
+          {
+            if (result.comment)
+            {
+              this.mrbauCommonService.addComment(nodeId, result.comment);
+            }
+            //console.log(result);
+            this.mrbauActionService.mrbauResetArchiveTypeWebscript(nodeId, result.newArchiveType)
+            .then((result) =>
+            {
+              console.log(result);
+              return resolve(true);
+            })
+            .catch((error) => reject(error));
+          }
+          else
+          {
+            return resolve(false);
+          }
+        });
+      }
+    )
   }
 
   cloneMetadataFromLinkedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {

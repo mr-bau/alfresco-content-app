@@ -138,6 +138,7 @@ import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.comp
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
 import { MRBauNodeAssociationEntryFilterPipeImpure } from './custom/mrbau-doc-declarations';
 import { TaskProposeMatchingDocuments } from './custom/task-linked-documents/task-propose-matching-documents';
+import { TasksMenuNewarchivetypeComponent } from './custom/tasks-menu-newarchivetype/tasks-menu-newarchivetype.component';
 
 
 registerLocaleData(localeFr);
@@ -302,6 +303,7 @@ registerLocaleData(localeSv);
     TasksMenuDelegateComponent,
     TasksMenuDeleteComponent,
     TasksMenuOcrComponent,
+    TasksMenuNewarchivetypeComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

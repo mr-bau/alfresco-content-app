@@ -32,7 +32,7 @@ export class MrbauConfirmTaskDialogComponent extends MrbauBaseTaskDialogComponen
 
   formIsInValid() : boolean
   {
-    return false;
+    return this.form.invalid;
   }
 
 }
