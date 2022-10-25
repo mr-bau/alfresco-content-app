@@ -3,11 +3,11 @@
     #split1
     (dragStart)="dragStart($event)"
     (dragEnd)="dragEnd($event)"
+    (gutterClick)="gutterClick($event)"
     [disabled]="false"
     [gutterSize]="10"
     [restrictMove]="true"
     direction="horizontal"
-    (gutterClick)="gutterClick($event)"
     unit="percent"
   >
     <as-split-area

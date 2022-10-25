@@ -104,6 +104,10 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   font-size: smaller;
 }
 
+.previewDocumentName {
+  font-size: smaller;
+  text-align: center;
+}
 
 .flex-1 {
   flex: 1;

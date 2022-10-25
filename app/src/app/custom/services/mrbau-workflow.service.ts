@@ -76,7 +76,7 @@ export class MrbauWorkflowService {
           'createdByUser',
         ],
         include: [
-          'path'
+          'path',
         ]
       };
       return new Promise((resolve, reject) => {
