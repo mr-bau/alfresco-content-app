@@ -1,6 +1,6 @@
 import { AlfrescoApiService, NotificationService } from '@alfresco/adf-core';
 import { SelectionState } from '@alfresco/adf-extensions';
-import { ActionBodyExec, ActionExecResultEntry, ActionsApi, WebscriptApi } from '@alfresco/js-api';
+import { ActionsApi, WebscriptApi } from '@alfresco/js-api';
 import { Injectable } from '@angular/core';
 import { MrbauCommonService } from './mrbau-common.service';
 
@@ -70,14 +70,14 @@ export class MrbauActionService {
 
   mrbauUseAsNewVersionWebScript(documentNodeId : string, newVersionNodeId : string, comment : string) : Promise<any>
   {
-    documentNodeId; // TODO
     const item_kind = 'action';
     const item_id = MrbauActionService.MBR_USE_AS_NEW_VERSION_ID;
     const postBody = {
-      targetDocument: this.mrbauCommonService.getNodeRefFromNodeId(newVersionNodeId),
-      copyMetadata: false,
-      ​​​​​​​​​versionType: 'MINOR', // 'MAJOR',
-      versionComment: comment,
+      prop_targetDocument: this.mrbauCommonService.getNodeRefFromNodeId(newVersionNodeId),
+      prop_copyMetadata: false,
+      ​​​​​​​​​prop_versionType: 'MINOR', // 'MAJOR',
+      prop_versionComment: comment,
+      alf_destination: this.mrbauCommonService.getNodeRefFromNodeId(documentNodeId),
     }
 
     // Execute Formaction with formprocessor
@@ -90,36 +90,15 @@ export class MrbauActionService {
     //return this.webscriptApi.executeWebScript('POST', `/api/${item_kind}/${item_id}/formprocessor`, scriptArgs, null, null, postBody);
   }
 
-  mrbauUseAsNewVersionActionApi(documentNodeId : string, newVersionNodeId : string, comment : string) : Promise<ActionExecResultEntry>
-  {
-    this.mrbauUseAsNewVersionGetFormDefinition().then(result => console.log(result));
-    const actionBody : ActionBodyExec = {
-      actionDefinitionId : MrbauActionService.MBR_USE_AS_NEW_VERSION_ID,
-      targetId : documentNodeId,
-      params: {
-        targetDocument: this.mrbauCommonService.getNodeRefFromNodeId(newVersionNodeId),
-        copyMetadata: false,
-        ​​​​​​​​​versionType: 'MINOR', // 'MAJOR',
-        versionComment: comment,
-      }
-    };
-    return this.actionsApi.actionExec(actionBody)
-  }
-
+  // called from Effects Action Service
   mrbauUseAsNewVersion(data : any) {
     if (!data || !data.payload)
     {
       return;
     }
     console.log(data);
-    this.actionsApi.actionDetails(MrbauActionService.MBR_USE_AS_NEW_VERSION_ID)
-    .then((result) => {
-        console.log(result);
-      })
-      .catch(error => console.log(error));
     this.notificationService.showError('TODO Implement');
   }
-
 
   mrbauResetArchiveTypeGetFormDefinition() :Promise <any> {
     return this.getFormDefinitionForAction(MrbauActionService.MBR_RESET_ARCHIVE_TYPE_ID);
@@ -127,43 +106,29 @@ export class MrbauActionService {
 
   mrbauResetArchiveTypeWebscript(nodeId : string, newType : string) : Promise<any>
   {
-    nodeId; // TODO
-    const item_id = MrbauActionService.MBR_USE_AS_NEW_VERSION_ID;
-    const params = {
-      newType: newType,
-      executeAsynchronously: false,
+    const item_kind = 'action';
+    const item_id = MrbauActionService.MBR_RESET_ARCHIVE_TYPE_ID;
+    const postBody = {
+      prop_newType: newType,
+      alf_destination: this.mrbauCommonService.getNodeRefFromNodeId(nodeId),
     }
-
     // Execute Formaction with formprocessor
     // https://github.com/Alfresco/alfresco-community-repo/blob/master/remote-api/src/main/resources/alfresco/templates/webscripts/org/alfresco/repository/forms/form.post.desc.xml
-    return this.webscriptApi.executeWebScript('POST', `/api/action/${item_id}/formprocessor`, null, null, null, params)
+    let pathParams = {};
+    let headerParams = {};
+    let formParams = {};
+    let scriptArgs = {};
+    return this.actionsApi.apiClient.callApi(`/service/api/${item_kind}/${item_id}/formprocessor`, 'POST', pathParams, scriptArgs, headerParams, formParams, postBody, ['application/json'], ['application/json'], null, 'alfresco');
+    //return this.webscriptApi.executeWebScript('POST', `/api/action/${item_id}/formprocessor`, null, null, null, postBody);
   }
 
-  mrbauResetArchiveTypeActionApi(nodeId : string, newType : string) : Promise<ActionExecResultEntry>
-  {
-    const actionBody : ActionBodyExec = {
-      actionDefinitionId : MrbauActionService.MBR_RESET_ARCHIVE_TYPE_ID,
-      targetId : nodeId,
-      params: {
-        newType: newType,
-        executeAsynchronously: false,
-      }
-    };
-    return this.actionsApi.actionExec(actionBody)
-  }
-
+  // called from Effects Action Service
   mrbauResetArchiveType(data : any) {
     if (!data || !data.payload)
     {
       return;
     }
     console.log(data);
-    this.actionsApi.actionDetails(MrbauActionService.MBR_RESET_ARCHIVE_TYPE_ID)
-    .then((result) => {
-        console.log(result);
-      })
-      .catch(error => console.log(error));
     this.notificationService.showError('TODO Implement');
   }
-
 }

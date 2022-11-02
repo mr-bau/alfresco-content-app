@@ -157,7 +157,7 @@ export class MrbauWorkflowService {
       this.mrbauActionService.mrbauResetArchiveTypeGetFormDefinition()
       .then(result => {
         const fields = result.data.definition.fields.filter(val => val.name=="newType");
-        if (fields && fields.length > 0 && fields[0].constraints[0].parameters.allowedValues)
+        if (fields?.length > 0 && fields[0].constraints[0].parameters.allowedValues)
         {
           const results = fields[0].constraints[0].parameters.allowedValues.map(val => {const split=val.split('|'); return {id:split[0], name:split[1]}});
           observer.next(results);
@@ -165,7 +165,6 @@ export class MrbauWorkflowService {
         }
         else
         {
-          console.log(result);
           observer.next([]);
           observer.complete();
         }
@@ -175,7 +174,7 @@ export class MrbauWorkflowService {
 
   }
 
-  resetArchiveTypeWithConfirmDialog(nodeId : string) : Promise<boolean>
+  resetArchiveTypeWithConfirmDialog(nodeId : string) : Promise<string>
   {
     return new Promise((resolve, reject) =>
       {
@@ -229,19 +228,20 @@ export class MrbauWorkflowService {
         dialogRef.afterClosed().subscribe((result) => {
           if (result)
           {
-            //console.log(result);
+            const newArchiveType = result.newArchiveType
             this.mrbauCommonService.addComment(nodeId, result.comment)
-            .then( () => {return this.mrbauActionService.mrbauResetArchiveTypeWebscript(nodeId, result.newArchiveType);})
-            .then((result) =>
+            .then( () => {return this.mrbauActionService.mrbauResetArchiveTypeWebscript(nodeId, newArchiveType);})
+            .then(() =>
             {
-              console.log(result);
-              return resolve(true);
+              //Notification Message
+              this.mrbauCommonService.showInfo("Dokument-Type erfolgreich geändert.");
+              return resolve(newArchiveType);
             })
             .catch((error) => reject(error));
           }
           else
           {
-            return resolve(false);
+            return resolve(null);
           }
         });
       }

@@ -212,6 +212,16 @@ export class MrbauArchiveModel {
     return currentState;
   }
 
+  getDocumentCategoryFromName(name:string) : EMRBauDocumentCategory {
+    let docModel = this.mrbauArchiveModelTypes.filter(doc => doc.name == name);
+    if (docModel.length > 0)
+    {
+      return docModel[0].category
+    }
+
+    return null;
+  }
+
   getWorkFlowStateFromNodeType(data:MRBauWorkflowStateCallbackData) : IMRBauWorkflowState {
     const state = data.taskDetailNewDocument.task.status;
     const nodeType = data.taskDetailNewDocument.taskNode.nodeType;
