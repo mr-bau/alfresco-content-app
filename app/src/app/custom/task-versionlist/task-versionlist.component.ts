@@ -10,6 +10,7 @@ interface VersionData {
   modifiedAt? : Date;
   modifiedBy? : UserInfo;
   assignedUser? : string;
+  description? : string;
   status? : EMRBauTaskStatus;
   associatedDocumentRef? : string[];
   associatedDocumentName?: string[];
@@ -20,6 +21,7 @@ interface HtmlData {
   modifiedAt? : Date;
   modifiedBy? : UserInfo;
   assignedUser? : string;
+  description? : string;
   status? : EMRBauTaskStatus;
   addedDocName? : string[];
   addedDocRef? : string[];
@@ -41,6 +43,7 @@ interface HtmlData {
           <ul class="associationList">
             <li *ngIf="v.status !== undefined">Status: <i>{{v.status | mrbauTaskStatus}}</i></li>
             <li *ngIf="v.assignedUser">Zugewiesen an: <i>{{v.assignedUser}}</i></li>
+            <li *ngIf="v.description">Beschreibung: <i>{{v.description}}</i></li>
             <li *ngFor="let a of v.removedDocName; index as i; first as isFirst">
               Dokument entfernt: <a href="javascript: void(0);" (click)="onAssociationClicked(v.removedDocRef[i])" matTooltip="Dokument Anzeigen">{{a}}</a>
             </li>
@@ -96,7 +99,8 @@ export class TaskVersionlistComponent implements OnInit {
     let v : VersionData = {
       associatedDocumentName : [],
       assignedUser: null,
-      status: null
+      status: null,
+      description: null,
     };
     for (let i=0; i<this.versionData.length; i++)
     {
@@ -142,6 +146,9 @@ export class TaskVersionlistComponent implements OnInit {
       if (v.status != v_pre.status) {
         e.status = v.status;
       }
+      if (v.description != v_pre.description) {
+        e.description = v.description;
+      }
       // append data
       this.htmlData.push(e);
     }
@@ -164,6 +171,7 @@ export class TaskVersionlistComponent implements OnInit {
             modifiedAt: a.entry.modifiedAt,
             modifiedBy: a.entry.modifiedByUser,
             assignedUser: a.entry.properties["mrbt:assignedUserName"],
+            description: a.entry.properties["mrbt:description"],
             status: a.entry.properties["mrbt:status"],
             associatedDocumentRef: a.entry.properties['mrbt:associatedDocumentRef'] ? a.entry.properties['mrbt:associatedDocumentRef'] : [],
             associatedDocumentName: a.entry.properties['mrbt:associatedDocumentName'] ? a.entry.properties['mrbt:associatedDocumentName'] : [],
