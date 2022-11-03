@@ -31,6 +31,7 @@
 
 import { NodeAssociationEntry  } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
+import { EMRBauDuplicateResolveResult } from './form/mrbau-formly-duplicated-document.component';
 import { EMRBauTaskStatus } from './mrbau-task-declarations';
 import { MrbauWorkflowService } from './services/mrbau-workflow.service';
 import { TasksDetailNewDocumentComponent } from './tasks-detail-new-document/tasks-detail-new-document.component';
@@ -303,10 +304,17 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
-              resolve(result);
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
             })
             .catch( (error) => reject(error))
-            //
           }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
@@ -398,7 +406,22 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
@@ -490,7 +513,22 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
@@ -568,7 +606,22 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
@@ -661,7 +714,22 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FORMAL_REVIEW)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_FORMAL_REVIEW;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
@@ -848,7 +916,22 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
@@ -931,7 +1014,22 @@ export class MrbauArchiveModel {
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,

@@ -61,6 +61,11 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.errorEvent.emit(this._errorMessage);
   }
   private _errorMessage: string = null;
+  set reloadTaskRequiredFlag(val:boolean)
+  {
+    this._reloadTaskRequiredFlag = val;
+  }
+  _reloadTaskRequiredFlag = false;
   isLoading: boolean = false;
   form = new FormGroup({});
   model: any = {};
@@ -181,6 +186,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   }
 
   private doPerformStateChangePromise(newState, data) : Promise<any> {
+    this.log('doPerformStateChangePromise');
     const performAction = (this._task.status != newState);
     if (performAction)
     {
@@ -249,6 +255,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   emitTaskChangeEvent(taskChangedData?:ITaskChangedData)
   {
+    this.log('emitTaskChangeEvent');
     if (taskChangedData)
     {
       this.taskChangeEvent.emit(taskChangedData);
@@ -260,7 +267,10 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   }
 
   private shouldQueryTasks() : boolean {
-    return MRBauTask.isTaskInNotifyOrDoneState(this.task.status);
+    const result : boolean = this._reloadTaskRequiredFlag || MRBauTask.isTaskInNotifyOrDoneState(this.task.status);
+    this._reloadTaskRequiredFlag = false;
+    console.log(result);
+    return result;
   }
 
   private keyIsValid(key:string) : boolean
@@ -276,6 +286,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   }
 
   writeMetadata() : Promise<NodeEntry> {
+    this.log('writeMetadata');
     let nodeBody : NodeBodyUpdate =  {
       properties: {
       }
@@ -309,8 +320,15 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     return Promise.resolve(null);
   }
 
+  log(val:any)
+  {
+    val;
+    //console.log(val);
+  }
+
   updateTaskNodeMetadataFromServer() : Promise<any>
   {
+    this.log('updateTaskNodeMetadataFromServer');
     return new Promise( (resolve, reject) =>
     {
       this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: ['path', 'properties']}).toPromise()

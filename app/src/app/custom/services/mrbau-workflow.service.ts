@@ -4,7 +4,7 @@ import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
 import { MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
-import { EMRBauDuplicateResolveOptions } from '../form/mrbau-formly-duplicated-document.component';
+import { EMRBauDuplicateResolveOptions, EMRBauDuplicateResolveResult } from '../form/mrbau-formly-duplicated-document.component';
 import { MrbauActionService } from './mrbau-action.service';
 import { CONST } from '../mrbau-global-declarations';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
@@ -116,7 +116,7 @@ export class MrbauWorkflowService {
       {
         default:
         case EMRBauDuplicateResolveOptions.IGNORE:
-          return Promise.resolve(EMRBauTaskStatus.STATUS_ALL_SET);
+          return Promise.resolve(EMRBauDuplicateResolveResult.IGNORE);
         case EMRBauDuplicateResolveOptions.DELETE:
           return new Promise((resolve, reject) =>
             {
@@ -124,7 +124,7 @@ export class MrbauWorkflowService {
               .then(
               (result) => {
                   // successfully deleted or canceled
-                  const stat = (result === true) ? EMRBauTaskStatus.STATUS_FINISHED : EMRBauTaskStatus.STATUS_DUPLICATE
+                  const stat = (result === true) ? EMRBauDuplicateResolveResult.DELETE_SUCCESS : EMRBauDuplicateResolveResult.DELETE_CANCEL
                   return resolve(stat);
               })
               .catch((error) => reject(error));
@@ -140,10 +140,16 @@ export class MrbauWorkflowService {
           {
             //this.mrbauActionService.mrbauUseAsNewVersionActionApi(nodeId, duplicateNode.id, 'Neue Dokument Version von Dublettenprüfung (Node ID '+duplicateNode.id+', Task ID '+data.taskDetailNewDocument.task.id+')')
             this.mrbauActionService.mrbauUseAsNewVersionWebScript(nodeId, duplicateNode.id, 'Neue Dokument Version von Dublettenprüfung (Node ID '+duplicateNode.id+', Task ID '+data.taskDetailNewDocument.task.id+')')
-            .then((result) => {
-              console.log(result);
-              return reject('TODO resolve task'); // temporary TODO remove
-              return resolve(EMRBauTaskStatus.STATUS_FINISHED);
+            .then(() => {
+              // Notification Message
+              this.mrbauCommonService.showInfo("Dokument als neue Version hinzugefügt.");
+              // add new document to task
+              console.log('add new document to task');
+              return this.mrbauCommonService.addAssociatedDocumentFromTask(data.taskDetailNewDocument.task.id, [duplicateNode.id])
+            })
+            .then(() => {
+              data.taskDetailNewDocument.reloadTaskRequiredFlag = true;
+              return resolve(EMRBauDuplicateResolveResult.NEW_VERSION);
             })
             .catch((error) => {return reject(error)});
           });

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AuthenticationService,  } from '@alfresco/adf-core';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AuthenticationService, NodesApiService,  } from '@alfresco/adf-core';
 import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
@@ -21,6 +21,7 @@ export class MrbauCommonService {
     private commentContentService: CommentContentService,
     private contentService: ContentService,
     private contentApiService: ContentApiService,
+    private nodesApiService: NodesApiService,
     private datePipe : DatePipe,
     private notificationService : NotificationService,
     private authenticationService : AuthenticationService,
@@ -165,6 +166,44 @@ export class MrbauCommonService {
   queryNodes(searchRequest: SearchRequest) : Promise<ResultSetPaging>
   {
     return this.contentApiService.search(searchRequest).toPromise();
+  }
+
+  addAssociatedDocumentFromTask(taskId: string, associatedDocumentIds: string[]) : Promise<any>
+  {
+    let bodyParams = [];
+    for (let i=0; i< associatedDocumentIds.length; i++)
+    {
+      bodyParams.push({
+        targetId : associatedDocumentIds[i],
+        assocType : 'mrbt:associatedDocument'}
+      );
+    };
+
+    const pathParams = {
+      'nodeId': taskId
+    };
+    const queryParams = {};
+    const headerParams= {};
+    const formParams = {};
+    const contentTypes = ['application/json'];
+    const accepts = ['application/json'];
+    return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts);
+  }
+
+  deleteAssociatedDocumentFromTask(taskId: string, associatedDocumentRef: string) : Promise<any>
+  {
+    const pathParams = {
+      nodeId: taskId,
+      targetId: associatedDocumentRef,
+      assocType : 'mrbt:associatedDocumentRef'
+    };
+    const queryParams = {};
+    const headerParams= {};
+    const formParams = {};
+    const bodyParams = [];
+    const contentTypes = ['application/json'];
+    const accepts = ['application/json'];
+    return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets/{targetId}", "DELETE", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts)
   }
 
   discardDocument(nodeId : string) : Promise<MinimalNodeEntity>

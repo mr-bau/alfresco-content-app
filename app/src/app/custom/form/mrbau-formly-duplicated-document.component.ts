@@ -8,6 +8,12 @@ export const enum EMRBauDuplicateResolveOptions {
   NEW_VERSION,
   IGNORE,
 }
+export const enum EMRBauDuplicateResolveResult {
+  DELETE_SUCCESS,
+  DELETE_CANCEL,
+  NEW_VERSION,
+  IGNORE,
+}
 interface MRBauDuplicateResolveOptions {
   value:EMRBauDuplicateResolveOptions,
   label: string,
@@ -15,51 +21,13 @@ interface MRBauDuplicateResolveOptions {
 @Component({
   selector: 'aca-mrbau-duplicated-document',
   template: `
-    <style>
-      .duplicate-radio-group {
-        display: flex;
-        flex-direction: column;
-        margin: 15px 0;
-        align-items: flex-start;
-      }
-      .duplicate-radio-button {
-        margin: 5px;
-      }
-      .duplicate-detail-list {
-        list-style-type: none;
-      }
-    </style>
     <h2>Dublette gefunden</h2>
     <ul class="associationList">
       <li>
-        <details>
-          <summary>
-          Existierendes Dokument: <a href="javascript: void(0);" (click)="onDocumentClick(this.model['ignore:duplicateNode']?.id)" matTooltip="Dokument Anzeigen">{{this.model['ignore:duplicateNode']?.name}}</a>
-          </summary>
-            <ul class="duplicate-detail-list">
-              <li class="status">Pfad {{this.model['ignore:duplicateNode']?.path?.name || 'unbekannt'}}</li>
-              <li class="status">ID {{this.model['ignore:duplicateNode']?.id || 'unbekannt'}} -
-                erzeugt am {{this.model['ignore:duplicateNode']?.createdAt | date:'medium' || 'unbekannt'}}
-                von {{this.model['ignore:duplicateNode']?.createdByUser?.displayName || 'unbekannt'}}
-                - {{this.model['ignore:duplicateNode']?.content?.sizeInBytes || '?'}} Bytes
-              </li>
-            </ul>
-        </details>
+        <aca-linked-document-detail prefix="Existierendes Dokument: " [taskNode]="this.model['ignore:duplicateNode']" (click)="onDocumentClick(this.model['ignore:duplicateNode']?.id)"></aca-linked-document-detail>
       </li>
       <li>
-        <details>
-          <summary>
-        Neues Dokument: <a href="javascript: void(0);" (click)="onDocumentClick(this.model['ignore:taskNode']?.id)" matTooltip="Dokument Anzeigen">{{this.model['ignore:taskNode']?.name}}</a>
-        </summary>
-          <ul class="duplicate-detail-list">
-            <li class="status">Pfad {{this.model['ignore:taskNode']?.path?.name || 'unbekannt'}}</li>
-            <li class="status">ID {{this.model['ignore:taskNode']?.id || 'unbekannt'}} -
-              erzeugt am {{this.model['ignore:taskNode']?.createdAt | date:'medium' || 'unbekannt'}}
-              von {{this.model['ignore:taskNode']?.createdByUser?.displayName || 'unbekannt'}}
-              - {{this.model['ignore:taskNode']?.content?.sizeInBytes || 'unbekannt'}} Bytes
-            </li>
-          </ul>
-        </details>
+        <aca-linked-document-detail prefix="Neues Dokument: " [taskNode]="this.model['ignore:taskNode']" (click)="onDocumentClick(this.model['ignore:taskNode']?.id)"></aca-linked-document-detail>
       </li>
     </ul>
     <button mat-raised-button type="button" class="mat-flat-button mat-button-base addMarginTop " color="accent" (click)="onCompareClick()" [disabled]="!(this.model['ignore:duplicateNode'] && this.model['ignore:taskNode'])" matTooltip="Dokumente Vergleichen">Vergleichen</button>

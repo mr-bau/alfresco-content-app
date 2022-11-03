@@ -140,6 +140,7 @@ import { MRBauNodeAssociationEntryFilterPipeImpure } from './custom/mrbau-doc-de
 import { TaskProposeMatchingDocuments } from './custom/task-linked-documents/task-propose-matching-documents';
 import { TasksMenuNewarchivetypeComponent } from './custom/tasks-menu-newarchivetype/tasks-menu-newarchivetype.component';
 import { MrbauCompareDocumentsComponent } from './custom/dialogs/mrbau-compare-documents/mrbau-compare-documents.component';
+import { LinkedDocumentDetailComponent } from './custom/linked-document-detail/linked-document-detail.component';
 
 
 registerLocaleData(localeFr);
@@ -306,6 +307,7 @@ registerLocaleData(localeSv);
     TasksMenuOcrComponent,
     TasksMenuNewarchivetypeComponent,
     MrbauCompareDocumentsComponent,
+    LinkedDocumentDetailComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

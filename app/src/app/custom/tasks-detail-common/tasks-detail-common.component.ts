@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewEncapsulation } from '@angular/core';
 
 import { ConfirmDialogComponent } from '@alfresco/adf-content-services';
-import { ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { ContentService, NotificationService } from '@alfresco/adf-core';
 import { NodeBodyUpdate, Node } from '@alfresco/js-api';
 
 import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
@@ -54,7 +54,6 @@ export class TasksDetailCommonComponent implements OnInit {
   taskBarButtons : TaskBarButton[] = [];
 
   constructor(private _dialog: MatDialog,
-    private _nodesApiService: NodesApiService,
     private _contentService: ContentService,
     private _notificationService: NotificationService,
     private _mrbauFormLibraryService : MrbauFormLibraryService,
@@ -220,25 +219,13 @@ export class TasksDetailCommonComponent implements OnInit {
       return;
     }
 
-    let bodyParams = [];
+    let nodeIds: string[] = [];
     for (let i=0; i< nodes.length; i++)
     {
-      bodyParams.push({
-        targetId : nodes[i].id,
-        assocType : 'mrbt:associatedDocument'}
-      );
-    };
-
-    const pathParams = {
-      'nodeId': this._task.id
-    };
-    const queryParams = {};
-    const headerParams= {};
-    const formParams = {};
-    const contentTypes = ['application/json'];
-    const accepts = ['application/json'];
-    this._nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
-      (success) => {
+      nodeIds.push(nodes[i].id);
+    }
+    this._mrbauCommonService.addAssociatedDocumentFromTask(this._task.id, nodeIds)
+    .then((success) => {
         success;
         this.resetModel();
         for (let i=0; i< nodes.length; i++)
@@ -296,20 +283,8 @@ export class TasksDetailCommonComponent implements OnInit {
     {
       return;
     }
-
-    const pathParams = {
-       nodeId: this._task.id,
-       targetId: this._task.associatedDocumentRef[i],
-       assocType : 'mrbt:associatedDocumentRef'
-    };
-    const queryParams = {};
-    const headerParams= {};
-    const formParams = {};
-    const bodyParams = [];
-    const contentTypes = ['application/json'];
-    const accepts = ['application/json'];
-    this._nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets/{targetId}", "DELETE", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts).then(
-      (success) => {
+    this._mrbauCommonService.deleteAssociatedDocumentFromTask(this._task.id, this._task.associatedDocumentRef[i])
+    .then((success) => {
         success;
         this.resetModel();
         // remove items from list

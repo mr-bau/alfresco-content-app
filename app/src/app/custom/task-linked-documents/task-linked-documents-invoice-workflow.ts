@@ -19,7 +19,9 @@ interface ILinkedDocumentsCategories {
       <details open>
         <summary class="expansionTitleText">Haupt-Dokument:</summary>
         <ul class="associationList">
-          <li class="addMarginLeft"><a href="javascript: void(0);" (click)="onTaskNodeClicked()" matTooltip="Dokument Anzeigen">{{taskNode.name}}</a></li>
+          <li class="addMarginLeft">
+            <aca-linked-document-detail [taskNode]="taskNode" (click)="onTaskNodeClicked()"></aca-linked-document-detail>
+          </li>
         </ul>
       </details>
     </div>

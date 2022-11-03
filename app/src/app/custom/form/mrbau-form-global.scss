@@ -70,6 +70,20 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   margin-bottom: 1rem;
 }
 
+.duplicate-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+  align-items: flex-start;
+}
+.duplicate-radio-button {
+  margin: 5px;
+}
+.node-detail-list {
+  list-style-type: none;
+}
+
+
 .task-infobox, .task-description, .task-formbox, .task-history, .task-linked-docs {
   padding: .75rem 1.25rem;
   margin-bottom: 1rem;
