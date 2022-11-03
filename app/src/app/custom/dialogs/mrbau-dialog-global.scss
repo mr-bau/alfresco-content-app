@@ -16,6 +16,19 @@
   }
 }
 
+.previewFlexContainer {
+  height:100%;
+  display:flex;
+  flex-flow: column;
+}
+.previewFlexHeader {
+  padding-left: 1rem;
+  flex: 0 1 auto;
+}
+.previewFlexContent {
+  flex: 1 1 auto;
+}
+
 .mat-form-field {
   margin-bottom: 20px;
 }
@@ -48,4 +61,6 @@
   .create:enabled {
     color: var(--theme-accent-color);
   }
+
+
 }

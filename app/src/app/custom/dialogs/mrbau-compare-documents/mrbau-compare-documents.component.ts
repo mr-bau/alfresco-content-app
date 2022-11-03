@@ -13,7 +13,7 @@ export interface IMrbauCompareDocumentsData {
   template: `
   <div hidden="true">
     <h2 mat-dialog-title>Dokumente vergleichen</h2>
-    <div class="previewDocumentName">{{name_left}} <-> {{name_right}}</div>
+    <div class="previewDocumentName">{{left.name}} <-> {{right.name}}</div>
   </div>
   <mat-dialog-content style="max-height: 90vh">
     <div style="height: 90vh">
@@ -34,7 +34,19 @@ export interface IMrbauCompareDocumentsData {
           [size]="50"
           style="overflow-y: hidden;"
         >
-          <aca-pdfpreview [document_url]="document_url_right"></aca-pdfpreview>
+        <div class="previewFlexContainer">
+          <div class="previewFlexHeader">
+            <details>
+              <summary>{{left.name}}</summary>
+              <ul class="node-detail-list">
+                <li class="status">ID {{left.nodeId}}</li><li>
+              </ul>
+            </details>
+          </div>
+          <div class="previewFlexContent">
+            <aca-pdfpreview [document_url]="document_url_right"></aca-pdfpreview>
+          </div>
+        </div>
         </as-split-area>
         <as-split-area
           #splitAreaRight
@@ -43,7 +55,19 @@ export interface IMrbauCompareDocumentsData {
           [size]="50"
           style="overflow-y: hidden;"
         >
-          <aca-pdfpreview [document_url]="document_url_left"></aca-pdfpreview>
+        <div class="previewFlexContainer">
+          <div class="previewFlexHeader">
+            <details>
+            <summary>{{right.name}}</summary>
+              <ul class="node-detail-list">
+                <li class="status">ID {{right.nodeId}}</li><li>
+              </ul>
+            </details>
+          </div>
+          <div class="previewFlexContent">
+            <aca-pdfpreview [document_url]="document_url_left"></aca-pdfpreview>
+          </div>
+        </div>
         </as-split-area>
       </as-split>
     </div>
@@ -65,8 +89,8 @@ export class MrbauCompareDocumentsComponent implements OnInit {
   private remember_document_url_right: SafeResourceUrl = null;
   private remember_document_url_left : SafeResourceUrl = null;
 
-  name_left : string;
-  name_right: string;
+  left : IMrbauCompareDocumentsData;
+  right : IMrbauCompareDocumentsData;
 
   constructor(
     private dialogRef: MatDialogRef<MrbauCompareDocumentsComponent>,
@@ -76,12 +100,10 @@ export class MrbauCompareDocumentsComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-      const left : IMrbauCompareDocumentsData = this.data.payload.left;
-      const right : IMrbauCompareDocumentsData = this.data.payload.right;
-      this.name_left = left.name;
-      this.name_right = right.name;
-      this.document_url_left = this.sanitizeUrl(this.contentService.getContentUrl(left.nodeId).concat(this.SHOW_TOOLBAR));
-      this.document_url_right = this.sanitizeUrl(this.contentService.getContentUrl(right.nodeId).concat(this.SHOW_TOOLBAR));
+      this.left = this.data.payload.left;
+      this.right = this.data.payload.right;
+      this.document_url_left = this.sanitizeUrl(this.contentService.getContentUrl(this.left.nodeId).concat(this.SHOW_TOOLBAR));
+      this.document_url_right = this.sanitizeUrl(this.contentService.getContentUrl(this.right.nodeId).concat(this.SHOW_TOOLBAR));
       this.dialogRef.afterClosed().subscribe(result => {
         this.onDialogClose(result);
       });

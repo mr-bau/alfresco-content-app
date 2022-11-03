@@ -72,8 +72,8 @@ export class MrbauFormlyDuplicatedDocumentComponent extends FieldType<FieldTypeC
 
   onCompareClick()
   {
-    const left : IMrbauCompareDocumentsData = {nodeId: this.model['ignore:duplicateNode'].id, name: this.model['ignore:duplicateNode'].name};
-    const right : IMrbauCompareDocumentsData = {nodeId: this.model['ignore:taskNode'].id, name: this.model['ignore:taskNode'].name};
+    const left : IMrbauCompareDocumentsData = {nodeId: this.model['ignore:duplicateNode'].id, name: 'Existierendes Dokument: '+this.model['ignore:duplicateNode'].name};
+    const right : IMrbauCompareDocumentsData = {nodeId: this.model['ignore:taskNode'].id, name: 'Neues Dokument: '+this.model['ignore:taskNode'].name};
     this.dialog.open(MrbauCompareDocumentsComponent, {
       data: {payload : {left:left,right:right}},
         width: '95vw',
