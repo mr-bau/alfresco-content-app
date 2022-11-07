@@ -83,6 +83,10 @@ export class MrbauCommonService {
   {
     return this.peopleContentService.peopleApi.getPerson('-me-');
   }
+  getUserProfileImage(avatarId: string) : string
+  {
+    return this.contentService.getContentUrl(avatarId);
+  }
 
   isAdminUser() : boolean {
     return (this.authenticationService.getEcmUsername() == 'admin')

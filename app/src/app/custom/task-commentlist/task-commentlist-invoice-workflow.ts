@@ -4,13 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
-
-interface CommentData {
-  id? : number;
-  createdAt? : Date;
-  createdBy? : string;
-  message? : string;
-}
+import { ICommentData } from './task-comment-block.component';
 
 @Component({
   selector: 'aca-task-commentlist-invoice-workflow',
@@ -20,17 +14,7 @@ interface CommentData {
     {{errorMessage}}
   </ng-template>
   <ng-template #elseBlock>
-    <div *ngIf="commentData && commentData.length > 0; then commentBlock else noComments"></div>
-    <ng-template #commentBlock>
-      <ul>
-        <li *ngFor="let v of commentData; index as i; first as isFirst">
-          <b>{{v.createdBy}}</b>, am <i>{{v.createdAt | date:'medium'}}</i>: {{v.message}}
-        </li>
-      </ul>
-    </ng-template>
-    <ng-template #noComments>
-        Keine Kommentare vorhanden.
-    </ng-template>
+    <aca-task-comment-block [currentUserId]="currentUserId" [commentData]="commentData"></aca-task-comment-block>
     <form [formGroup]="form" class="addMarginBottom">
       <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
       <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonAddComment()" matTooltip="Neuen Kommentar hinzufügen" [disabled]="!this.model.comment">Hinzufügen</button>
@@ -65,7 +49,8 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
   private _isVisible : boolean = false;
   private _nodeId : string = null;
   errorMessage :string = null;
-  commentData : CommentData[] = [];
+  commentData : ICommentData[] = [];
+  currentUserId:string;
 
   constructor(
     private _mrbauCommonService: MrbauCommonService,
@@ -83,32 +68,37 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
       return;
     }
 
-    this._mrbauCommonService.getNodeComments(this._nodeId).subscribe(
-      (comments: CommentModel[]) => {
-        if (comments && comments instanceof Array) {
-          //console.log(comments.length+" comments received");
-          comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
-              const date1 = new Date(comment1.created);
-              const date2 = new Date(comment2.created);
-              return date1 < date2 ? -1 : date1 > date2 ? 1 : 0;
-          });
-          comments.forEach((comment) => {
-            this.commentData.push(
-              {
-                id: comment.id,
-                createdAt: comment.created,
-                createdBy: comment.createdBy.displayName,
-                message : comment.message
-                }
-            );
-          });
-          this.errorMessage=null;
-        }
-      },
-      (err) => {
-        this.errorMessage = err;
+    this._mrbauCommonService.getCurrentUser()
+    .then((value) => {
+      this.currentUserId = value.entry.id;
+      return this._mrbauCommonService.getNodeComments(this._nodeId).toPromise()
+    })
+    .then((comments: CommentModel[]) => {
+      if (comments && comments instanceof Array) {
+        //console.log(comments.length+" comments received");
+        comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
+            const date1 = new Date(comment1.created);
+            const date2 = new Date(comment2.created);
+            return date1 < date2 ? -1 : date1 > date2 ? 1 : 0;
+        });
+        comments.forEach((comment) => {
+          this.commentData.push(
+            {
+              id: comment.id,
+              createdAt: comment.created,
+              avatarId: comment.createdBy.avatarId,
+              createdById: comment.createdBy.id,
+              createdBy: comment.createdBy.displayName,
+              message : comment.message
+            }
+          );
+        });
+        this.errorMessage=null;
       }
-    );
+    })
+    .catch((err) => {
+      this.errorMessage = err;
+    });
   }
 
   buttonAddComment()

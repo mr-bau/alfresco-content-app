@@ -127,6 +127,7 @@ import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/tas
 import { TaskLinkedDocumentsInvoiceWorkflowComponent } from './custom/task-linked-documents/task-linked-documents-invoice-workflow';
 import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
 import { TaskCommentlistInvoiceWorkflowComponent } from './custom/task-commentlist/task-commentlist-invoice-workflow';
+import { TaskCommentBlockComponent } from './custom/task-commentlist/task-comment-block.component';
 import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 import { TasksDetailCommonComponent } from './custom/tasks-detail-common/tasks-detail-common.component';
 import { TaskSummaryComponent } from './custom/task-summary/task-summary.component';
@@ -141,6 +142,8 @@ import { TaskProposeMatchingDocuments } from './custom/task-linked-documents/tas
 import { TasksMenuNewarchivetypeComponent } from './custom/tasks-menu-newarchivetype/tasks-menu-newarchivetype.component';
 import { MrbauCompareDocumentsComponent } from './custom/dialogs/mrbau-compare-documents/mrbau-compare-documents.component';
 import { LinkedDocumentDetailComponent } from './custom/linked-document-detail/linked-document-detail.component';
+import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-profile-picture/mrbau-userinfo-profile-picture.component';
+import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
 
 
 registerLocaleData(localeFr);
@@ -289,6 +292,8 @@ registerLocaleData(localeSv);
     MRBauTaskStatusPipe,
     MRBauNodeAssociationEntryFilterPipeImpure,
     MRBauTaskCategoryPipe,
+    MrbauUsernameInitialsPipe,
+
     MrbauDelegateTaskDialogComponent,
     TaskVersionlistComponent,
     TaskVersionlistInvoiceWorkflowComponent,
@@ -296,6 +301,7 @@ registerLocaleData(localeSv);
     TaskLinkedDocumentsComponent,
     TaskLinkedDocumentsInvoiceWorkflowComponent,
     TaskProposeMatchingDocuments,
+    TaskCommentBlockComponent,
     TaskCommentlistComponent,
     TaskCommentlistInvoiceWorkflowComponent,
     MrbauInboxAssignDialogComponent,
@@ -308,6 +314,7 @@ registerLocaleData(localeSv);
     TasksMenuNewarchivetypeComponent,
     MrbauCompareDocumentsComponent,
     LinkedDocumentDetailComponent,
+    MrbauUserinfoProfilePictureComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

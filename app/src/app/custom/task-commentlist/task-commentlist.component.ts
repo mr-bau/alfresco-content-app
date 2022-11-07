@@ -1,13 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommentContentService, CommentModel } from '@alfresco/adf-core';
-
-
-interface CommentData {
-  id? : number;
-  createdAt? : Date;
-  createdBy? : string;
-  message? : string;
-}
+import { MrbauCommonService } from '../services/mrbau-common.service';
+import { ICommentData } from './task-comment-block.component';
 
 @Component({
   selector: 'aca-task-commentlist',
@@ -17,17 +11,7 @@ interface CommentData {
     {{errorMessage}}
   </ng-template>
   <ng-template #elseBlock>
-    <div *ngIf="commentData && commentData.length > 0; then commentBlock else noComments"></div>
-    <ng-template #commentBlock>
-      <ul>
-        <li *ngFor="let v of commentData; index as i; first as isFirst">
-          <b>{{v.createdBy}}</b>, am <i>{{v.createdAt | date:'medium'}}</i>: {{v.message}}
-        </li>
-      </ul>
-    </ng-template>
-    <ng-template #noComments>
-        Keine Kommentare vorhanden.
-    </ng-template>
+    <aca-task-comment-block [currentUserId]="currentUserId" [commentData]="commentData"></aca-task-comment-block>
   </ng-template>
   `,
   styles: []
@@ -48,9 +32,13 @@ export class TaskCommentlistComponent implements OnInit {
   private _isVisible : boolean = false;
   private _nodeId : string = null;
   errorMessage :string = null;
-  commentData : CommentData[] = [];
+  commentData : ICommentData[] = [];
+  currentUserId:string;
 
-  constructor(private _commentContentService: CommentContentService) { }
+  constructor(
+    private _commentContentService: CommentContentService,
+    private _mrbauCommonService: MrbauCommonService
+    ) { }
 
   ngOnInit(): void {
   }
@@ -62,9 +50,12 @@ export class TaskCommentlistComponent implements OnInit {
     {
       return;
     }
-
-    this._commentContentService.getNodeComments(this._nodeId).subscribe(
-      (comments: CommentModel[]) => {
+    this._mrbauCommonService.getCurrentUser()
+    .then((value) => {
+      this.currentUserId = value.entry.id;
+      return this._commentContentService.getNodeComments(this._nodeId).toPromise();
+    })
+    .then((comments: CommentModel[]) => {
         if (comments && comments instanceof Array) {
           //console.log(comments.length+" comments received");
           comments = comments.sort((comment1: CommentModel, comment2: CommentModel) => {
@@ -77,6 +68,8 @@ export class TaskCommentlistComponent implements OnInit {
               {
                 id: comment.id,
                 createdAt: comment.created,
+                avatarId: comment.createdBy.avatarId,
+                createdById: comment.createdBy.id,
                 createdBy: comment.createdBy.displayName,
                 message : comment.message
                 }
@@ -84,11 +77,10 @@ export class TaskCommentlistComponent implements OnInit {
           });
           this.errorMessage=null;
         }
-      },
-      (err) => {
+    })
+    .catch((err) => {
         this.errorMessage = err;
-      }
-    );
+    });
   }
 }
 
