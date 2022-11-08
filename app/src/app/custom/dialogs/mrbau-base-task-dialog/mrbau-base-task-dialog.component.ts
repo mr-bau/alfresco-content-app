@@ -10,6 +10,7 @@ export interface MrbauBaseTaskDialogComponentProps {
   dialogMsg?: string;
   dialogButtonCancel?: string;
   dialogButtonOK?: string;
+  model?: any;
   fieldsMain?:FormlyFieldConfig[];
   callQueryData?:boolean;
   payload?:any;
@@ -41,6 +42,7 @@ export abstract class MrbauBaseTaskDialogComponent implements OnInit {
     this.dialogMsg = data.dialogMsg || 'Aufgabe Beschreibung.';
     this.dialogButtonCancel = data.dialogButtonCancel || 'ABBRECHEN';
     this.dialogButtonOK = data.dialogButtonOK || 'OK';
+    this.model = data.model || {} ;
   }
 
   ngOnInit(): void {

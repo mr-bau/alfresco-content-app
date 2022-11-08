@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AuthenticationService, NodesApiService,  } from '@alfresco/adf-core';
-import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging } from '@alfresco/js-api';
+import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
@@ -130,8 +130,32 @@ export class MrbauCommonService {
     return this.commentContentService.addNodeComment(nodeId, comment).toPromise();
   }
 
+  updateComment(nodeId: string, commentId: string, comment: string) : Promise<CommentEntry>
+  {
+    if (!comment || !nodeId)
+    {
+      return Promise.resolve(null);
+    }
+    comment = comment.trim();
+    if (comment.length == 0)
+    {
+      return Promise.resolve(null);
+    }
+
+    return this.commentContentService.commentsApi.updateComment(nodeId, commentId, {"content": comment});
+  }
+
+  deleteComment(nodeId: string, commentId: string) : Promise<any>
+  {
+    return this.commentContentService.commentsApi.deleteComment(nodeId, commentId);
+  }
+
   showInfo(message:string) {
     this.notificationService.showInfo(message);
+  }
+
+  showError(message:string) {
+    this.notificationService.showError(message);
   }
 
   updateTaskStatus(nodeId: string, status : EMRBauTaskStatus, newUserId?: string) :  Promise<NodeEntry>

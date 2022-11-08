@@ -14,7 +14,7 @@ import { ICommentData } from './task-comment-block.component';
     {{errorMessage}}
   </ng-template>
   <ng-template #elseBlock>
-    <aca-task-comment-block [currentUserId]="currentUserId" [commentData]="commentData"></aca-task-comment-block>
+    <aca-task-comment-block [nodeId]="nodeId" [currentUserId]="currentUserId" [commentData]="commentData" (commentsChanged)="commentsChanged()"></aca-task-comment-block>
     <form [formGroup]="form" class="addMarginBottom">
       <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model"></formly-form>
       <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonAddComment()" matTooltip="Neuen Kommentar hinzufügen" [disabled]="!this.model.comment">Hinzufügen</button>
@@ -36,6 +36,9 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
     this.queryData();
   }
 
+  get nodeId() {
+    return this._nodeId;
+  }
   form = new FormGroup({});
   model: any = {};
   options: FormlyFormOptions = { } ;
@@ -105,6 +108,11 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
   {
     // todo add comment
     this.addComment(this.model.comment);
+  }
+
+  commentsChanged()
+  {
+    this.queryData();
   }
 
   addComment(comment: string)

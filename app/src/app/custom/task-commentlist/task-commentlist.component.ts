@@ -11,7 +11,7 @@ import { ICommentData } from './task-comment-block.component';
     {{errorMessage}}
   </ng-template>
   <ng-template #elseBlock>
-    <aca-task-comment-block [currentUserId]="currentUserId" [commentData]="commentData"></aca-task-comment-block>
+    <aca-task-comment-block [nodeId]="nodeId" [currentUserId]="currentUserId" [commentData]="commentData" (commentsChanged)="commentsChanged()"></aca-task-comment-block>
   </ng-template>
   `,
   styles: []
@@ -27,6 +27,10 @@ export class TaskCommentlistComponent implements OnInit {
   {
     this._isVisible = val;
     this.queryData();
+  }
+
+  get nodeId() {
+    return this._nodeId;
   }
 
   private _isVisible : boolean = false;
@@ -53,6 +57,7 @@ export class TaskCommentlistComponent implements OnInit {
     this._mrbauCommonService.getCurrentUser()
     .then((value) => {
       this.currentUserId = value.entry.id;
+      console.log("commentsChanged queryData");
       return this._commentContentService.getNodeComments(this._nodeId).toPromise();
     })
     .then((comments: CommentModel[]) => {
@@ -81,6 +86,12 @@ export class TaskCommentlistComponent implements OnInit {
     .catch((err) => {
         this.errorMessage = err;
     });
+  }
+
+  commentsChanged()
+  {
+    console.log("commentsChanged");
+    this.queryData();
   }
 }
 

@@ -86,7 +86,7 @@ export class MrbauFormLibraryService {
     templateOptions: {
       label: 'Neuer Kommentar',
       description: 'Kommentar',
-      maxLength: 1024,
+      maxLength: CONST.MAX_LENGTH_COMMENT,
       lines: 10
     }
   }
