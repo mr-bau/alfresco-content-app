@@ -8,6 +8,9 @@ export class CONST {
   public static readonly MAX_LENGTH_TASK_DESC:  number = 500;
   public static readonly MAX_LENGTH_TASK_FULL_DESC:  number = 500;
   public static readonly MAX_LENGTH_COMMENT:  number = 500;
+  public static readonly MAX_TIME_COMMENT_EDITABLE_MILLISECONDS:  number = (1000*60*60*24); // 24 h
+
+  public static readonly GET_NODE_DEFAULT_INCLUDE = ['path', 'properties', 'allowableOperations', 'permissions', 'definition'];
 
   public static readonly DMS_SERVER_URL:        string = "https://mrdms01.mrbau.at";
 

@@ -24,10 +24,10 @@ interface MRBauDuplicateResolveOptions {
     <h2>Dublette gefunden</h2>
     <ul class="associationList">
       <li>
-        <aca-linked-document-detail prefix="Existierendes Dokument: " [taskNode]="this.model['ignore:duplicateNode']" (click)="onDocumentClick(this.model['ignore:duplicateNode']?.id)"></aca-linked-document-detail>
+        <aca-linked-document-detail prefix="Existierendes Dokument: " [node]="this.model['ignore:duplicateNode']" (click)="onDocumentClick(this.model['ignore:duplicateNode']?.id)"></aca-linked-document-detail>
       </li>
       <li>
-        <aca-linked-document-detail prefix="Neues Dokument: " [taskNode]="this.model['ignore:taskNode']" (click)="onDocumentClick(this.model['ignore:taskNode']?.id)"></aca-linked-document-detail>
+        <aca-linked-document-detail prefix="Neues Dokument: " [node]="this.model['ignore:taskNode']" (click)="onDocumentClick(this.model['ignore:taskNode']?.id)"></aca-linked-document-detail>
       </li>
     </ul>
     <button mat-raised-button type="button" class="mat-flat-button mat-button-base addMarginTop " color="accent" (click)="onCompareClick()" [disabled]="!(this.model['ignore:duplicateNode'] && this.model['ignore:taskNode'])" matTooltip="Dokumente Vergleichen">Vergleichen</button>

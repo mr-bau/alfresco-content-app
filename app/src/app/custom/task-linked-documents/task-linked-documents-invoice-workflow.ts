@@ -20,21 +20,25 @@ interface ILinkedDocumentsCategories {
         <summary class="expansionTitleText">Haupt-Dokument:</summary>
         <ul class="associationList">
           <li class="addMarginLeft">
-            <aca-linked-document-detail [taskNode]="taskNode" (click)="onTaskNodeClicked()"></aca-linked-document-detail>
+            <aca-linked-document-detail [node]="taskNode" [uploadNewVersionButtonVisible]="true" (click)="onTaskNodeClicked()"></aca-linked-document-detail>
           </li>
         </ul>
       </details>
     </div>
     <ng-container *ngFor="let category of linkedDocumentsCategories">
         <ng-container *ngIf="(associatedDocuments | mrbauNodeAssociationEntryFilterPipeImpure:category.filter) as filteredAssociatedDocuments">
-            <details open [hidden]="filteredAssociatedDocuments.length == 0">
-              <summary class="expansionTitleText">{{category.name}}</summary>
-              <ul class="associationList">
-                <li *ngFor="let d of filteredAssociatedDocuments; index as i">
-                  <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(d.entry.id)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
-                  <a href="javascript: void(0);" (click)="onAssociationClicked(d.entry.id)" matTooltip="Dokument Anzeigen">{{d.entry.name}}</a>
+          <details open [hidden]="filteredAssociatedDocuments.length == 0">
+          <summary class="expansionTitleText">{{category.name}}</summary>
+            <ul class="associationList">
+                <li class="addMarginLeft" *ngFor="let d of filteredAssociatedDocuments; index as i">
+                  <aca-linked-document-detail [node]="d.entry" [removeButtonVisible]="true" [uploadNewVersionButtonVisible]="true" (clickDocument)="onAssociationClicked(d.entry.id)" (clickRemoveButton)="onRemoveAssociationClicked(d.entry.id)"></aca-linked-document-detail>
+                  <!--
+                    <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(d.entry.id)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
+                    <a href="javascript: void(0);" (click)="onAssociationClicked(d.entry.id)" matTooltip="Dokument Anzeigen">{{d.entry.name}}</a>
+                  -->
                 </li>
               </ul>
+
             </details>
         </ng-container>
       </ng-container>

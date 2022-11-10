@@ -11,7 +11,7 @@ import { Component, Input, EventEmitter, Output } from '@angular/core';
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ul class="associationList">
-      <li *ngFor="let d of associatedDocumentName; index as i; first as isFirst">
+      <li class="addMarginLeft" *ngFor="let d of associatedDocumentName; index as i; first as isFirst">
         <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(i)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
         <a href="javascript: void(0);" (click)="onAssociationClicked(i)" matTooltip="Dokument Anzeigen">{{d}}</a>
       </li>

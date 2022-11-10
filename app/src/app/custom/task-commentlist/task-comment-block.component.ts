@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { CONST } from '../mrbau-global-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
 
@@ -48,10 +49,10 @@ export class TaskCommentBlockComponent {
   ) { }
 
   isEditButtonVisible(v : ICommentData) :boolean {
-    // only allow editing you own comments that are not older than 24 hours
-    // nodeId needs to be set to edit comments
+    // only allow editing you own comments that are not older than a certain time e.g. 24 hours
+    // nodeId is required to be able to edit comments
     const currentDate = new Date();
-    const delta = (currentDate.getTime() - v.createdAt.getTime())/(1000*60*60*24); // 24 h
+    const delta = (currentDate.getTime() - v.createdAt.getTime())/CONST.MAX_TIME_COMMENT_EDITABLE_MILLISECONDS;
     return this.nodeId != null && this.currentUserId == v.createdById && delta <= 1;
   }
 

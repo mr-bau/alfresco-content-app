@@ -6,6 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { DocumentAssociations, DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOrderTypes, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { CONST } from '../mrbau-global-declarations';
 import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
@@ -115,11 +116,11 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       return;
     }
     this.startLoading();
-    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: ['path', 'properties']}).toPromise()
+    this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: CONST.GET_NODE_DEFAULT_INCLUDE}).toPromise()
     .then((nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
-        return this.nodesApiService.nodesApi.listTargetAssociations(nodeEntry.entry.id, {skipCount:0, maxItems: 999, include: ['properties']});
+        return this.nodesApiService.nodesApi.listTargetAssociations(nodeEntry.entry.id, {skipCount:0, maxItems: 999, include: CONST.GET_NODE_DEFAULT_INCLUDE});
       }
     )
     .then(
@@ -331,7 +332,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.log('updateTaskNodeMetadataFromServer');
     return new Promise( (resolve, reject) =>
     {
-      this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: ['path', 'properties']}).toPromise()
+      this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: CONST.GET_NODE_DEFAULT_INCLUDE}).toPromise()
       .then((nodeEntry) => {
         this._taskNode = nodeEntry.entry;
         return resolve(null);
@@ -576,7 +577,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
           const node = nodes[i];
           const bodyParam = bodyParams[i];
           this._taskNodeAssociations.push({entry: {association: {assocType : bodyParam.assocType}, id:node.id, isFolder:node.isFolder, isFile:node.isFile, name: node.name,
-            nodeType: node.nodeType, modifiedAt: node.modifiedAt, modifiedByUser: node.modifiedByUser, createdAt:node.createdAt, createdByUser:node.createdByUser}});
+            nodeType: node.nodeType, modifiedAt: node.modifiedAt, modifiedByUser: node.modifiedByUser, createdAt:node.createdAt, createdByUser:node.createdByUser, allowableOperations: node.allowableOperations}});
         }
         this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
         this.taskChangeEvent.emit({task : this._task, queryTasks : false});
