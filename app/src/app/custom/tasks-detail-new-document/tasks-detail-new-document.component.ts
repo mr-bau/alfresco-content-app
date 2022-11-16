@@ -270,7 +270,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   private shouldQueryTasks() : boolean {
     const result : boolean = this._reloadTaskRequiredFlag || MRBauTask.isTaskInNotifyOrDoneState(this.task.status);
     this._reloadTaskRequiredFlag = false;
-    console.log(result);
+    //console.log(result);
     return result;
   }
 
@@ -305,6 +305,27 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       //console.log('writeMetadata nothing to do');
       return new Promise((resolve) => resolve(null));
     }
+
+    // only update node if some values have changed
+    let updateNeeded = false;
+    Object.keys(nodeBody.properties).forEach( key => {
+      let nodeValue = this._taskNode.properties[key];
+      // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
+      if (key.endsWith('DateValue'))
+      {
+        nodeValue = this.mrbauCommonService.getFormDateValue(new Date(nodeValue));
+      }
+      if (nodeBody.properties[key] != nodeValue)
+      {
+        //console.log("Update needed");console.log(key);console.log(nodeBody.properties);console.log(this._taskNode);
+        updateNeeded = true;
+      }
+    });
+    if (!updateNeeded)
+    {
+      return Promise.resolve(null);
+    }
+
     //console.log(nodeBody);
     return this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {});
   }
@@ -489,7 +510,6 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   deleteAssociation(id:string)
   {
-
     const index = this._taskNodeAssociations.findIndex((value) => value.entry.id == id)
     if (index < 0)
     {
