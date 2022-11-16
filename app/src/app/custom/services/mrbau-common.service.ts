@@ -9,6 +9,7 @@ import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData } from '
 import { MatDialog } from '@angular/material/dialog';
 import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { ContentManagementService } from '../../services/content-management.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,7 @@ export class MrbauCommonService {
     private datePipe : DatePipe,
     private notificationService : NotificationService,
     private authenticationService : AuthenticationService,
+    private contentManagementService: ContentManagementService,
     ) {
     }
 
@@ -232,6 +234,11 @@ export class MrbauCommonService {
     const contentTypes = ['application/json'];
     const accepts = ['application/json'];
     return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets/{targetId}", "DELETE", pathParams, queryParams, headerParams, formParams, bodyParams, contentTypes, accepts)
+  }
+
+  uploadNewVersionWithDialog(node: Node, file: File)
+  {
+    this.contentManagementService.versionUpdateDialog(node, file);
   }
 
   discardDocument(nodeId : string) : Promise<MinimalNodeEntity>
