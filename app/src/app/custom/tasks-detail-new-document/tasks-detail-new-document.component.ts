@@ -479,13 +479,36 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.fileSelectEvent.emit(data);
   }
 
-  setErrorMessage(error:string)
+  setErrorMessage(error : string)
   {
     this.errorMessage = error;
   }
+
+  addAssociationCheckDuplicate(val:Node[])
+  {
+    this.addAssociations(val)
+    .then(() => {})
+    .catch((error : Error) => {
+      let errObj = null;
+      try {
+        errObj = JSON.parse(error.message);
+      } catch (error)
+      {error;}
+      if (errObj?.error?.statusCode == 409)
+      {
+        // An association of this assoc type already exists between these two nodes
+        this.mrbauCommonService.showError("Es existiert bereits eine Assoziation für dieses Dokument!");
+      }
+      else
+      {
+        this.setErrorMessage(error.message);
+      }
+    });
+  }
+
   onButtonAddFilesClicked()
   {
-    this.mrbauCommonService.openLinkFilesDialog(this.addAssociations.bind(this), this.setErrorMessage.bind(this));
+    this.mrbauCommonService.openLinkFilesDialog(this.addAssociationCheckDuplicate.bind(this), this.setErrorMessage.bind(this));
   }
 
   onRemoveAssociationClicked(id:string)
@@ -605,8 +628,8 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         return Promise.resolve(null);
     })
     .catch((error) => {
-      this.errorMessage = error;
-      return Promise.reject(new Error(error));
+      //this.errorMessage = error;
+      return Promise.reject(error);
     });
   }
 
