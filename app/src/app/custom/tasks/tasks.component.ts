@@ -161,8 +161,8 @@ export class TasksComponent implements OnInit {
         (versionEntry : VersionEntry) => {
           if (CONST.isPdfDocument(versionEntry))
           {
-            console.log(versionEntry);
-            versionEntry.entry.versionComment
+            //console.log(versionEntry);
+            //versionEntry.entry.versionComment
             this.fileSelectedByUrl(this.contentApiService.getVersionContentUrl(fileSelectData.nodeId, fileSelectData.versionId));
           }
           else

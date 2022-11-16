@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { EMRBauDocumentCategory, IMRBauDocumentType, MrbauArchiveModel } from '../mrbau-doc-declarations';
+import { EMRBauDocumentCategory, EOrganisationUnit, IMRBauDocumentType, MrbauArchiveModel } from '../mrbau-doc-declarations';
 import { EMRBauTaskCategory } from '../mrbau-task-declarations';
-import { EMRBauClientId, SelectFormOptions } from './mrbau-conventions.service';
+import { SelectFormOptions } from './mrbau-conventions.service';
 import { MrbauWorkflowService } from './mrbau-workflow.service';
 
 @Injectable({
@@ -50,7 +50,7 @@ export class MrbauArchiveModelService {
     }
   }
 
-  getTaskDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
   {
     if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
     {

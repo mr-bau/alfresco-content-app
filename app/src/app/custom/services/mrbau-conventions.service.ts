@@ -1,21 +1,10 @@
 import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, EOrganisationUnit, MRBauWorkflowStateCallbackData, OrganisationUnits } from '../mrbau-doc-declarations';
 
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
-
-interface ClientData {
-  value: EMRBauClientId,
-  label: string,
-  folder: string
-}
-export const enum EMRBauClientId {
-  MANDANT_1,
-  MANDANT_2,
-  MANDANT_3,
-}
 
 export interface SelectFormOptions {
   label: string,
@@ -59,23 +48,16 @@ export class MrbauConventionsService {
   {
   }
 
-  readonly organisationUnits = new Map<number, ClientData>([
-    [EMRBauClientId.MANDANT_1, {value: EMRBauClientId.MANDANT_1, label: "Mandant1", folder: "01 Mandant1"}],
-    [EMRBauClientId.MANDANT_2, {value: EMRBauClientId.MANDANT_2, label: "Mandant2", folder: "02 Mandant2"}],
-    [EMRBauClientId.MANDANT_3, {value: EMRBauClientId.MANDANT_3, label: "Mandant3", folder: "03 Mandant3"}],
-  ]);
-
   getOrganisationUnitFormOptions() : SelectFormOptions[] {
     //console.log(jsonKtList);
     //console.log(jsonVendorList);
-
     let result : SelectFormOptions[] = [];
-    this.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.value}));
+    OrganisationUnits.forEach( (d) => result.push({label: d.label, value : d.folder}));
     return result;
   }
 
-  getDefaultOrganisationUnit() : EMRBauClientId {
-    return EMRBauClientId.MANDANT_1;
+  getDefaultOrganisationUnit() : EOrganisationUnit {
+    return EOrganisationUnit.MANDANT_1;
   }
 
   getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : string
@@ -87,19 +69,19 @@ export class MrbauConventionsService {
     //return "admin";
   }
 
-  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
   {
     task;documentCategory;client;
     return null;
   }
-  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
   {
     task;documentCategory;client;
     let date = new Date();
     date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
     return this.mrbauCommonService.getFormDateValue(date);
   }
-  getNewTaskDefaultAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EMRBauClientId) : string
+  getNewTaskDefaultAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
   {
     task;
     documentCategory;

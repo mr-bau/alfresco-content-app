@@ -43,6 +43,23 @@ export class MRBauNodeAssociationEntryFilterPipeImpure implements PipeTransform 
   }
 }
 
+interface IOrganisationUnit {
+  id: EOrganisationUnit,
+  label: string,
+  folder: string
+}
+export const enum EOrganisationUnit {
+  MANDANT_1,
+  MANDANT_2,
+  MANDANT_3,
+}
+
+export const OrganisationUnits = new Map<number, IOrganisationUnit>([
+  [EOrganisationUnit.MANDANT_1, {id: EOrganisationUnit.MANDANT_1, label: "Mandant1", folder: "Mandant1"}],
+  [EOrganisationUnit.MANDANT_2, {id: EOrganisationUnit.MANDANT_2, label: "Mandant2", folder: "Mandant2"}],
+  [EOrganisationUnit.MANDANT_3, {id: EOrganisationUnit.MANDANT_3, label: "Mandant3", folder: "Mandant3"}],
+]);
+
 export const enum EMRBauDocumentAssociations {
   DOCUMENT_REFERENCE,
   ARCHIVE_DOCUMENT_REFERENCE,
