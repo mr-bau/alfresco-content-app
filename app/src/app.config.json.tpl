@@ -23,7 +23,7 @@
   },
   "locale": "de",
   "application": {
-    "name": "M&R Enterprise Content Management Platform",
+    "name": "M&R ECM Plattform",
     "version": "2.9.0",
     "logo": "assets/mrbau-extension/svg/logo_mr.svg",
     "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
