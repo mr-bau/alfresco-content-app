@@ -5,7 +5,7 @@ import { FieldType, FieldTypeConfig,  } from '@ngx-formly/core';
 @Component({
   selector: 'aca-mrbau-formly-all-set',
   template: `
-  <adf-empty-content
+  <adf-empty-content class="addMarginBottom"
     [icon]="this.to.icon"
     [title]="this.to.title"
     [subtitle]="this.to.subtitle">

@@ -834,6 +834,11 @@ export class MrbauArchiveModel {
         'STATUS_FORMAL_REVIEW' : {
           formlyFieldConfigs: [
             'workflow_formal_review',
+            'title_mrba_documentSummary',
+            'label_group_reviewDays',
+            'label_group_netPayment',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
           ],
           mandatoryRequiredProperties: [
           ]
