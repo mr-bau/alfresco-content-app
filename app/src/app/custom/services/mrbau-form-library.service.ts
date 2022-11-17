@@ -468,6 +468,19 @@ export class MrbauFormLibraryService {
     }
   }
 
+  readonly mrba_accountingId: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:accountingId',
+    type: 'input',
+    templateOptions: {
+      label: 'BMD Beleg Nr.',
+      placeholder: 'z.B. ER102',
+      maxLength: 32,
+      minLength: 3,
+    }
+  }
+
   readonly duplicated_document_form : FormlyFieldConfig = {
     key: 'ignore:mrbauFormlyDuplicatedDocument',
     type: 'mrbauFormlyDuplicatedDocument',

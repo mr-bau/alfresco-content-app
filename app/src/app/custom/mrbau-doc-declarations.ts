@@ -888,6 +888,7 @@ export class MrbauArchiveModel {
         },
         'STATUS_ACCOUNTING' : {
           formlyFieldConfigs: [
+            'mrba_accountingId',
             'title_mrba_verifyData',
             'label_group_paymentNet',
             'label_group_paymentDiscount1',
@@ -895,6 +896,7 @@ export class MrbauArchiveModel {
             'label_group_taxRate',
           ],
           mandatoryRequiredProperties: [
+            'mrba:accountingId',
           ]
         },
         'STATUS_ALL_SET' : {
