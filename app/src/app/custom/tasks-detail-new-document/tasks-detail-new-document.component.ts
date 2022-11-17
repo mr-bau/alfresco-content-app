@@ -311,7 +311,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     Object.keys(nodeBody.properties).forEach( key => {
       let nodeValue = this._taskNode.properties[key];
       // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
-      if (key.endsWith('DateValue'))
+      if (key.endsWith('DateValue') && nodeValue != null)
       {
         nodeValue = this.mrbauCommonService.getFormDateValue(new Date(nodeValue));
       }

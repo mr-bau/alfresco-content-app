@@ -62,7 +62,13 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
   field;
   options;
   let msg = 'error';
+
   if ( instanceOfSelectFormOptions(control.value) )
+  {
+    msg = null;
+  }
+  // if field is not required also allow empty values
+  if (!(field.templateOptions.required === true) && (control.value == null ||  control.value == ""))
   {
     msg = null;
   }
