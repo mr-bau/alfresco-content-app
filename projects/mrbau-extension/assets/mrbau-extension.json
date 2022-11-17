@@ -32,16 +32,42 @@
   ],
   "rules": [
     {
-      "id": "mrbau.extension.rule.can-inbox-assign",
+      "id": "mrbau.extension.rule.inbox-assign-visible",
       "type": "core.every",
       "parameters": [
-        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" },
+        { "type": "rule", "value": "core.not", "parameters": [{ "type": "rule", "value": "mrbau.extension.rule.is-mrba-archiveDocument" }] }
+      ]
+    },
+    {
+      "id": "mrbau.extension.rule.is-not-mrba-archiveDocument",
+       "type": "core.not",
+       "parameters": [
+        { "type": "rule", "value": "mrbau.extension.rule.is-mrba-archiveDocument" }
       ]
     },
     {
       "id": "mrbau.extension.rule.can-start-ocr",
       "type": "core.every",
       "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
+      ]
+    },
+    {
+      "id": "mrbau.extension.rule.create-can-new-task",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "mrbau.extension.rule.nothing-or-only-files-selected" }
+      ]
+    },
+    {
+      "id": "mrbau.extension.rule.context-can-new-task",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
         { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
       ]
     }
@@ -114,27 +140,27 @@
     ],
     "contextMenu": [
       {
-        "id": "mrbau.extension.menu.new-task",
-        "title": "Aufgabe erstellen",
-        "order": 301,
-        "icon": "build",
-        "actions": {
-          "click": "mrbau.extension.actions.new-task-dialog"
-        },
-        "rules": {
-          "visible": "mrbau.extension.rule.only-files-selected"
-        }
-      },
-      {
         "id": "mrbau.extension.menu.inbox-assign",
         "title": "Dokumente zuordnen",
-        "order": 302,
+        "order": 301,
         "icon": "inbox",
         "actions": {
           "click": "mrbau.extension.actions.inbox-assign-dialog"
         },
         "rules": {
-          "visible": "mrbau.extension.rule.can-inbox-assign"
+          "visible": "mrbau.extension.rule.inbox-assign-visible"
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.new-task",
+        "title": "Aufgabe erstellen",
+        "order": 302,
+        "icon": "build",
+        "actions": {
+          "click": "mrbau.extension.actions.new-task-dialog"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.context-can-new-task"
         }
       },
       {
@@ -160,7 +186,7 @@
             "click": "mrbau.extension.actions.new-task-dialog"
           },
           "rules": {
-            "visible": "mrbau.extension.rule.nothing-or-only-files-selected"
+            "visible": "mrbau.extension.rule.create-can-new-task"
           }
       }
     ],

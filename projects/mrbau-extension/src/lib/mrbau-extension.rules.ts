@@ -30,3 +30,20 @@ export function MrbauRuleHasOnlyFileOrNoSelection(context: RuleContext) : boolea
   }
   return result;
 }
+
+export function MrbauRuleIsMrbaArchiveDocument(context:RuleContext) : boolean {
+  let result = false;
+  if (context && context.selection && !context.selection.isEmpty)
+  {
+    result = true;
+    context.selection.nodes.forEach( (node) => {
+      if (node.entry.aspectNames.indexOf('mrba:archiveIdentifiers') < 0)
+      {
+        console.log()
+        // not an archive document
+        result = false;
+      }
+    });
+  }
+  return result;
+}

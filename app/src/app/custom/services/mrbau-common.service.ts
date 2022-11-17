@@ -184,6 +184,10 @@ export class MrbauCommonService {
   }
 
   getFormDateValue(date: Date) : string {
+    if (date == null)
+    {
+      return undefined;
+    }
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 
