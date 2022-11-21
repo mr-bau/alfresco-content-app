@@ -144,7 +144,7 @@ import { MrbauCompareDocumentsComponent } from './custom/dialogs/mrbau-compare-d
 import { LinkedDocumentDetailComponent } from './custom/linked-document-detail/linked-document-detail.component';
 import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-profile-picture/mrbau-userinfo-profile-picture.component';
 import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
-
+import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-upload-button.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -315,6 +315,7 @@ registerLocaleData(localeSv);
     MrbauCompareDocumentsComponent,
     LinkedDocumentDetailComponent,
     MrbauUserinfoProfilePictureComponent,
+    MrbauUploadButtonComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

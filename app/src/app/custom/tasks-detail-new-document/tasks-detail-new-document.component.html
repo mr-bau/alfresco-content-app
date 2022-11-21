@@ -56,10 +56,12 @@
 <aca-task-linked-documents-invoice-workflow
 [associatedDocuments]="taskNodeAssociations"
 [taskNode]="taskNode"
+[buttonsAuditSheetVisible]="isUploadAuditSheetButtonVisible()"
 (onAddAssociation)="onButtonAddFilesClicked()"
 (onRemoveAssociation)="onRemoveAssociationClicked($event)"
 (onAssociation)="onAssociationClicked($event)"
 (onTaskNode)="onTaskNodeClicked()"
+(onUploadAuditSheet)="onUploadAuditSheetClicked($event)"
 ></aca-task-linked-documents-invoice-workflow>
 
 <!-- comments panel -->

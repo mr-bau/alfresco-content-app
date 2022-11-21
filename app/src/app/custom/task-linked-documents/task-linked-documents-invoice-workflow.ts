@@ -1,5 +1,6 @@
-import { Node, NodeAssociationEntry } from '@alfresco/js-api';
+import { Node, NodeAssociationEntry, NodeEntry } from '@alfresco/js-api';
 import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { MrbauCommonService } from '../services/mrbau-common.service';
 import { IFileSelectData } from '../tasks/tasks.component';
 interface ILinkedDocumentsCategories {
   filter: string,
@@ -38,22 +39,54 @@ interface ILinkedDocumentsCategories {
                   -->
                 </li>
               </ul>
-
             </details>
         </ng-container>
       </ng-container>
-    <button mat-raised-button type="button" class="addMarginTop" color="primary" (click)="buttonAddFilesClicked()" matTooltip="Dokumente Hinzufügen" [disabled]="buttonsDisabled">Dokumente hinzufügen</button>
+    <button mat-raised-button type="button" class="addMarginTop" color="primary" (click)="buttonAddFilesClicked()" matTooltip="Dokumente hinzufügen" [disabled]="buttonsDisabled">Dokumente Hinzufügen</button>
+    <aca-mrbau-upload-button
+    *ngIf="buttonsAuditSheetVisible"
+      class="addMarginTop addMarginLeft"
+      [disabled]="buttonsDisabled"
+      [rootFolderId]="'-my-'"
+      [acceptedFilesType]="'.pdf'"
+      [versioning]="false"
+      [staticTitle]="'Prüfblatt Hochladen'"
+      [tooltip]="'Rechnungs-Prüfblatt hochladen'"
+      (success)="uploadAuditSheetSuccess($event)"
+      (permissionEvent)="onUploadPermissionFailed($event)">
+    >
+    </aca-mrbau-upload-button>
+<!--
+    <adf-upload-button
+      *ngIf="buttonsAuditSheetVisible"
+      style="display: inline-block;"
+      class="addMarginTop addMarginLeft"
+      [disabled]="buttonsDisabled"
+      [rootFolderId]="'-my-'"
+      [uploadFolders]="false"
+      [multipleFiles]="false"
+      [acceptedFilesType]="'.pdf'"
+      [versioning]="false"
+      [staticTitle]="'Prüfblatt Hochladen'"
+      [tooltip]="'Rechnungs-Prüfblatt hochladen'"
+      (success)="uploadAuditSheetSuccess($event)"
+      (permissionEvent)="onUploadPermissionFailed($event)">
+      >
+    </adf-upload-button>
+-->
   </mat-expansion-panel>
   `,
-  styleUrls: []
+  styles: []
 })
 export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   @Input() associatedDocuments : NodeAssociationEntry[] = []
   @Input() buttonsDisabled : boolean = false;
   @Input() defaultExpanded : boolean = false;
   @Input() taskNode : Node = new Node();
+  @Input() buttonsAuditSheetVisible : boolean = false;
   @Output() onRemoveAssociation = new EventEmitter<string>();
   @Output() onAddAssociation = new EventEmitter();
+  @Output() onUploadAuditSheet = new EventEmitter<NodeEntry>();
   @Output() onAssociation = new EventEmitter<IFileSelectData>();
   @Output() onTaskNode = new EventEmitter();
 
@@ -69,6 +102,24 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
     {filter:'mrba:archiveDocument', name:'Andere Belege'},
     {filter:'mrba:document', name:'Andere Dokumente'}
   ];
+
+  constructor(
+    private mrbauCommonService : MrbauCommonService
+  ){}
+
+  onUploadPermissionFailed(event: any) {
+    this.mrbauCommonService.showError(`Fehlende Berechtigung: ${event.permission} permission to ${event.action} the ${event.type} `);
+
+  }
+
+  uploadAuditSheetSuccess(event: any) {
+    if (typeof event.value == 'string')
+    {
+      this.mrbauCommonService.showError(`Fehler: ${event.value}`);
+      return;
+    }
+    this.onUploadAuditSheet.emit(event.value);
+  }
 
   onRemoveAssociationClicked(id:string)
   {

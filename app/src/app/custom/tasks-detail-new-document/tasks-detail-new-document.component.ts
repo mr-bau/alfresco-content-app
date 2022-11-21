@@ -367,6 +367,11 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     return this.form && this.form.valid;
   }
 
+  isUploadAuditSheetButtonVisible() : boolean
+  {
+    return this._task?.status == EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
+  }
+
   isProposeMatchingDocumentsVisible() : boolean
   {
     return this.task && this.task.status == EMRBauTaskStatus.STATUS_LINK_DOCUMENTS;
@@ -462,6 +467,41 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   onModelChangeEvent(model :any) {
     model;
+  }
+
+  onUploadAuditSheetClicked(node: NodeEntry)
+  {
+    //const nodeType = "mrba:invoiceAuditSheet"; TODO
+    const nodeType = "mrba:miscellaneousDocument";
+    // auto assign properties
+    let nodeBody : NodeBodyUpdate =  {
+      nodeType: nodeType,
+      properties: {
+        //"mrba:mrBauId"
+        "mrba:fiscalYear"        : this._taskNode.properties['mrba:fiscalYear'],
+        "mrba:archivedDateValue" : this.mrbauCommonService.getFormDateValue(new Date()),
+        "mrba:organisationUnit"  : this._taskNode.properties['mrba:organisationUnit'],
+
+        'mrba:companyId' : this._taskNode.properties['mrba:companyId'],
+        'mrba:companyName' : this._taskNode.properties['mrba:companyName'],
+        'mrba:companyVatID' : this._taskNode.properties['mrba:companyVatID'],
+        'mrba:companyStreet' : this._taskNode.properties['mrba:companyStreet'],
+        'mrba:companyZipCode' : this._taskNode.properties['mrba:companyZipCode'],
+        'mrba:companyCity' : this._taskNode.properties['mrba:companyCity'],
+        'mrba:companyCountryCode' : this._taskNode.properties['mrba:companyCountryCode'],
+      }
+    };
+    this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {})
+    .then((res) => {
+      res;
+      return this.addAssociationsToNode(node.entry.id, [this._taskNode]);
+    })
+    // add Association
+    .then((res) => {
+      res;
+      return this.addAssociations([node.entry]);
+    })
+    .catch((error) => {this.setErrorMessage(error);})
   }
 
   onTaskNodeClicked()
@@ -583,6 +623,25 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     }
 
     return DocumentAssociations.get(EMRBauDocumentAssociations.DOCUMENT_REFERENCE).associationName;
+  }
+
+  addAssociationsToNode(nodeId : string, nodes: Node[]) : Promise<any>
+  {
+    let bodyParams = [];
+    for (let i=0; i< nodes.length; i++)
+    {
+      const nodeAssocType = this.getAssocTypeByNodeType(nodes[i]);
+      bodyParams.push({
+        targetId : nodes[i].id,
+        assocType : nodeAssocType}
+      );
+    };
+
+    const pathParams = {nodeId: nodeId};
+    const queryParams = {include:'association'};
+    const contentTypes = ['application/json'];
+    const accepts = ['application/json'];
+    return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, {}, {}, bodyParams, contentTypes, accepts);
   }
 
   async addAssociations(selectedNodes: Node[]) : Promise<any>
