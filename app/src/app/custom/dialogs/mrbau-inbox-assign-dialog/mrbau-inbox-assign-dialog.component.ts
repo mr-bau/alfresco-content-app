@@ -11,6 +11,8 @@ import { MrbauFormLibraryService } from '../../services/mrbau-form-library.servi
 import { MrbauCommonService } from '../../services/mrbau-common.service';
 import { EMRBauDocumentCategory } from '../../mrbau-doc-declarations';
 import { MrbauArchiveModelService } from '../../services/mrbau-archive-model.service';
+import { AppStore, ReloadDocumentListAction } from '../../../../../../projects/aca-shared/store/src/public-api';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'aca-mrbau-inbox-assign-dialog',
@@ -59,6 +61,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     private nodesApiService: NodesApiService,
     private mrbauFormLibraryService: MrbauFormLibraryService,
     private dialogRef: MatDialogRef<MrbauInboxAssignDialogComponent>,
+    private store: Store<AppStore>,
     @Inject(MAT_DIALOG_DATA) public data: {payload: any}
     )
   {
@@ -110,7 +113,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     // execute sequentially !
     this.changeDocumentType(node, nodeType) // adapt document type and set receive time stamp and fiscal year
     .then(() => {return this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, docCategory, EMRBauTaskStatus.STATUS_NEW);}) // create and assign a new task
-    .then(() => this.notificationService.showInfo('Aufgabe erfolgreich erstellt'))
+    .then(() => this.doNotify())
     .catch((error) => {
       //console.log(error);
       this.notificationService.showError('Fehler: '+error);
@@ -153,5 +156,11 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     }`;
     //console.log(postBody);
     return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts);
+  }
+
+  doNotify()
+  {
+    this.notificationService.showInfo('Aufgabe erfolgreich erstellt');
+    this.store.dispatch(new ReloadDocumentListAction());
   }
 }

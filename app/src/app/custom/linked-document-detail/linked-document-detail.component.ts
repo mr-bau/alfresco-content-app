@@ -1,7 +1,10 @@
 import { Component, EventEmitter, Input, Output} from '@angular/core';
-import { Node } from '@alfresco/js-api';
+import { MinimalNodeEntity, Node } from '@alfresco/js-api';
 import { NodePermissionService } from '@alfresco/aca-shared';
 import { MrbauCommonService } from '../services/mrbau-common.service';
+import { Store } from '@ngrx/store';
+import { AppStore, NavigateToParentFolder } from '@alfresco/aca-shared/store';
+import { TranslationService } from '@alfresco/adf-core';
 @Component({
   selector: 'aca-linked-document-detail',
   template: `
@@ -31,7 +34,7 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
         </div>
       </summary>
       <ul class="node-detail-list">
-        <li class="status">Pfad: {{node?.path?.name || 'unbekannt'}}</li>
+        <li class="status">Pfad: <a href="javascript: void(0);" (click)="goToLocation()" matTooltip="In Ordner Anzeigen">{{this.nodePath || ('APP.BROWSE.SEARCH.UNKNOWN_LOCATION' | translate)}}</a></li>
         <li class="status">ID {{node?.id || 'unbekannt'}} -
           erzeugt am {{node?.createdAt | date:'medium' || 'unbekannt'}}
           von {{node?.createdByUser?.displayName || 'unbekannt'}}
@@ -43,17 +46,75 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
 })
 export class LinkedDocumentDetailComponent  {
   @Input() prefix : string = '';
-  @Input() node : Node = new Node();
+  //@Input() node : Node = new Node();
+  nodePath : String;
+  private _node : Node;
+  @Input() set node(val : Node) {
+    this._node = val;
+    this.updateNodePath();
+  }
+  get node(){
+    return this._node;
+  }
   @Input() removeButtonVisible : boolean = false;
   @Input() uploadNewVersionButtonVisible : boolean = false;
   @Output() clickDocument = new EventEmitter();
   @Output() clickRemoveButton = new EventEmitter<string>();
 
+
   constructor(
     private nodePermissionService: NodePermissionService,
     private mrbauCommonService : MrbauCommonService,
+    private translationService: TranslationService,
+    private store: Store<AppStore>,
   )
   {}
+
+  goToLocation() {
+    if (this.node && this.node.path) {
+      const node: MinimalNodeEntity = {entry : this.node};
+      this.store.dispatch(new NavigateToParentFolder(node));
+    }
+  }
+
+  updateNodePath()
+  {
+    // change path text from /Company Home/Sites/belegsammlung/documentLibrary/01 Mandant1/01 Belege/...
+    // to Dateibibliotheken/belegsammlung/01 Mandant1/01 Belege/...
+
+    if (this._node?.path?.name)
+    {
+      const path = this._node.path;
+      const personalFiles = this.translationService.instant('APP.BROWSE.PERSONAL.TITLE');
+      const fileLibraries = this.translationService.instant('APP.BROWSE.LIBRARIES.TITLE');
+
+      const elements = path.elements.map((e) => Object.assign({}, e));
+      if (elements[0].name === 'Company Home') {
+        if (elements.length > 2)
+        {
+          if (elements[1].name === 'Sites') {
+            elements[1].name = fileLibraries;
+            // remove document library
+            if (elements.length > 3) { elements.splice(3,1); }
+            // remove company home
+            elements.splice(0,1);
+          }
+          else if (elements[1].name === 'User Homes') {
+            elements[1].name = personalFiles;
+          }
+        }
+        this.nodePath = elements.map((e) => e.name).join('/');
+      }
+      else
+      {
+        this.nodePath = path.name;
+      }
+    }
+    else
+    {
+      this.nodePath = undefined;
+    }
+  }
 
   onFilesDropped(node : Node, files:File[])
   {
