@@ -276,7 +276,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   private keyIsValid(key:string) : boolean
   {
-    if (this.model[key] || this.model[key] === 0)
+    if (this.model[key] || this.model[key] === 0 || this.model[key] === "")
     {
       if (!key.startsWith('ignore:'))// ignore fields where the key starts with ignore: e.g. calculated values
       {
@@ -292,41 +292,32 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       properties: {
       }
     };
+    //this.log(this.model);
     Object.keys(this.model).forEach( key =>
     {
       if (this.keyIsValid(key))
       {
         // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
-        nodeBody.properties[key] =  (this.model[key].value) ? (this.model[key].value) : this.model[key];
+        const value = (this.model[key].value) ? (this.model[key].value) : this.model[key];
+
+        // only update node if some values have changed
+        let nodeValue = this._taskNode.properties[key];
+        // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
+        if (key.endsWith('DateValue') && nodeValue != null)
+        {
+          nodeValue = this.mrbauCommonService.getFormDateValue(new Date(nodeValue));
+        }
+        if (value != nodeValue)
+        {
+          nodeBody.properties[key] = value;
+        }
       }
     })
     if (Object.keys(nodeBody.properties).length == 0)
     {
-      //console.log('writeMetadata nothing to do');
       return new Promise((resolve) => resolve(null));
     }
-
-    // only update node if some values have changed
-    let updateNeeded = false;
-    Object.keys(nodeBody.properties).forEach( key => {
-      let nodeValue = this._taskNode.properties[key];
-      // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
-      if (key.endsWith('DateValue') && nodeValue != null)
-      {
-        nodeValue = this.mrbauCommonService.getFormDateValue(new Date(nodeValue));
-      }
-      if (nodeBody.properties[key] != nodeValue)
-      {
-        //console.log("Update needed");console.log(key);console.log(nodeBody.properties);console.log(this._taskNode);
-        updateNeeded = true;
-      }
-    });
-    if (!updateNeeded)
-    {
-      return Promise.resolve(null);
-    }
-
-    //console.log(nodeBody);
+    //this.log(nodeBody);
     return this.nodesApiService.nodesApi.updateNode(this._taskNode.id, nodeBody, {});
   }
 

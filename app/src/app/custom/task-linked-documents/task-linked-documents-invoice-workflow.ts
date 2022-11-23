@@ -44,9 +44,9 @@ interface ILinkedDocumentsCategories {
       </ng-container>
     <button mat-raised-button type="button" class="addMarginTop" color="primary" (click)="buttonAddFilesClicked()" matTooltip="Dokumente hinzufügen" [disabled]="buttonsDisabled">Dokumente Hinzufügen</button>
     <aca-mrbau-upload-button
-    *ngIf="buttonsAuditSheetVisible"
+      *ngIf="buttonAuditSheetVisible"
       class="addMarginTop addMarginLeft"
-      [disabled]="buttonsDisabled"
+      [disabled]="buttonAuditSheetDisabled()"
       [rootFolderId]="'-my-'"
       [acceptedFilesType]="'.pdf'"
       [versioning]="false"
@@ -83,7 +83,8 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   @Input() buttonsDisabled : boolean = false;
   @Input() defaultExpanded : boolean = false;
   @Input() taskNode : Node = new Node();
-  @Input() buttonsAuditSheetVisible : boolean = false;
+  @Input() buttonAuditSheetVisible : boolean = false;
+
   @Output() onRemoveAssociation = new EventEmitter<string>();
   @Output() onAddAssociation = new EventEmitter();
   @Output() onUploadAuditSheet = new EventEmitter<NodeEntry>();
@@ -99,6 +100,7 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
     {filter:'mrba:inboundInvoice', name:'Eingangsrechnungen'},
     {filter:'mrba:inboundRevokedInvoice', name:'Abgelehnte Eingangsrechnungen'},
     {filter:'mrba:inboundPartialInvoice', name:'Anzahlungsrechnungen'},
+    {filter:'mrba:invoiceAuditSheet', name:'Rechnungs-Prüfblatt'},
     {filter:'mrba:archiveDocument', name:'Andere Belege'},
     {filter:'mrba:document', name:'Andere Dokumente'}
   ];
@@ -139,5 +141,10 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   buttonAddFilesClicked()
   {
     this.onAddAssociation.emit();
+  }
+
+  buttonAuditSheetDisabled() : boolean
+  {
+    return this.buttonsDisabled || this.associatedDocuments?.filter(v => v.entry.association.assocType == 'mrba:invoiceAuditSheet').length > 0;
   }
 }
