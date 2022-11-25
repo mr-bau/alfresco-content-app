@@ -462,8 +462,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   onUploadAuditSheetClicked(node: NodeEntry)
   {
-    //const nodeType = "mrba:invoiceAuditSheet"; TODO
-    const nodeType = "mrba:miscellaneousDocument";
+    const nodeType = "mrba:invoiceAuditSheet";
     // auto assign properties
     let nodeBody : NodeBodyUpdate =  {
       nodeType: nodeType,
