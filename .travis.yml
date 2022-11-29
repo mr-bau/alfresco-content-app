@@ -10,7 +10,7 @@ addons:
   chrome: stable
 language: node_js
 node_js:
-  - '12.18.1'
+  - '14'
 
 cache:
   directories:
@@ -50,6 +50,7 @@ env:
     - APP_CONFIG_OAUTH2_HOST=http://localhost:4200/auth/realms/alfresco
     - APP_CONFIG_OAUTH2_CLIENTID=alfresco
     - APP_CONFIG_PLUGIN_AOS=true
+    - APP_CONFIG_PLUGIN_CONTENT_SERVICE=true
     - APP_CONFIG_OAUTH2_IMPLICIT_FLOW=true
     - APP_CONFIG_OAUTH2_SILENT_LOGIN=true
     - APP_CONFIG_OAUTH2_REDIRECT_LOGOUT=/
@@ -65,7 +66,7 @@ jobs:
     - stage: Quality and Unit tests
       name: 'Build (without animation)'
       before_script: npx @alfresco/adf-cli update-commit-sha --pointer "HEAD" --pathPackage "$(pwd)"
-      script: npm ci && npm run build -- --prod --configuration=e2e
+      script: npm ci && npm run build -- --configuration=production,e2e
       after_success: ./scripts/ci/utils/artifact-to-s3.sh -a $CONTENT_CE_DIST_PATH -o "$S3_DBP_FOLDER/alfresco-content-app.tar.bz2" || travis_terminate 1
       cache: false
 
@@ -82,6 +83,11 @@ jobs:
     - stage: Quality and Unit tests
       name: 'Unit tests: aca-settings'
       script: npm ci && ng test aca-settings
+      cache: false
+
+    - stage: Quality and Unit tests
+      name: 'Unit tests: aca-folder-rules'
+      script: npm ci && ng test aca-folder-rules
       cache: false
 
     - stage: Quality and Unit tests

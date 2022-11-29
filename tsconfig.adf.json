@@ -1,0 +1,52 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "target": "es2020",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2019", "dom"],
+    "paths": {
+      "@alfresco/adf-testing": ["../alfresco-ng2-components/lib/testing"],
+      "@alfresco/adf-testing/shared": ["../alfresco-ng2-components/lib/testing/src/lib/shared"],
+      "@alfresco/adf-core": ["../alfresco-ng2-components/lib/core"],
+      "@alfresco/adf-core/*": ["../alfresco-ng2-components/lib/core/*/public-api.ts"],
+      "@alfresco/adf-core/shell": ["../alfresco-ng2-components/lib/core/shell/src/index.ts"],
+      "@alfresco/adf-core/auth": ["../alfresco-ng2-components/lib/core/auth/src/index.ts"],
+      "@alfresco/adf-extensions": ["../alfresco-ng2-components/lib/extensions"],
+      "@alfresco/adf-content-services": ["../alfresco-ng2-components/lib/content-services"],
+      "@alfresco/adf-process-services-cloud": ["../alfresco-ng2-components/lib/process-services-cloud"],
+      "@alfresco/adf-process-services": ["../alfresco-ng2-components/lib/process-services"],
+      "@alfresco/aca-shared": ["projects/aca-shared/src/public-api.ts"],
+      "@alfresco/aca-shared/store": ["projects/aca-shared/store/src/public-api.ts"],
+      "@alfresco/aca-shared/rules": ["projects/aca-shared/rules/src/public-api.ts"],
+      "@alfresco/adf-office-services-ext": ["projects/adf-office-services-ext/src/public-api.ts"],
+      "@alfresco/aca-testing-shared": ["projects/aca-testing-shared"],
+      "@alfresco/aca-about": ["projects/aca-about/src/public-api.ts"],
+      "@alfresco/aca-settings": ["projects/aca-settings/src/public-api.ts"],
+      "@alfresco/aca-folder-rules": ["projects/aca-folder-rules/src/public-api.ts"],
+      "package.json": ["package.json"],
+      "*": ["./node_modules/*"]
+    }
+  },
+  "exclude": ["node_modules"],
+  "angularCompilerOptions": {
+    "preserveWhitespaces": false,
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true,
+    "strictTemplates": true
+  }
+}

@@ -1,0 +1,27 @@
+<form class="aca-rule-simple-condition__form" [formGroup]="form">
+  <mat-form-field class="aca-rule-simple-condition__form__field-input">
+    <mat-select formControlName="field" data-automation-id="field-select"
+      (selectionChange)="onChangeField()">
+      <mat-option *ngIf="!isSelectedFieldKnown" [value]="selectedField.name" data-automation-id="unknown-field-option">
+        {{ selectedField.label }}
+      </mat-option>
+      <mat-option *ngFor="let field of fields" [value]="field.name">
+        {{ field.label | translate }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="aca-rule-simple-condition__form__comparator-input" [class]="{ hidden: isComparatorHidden }" data-automation-id="comparator-form-field">
+    <mat-select formControlName="comparator" data-automation-id="comparator-select">
+      <mat-option
+        *ngFor="let comparator of selectedFieldComparators"
+        [value]="comparator.name">
+        {{ comparator.labels[this.selectedField?.type || 'equals'] | translate }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="aca-rule-simple-condition__form__parameter-input">
+    <input matInput placeholder="{{ 'ACA_FOLDER_RULES.RULE_DETAILS.PLACEHOLDER.VALUE' | translate }}" type="text" formControlName="parameter" data-automation-id="value-input">
+  </mat-form-field>
+</form>

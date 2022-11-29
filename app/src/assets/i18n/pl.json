@@ -47,6 +47,32 @@
       "RESET": "Resetuj",
       "APPLY": "Zastosuj"
     },
+    "EDIT_PROFILE": {
+      "MY_PROFILE": "Mój profil",
+      "GENERAL": "Ogólne",
+      "EDIT": "Edytuj",
+      "CANCEL": "Anuluj",
+      "SAVE": "Zapisz",
+      "FIRST_NAME": "Imię",
+      "LAST_NAME": "Nazwisko",
+      "JOB_TITLE": "Tytuł zadania",
+      "LOCATION": "Lokalizacja",
+      "TELEPHONE": "Telefon",
+      "MOBILE": "Telefon komórkowy",
+      "LOGIN": "Zaloguj",
+      "USERNAME": "Nazwa użytkownika",
+      "EMAIL": "E-mail",
+      "PASSWORD": "Hasło",
+      "OLD_PASSWORD": "Stare hasło",
+      "FORGOT_PASSWORD": "Zapomniałeś(-aś) hasła",
+      "NEW_PASSWORD": "Nowe hasło",
+      "VERIFY_PASSWORD": "Potwierdź hasło",
+      "COMPANY_DETAILS": "Dane firmy",
+      "NAME": "Nazwa",
+      "ADDRESS": "Adres",
+      "POSTCODE": "Kod pocztowy",
+      "INVALID_INPUT": "Nieprawidłowe dane wejściowe"
+    },
     "LOCKED_BY": "Zablokowane przez: ",
     "PREVIEW": {
       "TITLE": "Podgląd"

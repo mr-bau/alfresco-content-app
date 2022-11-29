@@ -1,13 +1,15 @@
 {
   "$schema": "../node_modules/@alfresco/adf-core/app.config.schema.json",
-   "ecmHost": "${APP_CONFIG_ECM_HOST}",
+  "ecmHost": "${APP_CONFIG_ECM_HOST}",
   "aosHost": "${APP_CONFIG_ECM_HOST}/alfresco/aos",
   "baseShareUrl": "${APP_CONFIG_ECM_HOST}/#/preview/s",
   "providers": "${APP_CONFIG_PROVIDER}",
   "authType": "${APP_CONFIG_AUTH_TYPE}",
   "loginRoute": "login",
-  "plugins":{
-    "aosPlugin" : ${APP_CONFIG_PLUGIN_AOS}
+  "plugins": {
+    "aosPlugin": ${APP_CONFIG_PLUGIN_AOS},
+    "contentService": ${APP_CONFIG_PLUGIN_CONTENT_SERVICE},
+    "folderRules": ${APP_CONFIG_PLUGIN_FOLDER_RULES}
   },
   "oauth2": {
     "host": "${APP_CONFIG_OAUTH2_HOST}",
@@ -23,8 +25,8 @@
   },
   "locale": "de",
   "application": {
-    "name": "M&R ECM Plattform",
-    "version": "2.9.0",
+    "name": "M&R ECM Platform",
+    "version": "3.1.0",
     "logo": "assets/mrbau-extension/svg/logo_mr.svg",
     "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
     "copyright": "© 2022 M&R Bauholding GmbH, © 2017–2022 Alfresco Software, Inc. Alle Rechte vorbehalten."

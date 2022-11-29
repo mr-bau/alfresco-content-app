@@ -23,19 +23,23 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Effect, Actions, ofType } from '@ngrx/effects';
+import { Actions, ofType, createEffect } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
-import { CloseModalDialogsAction, AppActionTypes } from '../actions/app.actions';
+import { CloseModalDialogsAction } from '../actions/app.actions';
+import { AppActionTypes } from '../actions/app-action-types';
 
 @Injectable()
 export class DialogEffects {
   constructor(private actions$: Actions, private matDialog: MatDialog) {}
 
-  @Effect({ dispatch: false })
-  closeAll$ = this.actions$.pipe(
-    ofType<CloseModalDialogsAction>(AppActionTypes.CloseModalDialogs),
-    map(() => this.matDialog.closeAll())
+  closeAll$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType<CloseModalDialogsAction>(AppActionTypes.CloseModalDialogs),
+        map(() => this.matDialog.closeAll())
+      ),
+    { dispatch: false }
   );
 }

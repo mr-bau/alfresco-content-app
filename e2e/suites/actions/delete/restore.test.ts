@@ -40,10 +40,9 @@ describe('Restore from Trash', () => {
   const adminApiActions = new AdminActions();
   const userActions = new UserActions();
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     await adminApiActions.createUser({ username });
     await loginPage.loginWith(username);
-    done();
   });
 
   afterAll(async () => {
@@ -77,32 +76,32 @@ describe('Restore from Trash', () => {
       await userActions.emptyTrashcan();
     });
 
-    it('[C217177] restore file', async (done) => {
+    it('[C217177] restore file', async () => {
       await dataTable.selectItem(file);
       await BrowserActions.click(toolbar.restoreButton);
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`${file} restored`);
-      expect(text).toContain(`View`);
+      const action = await page.getSnackBarAction();
+      expect(action).toContain('View');
       expect(await dataTable.isItemPresent(file)).toBe(false, 'Item was not removed from list');
       await page.clickPersonalFilesAndWait();
       expect(await page.dataTable.isItemPresent(file)).toBe(true, 'Item not displayed in list');
 
       await userActions.deleteNodes([fileId], false);
-      done();
     });
 
-    it('[C280438] restore folder', async (done) => {
+    it('[C280438] restore folder', async () => {
       await dataTable.selectItem(folder);
       await BrowserActions.click(toolbar.restoreButton);
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`${folder} restored`);
-      expect(text).toContain(`View`);
+      const action = await page.getSnackBarAction();
+      expect(action).toContain('View');
       expect(await dataTable.isItemPresent(folder)).toBe(false, 'Item was not removed from list');
       await page.clickPersonalFilesAndWait();
       expect(await page.dataTable.isItemPresent(folder)).toBe(true, 'Item not displayed in list');
 
       await userActions.deleteNodes([folderId], false);
-      done();
     });
 
     it('[C290104] restore library', async () => {
@@ -110,18 +109,20 @@ describe('Restore from Trash', () => {
       await BrowserActions.click(toolbar.restoreButton);
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`${site} restored`);
-      expect(text).toContain(`View`);
+      const action = await page.getSnackBarAction();
+      expect(action).toContain('View');
       expect(await dataTable.isItemPresent(site)).toBe(false, `${site} was not removed from list`);
       await page.clickFileLibrariesAndWait();
       expect(await page.dataTable.isItemPresent(site)).toBe(true, `${site} not displayed in list`);
     });
 
-    it('[C217182] restore multiple items', async (done) => {
+    it('[C217182] restore multiple items', async () => {
       await dataTable.selectMultipleItems([file, folder]);
       await BrowserActions.click(toolbar.restoreButton);
       const text = await page.getSnackBarMessage();
       expect(text).toContain(`Restore successful`);
-      expect(text).not.toContain(`View`);
+      const action = await page.getSnackBarAction();
+      expect(action).not.toContain('View');
       expect(await dataTable.isItemPresent(file)).toBe(false, 'Item was not removed from list');
       expect(await dataTable.isItemPresent(folder)).toBe(false, 'Item was not removed from list');
       await page.clickPersonalFilesAndWait();
@@ -129,10 +130,9 @@ describe('Restore from Trash', () => {
       expect(await page.dataTable.isItemPresent(folder)).toBe(true, 'Item not displayed in list');
 
       await userActions.deleteNodes([fileId, folderId], false);
-      done();
     });
 
-    it('[C217181] View from notification', async (done) => {
+    it('[C217181] View from notification', async () => {
       await dataTable.selectItem(file);
       await BrowserActions.click(toolbar.restoreButton);
       await page.clickSnackBarAction();
@@ -141,7 +141,6 @@ describe('Restore from Trash', () => {
       expect(await browser.getCurrentUrl()).toContain(APP_ROUTES.PERSONAL_FILES);
 
       await userActions.deleteNodes([fileId], false);
-      done();
     });
   });
 
@@ -215,7 +214,7 @@ describe('Restore from Trash', () => {
     const file5 = `file5-${Utils.random()}.txt`;
     let file5Id: string;
 
-    beforeAll(async (done) => {
+    beforeAll(async () => {
       try {
         folder1Id = (await apis.user.nodes.createFolder(folder1)).entry.id;
         file1Id = (await apis.user.nodes.createFile(file1, folder1Id)).entry.id;
@@ -236,7 +235,6 @@ describe('Restore from Trash', () => {
       } catch (error) {
         Logger.error(`----- beforeAll failed : ${error}`);
       }
-      done();
     });
 
     beforeEach(async () => {

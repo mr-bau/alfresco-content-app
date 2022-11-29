@@ -29,7 +29,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { AosEffects } from './effects/aos.effects';
 import { TranslationService } from '@alfresco/adf-core';
 import { AlfrescoOfficeExtensionService } from '@alfresco/aca-shared';
-import { canOpenWithOffice } from './evaluators';
+import { canOpenWithOffice } from '@alfresco/aca-shared/rules';
 
 @NgModule({
   imports: [EffectsModule.forFeature([AosEffects])],
@@ -38,14 +38,8 @@ import { canOpenWithOffice } from './evaluators';
 export class AosExtensionModule {
   constructor(extensions: ExtensionService, translation: TranslationService, aosService: AlfrescoOfficeExtensionService) {
     translation.addTranslationFolder('adf-office-services-ext', 'assets/adf-office-services-ext');
-    if (!aosService.isAosPluginEnabled()) {
-      extensions.setEvaluators({
-        'aos.canOpenWithOffice': () => false
-      });
-    } else {
-      extensions.setEvaluators({
-        'aos.canOpenWithOffice': canOpenWithOffice
-      });
-    }
+    extensions.setEvaluators({
+      'aos.canOpenWithOffice': (context) => aosService.isAosPluginEnabled() && canOpenWithOffice(context)
+    });
   }
 }

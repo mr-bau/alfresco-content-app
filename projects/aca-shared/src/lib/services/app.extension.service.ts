@@ -117,7 +117,7 @@ export class AppExtensionService implements RuleContext {
     protected loader: ExtensionLoaderService,
     protected extensions: ExtensionService,
     public permissions: NodePermissionService,
-    protected appConfig: AppConfigService,
+    public appConfig: AppConfigService,
     protected matIconRegistry: MatIconRegistry,
     protected sanitizer: DomSanitizer,
     protected logger: LogService
@@ -211,6 +211,7 @@ export class AppExtensionService implements RuleContext {
   protected getDocumentListPreset(config: ExtensionConfig, key: string): DocumentListPresetRef[] {
     return this.loader
       .getElements<DocumentListPresetRef>(config, `features.documentList.${key}`)
+      .filter((group) => this.filterVisible(group))
       .filter((entry) => !entry.disabled)
       .sort(sortByOrder);
   }
@@ -476,7 +477,7 @@ export class AppExtensionService implements RuleContext {
     };
   }
 
-  filterVisible(action: ContentActionRef | SettingsGroupRef | SidebarTabRef): boolean {
+  filterVisible(action: ContentActionRef | SettingsGroupRef | SidebarTabRef | DocumentListPresetRef): boolean {
     if (action && action.rules && action.rules.visible) {
       return this.extensions.evaluateRule(action.rules.visible, this);
     }

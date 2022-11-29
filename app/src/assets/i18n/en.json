@@ -47,6 +47,32 @@
             "RESET": "Reset",
             "APPLY": "Apply"
         },
+        "EDIT_PROFILE": {
+            "MY_PROFILE": "My Profile",
+            "GENERAL": "General",
+            "EDIT": "Edit",
+            "CANCEL": "Cancel",
+            "SAVE": "Save",
+            "FIRST_NAME": "First name",
+            "LAST_NAME": "Last name",
+            "JOB_TITLE": "Job title",
+            "LOCATION": "Location",
+            "TELEPHONE": "Telephone",
+            "MOBILE": "Mobile",
+            "LOGIN": "Login",
+            "USERNAME": "Username",
+            "EMAIL": "Email",
+            "PASSWORD": "Password",
+            "OLD_PASSWORD": "Old Password",
+            "FORGOT_PASSWORD": "Forgot Password",
+            "NEW_PASSWORD": "New Password",
+            "VERIFY_PASSWORD": "Verify Password",
+            "COMPANY_DETAILS": "Company details",
+            "NAME": "Name",
+            "ADDRESS": "Address",
+            "POSTCODE": "Postcode",
+            "INVALID_INPUT": "Invalid Input"
+        },
         "LOCKED_BY": "Locked by: ",
         "PREVIEW": {
             "TITLE": "Preview"
@@ -82,6 +108,9 @@
                 "SIDENAV_LINK": {
                     "LABEL": "Personal Files",
                     "TOOLTIP": "View your Personal Files"
+                },
+                "PERMISSIONS": {
+                    "TITLE": "Permissions"
                 }
             },
             "LIBRARIES": {
@@ -171,6 +200,7 @@
               "DUBLIN_CORE": "Dublin core",
               "EFFECTIVITY": "Effectivity",
               "TITLE": "Search Results",
+              "RESET_ACTION": "Reset search filters",
                 "FOUND_RESULTS": "{{ number }} results found",
                 "FOUND_ONE_RESULT": "{{ number }} result found",
                 "CUSTOM_ROW": {
@@ -365,13 +395,15 @@
         },
         "INFO_DRAWER": {
             "TITLE": "Details",
+            "DATA_LOADING": "Data is loading",
             "TABS": {
                 "PROPERTIES": "Properties",
                 "LIBRARY_PROPERTIES": "About",
                 "VERSIONS": "Versions",
                 "COMMENTS": "Comments",
                 "PERMISSIONS": "Permissions",
-                "EXPAND": "Expand"
+                "EXPAND": "Expand",
+                "CLOSE_LIBRARY": "Close Library"
             }
         }
     },

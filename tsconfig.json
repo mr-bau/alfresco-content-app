@@ -14,50 +14,28 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "target": "es2015",
+    "target": "es2020",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2019", "dom"],
     "paths": {
-      "@alfresco/aca-shared": [
-        "projects/aca-shared/src/public-api.ts"
-      ],
-      "@alfresco/aca-shared/store": [
-        "projects/aca-shared/store/src/public-api.ts"
-      ],
-      "@alfresco/aca-shared/rules": [
-        "projects/aca-shared/rules/src/public-api.ts"
-      ],
-      "@alfresco/adf-office-services-ext": [
-        "projects/adf-office-services-ext/src/public-api.ts"
-      ],
-      "@alfresco/aca-testing-shared": [
-        "projects/aca-testing-shared"
-      ],
-      "@alfresco/aca-about": [
-        "projects/aca-about/src/public-api.ts"
-      ],
-      "@alfresco/aca-settings": [
-        "projects/aca-settings/src/public-api.ts"
-      ],
-      "package.json": [
-        "package.json"
-      ],
+      "@alfresco/aca-shared": ["projects/aca-shared/src/public-api.ts"],
+      "@alfresco/aca-shared/store": ["projects/aca-shared/store/src/public-api.ts"],
+      "@alfresco/aca-shared/rules": ["projects/aca-shared/rules/src/public-api.ts"],
+      "@alfresco/adf-office-services-ext": ["projects/adf-office-services-ext/src/public-api.ts"],
+      "@alfresco/aca-testing-shared": ["projects/aca-testing-shared"],
+      "@alfresco/aca-about": ["projects/aca-about/src/public-api.ts"],
+      "@alfresco/aca-settings": ["projects/aca-settings/src/public-api.ts"],
+      "@alfresco/aca-folder-rules": ["projects/aca-folder-rules/src/public-api.ts"],
+      "package.json": ["package.json"],
       "mrbau-extension": [
         "dist/mrbau-extension/mrbau-extension",
         "dist/mrbau-extension"
       ]
     }
   },
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "angularCompilerOptions": {
     "preserveWhitespaces": false,
     "fullTemplateTypeCheck": true,

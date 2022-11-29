@@ -1,0 +1,14 @@
+.aca-rule-options {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+
+  &__option {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &.read-only .mat-checkbox-inner-container {
+    display: none;
+  }
+}

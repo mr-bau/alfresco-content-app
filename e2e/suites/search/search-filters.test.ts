@@ -23,7 +23,17 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { AdminActions, LoginPage, SearchResultsPage, RepoClient, Utils, FILES, SITE_VISIBILITY, SITE_ROLES } from '@alfresco/aca-testing-shared';
+import {
+  AdminActions,
+  LoginPage,
+  SearchResultsPage,
+  RepoClient,
+  Utils,
+  FILES,
+  SITE_VISIBILITY,
+  SITE_ROLES,
+  SizeOptions
+} from '@alfresco/aca-testing-shared';
 import { BrowserActions } from '@alfresco/adf-testing';
 
 const moment = require('moment');
@@ -77,7 +87,7 @@ describe('Search filters', () => {
   const modifiedDateFilter = filters.modifiedDate;
   const adminApiActions = new AdminActions();
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     await adminApiActions.createUser({ username: user1 });
     await adminApiActions.createUser({ username: user2 });
     parentId = (await apis.user1.nodes.createFolder(parent)).entry.id;
@@ -93,22 +103,19 @@ describe('Search filters', () => {
     await apis.user1.search.waitForNodes(`search-filters-${random}`, { expect: 2 });
 
     await loginPage.loginWith(user1);
-    done();
   });
 
-  beforeEach(async (done) => {
+  beforeEach(async () => {
     await Utils.pressEscape();
     await page.clickPersonalFilesAndWait();
 
     await searchInput.clickSearchButton();
     await searchInput.searchFor(`search-filters-${random}`);
     await dataTable.waitForBody();
-    done();
   });
 
-  afterAll(async (done) => {
+  afterAll(async () => {
     await Promise.all([apis.user1.nodes.deleteNodeById(parentId), apis.user1.sites.deleteSite(site)]);
-    done();
   });
 
   it('[C279186] Filters are displayed', async () => {
@@ -122,9 +129,8 @@ describe('Search filters', () => {
   });
 
   describe('Filter by Size', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
       await sizeFilter.resetPanel();
-      done();
     });
 
     it('[C279197] Expand / Collapse the Size filter panel', async () => {
@@ -144,7 +150,7 @@ describe('Search filters', () => {
 
     it('[C279199] Filter by Small', async () => {
       await sizeFilter.openDialog();
-      await sizeFilter.checkSizeSmall();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Small).click();
       await sizeFilter.clickApplyButton();
 
       expect(await dataTable.isItemPresent(fileJpgUser1.name)).toBe(true, `${fileJpgUser1.name} not in the list`);
@@ -153,7 +159,7 @@ describe('Search filters', () => {
 
     it('[C279202] Filter by Huge', async () => {
       await sizeFilter.openDialog();
-      await sizeFilter.checkSizeHuge();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Huge).click();
       await sizeFilter.clickApplyButton();
 
       expect(await dataTable.isEmpty()).toBe(true, 'list is not empty');
@@ -161,9 +167,9 @@ describe('Search filters', () => {
 
     it('[C279203] Filter by multiple size categories', async () => {
       await sizeFilter.openDialog();
-      await sizeFilter.checkSizeSmall();
-      await sizeFilter.checkSizeMedium();
-      await sizeFilter.checkSizeLarge();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Small).click();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Medium).click();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Large).click();
       await sizeFilter.clickApplyButton();
 
       expect(await dataTable.isItemPresent(fileJpgUser1.name)).toBe(true, `${fileJpgUser1.name} not in the list`);
@@ -172,8 +178,8 @@ describe('Search filters', () => {
 
     it('[C279198] Clear the Size filter options', async () => {
       await sizeFilter.openDialog();
-      await sizeFilter.checkSizeSmall();
-      await sizeFilter.checkSizeMedium();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Small).click();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Medium).click();
       await sizeFilter.clickApplyButton();
 
       await sizeFilter.openDialog();
@@ -190,10 +196,9 @@ describe('Search filters', () => {
     const today = moment().format('DD-MMM-YY');
     const future = moment().add(1, 'month').format('DD-MMM-YY');
 
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C279211] Expand / Collapse the Created date filter panel', async () => {
@@ -288,10 +293,9 @@ describe('Search filters', () => {
   });
 
   describe('Filter by File type', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C279191] Expand / Collapse the File type filter panel', async () => {
@@ -348,10 +352,9 @@ describe('Search filters', () => {
   });
 
   describe('Filter by Creator', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C279205] Expand / Collapse the Creator filter panel', async () => {
@@ -409,10 +412,9 @@ describe('Search filters', () => {
   });
 
   describe('Filter by Modifier', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C279224] Expand / Collapse the Modifier filter panel', async () => {
@@ -472,10 +474,9 @@ describe('Search filters', () => {
   });
 
   describe('Filter by Location', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C279230] Expand / Collapse the Location filter panel', async () => {
@@ -536,10 +537,9 @@ describe('Search filters', () => {
   describe('Filter by Modified date', () => {
     const expectedDateFilters = ['Today (2)', 'This week (2)', 'This month (2)', 'In the last 6 months (2)', 'This year (2)'];
 
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C279219] Expand / Collapse the Modified date filter panel', async () => {
@@ -603,15 +603,14 @@ describe('Search filters', () => {
   });
 
   describe('Multiple filters', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
       await Utils.pressEscape();
       await BrowserActions.click(filters.resetAllButton);
-      done();
     });
 
     it('[C280051] Multiple filters can be applied', async () => {
       await sizeFilter.openDialog();
-      await sizeFilter.checkSizeSmall();
+      await sizeFilter.getSizeCheckboxOption(SizeOptions.Small).click();
       await sizeFilter.clickApplyButton();
 
       await fileTypeFilter.openDialog();

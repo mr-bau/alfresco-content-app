@@ -17,12 +17,22 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "plugins": [
-        "eslint-plugin-react",
         "eslint-plugin-rxjs",
         "eslint-plugin-unicorn",
-        "prettier"
+        "prettier",
+        "ban"
       ],
       "rules": {
+        "ban/ban": [
+          "error",
+          { "name": "eval", "message": "Calls to eval is not allowed." },
+          { "name": "fdescribe", "message": "Calls to fdescribe is not allowed" },
+          { "name": "fit", "message": "Calls to fit is not allowed" },
+          { "name": "xit", "message": "Calls to xit is not allowed" },
+          { "name": "xdescribe", "message": "Calls to xdescribe is not allowed" },
+          { "name": ["test", "only"], "message": "Calls to test.only is not allowed" },
+          { "name": ["describe", "only"], "message": "Calls to describe.only is not allowed" }
+        ],
         "prettier/prettier": "error",
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": "error",
@@ -81,11 +91,13 @@
           "off",
           null
         ],
-        "@typescript-eslint/naming-convention":[
+        "@typescript-eslint/naming-convention": [
           "error",
           {
             "selector": "enum",
-            "format": ["PascalCase"]
+            "format": [
+              "PascalCase"
+            ]
           }
         ],
         "@typescript-eslint/type-annotation-spacing": "off",
@@ -110,9 +122,6 @@
         "no-return-await": "error",
         "no-underscore-dangle": "off",
         "quote-props": "off",
-        "react/jsx-curly-spacing": "off",
-        "react/jsx-equals-spacing": "off",
-        "react/jsx-wrap-multilines": "off",
         "rxjs/no-create": "error",
         "rxjs/no-subject-unsubscribe": "error",
         "rxjs/no-subject-value": "error",
@@ -136,14 +145,15 @@
         "@angular-eslint/template/no-autofocus": "error",
         "@angular-eslint/template/no-negated-async": "off",
         "@angular-eslint/template/no-positive-tabindex": "error",
-        "@angular-eslint/template/accessibility-alt-text":"error",
-        "@angular-eslint/template/accessibility-elements-content":"error",
-        "@angular-eslint/template/accessibility-label-for":"error",
-        "@angular-eslint/template/accessibility-table-scope":"error",
-        "@angular-eslint/template/accessibility-valid-aria":"error",
-        "@angular-eslint/template/click-events-have-key-events":"error",
-        "@angular-eslint/template/mouse-events-have-key-events":"error",
-        "@angular-eslint/template/no-distracting-elements":"error"
+        "@angular-eslint/template/accessibility-alt-text": "error",
+        "@angular-eslint/template/accessibility-elements-content": "error",
+        "@angular-eslint/template/accessibility-table-scope": "error",
+        "@angular-eslint/template/accessibility-valid-aria": "error",
+        "@angular-eslint/template/click-events-have-key-events": "error",
+        "@angular-eslint/template/mouse-events-have-key-events": "error",
+        "@angular-eslint/template/no-distracting-elements": "error",
+        "@angular-eslint/template/accessibility-label-has-associated-control": "error",
+        "@angular-eslint/template/eqeqeq": "error"
       }
     }
   ]

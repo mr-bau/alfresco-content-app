@@ -23,6 +23,10 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
+export * from './actions/app-action-types';
+export * from './actions/context-menu-action-types';
+export * from './actions/router-action-types';
+export * from './actions/template-action-types';
 export * from './actions/app.actions';
 export * from './actions/library.actions';
 export * from './actions/node.actions';
