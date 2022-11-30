@@ -41,7 +41,8 @@ import {
   UploadEffects,
   FavoriteEffects,
   TemplateEffects,
-  ContextMenuEffects
+  ContextMenuEffects,
+  MrbauEffects
 } from './effects';
 import { INITIAL_STATE } from './initial-state';
 
@@ -72,7 +73,8 @@ import { INITIAL_STATE } from './initial-state';
       UploadEffects,
       FavoriteEffects,
       TemplateEffects,
-      ContextMenuEffects
+      ContextMenuEffects,
+      MrbauEffects
     ]),
     !environment.production ? StoreDevtoolsModule.instrument({ maxAge: 25 }) : []
   ]
