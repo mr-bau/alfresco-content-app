@@ -29,7 +29,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { AosEffects } from './effects/aos.effects';
 import { TranslationService } from '@alfresco/adf-core';
 import { AlfrescoOfficeExtensionService } from '@alfresco/aca-shared';
-import { canOpenWithOffice } from '@alfresco/aca-shared/rules';
+import { canOpenWithOffice } from './evaluators';
 
 @NgModule({
   imports: [EffectsModule.forFeature([AosEffects])],

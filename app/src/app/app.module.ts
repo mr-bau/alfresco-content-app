@@ -23,17 +23,53 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HammerModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TRANSLATION_PROVIDER, CoreModule, AppConfigService, DebugAppConfigService } from '@alfresco/adf-core';
+import { ContentModule, ContentVersionService } from '@alfresco/adf-content-services';
+import { SharedModule } from '@alfresco/aca-shared';
 
-import { TRANSLATION_PROVIDER, AppConfigService, DebugAppConfigService, CoreModule, AuthGuard } from '@alfresco/adf-core';
-import { AppService, SharedModule } from '@alfresco/aca-shared';
+import { AppComponent } from './app.component';
+import { APP_ROUTES } from './app.routes';
 
+import { FilesComponent } from './components/files/files.component';
+import { LibrariesComponent } from './components/libraries/libraries.component';
+import { FavoriteLibrariesComponent } from './components/favorite-libraries/favorite-libraries.component';
+import { ViewProfileModule } from './components/view-profile/view-profile.module';
+
+import { AppStoreModule } from './store/app-store.module';
+import { MaterialModule } from './material.module';
 import { AppExtensionsModule } from './extensions.module';
+import { CoreExtensionsModule } from './extensions/core.extensions.module';
+import { AppInfoDrawerModule } from './components/info-drawer/info.drawer.module';
+import { DirectivesModule } from './directives/directives.module';
+import { ContextMenuModule } from './components/context-menu/context-menu.module';
+import { ExtensionsModule } from '@alfresco/adf-extensions';
+import { AppToolbarModule } from './components/toolbar/toolbar.module';
+import { AppCreateMenuModule } from './components/create-menu/create-menu.module';
+import { AppSidenavModule } from './components/sidenav/sidenav.module';
+import { AppCommonModule } from './components/common/common.module';
+import { AppLayoutModule } from './components/layout/layout.module';
+import { AppSearchInputModule } from './components/search/search-input.module';
+import { DocumentListCustomComponentsModule } from './components/dl-custom-components/document-list-custom-components.module';
+import { AppSearchResultsModule } from './components/search/search-results.module';
+import { AppLoginModule } from './components/login/login.module';
+import { AppHeaderModule } from './components/header/header.module';
+import { AppNodeVersionModule } from './components/node-version/node-version.module';
+import { FavoritesComponent } from './components/favorites/favorites.component';
+import { RecentFilesComponent } from './components/recent-files/recent-files.component';
+import { SharedFilesComponent } from './components/shared-files/shared-files.component';
+import { CreateFromTemplateDialogComponent } from './dialogs/node-template/create-from-template.dialog';
 import { environment } from '../environments/environment';
+import { DetailsComponent } from './components/details/details.component';
+import { ContentUrlService } from './services/content-url.service';
+import { HomeComponent } from './components/home/home.component';
 
 import { registerLocaleData } from '@angular/common';
+
 import localeFr from '@angular/common/locales/fr';
 import localeDe from '@angular/common/locales/de';
 import localeIt from '@angular/common/locales/it';
@@ -50,36 +86,32 @@ import localePl from '@angular/common/locales/pl';
 import localeFi from '@angular/common/locales/fi';
 import localeDa from '@angular/common/locales/da';
 import localeSv from '@angular/common/locales/sv';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterModule } from '@angular/router';
-import { AppComponent } from './app.components';
-import { CONTENT_LAYOUT_ROUTES } from './content-plugin/content.routes';
-import { ContentServiceExtensionModule } from './content-plugin/content-services-extension.module';
-import { CoreExtensionsModule } from './extensions/core.extensions.module';
-import { INITIAL_APP_STATE } from './content-plugin/store/initial-state';
-import { ContentVersionService } from '@alfresco/adf-content-services';
-import { ContentUrlService } from './content-plugin/services/content-url.service';
-import { STORE_INITIAL_APP_DATA } from '@alfresco/aca-shared/store';
-import { ShellModule, SHELL_APP_SERVICE, SHELL_AUTH_TOKEN } from '@alfresco/adf-core/shell';
 
-
-// custom imports 3rd party
+// custom imports common
+import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
+import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
+import { LOCALE_ID } from '@angular/core';
 import { DatePipe } from '@angular/common';
+
+// custom imports 3rd party Foerdermanager
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule  } from '@angular/material/sort';
 import { MatPaginatorModule  } from '@angular/material/paginator';
-import { AngularSplitModule } from 'angular-split';
 import { NgxEchartsModule } from 'ngx-echarts';
 import 'echarts/theme/royal.js';
+
+// custom imports Fordermanager
+import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
+
+// custom imports 3rd party Belege
+import { AngularSplitModule } from 'angular-split';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { MatStepperModule } from '@angular/material/stepper';
-// custom imports
+
+// custom imports Belege
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
-import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
-import { TestComponent } from './custom/test/test.component';
-import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
-import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
+//import { TestComponent } from './custom/test/test.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
 import { SplitpaneComponent } from './custom/splitpane/splitpane.component';
 import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
@@ -120,6 +152,7 @@ import { MrbauCompareDocumentsComponent } from './custom/dialogs/mrbau-compare-d
 import { LinkedDocumentDetailComponent } from './custom/linked-document-detail/linked-document-detail.component';
 import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-profile-picture/mrbau-userinfo-profile-picture.component';
 import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
+import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-upload-button.component';
 
 
 registerLocaleData(localeFr);
@@ -142,37 +175,51 @@ registerLocaleData(localeSv);
 @NgModule({
   imports: [
     BrowserModule,
-    TranslateModule.forRoot(),
-    CoreModule.forRoot(),
-    SharedModule.forRoot(),
-    CoreExtensionsModule.forRoot(),
     environment.e2e ? NoopAnimationsModule : BrowserAnimationsModule,
-    RouterModule.forRoot([], {
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot(APP_ROUTES, {
       useHash: true,
       enableTracing: false, // enable for debug only
       relativeLinkResolution: 'legacy'
     }),
+    MaterialModule,
+    CoreModule.forRoot(),
+    ContentModule.forRoot(),
+    SharedModule.forRoot(),
+    AppStoreModule,
+    CoreExtensionsModule.forRoot(),
+    ExtensionsModule.forRoot(),
     AppExtensionsModule,
-    ShellModule.withRoutes({
-      shellChildren: [CONTENT_LAYOUT_ROUTES]
-    }),
-    ContentServiceExtensionModule,
+    AppLoginModule,
+    AppCommonModule,
+    AppLayoutModule,
+    DirectivesModule,
+    ContextMenuModule,
+    AppInfoDrawerModule,
+    AppToolbarModule,
+    AppSidenavModule,
+    AppCreateMenuModule,
+    DocumentListCustomComponentsModule,
+    AppSearchInputModule,
+    AppSearchResultsModule,
+    AppHeaderModule,
+    AppNodeVersionModule,
+    HammerModule,
+    ViewProfileModule,
 
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    MatStepperModule,
-    //MatInputModule,
-    //MatAutocompleteModule,
-    AngularSplitModule,
     NgxEchartsModule.forRoot({
-      /**
-       * This will import all modules from echarts.
-       * If you only need custom modules,
-       * please refer to [Custom Build] section.
-       */
+       // This will import all modules from echarts.
+       // If you only need custom modules,
+       // please refer to [Custom Build] section.
       echarts: () => import('echarts'), // or import('./path-to-my-custom-echarts')
     }),
+
+    MatStepperModule,
+    AngularSplitModule,
     FormlyModule.forRoot({
       validationMessages: [
         { name: 'required', message: requiredValidationMessage },
@@ -218,37 +265,23 @@ registerLocaleData(localeSv);
       }),
     FormlyMaterialModule
   ],
-  providers: [
-    { provide: AppService, useClass: AppService },
-    { provide: AppConfigService, useClass: DebugAppConfigService },
-    { provide: ContentVersionService, useClass: ContentUrlService },
-    {
-      provide: SHELL_APP_SERVICE,
-      useClass: AppService
-    },
-    {
-      provide: SHELL_AUTH_TOKEN,
-      useClass: AuthGuard
-    },
-    {
-      provide: STORE_INITIAL_APP_DATA,
-      useValue: INITIAL_APP_STATE
-    },
-    {
-      provide: TRANSLATION_PROVIDER,
-      multi: true,
-      useValue: {
-        name: 'app',
-        source: 'assets'
-      }
-    }
-  ],
-  declarations: [AppComponent,
-    BelegsammlungComponent,
+  declarations: [
+    AppComponent,
+    FilesComponent,
+    DetailsComponent,
+    LibrariesComponent,
+    FavoriteLibrariesComponent,
+    FavoritesComponent,
+    RecentFilesComponent,
+    SharedFilesComponent,
+    CreateFromTemplateDialogComponent,
+    HomeComponent,
+
     FoerdermanagerComponent,
-    TestComponent,
-    LoaderoverlayComponent,
     ErrormsgpaneComponent,
+    LoaderoverlayComponent,
+
+    BelegsammlungComponent,
     TasksComponent,
     SplitpaneComponent,
     PdfpreviewComponent,
@@ -264,12 +297,6 @@ registerLocaleData(localeSv);
     MrbauFormlyAutocompleteSelectFormOptionsComponent,
     MrbauFormlyLabelComponent,
     MrbauFormlyLabelWrapperComponent,
-
-    MRBauTaskStatusPipe,
-    MRBauNodeAssociationEntryFilterPipeImpure,
-    MRBauTaskCategoryPipe,
-    MrbauUsernameInitialsPipe,
-
     MrbauDelegateTaskDialogComponent,
     TaskVersionlistComponent,
     TaskVersionlistInvoiceWorkflowComponent,
@@ -291,8 +318,28 @@ registerLocaleData(localeSv);
     MrbauCompareDocumentsComponent,
     LinkedDocumentDetailComponent,
     MrbauUserinfoProfilePictureComponent,
+    MrbauUploadButtonComponent,
+
+    MRBauTaskStatusPipe,
+    MRBauNodeAssociationEntryFilterPipeImpure,
+    MRBauTaskCategoryPipe,
+    MrbauUsernameInitialsPipe,
   ],
   providers: [
+    { provide: AppConfigService, useClass: DebugAppConfigService },
+    { provide: ContentVersionService, useClass: ContentUrlService },
+    {
+      provide: TRANSLATION_PROVIDER,
+      multi: true,
+      useValue: {
+        name: 'app',
+        source: 'assets'
+      }
+    },
+    {
+      provide: LOCALE_ID,
+      useValue: 'de-AT' // 'de-DE' for Germany, 'fr-FR' for France ...
+    },
     DatePipe
   ],
   bootstrap: [AppComponent]

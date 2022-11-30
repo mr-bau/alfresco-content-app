@@ -25,9 +25,6 @@
 
 import { SelectionState, ProfileState, NavigationState } from '@alfresco/adf-extensions';
 import { RepositoryInfo, VersionEntry } from '@alfresco/js-api';
-import { InjectionToken } from '@angular/core';
-
-export const STORE_INITIAL_APP_DATA = new InjectionToken<AppState>('STORE_INITIAL_APP_DATA');
 
 export interface AppState {
   appName: string;

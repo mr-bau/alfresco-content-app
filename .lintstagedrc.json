@@ -1,4 +1,0 @@
-{
-  "*.{ts, js, html}": ["prettier --single-quote --write", "eslint"],
-  "*.{css, scss}": ["prettier --single-quote --write"]
-}

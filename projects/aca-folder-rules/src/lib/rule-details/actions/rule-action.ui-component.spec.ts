@@ -29,7 +29,6 @@ import { RuleActionUiComponent } from './rule-action.ui-component';
 import { actionsTransformedListMock } from '../../mock/actions.mock';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { dummyConstraints } from '../../mock/action-parameter-constraints.mock';
 
 describe('RuleActionUiComponent', () => {
   let fixture: ComponentFixture<RuleActionUiComponent>;
@@ -72,20 +71,16 @@ describe('RuleActionUiComponent', () => {
 
   it('should populate the card view with parameters when an action is selected', () => {
     component.actionDefinitions = actionsTransformedListMock;
-    component.parameterConstraints = dummyConstraints;
     fixture.detectChanges();
 
     const cardView = getByDataAutomationId('rule-action-card-view').componentInstance as CardViewComponent;
     expect(cardView.properties.length).toBe(0);
 
     changeMatSelectValue('rule-action-select', 'mock-action-1-definition');
-
-    expect(cardView.properties.length).toBe(5);
+    expect(cardView.properties.length).toBe(3);
     expect(cardView.properties[0]).toBeInstanceOf(CardViewTextItemModel);
     expect(cardView.properties[1]).toBeInstanceOf(CardViewBoolItemModel);
     expect(cardView.properties[2]).toBeInstanceOf(CardViewSelectItemModel);
-    expect(cardView.properties[3]).toBeInstanceOf(CardViewTextItemModel);
-    expect(cardView.properties[4]).toBeInstanceOf(CardViewSelectItemModel);
 
     changeMatSelectValue('rule-action-select', 'mock-action-2-definition');
     expect(cardView.properties.length).toBe(0);

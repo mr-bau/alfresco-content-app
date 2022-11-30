@@ -24,12 +24,12 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ActionDefinition, ActionDefinitionEntry, ActionDefinitionList, ActionsApi } from '@alfresco/js-api';
+import { ActionDefinition, ActionDefinitionEntry, ActionDefinitionList, ActionParameterDefinition, ActionsApi } from '@alfresco/js-api';
 import { AlfrescoApiService } from '@alfresco/adf-core';
-import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
-import { finalize, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 import { ActionDefinitionTransformed, ActionParameterDefinitionTransformed } from '../model/rule-action.model';
-import { ActionParameterConstraint, ConstraintValue } from '../model/action-parameter-constraint.model';
+import { finalize, map } from 'rxjs/operators';
+import { Aspect } from '../model/aspect.model';
 
 @Injectable({ providedIn: 'root' })
 export class ActionsService {
@@ -37,8 +37,8 @@ export class ActionsService {
   actionDefinitionsListing$ = this.actionDefinitionsListingSource.asObservable();
   private loadingSource = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSource.asObservable();
-  private parameterConstraintsSource = new BehaviorSubject<ActionParameterConstraint[]>([]);
-  parameterConstraints$: Observable<ActionParameterConstraint[]> = this.parameterConstraintsSource.asObservable();
+  private aspectsSource = new BehaviorSubject<Aspect[]>([]);
+  aspects$: Observable<Aspect[]> = this.aspectsSource.asObservable();
 
   private _actionsApi: ActionsApi;
   get actionsApi(): ActionsApi {
@@ -62,10 +62,12 @@ export class ActionsService {
       });
   }
 
-  getParameterConstraints(constraintName): Observable<ConstraintValue[]> {
-    return from(
-      this.publicApiCall(`/action-parameter-constraints/${constraintName}`, 'GET', [{}, {}, {}, {}, {}, ['application/json'], ['application/json']])
-    ).pipe(map((res) => res.entry.constraintValues.map((entry) => this.formatConstraint(entry))));
+  loadAspects(): void {
+    from(this.publicApiCall('/action-parameter-constraints/ac-aspects', 'GET', [{}, {}, {}, {}, {}, ['application/json'], ['application/json']]))
+      .pipe(map((res) => res.entry.constraintValues.map((entry) => this.formatAspect(entry))))
+      .subscribe((res) => {
+        this.aspectsSource.next(res);
+      });
   }
 
   private transformActionDefinition(obj: ActionDefinition | ActionDefinitionEntry): ActionDefinitionTransformed {
@@ -79,20 +81,19 @@ export class ActionsService {
       title: obj.title ?? obj.name ?? '',
       applicableTypes: obj.applicableTypes ?? [],
       trackStatus: obj.trackStatus ?? false,
-      parameterDefinitions: (obj.parameterDefinitions ?? []).map((paramDef: ActionParameterDefinitionTransformed) =>
+      parameterDefinitions: (obj.parameterDefinitions ?? []).map((paramDef: ActionParameterDefinition) =>
         this.transformActionParameterDefinition(paramDef)
       )
     };
   }
 
-  private transformActionParameterDefinition(obj: ActionParameterDefinitionTransformed): ActionParameterDefinitionTransformed {
+  private transformActionParameterDefinition(obj: ActionParameterDefinition): ActionParameterDefinitionTransformed {
     return {
       name: obj.name ?? '',
       type: obj.type ?? '',
       multiValued: obj.multiValued ?? false,
       mandatory: obj.mandatory ?? false,
-      displayLabel: obj.displayLabel ?? obj.name ?? '',
-      parameterConstraintName: obj.parameterConstraintName ?? ''
+      displayLabel: obj.displayLabel ?? obj.name ?? ''
     };
   }
 
@@ -104,37 +105,10 @@ export class ActionsService {
     return this.apiService.getInstance().contentClient.callApi(path, httpMethod, ...params);
   }
 
-  private formatConstraint(constraint): ConstraintValue {
+  private formatAspect(aspect): Aspect {
     return {
-      value: constraint.value ?? '',
-      label: constraint.label ?? ''
+      value: aspect.value ?? '',
+      label: aspect.label ?? ''
     };
-  }
-
-  loadActionParameterConstraints(actionDefinitions: ActionDefinitionTransformed[]): void {
-    of(actionDefinitions)
-      .pipe(
-        map((actionDefinition) =>
-          actionDefinition
-            .map((obj) => obj.parameterDefinitions)
-            .flat()
-            .filter((parameterDefinition) => parameterDefinition.parameterConstraintName.length > 0)
-            .map((parameterDefinition) => ({
-              name: parameterDefinition.name,
-              parameterConstraintName: parameterDefinition.parameterConstraintName,
-              constraints: null
-            }))
-        ),
-        switchMap((parameterDefinitions) =>
-          forkJoin(
-            ...parameterDefinitions.map((parameterDefinition) =>
-              this.getParameterConstraints(parameterDefinition.parameterConstraintName).pipe(
-                map((constraints) => ({ name: parameterDefinition.name, constraints }))
-              )
-            )
-          )
-        )
-      )
-      .subscribe((res) => this.parameterConstraintsSource.next(res));
   }
 }

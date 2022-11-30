@@ -27,12 +27,12 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewEncapsul
 import { AbstractControl, UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
-import { Rule, RuleForForm } from '../model/rule.model';
+import { Rule } from '../model/rule.model';
 import { ruleCompositeConditionValidator } from './validators/rule-composite-condition.validator';
 import { FolderRulesService } from '../services/folder-rules.service';
 import { ActionDefinitionTransformed } from '../model/rule-action.model';
 import { ruleActionsValidator } from './validators/rule-actions.validator';
-import { ActionParameterConstraint } from '../model/action-parameter-constraint.model';
+import { Aspect } from '../model/aspect.model';
 
 @Component({
   selector: 'aca-rule-details',
@@ -57,38 +57,28 @@ export class RuleDetailsUiComponent implements OnInit, OnDestroy {
       }
     }
   }
-  private _initialValue: RuleForForm = FolderRulesService.emptyRuleForForm;
+  private _initialValue: Partial<Rule> = FolderRulesService.emptyRule;
   @Input()
   get value(): Partial<Rule> {
-    let value = this.form ? this.form.value : this._initialValue;
-    if (value.options) {
-      value = {
-        ...value,
-        ...(value.options ?? FolderRulesService.emptyRuleOptions)
-      };
-      delete value.options;
-    }
-    return value;
+    return this.form ? this.form.value : this._initialValue;
   }
   set value(newValue: Partial<Rule>) {
-    const newValueForForm: RuleForForm = {
+    newValue = {
       id: newValue.id || FolderRulesService.emptyRule.id,
       name: newValue.name || FolderRulesService.emptyRule.name,
       description: newValue.description || FolderRulesService.emptyRule.description,
       triggers: newValue.triggers || FolderRulesService.emptyRule.triggers,
       conditions: newValue.conditions || FolderRulesService.emptyRule.conditions,
-      actions: newValue.actions || FolderRulesService.emptyRule.actions,
-      options: {
-        isEnabled: typeof newValue.isInheritable == 'boolean' ? newValue.isEnabled : FolderRulesService.emptyRule.isEnabled,
-        isInheritable: newValue.isInheritable || FolderRulesService.emptyRule.isInheritable,
-        isAsynchronous: newValue.isAsynchronous || FolderRulesService.emptyRule.isAsynchronous,
-        errorScript: newValue.errorScript || FolderRulesService.emptyRule.errorScript
-      }
+      isAsynchronous: newValue.isAsynchronous || FolderRulesService.emptyRule.isAsynchronous,
+      errorScript: newValue.errorScript || FolderRulesService.emptyRule.errorScript,
+      isInheritable: newValue.isInheritable || FolderRulesService.emptyRule.isInheritable,
+      isEnabled: typeof newValue.isInheritable == 'boolean' ? newValue.isEnabled : FolderRulesService.emptyRule.isEnabled,
+      actions: newValue.actions || FolderRulesService.emptyRule.actions
     };
     if (this.form) {
-      this.form.setValue(newValueForForm);
+      this.form.setValue(newValue);
     } else {
-      this._initialValue = newValueForForm;
+      this._initialValue = newValue;
     }
   }
   @Input()
@@ -96,9 +86,7 @@ export class RuleDetailsUiComponent implements OnInit, OnDestroy {
   @Input()
   actionDefinitions: ActionDefinitionTransformed[] = [];
   @Input()
-  parameterConstraints: ActionParameterConstraint[] = [];
-  @Input()
-  nodeId = '';
+  aspects: Aspect[] = [];
 
   @Output()
   formValidationChanged = new EventEmitter<boolean>();
@@ -120,9 +108,17 @@ export class RuleDetailsUiComponent implements OnInit, OnDestroy {
   get conditions(): UntypedFormControl {
     return this.form.get('conditions') as UntypedFormControl;
   }
-
-  get showOptionsSection(): boolean {
-    return !this.readOnly || this.value.isAsynchronous || this.value.isInheritable;
+  get isAsynchronous(): UntypedFormControl {
+    return this.form.get('isAsynchronous') as UntypedFormControl;
+  }
+  get errorScript(): UntypedFormControl {
+    return this.form.get('errorScript') as UntypedFormControl;
+  }
+  get isInheritable(): UntypedFormControl {
+    return this.form.get('isInheritable') as UntypedFormControl;
+  }
+  get isEnabled(): UntypedFormControl {
+    return this.form.get('isEnabled') as UntypedFormControl;
   }
 
   ngOnInit() {
@@ -140,13 +136,11 @@ export class RuleDetailsUiComponent implements OnInit, OnDestroy {
         },
         ruleCompositeConditionValidator()
       ),
-      actions: new UntypedFormControl(this.value.actions, [Validators.required, ruleActionsValidator(this.actionDefinitions)]),
-      options: new UntypedFormControl({
-        isEnabled: this.value.isEnabled,
-        isInheritable: this.value.isInheritable,
-        isAsynchronous: this.value.isAsynchronous,
-        errorScript: this.value.errorScript
-      })
+      isAsynchronous: new UntypedFormControl(this.value.isAsynchronous),
+      errorScript: new UntypedFormControl(this.value.errorScript),
+      isInheritable: new UntypedFormControl(this.value.isInheritable),
+      isEnabled: new UntypedFormControl(this.value.isEnabled),
+      actions: new UntypedFormControl(this.value.actions, [Validators.required, ruleActionsValidator(this.actionDefinitions)])
     });
     this.readOnly = this._readOnly;
 
@@ -161,8 +155,8 @@ export class RuleDetailsUiComponent implements OnInit, OnDestroy {
       });
     this.formValidationChanged.emit(this.form.valid);
 
-    this.form.valueChanges.pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-      this.formValueChanged.emit(this.value);
+    this.form.valueChanges.pipe(takeUntil(this.onDestroy$)).subscribe((newFormValue: any) => {
+      this.formValueChanged.emit(newFormValue);
     });
   }
 

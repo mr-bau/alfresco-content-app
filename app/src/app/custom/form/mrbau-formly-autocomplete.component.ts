@@ -4,7 +4,7 @@ import { MatInput } from '@angular/material/input';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
-import { FormControl } from '@angular/forms';
+import { FieldTypeConfig } from '@ngx-formly/core';
 
 @Component({
   selector: 'aca-mrbau-formly-autocomplete',
@@ -22,14 +22,14 @@ import { FormControl } from '@angular/forms';
     </mat-autocomplete>
   `,
 })
-export class MrbauFormlyAutocompleteComponent extends FieldType implements OnInit, AfterViewInit {
+export class MrbauFormlyAutocompleteComponent extends FieldType<FieldTypeConfig> implements OnInit, AfterViewInit {
   @ViewChild(MatInput) formFieldControl: MatInput;
   @ViewChild(MatAutocompleteTrigger) autocomplete: MatAutocompleteTrigger;
 
   filter: Observable<any>;
-  formControl: FormControl;
+  //formControl: FormControl;
   ngOnInit() {
-    super.ngOnInit();
+    //super.ngOnInit();
     this.filter = this.formControl.valueChanges
       .pipe(
         startWith(''),
@@ -38,7 +38,7 @@ export class MrbauFormlyAutocompleteComponent extends FieldType implements OnIni
   }
 
   ngAfterViewInit() {
-    super.ngAfterViewInit();
+    //super.ngAfterViewInit();
     // temporary fix for https://github.com/angular/material2/issues/6728
     (<any> this.autocomplete)._formField = this.formField;
   }

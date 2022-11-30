@@ -57,7 +57,7 @@ export class RuleTriggersUiComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: () => void) {
+  registerOnTouched(fn: any) {
     this.onTouch = fn;
   }
 

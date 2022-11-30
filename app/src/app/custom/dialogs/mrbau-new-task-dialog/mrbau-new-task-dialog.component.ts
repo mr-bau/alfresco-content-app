@@ -9,6 +9,7 @@ import { SelectionState } from '@alfresco/adf-extensions';
 import { MrbauFormLibraryService } from '../../services/mrbau-form-library.service';
 import { MrbauBaseDialogComponent } from '../mrbau-base-dialog/mrbau-base-dialog.component';
 import { MrbauCommonService } from '../../services/mrbau-common.service';
+import { AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'aca-mrbau-new-task-dialog',
@@ -154,22 +155,22 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
         // set default date today + 14 days
         let date = new Date();
         date.setDate( date.getDate() + MRBauTask.DEFAULT_TASK_DURATION );
-        this.form.get('mrbt:dueDateValue').patchValue(this.mrbauCommonService.getFormDateValue(date));
+        (this.form.get('mrbt:dueDateValue') as AbstractControl<string,string>).patchValue(this.mrbauCommonService.getFormDateValue(date));
         // set default priority
-        this.form.get('mrbt:priority').patchValue(2);
+        (this.form.get('mrbt:priority') as AbstractControl<number,number>).patchValue(2);
         // update model parameter according to task
         if (cat == EMRBauTaskCategory.CommonTaskInfo)
         {
-          this.form.get('mrbt:description').patchValue("Zur Information");
-          this.form.get('mrbt:dueDateValue').patchValue(undefined);
+          (this.form.get('mrbt:description') as AbstractControl<string,string>).patchValue("Zur Information");
+          (this.form.get('mrbt:dueDateValue') as AbstractControl<string,string>).patchValue(undefined);
         }
         else if (cat == EMRBauTaskCategory.CommonTaskApprove)
         {
-          this.form.get('mrbt:description').patchValue("Überprüfen und Genehmigen");
+          (this.form.get('mrbt:description') as AbstractControl<string,string>).patchValue("Überprüfen und Genehmigen");
         }
         else
         {
-          this.form.get('mrbt:description').patchValue("");
+          (this.form.get('mrbt:description') as AbstractControl<string,string>).patchValue("");
         }
       }
       else if (cat > EMRBauTaskCategory.NewDocumentStart && cat < EMRBauTaskCategory.NewDocumentLast)

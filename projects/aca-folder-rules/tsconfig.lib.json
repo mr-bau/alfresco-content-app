@@ -10,7 +10,7 @@
     "types": [],
     "lib": [
       "dom",
-      "es2020"
+      "es2018"
     ]
   },
   "angularCompilerOptions": {

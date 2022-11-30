@@ -31,13 +31,11 @@
               "@quanzo/change-font-size",
               "cropperjs",
               "editorjs-html",
-              "editorjs-text-color-plugin",
-              "echarts/theme/royal.js"
+              "editorjs-text-color-plugin"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "app/src/app/ui",
-                "app/src/app/content-plugin/ui",
                 "node_modules"
               ]
             },
@@ -122,7 +120,7 @@
             ],
             "styles": [
               "app/src/assets/fonts/material-icons/material-icons.css",
-              "app/src/assets/fonts/OpenSans/OpenSans.css",
+              "app/src/assets/fonts/muli/muli.css",
               "node_modules/cropperjs/dist/cropper.min.css",
               "app/src/styles.scss"
             ],
@@ -264,7 +262,7 @@
             "polyfills": "app/src/polyfills.ts",
             "stylePreprocessorOptions": {
               "includePaths": [
-                "app/src/app/content-plugin/ui",
+                "app/src/app/ui",
                 "node_modules"
               ]
             },
@@ -276,7 +274,7 @@
             ],
             "styles": [
               "app/src/assets/fonts/material-icons/material-icons.css",
-              "app/src/assets/fonts/OpenSans/OpenSans.css",
+              "app/src/assets/fonts/muli/muli.css",
               "app/src/styles.scss"
             ],
             "assets": [
@@ -597,15 +595,15 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+        "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "projects/mrbau-extension/tsconfig.lib.json",
-              "projects/mrbau-extension/tsconfig.spec.json"
+            "lintFilePatterns": [
+              "projects/mrbau-extension/**/*.ts",
+              "projects/mrbau-extension/**/*.html"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "cache": true,
+            "cacheLocation": ".eslintcache",
+            "ignorePath": ".eslintignore"
           }
         }
       }

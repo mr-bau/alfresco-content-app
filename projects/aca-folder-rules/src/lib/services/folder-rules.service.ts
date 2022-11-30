@@ -25,24 +25,18 @@
 
 import { Injectable } from '@angular/core';
 import { AlfrescoApiService } from '@alfresco/adf-core';
-import { BehaviorSubject, from, Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
-import { Rule, RuleForForm, RuleOptions, RuleSettings } from '../model/rule.model';
+import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
+import { catchError, finalize, map } from 'rxjs/operators';
+import { Rule } from '../model/rule.model';
+import { ContentApiService } from '@alfresco/aca-shared';
+import { NodeInfo } from '@alfresco/aca-shared/store';
 import { RuleCompositeCondition } from '../model/rule-composite-condition.model';
 import { RuleSimpleCondition } from '../model/rule-simple-condition.model';
-import { RuleSet } from '../model/rule-set.model';
-
-interface GetRulesResult {
-  rules: Rule[];
-  hasMoreRules: boolean;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class FolderRulesService {
-  public static MAX_RULES_PER_GET = 100;
-
   public static get emptyCompositeCondition(): RuleCompositeCondition {
     return {
       inverted: false,
@@ -52,114 +46,133 @@ export class FolderRulesService {
     };
   }
 
-  public static get emptyRuleOptions(): RuleOptions {
-    return {
-      isEnabled: true,
-      isInheritable: false,
-      isAsynchronous: false,
-      errorScript: ''
-    };
-  }
-
   public static get emptyRule(): Rule {
     return {
       id: '',
       name: '',
       description: '',
+      isEnabled: true,
+      isInheritable: false,
+      isAsynchronous: false,
+      errorScript: '',
       isShared: false,
       triggers: ['inbound'],
       conditions: FolderRulesService.emptyCompositeCondition,
-      actions: [],
-      ...FolderRulesService.emptyRuleOptions
+      actions: []
     };
   }
 
-  public static get emptyRuleForForm(): RuleForForm {
-    const value = {
-      ...FolderRulesService.emptyRule,
-      options: FolderRulesService.emptyRuleOptions
-    };
-    Object.keys(value.options).forEach((key: string) => {
-      delete value[key];
-    });
-    return value;
-  }
-
-  private selectedRuleSource = new BehaviorSubject<Rule>(null);
+  private rulesListingSource = new BehaviorSubject<Rule[]>([]);
+  rulesListing$: Observable<Rule[]> = this.rulesListingSource.asObservable();
+  private folderInfoSource = new BehaviorSubject<NodeInfo>(null);
+  folderInfo$: Observable<NodeInfo> = this.folderInfoSource.asObservable();
+  private loadingSource = new BehaviorSubject<boolean>(false);
+  loading$ = this.loadingSource.asObservable();
   private deletedRuleIdSource = new BehaviorSubject<string>(null);
-
-  selectedRule$ = this.selectedRuleSource.asObservable();
   deletedRuleId$: Observable<string> = this.deletedRuleIdSource.asObservable();
 
-  constructor(private apiService: AlfrescoApiService) {}
+  constructor(private apiService: AlfrescoApiService, private contentApi: ContentApiService) {}
 
-  private callApi(path: string, httpMethod: string, body: object = {}): Promise<any> {
-    // APIs used by this service are still private and not yet available for public use
-    const params = [{}, {}, {}, {}, body, ['application/json'], ['application/json']];
-    return this.apiService.getInstance().contentPrivateClient.callApi(path, httpMethod, ...params);
-  }
-
-  getRules(owningFolderId: string, ruleSetId: string, skipCount = 0): Observable<GetRulesResult> {
-    return from(
-      this.callApi(
-        `/nodes/${owningFolderId}/rule-sets/${ruleSetId}/rules?skipCount=${skipCount}&maxItems=${FolderRulesService.MAX_RULES_PER_GET}`,
-        'GET'
+  loadRules(nodeId: string, ruleSetId: string = '-default-'): void {
+    this.loadingSource.next(true);
+    forkJoin([
+      from(
+        this.apiCall(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules`, 'GET', [{}, {}, {}, {}, {}, ['application/json'], ['application/json']])
+      ).pipe(
+        map((res) => this.formatRules(res)),
+        catchError((error) => {
+          if (error.status === 404) {
+            return of([]);
+          }
+          return of(error);
+        })
+      ),
+      this.contentApi.getNode(nodeId).pipe(
+        catchError((error) => {
+          if (error.status === 404) {
+            return of({ entry: null });
+          }
+          return of(error);
+        })
       )
-    ).pipe(
-      map((res) => ({
-        rules: this.formatRules(res),
-        hasMoreRules: !!res?.list?.pagination?.hasMoreItems
-      }))
-    );
+    ])
+      .pipe(finalize(() => this.loadingSource.next(false)))
+      .subscribe(
+        ([rules, nodeInfo]) => {
+          this.rulesListingSource.next(rules);
+          this.folderInfoSource.next(nodeInfo.entry);
+        },
+        (error) => {
+          this.rulesListingSource.next([]);
+          this.folderInfoSource.next(error);
+        }
+      );
   }
 
-  loadRules(ruleSet: RuleSet, skipCount = ruleSet.rules.length, selectRule: 'first' | 'last' | Rule = null) {
-    if (ruleSet && !ruleSet.loadingRules) {
-      ruleSet.loadingRules = true;
-      this.getRules(ruleSet.owningFolder.id, ruleSet.id, skipCount)
-        .pipe(
-          finalize(() => {
-            ruleSet.loadingRules = false;
-          })
-        )
-        .subscribe((res: GetRulesResult) => {
-          ruleSet.hasMoreRules = res.hasMoreRules;
-          ruleSet.rules.splice(skipCount);
-          ruleSet.rules.push(...res.rules);
-          this.selectRuleInRuleSet(ruleSet, selectRule);
-        });
-    }
+  createRule(nodeId: string, rule: Partial<Rule>, ruleSetId: string = '-default-') {
+    return this.apiCall(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules`, 'POST', [
+      {},
+      {},
+      {},
+      {},
+      { ...rule },
+      ['application/json'],
+      ['application/json']
+    ]);
   }
 
-  async createRule(nodeId: string, rule: Partial<Rule>, ruleSetId: string = '-default-'): Promise<Rule> {
-    const response = await this.callApi(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules`, 'POST', { ...rule });
-    return this.formatRule(response.entry);
+  updateRule(nodeId: string, ruleId: string, rule: Rule, ruleSetId: string = '-default-') {
+    return this.apiCall(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules/${ruleId}`, 'PUT', [
+      {},
+      {},
+      {},
+      {},
+      { ...rule },
+      ['application/json'],
+      ['application/json']
+    ]);
   }
 
-  async updateRule(nodeId: string, ruleId: string, rule: Rule, ruleSetId: string = '-default-'): Promise<Rule> {
-    const response = await this.callApi(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules/${ruleId}`, 'PUT', { ...rule });
-    return this.formatRule(response.entry);
-  }
-
-  deleteRule(nodeId: string, ruleId: string, ruleSetId: string = '-default-') {
-    from(this.callApi(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules/${ruleId}`, 'DELETE')).subscribe(
+  deleteRule(nodeId: string, ruleId: string, ruleSetId: string = '-default-'): void {
+    this.loadingSource.next(true);
+    from(
+      this.apiCall(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules/${ruleId}`, 'DELETE', [
+        {},
+        {},
+        {},
+        {},
+        {},
+        ['application/json'],
+        ['application/json']
+      ])
+    ).subscribe(
       () => {
         this.deletedRuleIdSource.next(ruleId);
       },
       (error) => {
         this.deletedRuleIdSource.next(error);
+        this.loadingSource.next(false);
       }
     );
   }
 
-  async getRuleSettings(nodeId: string, key: string = '-isInheritanceEnabled-'): Promise<RuleSettings> {
-    const response = await this.callApi(`/nodes/${nodeId}/rule-settings/${key}`, 'GET');
-    return response.entry;
+  toggleRule(nodeId: string, ruleId: string, rule: Rule, ruleSetId: string = '-default-'): void {
+    from(
+      this.apiCall(`/nodes/${nodeId}/rule-sets/${ruleSetId}/rules/${ruleId}`, 'PUT', [
+        {},
+        {},
+        {},
+        {},
+        { ...rule },
+        ['application/json'],
+        ['application/json']
+      ])
+    ).subscribe({ error: (error) => console.error(error) });
   }
 
-  async updateRuleSettings(nodeId: string, key: string, body: RuleSettings): Promise<RuleSettings> {
-    const response = await this.callApi(`/nodes/${nodeId}/rule-settings/${key}`, 'PUT', { ...body });
-    return response.entry;
+  private apiCall(path: string, httpMethod: string, params?: any[]): Promise<any> {
+    // APIs used by this service are still private and not yet available for public use
+    return this.apiService.getInstance().contentPrivateClient.callApi(path, httpMethod, ...params);
   }
 
   private formatRules(res): Rule[] {
@@ -208,19 +221,5 @@ export class FolderRulesService {
       comparator: obj.comparator || 'equals',
       parameter: obj.parameter || ''
     };
-  }
-
-  selectRule(rule: Rule) {
-    this.selectedRuleSource.next(rule);
-  }
-
-  selectRuleInRuleSet(ruleSet: RuleSet, selectRule: 'first' | 'last' | Rule = null) {
-    if (selectRule === 'first') {
-      this.selectRule(ruleSet.rules[0]);
-    } else if (selectRule === 'last') {
-      this.selectRule(ruleSet.rules[ruleSet.rules.length - 1]);
-    } else if (selectRule) {
-      this.selectRule(selectRule);
-    }
   }
 }

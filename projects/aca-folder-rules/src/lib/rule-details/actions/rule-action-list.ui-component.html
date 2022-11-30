@@ -1,10 +1,9 @@
 <div class="aca-rule-action-list__item  " *ngFor="let control of formControls">
   <aca-rule-action
     [actionDefinitions]="actionDefinitions"
-    [parameterConstraints]="parameterConstraints"
+    [aspects]="aspects"
     [readOnly]="readOnly"
-    [formControl]="control"
-    [nodeId]="nodeId">
+    [formControl]="control">
   </aca-rule-action>
 
   <button

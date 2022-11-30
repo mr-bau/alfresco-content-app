@@ -35,10 +35,10 @@ import { RuleActionListUiComponent } from './actions/rule-action-list.ui-compone
 import { RuleActionUiComponent } from './actions/rule-action.ui-component';
 import { ActionsService } from '../services/actions.service';
 import { RuleOptionsUiComponent } from './options/rule-options.ui-component';
-import { timer } from 'rxjs';
 
-describe('EditRuleDialogSmartComponent', () => {
+describe('EditRuleDialogComponent', () => {
   let fixture: ComponentFixture<EditRuleDialogSmartComponent>;
+  let actionsService: ActionsService;
 
   const dialogRef = {
     close: jasmine.createSpy('close'),
@@ -63,8 +63,8 @@ describe('EditRuleDialogSmartComponent', () => {
       ]
     });
 
-    spyOn(ActionsService.prototype, 'loadActionDefinitions').and.stub();
-    spyOn(ActionsService.prototype, 'getParameterConstraints').and.stub();
+    actionsService = TestBed.inject(ActionsService);
+    spyOn(actionsService, 'loadActionDefinitions').and.stub();
 
     fixture = TestBed.createComponent(EditRuleDialogSmartComponent);
     fixture.detectChanges();
@@ -75,20 +75,15 @@ describe('EditRuleDialogSmartComponent', () => {
       setupBeforeEach();
     });
 
-    it('should activate the submit button only when a valid state is received', async () => {
+    it('should activate the submit button only when a valid state is received', () => {
       const submitButton = fixture.debugElement.query(By.css('[data-automation-id="edit-rule-dialog-submit"]')).nativeElement as HTMLButtonElement;
       const ruleDetails = fixture.debugElement.query(By.directive(RuleDetailsUiComponent)).componentInstance as RuleDetailsUiComponent;
       ruleDetails.formValidationChanged.emit(true);
 
       fixture.detectChanges();
-      // timer needed to wait for the next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
-      await timer(1).toPromise();
-      fixture.detectChanges();
       expect(submitButton.disabled).toBeFalsy();
       ruleDetails.formValidationChanged.emit(false);
 
-      fixture.detectChanges();
-      await timer(1).toPromise();
       fixture.detectChanges();
       expect(submitButton.disabled).toBeTruthy();
     });

@@ -1,14 +1,20 @@
-.aca-rule-options {
+.options-list {
   display: flex;
-  flex-direction: row;
-  gap: 24px;
+  column-gap: 25px;
+  padding: 0.75em 0;
 
-  &__option {
+  &__rest {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    column-gap: 25px;
   }
+}
 
-  &.read-only .mat-checkbox-inner-container {
-    display: none;
+.select-action {
+  margin-left: 5px;
+  margin-top: 12px;
+
+  span {
+    display: block;
   }
 }

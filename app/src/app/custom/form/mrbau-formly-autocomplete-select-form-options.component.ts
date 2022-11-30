@@ -4,8 +4,8 @@ import { MatInput } from '@angular/material/input';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
-import { FormControl } from '@angular/forms';
 import { SelectFormOptions } from '../services/mrbau-conventions.service';
+import { FieldTypeConfig } from '@ngx-formly/core';
 
 @Component({
   selector: 'aca-mrbau-formly-autocomplete-select-form-options',
@@ -25,14 +25,14 @@ import { SelectFormOptions } from '../services/mrbau-conventions.service';
     </mat-autocomplete>
   `,
 })
-export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType implements OnInit, AfterViewInit {
+export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType<FieldTypeConfig> implements OnInit, AfterViewInit {
   @ViewChild(MatInput) formFieldControl: MatInput;
   @ViewChild(MatAutocompleteTrigger) autocomplete: MatAutocompleteTrigger;
 
   filter: Observable<any>;
-  formControl: FormControl;
+  //formControl: FormControl;
   ngOnInit() {
-    super.ngOnInit();
+    //super.ngOnInit();
 
     // initialize value
     const k = this.key as string;
@@ -53,7 +53,7 @@ export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType
   }
 
   ngAfterViewInit() {
-    super.ngAfterViewInit();
+    //super.ngAfterViewInit();
     // temporary fix for https://github.com/angular/material2/issues/6728
     (<any> this.autocomplete)._formField = this.formField;
   }
