@@ -13,22 +13,22 @@ export function requiredValidationMessage(err, field) {
 
 export function maxlengthValidationMessage(err, field) {
   err;
-  return `Die Anzahl der Zeichen muss kleiner gleich ${field.templateOptions.maxLength} sein.`;
+  return `Die Anzahl der Zeichen muss kleiner gleich ${field.props.maxLength} sein.`;
 }
 
 export function minlengthValidationMessage(err, field) {
   err;
-  return `Die Anzahl der Zeichen muss mindestens ${field.templateOptions.minLength} betragen.`;
+  return `Die Anzahl der Zeichen muss mindestens ${field.props.minLength} betragen.`;
 }
 
 export function minValidationMessage(err, field) {
   err;
-  return `Der Wert muss mindestens ${field.templateOptions.min} betragen.`;
+  return `Der Wert muss mindestens ${field.props.min} betragen.`;
 }
 
 export function maxValidationMessage(err, field) {
   err;
-  return `Der Wert muss kleiner gleich ${field.templateOptions.max} sein.`;
+  return `Der Wert muss kleiner gleich ${field.props.max} sein.`;
 }
 
 export function notAValidValueValidationMessage(err, field) {
@@ -68,7 +68,7 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
     msg = null;
   }
   // if field is not required also allow empty values
-  if (!(field.templateOptions.required === true) && (control.value == null ||  control.value == ""))
+  if (!(field.props.required === true) && (control.value == null ||  control.value == ""))
   {
     msg = null;
   }
@@ -156,7 +156,7 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   const diff = grossAmount - netAmount * (1 + taxRate / 100);
   if (Math.abs(diff) > 0.01)
   {
-    console.log(diff);
+    //console.log(diff);
     return { 'netGrossTaxMismatch' : diff.toLocaleString('de-De') };
   }
 

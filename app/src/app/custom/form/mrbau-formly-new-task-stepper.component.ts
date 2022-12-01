@@ -38,7 +38,7 @@ import { MatStepper } from '@angular/material/stepper';
   <mat-horizontal-stepper [linear]="true" >
     <mat-step
       *ngFor="let step of field.fieldGroup; let index = index; let last = last;" [completed]="isValid(step)">
-      <ng-template matStepLabel >{{ step.templateOptions.label }}</ng-template>
+      <ng-template matStepLabel >{{ step.props.label }}</ng-template>
       <formly-field [field]="step"></formly-field>
       <div>
         <button matStepperPrevious *ngIf="index !== 0"

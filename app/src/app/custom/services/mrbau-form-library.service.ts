@@ -51,31 +51,10 @@ export class MrbauFormLibraryService {
       if (formDefinition)
       {
         formDefinition.formlyFieldConfigs.forEach((formElement) => result.push(this.getByName(formElement)))
-        result.forEach((fc) => this.patchFormFieldConfigRecursive(fc, formDefinition.mandatoryRequiredProperties));
+        result.forEach((fc) => this.mrbauCommonService.patchFormFieldConfigRequiredPropertyRecursive(fc, formDefinition.mandatoryRequiredProperties));
       }
     }
     return result;
-  }
-
-  patchFormFieldConfigRecursive(formlyFieldConfig: FormlyFieldConfig, mandatoryRequiredProperties: string[])
-  {
-    let key = formlyFieldConfig.key as string;
-    if (key)
-    {
-      if (mandatoryRequiredProperties.indexOf(key) >= 0)
-      {
-        formlyFieldConfig.templateOptions.required = true;
-      }
-      // else set not required
-      else if (formlyFieldConfig.templateOptions && formlyFieldConfig.templateOptions.required)
-      {
-        formlyFieldConfig.templateOptions.required = false;
-      }
-    }
-    if (formlyFieldConfig.fieldGroup)
-    {
-      formlyFieldConfig.fieldGroup.forEach( (fc) => this.patchFormFieldConfigRecursive(fc, mandatoryRequiredProperties))
-    }
   }
 
   readonly common_comment : FormlyFieldConfig =
@@ -83,7 +62,7 @@ export class MrbauFormLibraryService {
     className: 'flex-1',
     key: 'comment',
     type: 'textarea',
-    templateOptions: {
+    props: {
       label: 'Neuer Kommentar',
       description: 'Kommentar',
       maxLength: CONST.MAX_LENGTH_COMMENT,
@@ -96,7 +75,7 @@ export class MrbauFormLibraryService {
     className: 'flex-4',
     key: 'archiveModelTypes',
     type: 'select',
-    templateOptions: {
+    props: {
       label: 'Dokumenten-Art auswählen',
       options: this.mrbauArchiveModelService.getArchiveModelTypesFormOptions(),
     },
@@ -105,9 +84,9 @@ export class MrbauFormLibraryService {
   readonly common_taskLinkedDocuments : FormlyFieldConfig =
   {
     className: 'flex-3',
-    type: 'taskLinkedDocuments',
+    type: 'mrbauFormlyTaskLinkedDocuments',
     key: ['fileRefs','fileNames'],
-    templateOptions: {
+    props: {
       text: 'Dokumente Hinzufügen',
       description: 'Verknüpfte Dokumente',
     },
@@ -118,7 +97,7 @@ export class MrbauFormLibraryService {
     className: 'flex-1',
     type: 'select',
     key: 'mrbt:status',
-    templateOptions: {
+    props: {
       label: 'Status',
       options: MRBauTaskStatusNamesReduced
     },
@@ -129,7 +108,7 @@ export class MrbauFormLibraryService {
     className: 'flex-6',
     key: 'mrbt:description',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Aufgabe',
       description: 'Bezeichnung',
       maxLength: CONST.MAX_LENGTH_TASK_DESC,
@@ -141,7 +120,7 @@ export class MrbauFormLibraryService {
     className: 'flex-6',
     key: 'mrbt:fullDescription',
     type: 'textarea',
-    templateOptions: {
+    props: {
       label: 'Beschreibung',
       description: 'Beschreibung',
       maxLength: CONST.MAX_LENGTH_TASK_FULL_DESC,
@@ -154,7 +133,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrbt:dueDateValue',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Fällig bis',
       type: 'date',
     },
@@ -168,7 +147,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrbt:priority',
     type: 'select',
-    templateOptions: {
+    props: {
       label: 'Priorität',
       placeholder: 'Placeholder',
       options: [
@@ -184,8 +163,13 @@ export class MrbauFormLibraryService {
     className: 'flex-3',
     key: 'mrbt:category',
     type: 'select',
-    templateOptions: {
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    props: {
       label: 'Aufgabe auswählen',
+      required: true,
+      //change: (field , $event) => {console.log($event);console.log(field.model); },
       options: [
         {label: 'Eine Aufgabe sich selbst oder einem Kollegen zuweisen', value: EMRBauTaskCategory.CommonTaskGeneral, group: 'Allgemeine Aufgaben'},
         {label: 'Zur Information übermitteln', value: EMRBauTaskCategory.CommonTaskInfo, group: 'Allgemeine Aufgaben'},
@@ -203,7 +187,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrbt:assignedUserName',
     type: 'select',
-    templateOptions: {
+    props: {
       label: 'Mitarbeiter',
       options: this.mrbauCommonService.getPeopleObservable(),
       valueProp: 'id',
@@ -216,7 +200,7 @@ export class MrbauFormLibraryService {
     className: 'flex-4',
     key: 'mrba:organisationUnit',
     type: 'select',
-    templateOptions: {
+    props: {
       label: 'Mandant auswählen',
       options: this.mrbauConventionsService.getOrganisationUnitFormOptions(),
     },
@@ -227,7 +211,7 @@ export class MrbauFormLibraryService {
     className: 'flex-4',
     key: 'mrba:companyId',
     type: 'mrbauFormlyAutocompleteSelectFormOptions',
-    templateOptions: {
+    props: {
       label: 'Firma auswählen',
       filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getVendorListFormOptions()) : this.mrbauConventionsService.getVendorListFormOptions().slice()),
       change: (field: FormlyFieldConfig) => {
@@ -271,7 +255,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:archivedDateValue',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Eingangs Datum',
       type: 'date',
     }
@@ -282,7 +266,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:fiscalYear',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Fiskal-Jahr',
       type: 'number',
       min: new Date().getFullYear()-1,
@@ -300,7 +284,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:documentTopic',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Bezeichnung',
     }
   }
@@ -310,7 +294,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:documentNumber',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Nummer',
     }
   }
@@ -320,7 +304,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:documentDateValue',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Datum',
       type: 'date',
     }
@@ -331,7 +315,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:netAmount',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Netto Betrag [€]',
       placeholder: 'Netto Betrag (z.B. 1.005,20)',
     },
@@ -352,7 +336,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:grossAmount',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Brutto Betrag [€]',
       placeholder: 'Brutto Betrag (z.B. 1.005,20)',
     },
@@ -374,7 +358,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:taxRate', // d:text, mrba:germanDecimalOneDecimalPlace
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Steuersatz [%]',
       placeholder: 'Steuersatz in % z.B. 20,0',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.taxRateDefaultValues) : this.mrbauConventionsService.taxRateDefaultValues.slice()),
@@ -396,7 +380,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:taxRateComment',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Optionaler Kommentar',
     }
   }
@@ -406,7 +390,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:costCarrierNumber',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Kostenträger',
       pattern: /^[0-9]*$/,
       type: 'number',
@@ -423,7 +407,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:costCarrierNumber',
     type: 'mrbauFormlyAutocompleteSelectFormOptions',
-    templateOptions: {
+    props: {
       label: 'Kostenträger',
       filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getKtListFormOptions()) : this.mrbauConventionsService.getKtListFormOptions().slice()),
       change: (field: FormlyFieldConfig) => {
@@ -463,7 +447,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:projectName',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Projektbezeichnung',
     }
   }
@@ -473,7 +457,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:accountingId',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'BMD Beleg Nr.',
       placeholder: 'z.B. ER102',
       maxLength: 32,
@@ -484,7 +468,7 @@ export class MrbauFormLibraryService {
   readonly duplicated_document_form : FormlyFieldConfig = {
     key: 'ignore:mrbauFormlyDuplicatedDocument',
     type: 'mrbauFormlyDuplicatedDocument',
-    templateOptions: {
+    props: {
       required : true,
     }
   };
@@ -497,7 +481,7 @@ export class MrbauFormLibraryService {
   readonly workflow_formal_review : FormlyFieldConfig = {
     key: 'mrbauFormlyAllSet',
     type: 'mrbauFormlyAllSet',
-    templateOptions: {
+    props: {
       icon : 'send',
       title : 'Formale Rechnungsprüfung abgeschlossen.',
       subtitle : 'Klicken Sie auf Weiterleiten um die Sachliche Rechnungsprüfung zu starten.'
@@ -507,7 +491,7 @@ export class MrbauFormLibraryService {
   readonly workflow_invoice_review : FormlyFieldConfig = {
     key: 'mrbauFormlyAllSet',
     type: 'mrbauFormlyAllSet',
-    templateOptions: {
+    props: {
       icon : 'send',
       title : 'Sachliche Rechnungsprüfung abgeschlossen.',
       subtitle : 'Klicken Sie auf Weiterleiten um die Rechnung an die Buchhaltung weiterzuleiten.'
@@ -517,7 +501,7 @@ export class MrbauFormLibraryService {
   readonly workflow_invoice_approval : FormlyFieldConfig = {
     key: 'mrbauFormlyAllSet',
     type: 'mrbauFormlyAllSet',
-    templateOptions: {
+    props: {
       icon : 'send',
       title : 'Freigabe',
       subtitle : 'Klicken Sie auf Weiterleiten um die Rechnung an die Buchhaltung weiterzuleiten.'
@@ -530,7 +514,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:orderType',
     type: 'select',
     defaultValue: this.mrbauConventionsService.getOrderTypeFormOptions()[0].value,
-    templateOptions: {
+    props: {
       label: 'Auftrags-Typ auswählen',
       options: this.mrbauConventionsService.getOrderTypeFormOptions(),
       required: true,
@@ -542,7 +526,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:reviewDaysPartialInvoice',
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Prüffrist Anzahlungsrechnungen [Tage]',
       placeholder: 'z.B. 14',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
@@ -555,7 +539,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:reviewDaysFinalInvoice',
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Prüffrist Schlussrechnungen [Tage]',
       placeholder: 'z.B. 30',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
@@ -568,7 +552,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentTargetDays',
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Nettofrist [Tage]',
       placeholder: 'z.B. 60',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
@@ -580,7 +564,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountDays1',
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Skontofrist 1 [Tage]',
       placeholder: 'z.B. 28',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
@@ -592,7 +576,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountDays2',
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Skontofrist 2 [Tage]',
       placeholder: 'z.B. 36',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
@@ -604,7 +588,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountPercent1', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Skonto 1 [%]',
       placeholder: 'Skonto in % z.B. 3,00',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
@@ -625,7 +609,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountPercent2', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyAutocomplete',
-    templateOptions: {
+    props: {
       label: 'Skonto 2 [%]',
       placeholder: 'Skonto in % z.B. 2,00',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
@@ -647,7 +631,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:inboundInvoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'select',
     defaultValue: this.mrbauConventionsService.getInvoiceTypeFormOptions()[0].value,
-    templateOptions: {
+    props: {
       label: 'Rechnungs-Typ auswählen',
       options: this.mrbauConventionsService.getInvoiceTypeFormOptions(),
       required: true,
@@ -781,7 +765,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:taxRate',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Steuersatz [%]',
       readonly: true,
     }
@@ -791,7 +775,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:taxRateComment',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Optionaler Kommentar',
       readonly: true,
     },
@@ -802,7 +786,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:archivedDateValue',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Eingangs Datum',
       type: 'date',
       readonly: true,
@@ -813,7 +797,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:netAmount',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Netto Betrag [€]',
       placeholder: '-',
       readonly: true,
@@ -824,7 +808,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentTargetDays',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Nettofrist [Tage]',
       placeholder: '-',
       readonly: true,
@@ -835,7 +819,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:reviewDaysPartialInvoice',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Prüffrist Anzahlungsrechnungen [Tage]',
       placeholder: '-',
       readonly: true,
@@ -847,7 +831,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:reviewDaysFinalInvoice',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Prüffrist Schlussrechnungen [Tage]',
       placeholder: '-',
       readonly: true,
@@ -858,7 +842,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountPercent1',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Skonto 1 [%]',
       placeholder: '-',
       readonly: true,
@@ -871,7 +855,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountDays1', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Skontofrist 1 [Tage]',
       placeholder: '-',
       readonly: true,
@@ -883,7 +867,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountPercent2',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Skonto 2 [%]',
       placeholder: '-',
       readonly: true,
@@ -896,7 +880,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:earlyPaymentDiscountDays2', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Skontofrist 2 [Tage]',
       placeholder: '-',
       readonly: true,
@@ -909,7 +893,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:netAmountVerified', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Geprüfter Betrag Netto [€]',
       placeholder: '-',
       readonly: true,
@@ -920,7 +904,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:verifyDateValue',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Prüfdatum',
       type: 'date',
       readonly: true,
@@ -931,7 +915,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentDateNetValue',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Überweisungsdatum Netto',
       type: 'date',
       readonly: true,
@@ -955,7 +939,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'ignore:calcPaymentValueDiscount1',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Betrag Skonto 1 [€]',
       readonly: true,
     },
@@ -971,7 +955,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'ignore:calcPaymentValueDiscount2',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Betrag Skonto 2 [€]',
       readonly: true,
     },
@@ -987,7 +971,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentDateDiscount1Value',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Überweisungsdatum Skonto 1',
       type: 'date',
       readonly: true,
@@ -999,7 +983,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentDateDiscount2Value',
     type: 'mrbauFormlyLabel',
-    templateOptions: {
+    props: {
       label: 'Überweisungsdatum Skonto 2',
       type: 'date',
       readonly: true,
@@ -1084,7 +1068,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:netAmountVerified',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Geprüfter Betrag Netto [€]',
       placeholder: 'Netto Betrag geprüft (z.B. 1.005,20)',
     },
@@ -1104,7 +1088,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:verifyDateValue',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Prüfdatum',
       type: 'date',
     }
@@ -1114,7 +1098,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentDateNetValue',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Überweisungsdatum Netto',
       type: 'date',
     }
@@ -1124,7 +1108,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentDateDiscount1Value',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Überweisungsdatum Skonto 1',
       type: 'date',
     }
@@ -1134,7 +1118,7 @@ export class MrbauFormLibraryService {
     className: 'flex-2',
     key: 'mrba:paymentDateDiscount2Value',
     type: 'input',
-    templateOptions: {
+    props: {
       label: 'Überweisungsdatum Skonto 2',
       type: 'date',
     }

@@ -36,7 +36,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
 
   fieldsMain: FormlyFieldConfig[] = [
     {
-      templateOptions: { label: 'Kategorisieren' },
+      props: { label: 'Kategorisieren' },
       fieldGroupClassName: 'flex-container-min-width',
       fieldGroup: [
         this.mrbauFormLibraryService.mrba_organisationUnit,
@@ -44,7 +44,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       ]
     },
     {
-      templateOptions: { label: 'Datum' },
+      props: { label: 'Datum' },
       fieldGroupClassName: 'flex-container-min-width',
       fieldGroup: [
         this.mrbauFormLibraryService.mrba_archivedDateValue,
@@ -73,7 +73,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     {
       for (const fg of f.fieldGroup)
       {
-        fg.templateOptions.required = true;
+        fg.props.required = true;
       }
     }
     const date = new Date();

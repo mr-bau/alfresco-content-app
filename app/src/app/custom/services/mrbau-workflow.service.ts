@@ -199,7 +199,7 @@ export class MrbauWorkflowService {
                     className: 'flex-2',
                     key: 'comment',
                     type: 'textarea',
-                    templateOptions: {
+                    props: {
                       label: 'Optionaler Kommentar',
                       description: 'Kommentar',
                       maxLength: CONST.MAX_LENGTH_COMMENT,
@@ -215,7 +215,7 @@ export class MrbauWorkflowService {
                     className: 'flex-2',
                     key: 'newArchiveType',
                     type: 'select',
-                    templateOptions: {
+                    props: {
                       label: 'Neuer Dokument Typ',
                       description: 'Neuer Dokument Typ',
                       required: true,

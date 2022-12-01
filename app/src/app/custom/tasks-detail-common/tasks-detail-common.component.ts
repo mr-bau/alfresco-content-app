@@ -316,7 +316,7 @@ export class TasksDetailCommonComponent implements OnInit {
                 className: 'flex-2',
                 key: 'comment',
                 type: 'textarea',
-                templateOptions: {
+                props: {
                   label: 'Optionaler Kommentar',
                   description: 'Kommentar',
                   maxLength: CONST.MAX_LENGTH_COMMENT,
@@ -362,7 +362,7 @@ export class TasksDetailCommonComponent implements OnInit {
                 className: 'flex-2',
                 key: 'comment',
                 type: 'textarea',
-                templateOptions: {
+                props: {
                   label: 'Optionaler Kommentar',
                   description: 'Kommentar',
                   maxLength: CONST.MAX_LENGTH_COMMENT,

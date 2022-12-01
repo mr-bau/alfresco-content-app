@@ -418,7 +418,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       {
 
         let value = this._taskNode.properties[key]
-        if (formlyFieldConfig.templateOptions.type == 'date')
+        if (formlyFieldConfig.props.type == 'date')
         {
           value = this.mrbauCommonService.getFormDateValue(new Date(value));
         }

@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { ContentManagementService } from '../../services/content-management.service';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 
 @Injectable({
   providedIn: 'root'
@@ -271,7 +272,7 @@ export class MrbauCommonService {
                     className: 'flex-2',
                     key: 'comment',
                     type: 'textarea',
-                    templateOptions: {
+                    props: {
                       label: 'Optionaler Kommentar',
                       description: 'Kommentar',
                       maxLength: CONST.MAX_LENGTH_COMMENT,
@@ -300,5 +301,26 @@ export class MrbauCommonService {
         });
       }
     )
+  }
+
+  patchFormFieldConfigRequiredPropertyRecursive(formlyFieldConfig: FormlyFieldConfig, mandatoryRequiredProperties: string[])
+  {
+    let key = formlyFieldConfig.key as string;
+    if (key)
+    {
+      if (mandatoryRequiredProperties.indexOf(key) >= 0)
+      {
+        formlyFieldConfig.props.required = true;
+      }
+      // else set not required
+      else if (formlyFieldConfig.props && formlyFieldConfig.props.required)
+      {
+        formlyFieldConfig.props.required = false;
+      }
+    }
+    if (formlyFieldConfig.fieldGroup)
+    {
+      formlyFieldConfig.fieldGroup.forEach( (fc) => this.patchFormFieldConfigRequiredPropertyRecursive(fc, mandatoryRequiredProperties))
+    }
   }
 }

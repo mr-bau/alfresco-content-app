@@ -242,16 +242,15 @@ registerLocaleData(localeSv);
         { name: 'mrbauFormlyLabelWrapper', component: MrbauFormlyLabelWrapperComponent },
       ],
       types: [
-        { name: 'newWorkflowStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
-        { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { templateOptions: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
-        { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { templateOptions: {required: true}}},
+        { name: 'mrbauFormlyNewTaskStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
+        { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { props: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
+        { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { props: {required: true}}},
         { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
         { name: 'mrbauFormlyLabel', component: MrbauFormlyLabelComponent, wrappers: ['mrbauFormlyLabelWrapper']},
         { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
-
-        { name: 'taskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
+        { name: 'mrbauFormlyTaskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
         defaultOptions: {
-          templateOptions: {
+          props: {
               btnType: 'default',
               type: 'button',
             },

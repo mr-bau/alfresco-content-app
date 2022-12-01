@@ -35,16 +35,16 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
   fieldsMain : FormlyFieldConfig[] = [
     {
       fieldGroupClassName: 'flex-container-min-width',
-      type: 'newWorkflowStepper',
+      type: 'mrbauFormlyNewTaskStepper',
       fieldGroup: [
         {
-          templateOptions: { label: 'Art der Aufgabe' },
+          props: { label: 'Art der Aufgabe' },
           fieldGroup: [
             this.mrbauFormLibraryService.mrbt_category
           ],
         },
         {
-          templateOptions: { label: 'Aufgaben Details' },
+          props: { label: 'Aufgaben Details' },
           fieldGroupClassName: 'flex-container-min-width',
           fieldGroup: [
             this.mrbauFormLibraryService.mrbt_description,
@@ -52,7 +52,8 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
             this.mrbauFormLibraryService.mrbt_dueDateValue,
             this.mrbauFormLibraryService.mrbt_priority,
             this.mrbauFormLibraryService.mrbt_assignedUserName,
-            this.mrbauFormLibraryService.common_taskLinkedDocuments
+            // TODO fix mrbauFormLibraryService.common_taskLinkedDocuments
+            //this.mrbauFormLibraryService.common_taskLinkedDocuments
           ],
         }
       ]
@@ -68,6 +69,8 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
               private mrbauFormLibraryService: MrbauFormLibraryService,
               private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}) {
     super();
+
+    this.fieldsMain.forEach((fc) => this.mrbauCommonService.patchFormFieldConfigRequiredPropertyRecursive(fc, ['mrbt:category', 'mrbt:description', 'mrbt:priority', 'mrbt:assignedUserName']));
     this.fields = this.fieldsMain;
 
     if (isDevMode()) {

@@ -1,7 +1,8 @@
+
 import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData } from '@alfresco/adf-content-services';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FieldType } from '@ngx-formly/core';
+import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { Node } from '@alfresco/js-api';
 
@@ -11,7 +12,7 @@ import { Node } from '@alfresco/js-api';
       <aca-task-linked-documents [defaultExpanded]="defaultExpanded" [associatedDocumentName]="associatedDocumentName" [associatedDocumentRef]="associatedDocumentRef" (onAddAssociation)="onAdd()" (onRemoveAssociation)="onRemove($event)"></aca-task-linked-documents>
   `,
 })
-export class MrbauFormlyFieldTaskLinkedDocumentsComponent extends FieldType implements OnInit {
+export class MrbauFormlyFieldTaskLinkedDocumentsComponent extends FieldType<FieldTypeConfig> implements OnInit {
   associatedDocumentRef: string[] = [];
   associatedDocumentName: string[] = [];
   defaultExpanded: boolean = false;
