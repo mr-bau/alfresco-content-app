@@ -462,7 +462,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   onUploadAuditSheetClicked(node: NodeEntry)
   {
-    const nodeType = "mrba:invoiceAuditSheet";
+    const nodeType = "mrba:invoiceReviewSheet";
     // auto assign properties
     let nodeBody : NodeBodyUpdate =  {
       nodeType: nodeType,
@@ -479,11 +479,17 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         'mrba:companyZipCode' : this._taskNode.properties['mrba:companyZipCode'],
         'mrba:companyCity' : this._taskNode.properties['mrba:companyCity'],
         'mrba:companyCountryCode' : this._taskNode.properties['mrba:companyCountryCode'],
+
+        'mrba:costCarrierNumber' : this._taskNode.properties['mrba:costCarrierNumber'],
+        'mrba:projectName' : this._taskNode.properties['mrba:projectName'],
+        'mrba:documentNumber' : this._taskNode.properties['mrba:documentNumber'],
       }
     };
+    // update properties
     this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {})
     .then((res) => {
       res;
+      // add invoice association
       return this.addAssociationsToNode(node.entry.id, [this._taskNode]);
     })
     // add Association
@@ -615,7 +621,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     return DocumentAssociations.get(EMRBauDocumentAssociations.DOCUMENT_REFERENCE).associationName;
   }
 
-  addAssociationsToNode(nodeId : string, nodes: Node[]) : Promise<any>
+  getBodyParamsForAddAssociations(nodes: Node[]) : any[]
   {
     let bodyParams = [];
     for (let i=0; i< nodes.length; i++)
@@ -626,7 +632,12 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         assocType : nodeAssocType}
       );
     };
+    return bodyParams;
+  }
 
+  addAssociationsToNode(nodeId : string, nodes: Node[]) : Promise<any>
+  {
+    const bodyParams = this.getBodyParamsForAddAssociations(nodes);
     const pathParams = {nodeId: nodeId};
     const queryParams = {include:'association'};
     const contentTypes = ['application/json'];
@@ -642,20 +653,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     {
       return Promise.resolve(null);
     }
-
-    let bodyParams = [];
-    for (let i=0; i< nodes.length; i++)
-    {
-      const nodeAssocType = this.getAssocTypeByNodeType(nodes[i]);
-      bodyParams.push({
-        targetId : nodes[i].id,
-        assocType : nodeAssocType}
-      );
-    };
-
-    const pathParams = {
-      'nodeId': this._taskNode.id
-    };
+    console.log(nodes);
+    const bodyParams = this.getBodyParamsForAddAssociations(nodes);
+    const pathParams = {'nodeId': this._taskNode.id};
     const queryParams = {include:'association'};
     const headerParams= {};
     const formParams = {};

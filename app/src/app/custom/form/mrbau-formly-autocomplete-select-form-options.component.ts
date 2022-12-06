@@ -45,7 +45,7 @@ export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType
     this.filter = this.formControl.valueChanges
       .pipe(
         startWith(startString),
-        switchMap(term => this.to.filter(term)),
+        switchMap(term => this.props.filter(term)),
       );
   }
   displayFn(data : SelectFormOptions): string {

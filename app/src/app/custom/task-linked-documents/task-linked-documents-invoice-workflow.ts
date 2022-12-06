@@ -100,7 +100,7 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
     {filter:'mrba:inboundInvoice', name:'Eingangsrechnungen'},
     {filter:'mrba:inboundRevokedInvoice', name:'Abgelehnte Eingangsrechnungen'},
     {filter:'mrba:inboundPartialInvoice', name:'Anzahlungsrechnungen'},
-    {filter:'mrba:invoiceAuditSheet', name:'Rechnungs-Prüfblatt'},
+    {filter:'mrba:invoiceReviewSheet', name:'Rechnungs-Prüfblatt'},
     {filter:'mrba:archiveDocument', name:'Andere Belege'},
     {filter:'mrba:document', name:'Andere Dokumente'}
   ];
@@ -145,6 +145,6 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
 
   buttonAuditSheetDisabled() : boolean
   {
-    return this.buttonsDisabled || this.associatedDocuments?.filter(v => v.entry.association.assocType == 'mrba:invoiceAuditSheet').length > 0;
+    return this.buttonsDisabled || this.associatedDocuments?.filter(v => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0;
   }
 }

@@ -33,7 +33,7 @@ export class MrbauFormlyAutocompleteComponent extends FieldType<FieldTypeConfig>
     this.filter = this.formControl.valueChanges
       .pipe(
         startWith(''),
-        switchMap(term => this.to.filter(term)),
+        switchMap(term => this.props.filter(term)),
       );
   }
 

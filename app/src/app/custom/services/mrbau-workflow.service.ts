@@ -45,6 +45,7 @@ export class MrbauWorkflowService {
       "mrba:offer",
       "mrba:frameworkContract",
       "mrba:invoice",
+      "mrba:invoiceReviewSheet",
     ];
     const node = data.taskDetailNewDocument.taskNode;
     if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) >= 0)
@@ -75,9 +76,7 @@ export class MrbauWorkflowService {
           'createdAt',
           'createdByUser',
         ],
-        include: [
-          'path',
-        ]
+        include: ['properties', 'path', 'allowableOperations']
       };
       return new Promise((resolve, reject) => {
         this.mrbauCommonService.queryNodes(query)
@@ -257,7 +256,6 @@ export class MrbauWorkflowService {
   cloneMetadataFromLinkedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     if (data == null || data.taskDetailNewDocument == null || data.taskDetailNewDocument.taskNode == null || data.taskDetailNewDocument.taskNodeAssociations == null)
     {
-
       return Promise.resolve(null);
     }
     const associations = data.taskDetailNewDocument.taskNodeAssociations;
@@ -379,6 +377,7 @@ export class MrbauWorkflowService {
         filterQueries: [
           { query: '=SITE:belegsammlung'},
           { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
+          { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
         ],
         fields: [
           // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
@@ -392,7 +391,7 @@ export class MrbauWorkflowService {
           'createdAt',
           'createdByUser',
         ],
-        //include: ['association'],
+        include: ['properties', 'path', 'allowableOperations'],
         sort: [
           {
             type: 'FIELD',
@@ -418,6 +417,10 @@ export class MrbauWorkflowService {
     else if (node.nodeType == 'mrba:inboundInvoice')
     {
       query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+    }
+    else if (node.nodeType == 'mrba:invoiceReviewSheet')
+    {
+      query.filterQueries.push({ query: `=TYPE:"mrba:inboundInvoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
     }
     else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument')
     {

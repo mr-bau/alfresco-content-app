@@ -12,7 +12,8 @@
 // title: "Zahlungsvereinbarungen",     name : "mrba:frameworkContract",
 // title: "Lieferschein",               name : "mrba:deliveryNote",
 // title: "Eingangsrechnung",           name : "mrba:inboundInvoice",
-// title: "Vergabeverhandlungsprotokoll",   name : "mrba:orderNegotiationProtocol",
+// title: "Rechnungsprüfblatt"          name : "mrba:invoiceReviewSheet",
+// title: "Vergabeverhandlungsprotokoll",name : "mrba:orderNegotiationProtocol",
 // title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
 
 //
@@ -94,14 +95,15 @@ export const DocumentAssociations = new Map<number, IDocumentAssociations>([
 export const enum EMRBauDocumentCategory {
   // BILLS
   ARCHIVE_DOCUMENT,
-  OFFER,
-  ORDER,
-  ADDON_ORDER,
-  ORDER_NEGOTIATION_PROTOCOL,
-  DELIVERY_NOTE,
-  ER,
-  PAYMENT_TERMS,
-  OTHER_BILL,
+  OFFER, //"mrba:offer",
+  ORDER, //"mrba:order",
+  ORDER_NEGOTIATION_PROTOCOL, // "mrba:orderNegotiationProtocol",
+  DELIVERY_NOTE,  //"mrba:deliveryNote",
+  ER, //"mrba:inboundInvoice",
+  PAYMENT_TERMS,//"mrba:frameworkContract",
+  INVOICE_REVIEW_SHEET, //mrba:invoiceReviewSheet
+  OTHER_BILL, //"mrba:miscellaneousDocument",
+
   // CONTRACTS
   /*
   LEASE_CONTRACT,
@@ -907,7 +909,99 @@ export class MrbauArchiveModel {
             ]
         }
       }
-
+    },
+    {
+      title: "Rechnungs-Prüfblatt",
+      name : "mrba:invoiceReviewSheet",
+      //parent : "mrba:archiveDocument",
+      //mandatoryAspects : [
+      //  "mrba:companyIdentifiers"
+      //  "mrba:costCarrierDetails"
+      //  "mrba:documentIdentityDetails"
+      //  "mrba:inboundInvoiceReference"
+      //],
+      category: EMRBauDocumentCategory.INVOICE_REVIEW_SHEET,
+      folder: "08 Rechnungsprüfblätter",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => Promise.resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2),
+          prevState : () => Promise.resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => Promise.resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => Promise.resolve((EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => Promise.resolve((EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => Promise.resolve((EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => Promise.resolve((EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName'
+          ]
+        },
+        'STATUS_LINK_DOCUMENTS' : {
+          formlyFieldConfigs: [],
+          mandatoryRequiredProperties: []
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentNumber',
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
     },
     {
       title: "Vergabeverhandlungsprotokoll",
@@ -1097,153 +1191,3 @@ export class MrbauArchiveModel {
     }
   ];
 }
-
-/*
-export const MRBauArchiveModelAspects : IMRBauDocumentAspect[] = [
-  {
-    name :"mrba:archiveDates",
-    properties: [
-      "mrba:archivedDate",
-      "mrba:archivedDateValue", // date value - kept in sync with mrba:archivedDate and set at 00:00 using Europe/Vienna as timezone
-      "mrba:archiveDurationYears", // default 7
-      "mrba:fiscalYear",
-    ],
-  },
-  {
-    name :"mrba:archiveIdentifiers",
-    properties: [
-      "mrba:mrBauId",
-      "mrba:organisationUnit",
-    ],
-  },
-  {
-    name :"mrba:documentIdentityDetails",
-    properties: [
-      "mrba:documentTopic",
-      "mrba:documentNumber",
-      "mrba:documentDate", // d:text
-      "mrba:documentDateValue" // d:date - date value - kept in sync with mrba:documentDate and set at 00:00 using Europe/Vienna as timezone
-    ],
-  },
-  {
-    name :"mrba:addonOrderDetails",
-    properties: [
-      "mrba:addonOrderNumber",
-    ],
-  },
-  {
-    name :"mrba:paymentConditionDetails",
-    properties: [
-      "mrba:reviewDaysPartialInvoice",
-      "mrba:reviewDaysFinalInvoice",
-      "mrba:paymentTargetDays",
-      "mrba:earlyPaymentDiscountDays1",
-      "mrba:earlyPaymentDiscountPercent1",
-      "mrba:earlyPaymentDiscountPercentNumericValue1",
-      "mrba:earlyPaymentDiscountDays2",
-      "mrba:earlyPaymentDiscountPercent2",
-      "mrba:earlyPaymentDiscountPercentNumericValue2",
-    ],
-  },
-  {
-    name :"mrba:amountDetails",
-    properties: [
-      "mrba:netAmountCents", // kept in sync with mrba:netAmount
-      "mrba:netAmount",
-      "mrba:grossAmountCents", // kept in sync with mrba:netAmount
-      "mrba:grossAmount",
-    ],
-  },
-  {
-    name :"mrba:offerReference",
-    associations: [
-      "mrba:offer"
-    ],
-  },
-  {
-    name :"mrba:orderReference",
-    associations: [
-      "mrba:order"
-    ],
-  },
-  {
-    name :"mrba:frameworkContractReference",
-    associations: [
-      "mrba:frameworkContract"
-    ],
-  },
-  {
-    name :"mrba:deliveryNoteReference",
-    associations: [
-      "mrba:deliveryNote"
-    ],
-  },
-  {
-    name :"mrba:inboundInvoiceReference",
-    associations: [
-      "mrba:inboundInvoice"
-    ],
-  },
-  {
-    name :"mrba:inboundPartialInvoiceReference",
-    associations: [
-      "mrba:inboundInvoice"
-    ],
-  },
-  {
-    name :"mrba:taxRate",
-    properties: [
-      "mrba:taxRate",
-      "mrba:taxRatePercent", // kept in sync with mrba:taxRate
-      "mrba:taxRateComment",
-    ],
-  },
-  {
-    name :"mrba:companyIdentifiers",
-    properties: [
-      "mrba:companyId",
-      "mrba:companyName",
-      "mrba:companyVatID",
-      "mrba:companyStreet",
-      "mrba:companyZipCode",
-      "mrba:companyCity",
-      "mrba:companyCountryCode",
-    ],
-  },
-  {
-    name :"mrba:costCarrierDetails",
-    properties: [
-      "mrba:costCarrierNumber",
-      "mrba:projectName",
-    ],
-  },
-  {
-    name:"mrba:fiscalYearDetails",
-    properties: [
-    "mrba:fiscalYear",
-    "mrba:projectName",
-  ],
-  },
-  {
-    name : "mrba:inboundInvoiceDetails",
-    properties: [
-    "mrba:inboundInvoiceType",
-    "mrba:revokedInvoiceNumber",
-    "mrba:partialInvoiceNumber",
-    ]
-  },
-  {
-    name : "mrba:inboundRevokedInvoiceReference",
-    properties: [
-    "mrba:inboundRevokedInvoice"
-    ]
-  }
-];
-
-export const MRBauArchiveModelConstraints = [
-  "mrba:datePattern",
-  "mrba:nonNegative",
-  "mrba:germanDecimalOneDecimalPlace",
-  "mrba:germanDecimalTwoDecimalPlaces",
-];
-*/

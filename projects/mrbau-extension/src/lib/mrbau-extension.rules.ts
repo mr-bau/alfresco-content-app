@@ -37,7 +37,7 @@ export function MrbauRuleIsMrbaArchiveDocument(context:RuleContext) : boolean {
   {
     result = true;
     context.selection.nodes.forEach( (node) => {
-      if (node.entry.aspectNames.indexOf('mrba:archiveIdentifiers') < 0)
+      if (node.entry.aspectNames.indexOf('mrba:archiveDates') < 0)
       {
         // not an archive document
         result = false;

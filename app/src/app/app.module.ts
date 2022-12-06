@@ -153,7 +153,7 @@ import { LinkedDocumentDetailComponent } from './custom/linked-document-detail/l
 import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-profile-picture/mrbau-userinfo-profile-picture.component';
 import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
 import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-upload-button.component';
-
+import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-margin-wrapper.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -240,6 +240,7 @@ registerLocaleData(localeSv);
       ],
       wrappers: [
         { name: 'mrbauFormlyLabelWrapper', component: MrbauFormlyLabelWrapperComponent },
+        { name: 'mrbauFormlyMarginWrapper', component: MrbauFormlyMarginWrapperComponent },
       ],
       types: [
         { name: 'mrbauFormlyNewTaskStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
@@ -248,7 +249,7 @@ registerLocaleData(localeSv);
         { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
         { name: 'mrbauFormlyLabel', component: MrbauFormlyLabelComponent, wrappers: ['mrbauFormlyLabelWrapper']},
         { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
-        { name: 'mrbauFormlyTaskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['form-field'],
+        { name: 'mrbauFormlyTaskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['mrbauFormlyMarginWrapper'],
         defaultOptions: {
           props: {
               btnType: 'default',
@@ -296,6 +297,7 @@ registerLocaleData(localeSv);
     MrbauFormlyAutocompleteSelectFormOptionsComponent,
     MrbauFormlyLabelComponent,
     MrbauFormlyLabelWrapperComponent,
+    MrbauFormlyMarginWrapperComponent,
     MrbauDelegateTaskDialogComponent,
     TaskVersionlistComponent,
     TaskVersionlistInvoiceWorkflowComponent,

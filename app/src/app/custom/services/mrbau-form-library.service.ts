@@ -20,17 +20,15 @@ export class MrbauFormLibraryService {
     private mrbauArchiveModelService : MrbauArchiveModelService
     ) { }
 
-    filterDefaultValues(name: string, values: string[]) {
-      return values.filter(state =>
-        state.toLowerCase().indexOf(name.toLowerCase()) === 0);
-    }
+  filterDefaultValues(name: string, values: string[]) : string[] {
+    return values.filter(state => state.indexOf(name) === 0);
+  }
 
-    filterDefaultValuesSelectFormOptions(value: SelectFormOptions, values: SelectFormOptions[]) {
-      const name = typeof value === 'string' ? value : value?.label;
-      return values.filter(state =>
-        state.label.toLowerCase().indexOf(name.toLowerCase()) === 0);
-    }
-
+  filterDefaultValuesSelectFormOptions(value: SelectFormOptions, values: SelectFormOptions[]) {
+    const name = typeof value === 'string' ? value : value?.label;
+    return values.filter(state =>
+      state.label.toLowerCase().indexOf(name.toLowerCase()) === 0);
+  }
 
   getByName(name : string) : FormlyFieldConfig
   {
@@ -83,7 +81,7 @@ export class MrbauFormLibraryService {
 
   readonly common_taskLinkedDocuments : FormlyFieldConfig =
   {
-    className: 'flex-3',
+    className: 'flex-2',
     type: 'mrbauFormlyTaskLinkedDocuments',
     key: ['fileRefs','fileNames'],
     props: {

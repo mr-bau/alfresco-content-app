@@ -52,8 +52,7 @@ export class MrbauNewTaskDialogComponent extends MrbauBaseDialogComponent implem
             this.mrbauFormLibraryService.mrbt_dueDateValue,
             this.mrbauFormLibraryService.mrbt_priority,
             this.mrbauFormLibraryService.mrbt_assignedUserName,
-            // TODO fix mrbauFormLibraryService.common_taskLinkedDocuments
-            //this.mrbauFormLibraryService.common_taskLinkedDocuments
+            this.mrbauFormLibraryService.common_taskLinkedDocuments,
           ],
         }
       ]
