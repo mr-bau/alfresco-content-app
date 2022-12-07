@@ -1,18 +1,31 @@
 import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, EOrganisationUnit, MRBauWorkflowStateCallbackData, OrganisationUnits } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 
+import jsonMrbauAppConfig from '../../../../../projects/mrbau-extension/assets/json/mrbau-app-config.json';
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
 
-export interface SelectFormOptions {
+// INTERFACES
+export interface ISelectFormOptions {
   label: string,
   value: any,
   group?: string,
 };
 
-export interface Vendor {
+export interface IOrganisationUnit {
+  id: number;
+  label: string;
+  folder: string;
+}
+
+export interface IMrbauAppConfig {
+  organisationUnitDefault: number;
+  organisationUnits: IOrganisationUnit[];
+}
+
+export interface IVendor {
   "mrba:companyId" : string,
   "mrba:companyName" : string,
   "mrba:companyVatID" : string,
@@ -36,10 +49,12 @@ interface ICostCarrier {
   '-' : string,
 }
 
+// SERVICE
 @Injectable({
   providedIn: 'root'
 })
 export class MrbauConventionsService {
+  readonly mrbauAppConfig = jsonMrbauAppConfig as IMrbauAppConfig;
   // service class to return mrbau related responsibility conventions
   // TODO extract from JSON File
   constructor(
@@ -48,16 +63,16 @@ export class MrbauConventionsService {
   {
   }
 
-  getOrganisationUnitFormOptions() : SelectFormOptions[] {
+  getOrganisationUnitFormOptions() : ISelectFormOptions[] {
     //console.log(jsonKtList);
     //console.log(jsonVendorList);
-    let result : SelectFormOptions[] = [];
-    OrganisationUnits.forEach( (d) => result.push({label: d.label, value : d.folder}));
+    let result : ISelectFormOptions[] = [];
+    this.mrbauAppConfig.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.folder}));
     return result;
   }
 
-  getDefaultOrganisationUnit() : EOrganisationUnit {
-    return EOrganisationUnit.MANDANT_1;
+  getDefaultOrganisationUnit() : string {
+    return this.mrbauAppConfig.organisationUnits[this.mrbauAppConfig.organisationUnitDefault].folder;
   }
 
   getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : string
@@ -69,19 +84,19 @@ export class MrbauConventionsService {
     //return "admin";
   }
 
-  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
+  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string
   {
     task;documentCategory;client;
     return null;
   }
-  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
+  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string
   {
     task;documentCategory;client;
     let date = new Date();
     date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
     return this.mrbauCommonService.getFormDateValue(date);
   }
-  getNewTaskDefaultAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : EOrganisationUnit) : string
+  getNewTaskDefaultAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string
   {
     task;
     documentCategory;
@@ -93,7 +108,7 @@ export class MrbauConventionsService {
   readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
   readonly discountDefaultValues = ['3,00', '2,00','1,00'];
 
-  private createVendorString(v:Vendor) : string {
+  private createVendorString(v : IVendor) : string {
     let result = v['mrba:companyName'];
     result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
     result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
@@ -102,26 +117,26 @@ export class MrbauConventionsService {
     return result;
   }
 
-  private _vendorListFormOptions : SelectFormOptions[];
-  getVendorListFormOptions() : SelectFormOptions[] {
+  private _vendorListFormOptions : ISelectFormOptions[];
+  getVendorListFormOptions() : ISelectFormOptions[] {
     if (this._vendorListFormOptions) {
       return this._vendorListFormOptions;
     }
-    let result : SelectFormOptions[] = [];
+    let result : ISelectFormOptions[] = [];
     for (const key in jsonVendorList) {
-      const d = jsonVendorList[key] as Vendor;
+      const d = jsonVendorList[key] as IVendor;
       result.push({label: this.createVendorString(d), value : d['mrba:companyId']})
     }
     result = result.sort((a,b) => a.label.localeCompare(b.label));
     this._vendorListFormOptions = result;
     return result;
   }
-  getVendorListFormOption(mrba_companyId : string) : SelectFormOptions {
+  getVendorListFormOption(mrba_companyId : string) : ISelectFormOptions {
     const result = this.getVendorListFormOptions().filter( d => d.value == mrba_companyId);
     return (result.length > 0) ? result[0] : undefined;
   }
-  getVendor(key : string) : Vendor {
-    return jsonVendorList[key] as Vendor
+  getVendor(key : string) : IVendor {
+    return jsonVendorList[key] as IVendor
   }
 
   private createKtString(v:ICostCarrier) : string {
@@ -130,12 +145,12 @@ export class MrbauConventionsService {
     return result;
   }
 
-  private _ktListFormOptions : SelectFormOptions[];
-  getKtListFormOptions() : SelectFormOptions[] {
+  private _ktListFormOptions : ISelectFormOptions[];
+  getKtListFormOptions() : ISelectFormOptions[] {
     if (this._ktListFormOptions) {
       return this._ktListFormOptions;
     }
-    let result : SelectFormOptions[] = [];
+    let result : ISelectFormOptions[] = [];
     for (const key in jsonKtList) {
       const d = jsonKtList[key] as ICostCarrier;
       result.push({label: this.createKtString(d), value : d['mrba:costCarrierNumber']})
@@ -144,7 +159,7 @@ export class MrbauConventionsService {
     this._ktListFormOptions = result;
     return result;
   }
-  getKtListFormOption(mrba_costCarrierNumber : string) : SelectFormOptions {
+  getKtListFormOption(mrba_costCarrierNumber : string) : ISelectFormOptions {
     const result = this.getKtListFormOptions().filter( d => d.value == mrba_costCarrierNumber);
     return (result.length > 0) ? result[0] : undefined;
   }
@@ -152,14 +167,14 @@ export class MrbauConventionsService {
     return jsonKtList[key] as ICostCarrier
   }
 
-  getOrderTypeFormOptions() : SelectFormOptions[] {
-    let result : SelectFormOptions[] = [];
+  getOrderTypeFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
     DocumentOrderTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
     return result;
   }
 
-  getInvoiceTypeFormOptions() : SelectFormOptions[] {
-    let result : SelectFormOptions[] = [];
+  getInvoiceTypeFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
     DocumentInvoiceTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
     return result;
 

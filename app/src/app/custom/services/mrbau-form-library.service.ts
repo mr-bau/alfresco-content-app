@@ -4,7 +4,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { CONST } from '../mrbau-global-declarations';
 import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { MrbauConventionsService, SelectFormOptions } from './mrbau-conventions.service';
+import { MrbauConventionsService, ISelectFormOptions } from './mrbau-conventions.service';
 import { MrbauArchiveModelService } from './mrbau-archive-model.service';
 import { of } from 'rxjs';
 import { germanParseFloat, REGEX_mrba_currencyIgnoreCharacters, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_mrba_taxRateIgnoreCharacters, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
@@ -24,7 +24,7 @@ export class MrbauFormLibraryService {
     return values.filter(state => state.indexOf(name) === 0);
   }
 
-  filterDefaultValuesSelectFormOptions(value: SelectFormOptions, values: SelectFormOptions[]) {
+  filterDefaultValuesSelectFormOptions(value: ISelectFormOptions, values: ISelectFormOptions[]) {
     const name = typeof value === 'string' ? value : value?.label;
     return values.filter(state =>
       state.label.toLowerCase().indexOf(name.toLowerCase()) === 0);

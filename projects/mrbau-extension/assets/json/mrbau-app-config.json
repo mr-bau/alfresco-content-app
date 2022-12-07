@@ -1,0 +1,8 @@
+{
+  "organisationUnitDefault" : 0,
+  "organisationUnits" : [
+    {"id": 0, "label": "Mandant1", "folder": "Mandant1"},
+    {"id": 1, "label": "Mandant2", "folder": "Mandant2"},
+    {"id": 2, "label": "Mandant3", "folder": "Mandant4"}
+  ]
+}

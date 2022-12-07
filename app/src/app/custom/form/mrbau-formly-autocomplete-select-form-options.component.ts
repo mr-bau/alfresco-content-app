@@ -4,7 +4,7 @@ import { MatInput } from '@angular/material/input';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
-import { SelectFormOptions } from '../services/mrbau-conventions.service';
+import { ISelectFormOptions } from '../services/mrbau-conventions.service';
 import { FieldTypeConfig } from '@ngx-formly/core';
 
 @Component({
@@ -48,7 +48,7 @@ export class MrbauFormlyAutocompleteSelectFormOptionsComponent extends FieldType
         switchMap(term => this.props.filter(term)),
       );
   }
-  displayFn(data : SelectFormOptions): string {
+  displayFn(data : ISelectFormOptions): string {
     return data && data.label ? data.label : '';;
   }
 

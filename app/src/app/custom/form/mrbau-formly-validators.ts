@@ -1,6 +1,6 @@
 import { FormControl, ValidationErrors } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { SelectFormOptions } from '../services/mrbau-conventions.service';
+import { ISelectFormOptions } from '../services/mrbau-conventions.service';
 
 
 export const PAYMENT_DAYS_VALID_RANGE_MIN = 1;
@@ -51,7 +51,7 @@ export function netGrossTaxMismatchMessage(err, field) {
   return `Netto, Brutto und Steuersatz stimmen nicht überein (Diff. ${err}).`;
 }
 
-function instanceOfSelectFormOptions(value: any): value is SelectFormOptions {
+function instanceOfSelectFormOptions(value: any): value is ISelectFormOptions {
   return !!value // truthy
   && typeof value !== 'string' // Not just string input in the autocomplete
   && typeof value !== 'number' // Not just a number
