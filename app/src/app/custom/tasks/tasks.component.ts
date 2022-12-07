@@ -4,7 +4,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
 import { CONST } from '../mrbau-global-declarations';
-import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus, EMRBauTaskCategory} from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { TasksTableComponent } from '../taskstable/taskstable.component';
 
@@ -69,8 +69,25 @@ export class TasksComponent implements OnInit {
 
   initTaskCategories()
   {
-    this.taskCategories = [{
+    this.taskCategories = [
+    {
       tabIcon: 'description',
+      tabName: 'Dokumente',
+      tabBadge: 0,
+      searchRequest: {
+        query: {
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId
+          WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+
+          `AND B.mrbt:category>= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category<= ${EMRBauTaskCategory.NewDocumentLast}`+
+          ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) +
+          'ORDER BY B.cmis:creationDate DESC',
+          language: 'cmis'
+        },
+        include: ['properties']
+      }
+    },
+    {
+      tabIcon: 'assignment',
       tabName: 'Aufgaben',
       tabBadge: 0,
       searchRequest: {
@@ -80,7 +97,11 @@ export class TasksComponent implements OnInit {
         query: {
           // CONTAINS comparison is necessary to make the comparison case insensitive (getECMUsername does not use the user id but the entered user name from login window)
           //query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status <= 8999 AND CONTAINS(B,'mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"') ORDER BY B.cmis:creationDate DESC`,
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+ ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) + 'ORDER BY B.cmis:creationDate DESC',
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId
+          WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+
+          `AND B.mrbt:category>= ${EMRBauTaskCategory.CommonTaskStart} AND B.mrbt:category<= ${EMRBauTaskCategory.CommonTaskLast}`+
+          ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) +
+          'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'
         },
         include: ['properties']
