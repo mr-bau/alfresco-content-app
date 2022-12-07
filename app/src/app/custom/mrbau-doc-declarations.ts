@@ -910,7 +910,7 @@ export class MrbauArchiveModel {
         }
       }
     },
-    {
+    /*{
       title: "Rechnungs-Prüfblatt",
       name : "mrba:invoiceReviewSheet",
       //parent : "mrba:archiveDocument",
@@ -1002,7 +1002,7 @@ export class MrbauArchiveModel {
             ]
         }
       }
-    },
+    },*/
     {
       title: "Vergabeverhandlungsprotokoll",
       name : "mrba:orderNegotiationProtocol",
