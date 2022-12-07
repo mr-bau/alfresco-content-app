@@ -114,6 +114,7 @@ import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.com
 //import { TestComponent } from './custom/test/test.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
 import { SplitpaneComponent } from './custom/splitpane/splitpane.component';
+import { MrbauSplitpaneBelegsammlungComponent } from './custom/splitpane/splitpane-belegsammlung.component';
 import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
 import { TasksTableComponent } from './custom/taskstable/taskstable.component';
 import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.component';
@@ -154,6 +155,7 @@ import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-pr
 import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
 import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-upload-button.component';
 import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-margin-wrapper.component';
+
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -284,6 +286,7 @@ registerLocaleData(localeSv);
     BelegsammlungComponent,
     TasksComponent,
     SplitpaneComponent,
+    MrbauSplitpaneBelegsammlungComponent,
     PdfpreviewComponent,
     TasksTableComponent,
     TaskIndicatorComponent,

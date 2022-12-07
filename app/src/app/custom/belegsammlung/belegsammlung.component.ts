@@ -1,9 +1,9 @@
 import { AfterContentInit, Component, OnInit } from '@angular/core';
 import { AlfrescoApiService } from '@alfresco/adf-core';
-import { ContentApiService } from '@alfresco/aca-shared'
-import { ChangeDetectorRef } from '@angular/core';
+import { Node } from '@alfresco/js-api';
+import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
+import { CONST } from '../mrbau-global-declarations';
 
-//NodesApi
 @Component({
   selector: 'mrbau-belegsammlung',
   templateUrl: './belegsammlung.component.html',
@@ -11,18 +11,15 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class BelegsammlungComponent implements OnInit, AfterContentInit {
 
-  documentListStartFolder: string = '-sites-';
+  documentListStartFolder: string = '-root-';
+  selectedNode: Node;
+  errorMessage: string = null;
 
-  static SHOW_TOOLBAR : string = "#toolbar=0";
-  pdf_url : string = "";
-  pdf_url1 : string="assets/pdf/test1.pdf";
-  pdf_url2: string="assets/pdf/test2.pdf";
-  t : boolean = true;
-  site : string;
-
-  constructor(private apiService: AlfrescoApiService, private contentApi: ContentApiService, private changeDetector: ChangeDetectorRef) {
+  constructor(
+    private apiService: AlfrescoApiService,
+    private contentApi: ContentApiService,
+    ) {
     console.log("UserName: "+this.apiService.getInstance().getEcmUsername());
-
   }
 
   ngAfterContentInit(): void {
@@ -32,19 +29,36 @@ export class BelegsammlungComponent implements OnInit, AfterContentInit {
   ngOnInit(): void {
     this.contentApi.getNodeInfo('-root-', {
       includeSource: true,
-      include: ['path', 'properties'],
+      include: CONST.GET_NODE_DEFAULT_INCLUDE,
       relativePath: '/Sites/belegsammlung/documentLibrary'
     }).toPromise().then(node => {
       this.documentListStartFolder = node.id;
-      this.changeDetector.detectChanges();
+      this.setNode(node);
     });
   }
 
-  testPdfLoad()
+  onClick(nodeEntry) {
+    this.setNode(nodeEntry.entry)
+  }
+
+  setNode(node : Node)
   {
-    this.t = !this.t;
-    this.pdf_url = (this.t ? this.pdf_url1 : this.pdf_url2);
-    (<HTMLIFrameElement>document.getElementById('my-iframe')).src = this.pdf_url +BelegsammlungComponent.SHOW_TOOLBAR;
+    this.selectedNode = node;
+  }
+
+  reset() {
+      this.errorMessage = null;
+  }
+
+  onErrorOccurred(error: string) {
+      this.errorMessage = error;
+  }
+  folderChange(event)
+  {
+    this.contentApi.getNodeInfo(event.value.id, {include: CONST.GET_NODE_DEFAULT_INCLUDE}).toPromise()
+    .then(node => {
+      this.setNode(node);
+    });
   }
 }
 
