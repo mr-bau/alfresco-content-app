@@ -70,6 +70,10 @@
         { "type": "rule", "value": "app.navigation.isNotTrashcan" },
         { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" }
       ]
+    },
+    {
+      "id": "mrbau.extension.rule.FALSE",
+      "value" : false
     }
   ],
   "actions": [
@@ -103,37 +107,53 @@
   "features": {
     "navbar": [
       {
-        "id": "mrbau.extension.nav",
+        "id": "mrbau.extension.nav1",
+        "rules": {
+          "visible": "app.isContentServiceEnabled"
+        },
         "items": [
           {
             "id": "app.navbar.foerdermanager",
             "order": 500,
-            "icon": "attach_money",
+            "icon": "pie_chart",
             "label": "Link",
             "title": "Fördermanager",
             "description": "Fördermanager",
             "route": "foerdermanager"
+          }
+        ]
+      },
+      {
+        "id": "mrbau.extension.nav2",
+        "rules": {
+          "visible": "app.isContentServiceEnabled"
+        },
+        "items": [
+          {
+            "id": "mrbau.extension.tasks",
+            "order": 600,
+            "icon": "assignment",
+            "title": "Aufgaben",
+            "route": "mrbau.extension.route.tasks"
           },
           {
             "id": "app.navbar.belegsammlung",
-            "order": 600,
-            "icon": "work",
+            "order": 610,
+            "icon": "folder",
             "label": "Link",
             "title": "Belegsammlung",
             "description": "Belegsammlung",
             "route": "belege"
           },
           {
-            "id": "mrbau.extension.tasks",
-            "icon": "touch_app",
-            "title": "Aufgaben",
-            "route": "mrbau.extension.route.tasks"
-          },
-          {
             "id": "mrbau.extension.tools",
+            "order": 620,
             "icon": "timeline",
             "title": "Anwendungen",
-            "route": "mrbau.extension.route.main"
+            "route": "mrbau.extension.route.main",
+            "rules": {
+              "visible": "mrbau.extension.rule.FALSE"
+            }
           }
         ]
       }
