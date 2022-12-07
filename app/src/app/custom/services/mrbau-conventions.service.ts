@@ -4,6 +4,7 @@ import { MrbauCommonService } from './mrbau-common.service';
 import { DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 
 import jsonMrbauAppConfig from '../../../../../projects/mrbau-extension/assets/json/mrbau-app-config.json';
+import { IMrbauAppConfig  } from '../../../../../projects/mrbau-extension/src/mrbau-app-config';
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
 
@@ -13,17 +14,6 @@ export interface ISelectFormOptions {
   value: any,
   group?: string,
 };
-
-export interface IOrganisationUnit {
-  id: number;
-  label: string;
-  folder: string;
-}
-
-export interface IMrbauAppConfig {
-  organisationUnitDefault: number;
-  organisationUnits: IOrganisationUnit[];
-}
 
 export interface IVendor {
   "mrba:companyId" : string,
@@ -55,6 +45,7 @@ interface ICostCarrier {
 })
 export class MrbauConventionsService {
   readonly mrbauAppConfig = jsonMrbauAppConfig as IMrbauAppConfig;
+
   // service class to return mrbau related responsibility conventions
   // TODO extract from JSON File
   constructor(
