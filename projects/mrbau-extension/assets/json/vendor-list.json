@@ -1,4 +1,30 @@
 {
+    "201129": {
+        "mrba:companyId": "201129",
+        "mrba:companyName": "Kfz-Handel Nihad Kulovic",
+        "mrba:companyStreet": "",
+        "mrba:companyZipCode": "9500",
+        "mrba:companyCity": "Villach",
+        "ZZiel": "0,00",
+        "SktoProz1": "0,00",
+        "SktoTage1": "0,00",
+        "mrba:companyVatID": "1",
+        "Ohne Steuer": "",
+        "-": null
+    },
+    "204183": {
+        "mrba:companyId": "204183",
+        "mrba:companyName": "Mc Donalds`s Liegenschaftsverwaltung GmbH",
+        "mrba:companyStreet": "",
+        "mrba:companyZipCode": "2345",
+        "mrba:companyCity": "Brunn am Gebirge",
+        "ZZiel": "0,00",
+        "SktoProz1": "0,00",
+        "SktoTage1": "0,00",
+        "mrba:companyVatID": "1",
+        "Ohne Steuer": "",
+        "-": null
+    },
     "300003": {
         "mrba:companyId": "300003",
         "mrba:companyName": "Top Bautr\u00e4ger M&R BaugmbH&CoKG",

@@ -418,6 +418,10 @@ export class MrbauWorkflowService {
     {
       query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
     }
+    else if (node.nodeType == 'mrba:outboundInvoice')
+    {
+      query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+    }
     else if (node.nodeType == 'mrba:invoiceReviewSheet')
     {
       query.filterQueries.push({ query: `=TYPE:"mrba:inboundInvoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});

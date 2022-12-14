@@ -99,7 +99,10 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
     {filter:'mrba:deliveryNote', name:'Lieferscheine'},
     {filter:'mrba:inboundInvoice', name:'Eingangsrechnungen'},
     {filter:'mrba:inboundRevokedInvoice', name:'Abgelehnte Eingangsrechnungen'},
-    {filter:'mrba:inboundPartialInvoice', name:'Anzahlungsrechnungen'},
+    {filter:'mrba:inboundPartialInvoice', name:'Anzahlungsrechnungen ER'},
+    {filter:'mrba:outboundInvoice', name:'Ausgangsrechnungen'},
+    {filter:'mrba:outboundRevokedInvoice', name:'Abgelehnte Ausgangsrechnungen'},
+    {filter:'mrba:outboundPartialInvoice', name:'Anzahlungsrechnungen AR'},
     {filter:'mrba:invoiceReviewSheet', name:'Rechnungs-Prüfblatt'},
     {filter:'mrba:archiveDocument', name:'Andere Belege'},
     {filter:'mrba:document', name:'Andere Dokumente'}

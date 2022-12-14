@@ -16,6 +16,22 @@
 // title: "Vergabeverhandlungsprotokoll",name : "mrba:orderNegotiationProtocol",
 // title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
 
+// title: "Ausgangsrechnung",           name : "mrba:outboundInvoice",
+
+
+// title: "Vertragsdokument",           name : "mrba:contractDocument"
+// title: "Mietvertrag",                name : "mrba:rentContract"
+// title: "Kündigungsverzicht",         name : "mrba:contractCancellationWaiver"
+// title: "Wartungsvertrag",            name : "mrba:maintenanceContract"
+// title: "All-In",                     name : "mrba:allInContract"
+// title: "Lizenzvertrag",              name : "mrba:licenseContract"
+// title: "Finanzierungsvertrag",       name : "mrba:financingContract"
+// title: "Werkvertrag",                name : "mrba:workContract"
+// title: "Sonstiger Vertrag",          name : "mrba:miscellaneousContractDocument"
+
+
+//?? Kündigung "mrba:contractCancellation"
+
 //
 // * Associations
 // ================
@@ -28,7 +44,9 @@
 // mrba:inboundPartialInvoice     mrba:inboundInvoice
 // mrba:archiveDocument           mrba:archiveDocument
 // mrba:document                  mrba:document
-//
+// mrba:outboundInvoice           mrba:outboundInvoice
+// mrba:outboundRevokedInvoice    mrba:outboundInvoice
+// mrba:outboundPartialInvoice    mrba:outboundInvoice
 
 import { NodeAssociationEntry  } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
@@ -55,6 +73,9 @@ export const enum EMRBauDocumentAssociations {
   INBOUND_INVOICE_REFERENCE,
   INBOUND_REVOKED_INVOICE_REFERENCE,
   INBOUND_PARTIAL_INVOICE_REFERENCE,
+  OUTBOUND_INVOICE_REFERENCE,
+  OUTBOUND_REVOKED_INVOICE_REFERENCE,
+  OUTBOUND_PARTIAL_INVOICE_REFERENCE,
 }
 interface IDocumentAssociations {
   category: EMRBauDocumentAssociations,
@@ -73,6 +94,9 @@ export const DocumentAssociations = new Map<number, IDocumentAssociations>([
   [EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE,  aspectName: "mrba:inboundInvoiceReference", associationName: "mrba:inboundInvoice", targetClass: "mrba:inboundInvoice"}],
   [EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE,  aspectName: "mrba:inboundRevokedInvoiceReference", associationName: "mrba:inboundRevokedInvoice", targetClass: "mrba:inboundInvoice"}],
   [EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:inboundPartialInvoiceReference", associationName: "mrba:inboundPartialInvoice", targetClass: "mrba:inboundInvoice"}],
+  [EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE,  aspectName: "mrba:outboundInvoiceReference", associationName: "mrba:outboundInvoice", targetClass: "mrba:outboundInvoice"}],
+  [EMRBauDocumentAssociations.OUTBOUND_REVOKED_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_REVOKED_INVOICE_REFERENCE,  aspectName: "mrba:outboundRevokedInvoiceReference", associationName: "mrba:outboundRevokedInvoice", targetClass: "mrba:outboundInvoice"}],
+  [EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:outboundPartialInvoiceReference", associationName: "mrba:outboundPartialInvoice", targetClass: "mrba:outboundInvoice"}],
 ]);
 
 export const enum EMRBauDocumentCategory {
@@ -83,6 +107,7 @@ export const enum EMRBauDocumentCategory {
   ORDER_NEGOTIATION_PROTOCOL, // "mrba:orderNegotiationProtocol",
   DELIVERY_NOTE,  //"mrba:deliveryNote",
   ER, //"mrba:inboundInvoice",
+  AR, //"mrba:outboundInvoice",
   PAYMENT_TERMS,//"mrba:frameworkContract",
   INVOICE_REVIEW_SHEET, //mrba:invoiceReviewSheet
   OTHER_BILL, //"mrba:miscellaneousDocument",
@@ -893,6 +918,144 @@ export class MrbauArchiveModel {
         }
       }
     },
+    {
+     title: "Ausgangsrechnung",
+     name : "mrba:outboundInvoice",
+     //parent : "mrba:archiveDocument",
+      //mandatoryAspects : [
+        //mrba:companyIdentifiers
+        //mrba:documentIdentityDetails
+        //mrba:fiscalYearDetails
+        //mrba:outboundInvoiceDetails
+        //mrba:invoiceDetails
+        //mrba:amountDetails
+        //mrba:taxRate
+        //mrba:paymentConditionDetails
+        //mrba:costCarrierDetails
+        //mrba:orderReference
+        //mrba:deliveryNoteReference
+        //mrba:outboundInvoiceReference
+        //mrba:outboundRevokedInvoiceReference
+        //mrba:outboundPartialInvoiceReference
+      //],
+      category: EMRBauDocumentCategory.AR,
+      folder: "06 Ausgangsrechnungen",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
+            .then( () =>
+            {
+              resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2);
+            })
+            .catch( (error) => reject(error))
+            }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ACCOUNTING);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ACCOUNTING; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_FORMAL_REVIEW;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ACCOUNTING;break;
+              }
+              resolve(newState);
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        },
+        {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ACCOUNTING))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName'
+          ]
+        },
+        'STATUS_LINK_DOCUMENTS' : {
+          formlyFieldConfigs: [],
+          mandatoryRequiredProperties: []
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_outboundInvoiceType',
+            'element_mrba_outboundInvoiceType',
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+            'title_mrba_amountDetails_mrba_taxRate',
+            'aspect_mrba_amountDetails_mrba_taxRate',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:outboundInvoiceType',
+            'mrba:documentNumber',
+            'mrba:documentDateValue',
+            'mrba:netAmount',
+            'mrba:grossAmount',
+            'mrba:taxRate',
+            'mrba:reviewDaysFinalInvoice',
+            'mrba:paymentTargetDays',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ACCOUNTING' : {
+          formlyFieldConfigs: [
+            'mrba_accountingId',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:accountingId',
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+
     /*{
       title: "Rechnungs-Prüfblatt",
       name : "mrba:invoiceReviewSheet",
