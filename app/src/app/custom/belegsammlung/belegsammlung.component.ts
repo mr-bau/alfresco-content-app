@@ -1,29 +1,29 @@
-import { AfterContentInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AlfrescoApiService } from '@alfresco/adf-core';
 import { Node } from '@alfresco/js-api';
 import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
 import { CONST } from '../mrbau-global-declarations';
+import { ContentActionRef } from '@alfresco/adf-extensions';
 
 @Component({
   selector: 'mrbau-belegsammlung',
   templateUrl: './belegsammlung.component.html',
   styleUrls: ['./belegsammlung.component.scss']
 })
-export class BelegsammlungComponent implements OnInit, AfterContentInit {
+export class BelegsammlungComponent implements OnInit {
 
   documentListStartFolder: string = '-root-';
   selectedNode: Node;
   errorMessage: string = null;
+
+  //
+  // USE Data Table with search results instead of document list
 
   constructor(
     private apiService: AlfrescoApiService,
     private contentApi: ContentApiService,
     ) {
     console.log("UserName: "+this.apiService.getInstance().getEcmUsername());
-  }
-
-  ngAfterContentInit(): void {
-
   }
 
   ngOnInit(): void {
@@ -59,6 +59,13 @@ export class BelegsammlungComponent implements OnInit, AfterContentInit {
     .then(node => {
       this.setNode(node);
     });
+  }
+
+
+
+  actions: Array<ContentActionRef> = [];
+  trackByActionId(_: number, action: ContentActionRef) {
+    return action.id;
   }
 }
 
