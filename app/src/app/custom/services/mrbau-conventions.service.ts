@@ -160,13 +160,13 @@ export class MrbauConventionsService {
 
   getOrderTypeFormOptions() : ISelectFormOptions[] {
     let result : ISelectFormOptions[] = [];
-    DocumentOrderTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
+    DocumentOrderTypes.forEach( (d) => result.push({label: d.label, value : d.value}));
     return result;
   }
 
   getInvoiceTypeFormOptions() : ISelectFormOptions[] {
     let result : ISelectFormOptions[] = [];
-    DocumentInvoiceTypes.forEach( (d) => result.push({label: d.label, value : d.label}));
+    DocumentInvoiceTypes.forEach( (d) => result.push({label: d.label, value : d.value}));
     return result;
 
   }

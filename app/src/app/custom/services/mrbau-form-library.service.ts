@@ -529,6 +529,9 @@ export class MrbauFormLibraryService {
       placeholder: 'z.B. 14',
       filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       pattern: REGEX_nonNegativeInt,
+    },
+    expressions: {
+      hide: "model['mrba:inboundInvoiceType']!='Anzahlung'",
     }
   }
 
@@ -625,7 +628,7 @@ export class MrbauFormLibraryService {
 
   readonly mrba_inboundInvoiceType : FormlyFieldConfig =
   {
-    className: 'flex-4',
+    className: 'flex-2',
     key: 'mrba:inboundInvoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'select',
     defaultValue: this.mrbauConventionsService.getInvoiceTypeFormOptions()[0].value,
@@ -633,6 +636,27 @@ export class MrbauFormLibraryService {
       label: 'Rechnungs-Typ auswählen',
       options: this.mrbauConventionsService.getInvoiceTypeFormOptions(),
       required: true,
+    },
+  }
+
+  readonly mrba_inboundPartialInvoiceNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:inboundPartialInvoiceNumber', //d:int
+    type: 'input',
+    props: {
+      label: 'Teil-/Anzahlungsrechnung-Nummer (min=1, max=99)',
+      placeholder: 'z.B. 1',
+      type: 'number',
+      min: 1,
+      max: 99,
+    },
+    validation: {
+      show: true,
+    },
+    expressions: {
+      hide: "model['mrba:inboundInvoiceType']!='Anzahlung'",
+      'props.required': "model['mrba:inboundInvoiceType']=='Anzahlung'",
     },
   }
 
@@ -673,7 +697,10 @@ export class MrbauFormLibraryService {
   };
   readonly element_mrba_inboundInvoiceType : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
-    fieldGroup: [this.mrba_inboundInvoiceType],
+    fieldGroup: [
+      this.mrba_inboundInvoiceType,
+      this.mrba_inboundPartialInvoiceNumber
+    ],
   };
 
   readonly title_mrba_orderType : FormlyFieldConfig ={
