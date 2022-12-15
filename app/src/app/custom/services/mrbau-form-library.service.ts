@@ -308,6 +308,39 @@ export class MrbauFormLibraryService {
     }
   }
 
+  readonly mrba_contractStartValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:contractStartValue',
+    type: 'input',
+    props: {
+      label: 'Vertragslaufzeit Start',
+      type: 'date',
+    }
+  }
+
+  readonly mrba_contractEndValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:contractEndValue',
+    type: 'input',
+    props: {
+      label: 'Vertragslaufzeit Ende',
+      type: 'date',
+    }
+  }
+
+  readonly mrba_contractComment : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:contractComment',
+    type: 'input',
+    props: {
+      label: 'Optionaler Kommentar',
+      maxLength: CONST.MAX_LENGTH_COMMENT_SHORT,
+    }
+  }
+
   readonly mrba_netAmount : FormlyFieldConfig =
   {
     className: 'flex-2',
@@ -380,6 +413,7 @@ export class MrbauFormLibraryService {
     type: 'input',
     props: {
       label: 'Optionaler Kommentar',
+      maxLength: CONST.MAX_LENGTH_COMMENT_SHORT,
     }
   }
 /*
@@ -774,6 +808,20 @@ export class MrbauFormLibraryService {
         this.mrba_documentNumber,
         this.mrba_documentDateValue,
         //this.mrba_documentDate
+    ]
+  };
+
+  readonly title_mrba_contractCoreDetails : FormlyFieldConfig = {
+    template: '<span class="form-group-title">Vertrag Eigenschaften</span>',
+  };
+  readonly aspect_mrba_contractCoreDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+        this.mrba_contractStartValue,
+        //this.mrba_contractStart
+        this.mrba_contractEndValue,
+        //this.mrba_contractEnd
+        this.mrba_contractComment,
     ]
   };
 

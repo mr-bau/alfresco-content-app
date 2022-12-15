@@ -12,12 +12,10 @@
 // title: "Zahlungsvereinbarungen",     name : "mrba:frameworkContract",
 // title: "Lieferschein",               name : "mrba:deliveryNote",
 // title: "Eingangsrechnung",           name : "mrba:inboundInvoice",
+// title: "Ausgangsrechnung",           name : "mrba:outboundInvoice",
 // title: "Rechnungsprüfblatt"          name : "mrba:invoiceReviewSheet",
 // title: "Vergabeverhandlungsprotokoll",name : "mrba:orderNegotiationProtocol",
 // title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
-
-// title: "Ausgangsrechnung",           name : "mrba:outboundInvoice",
-
 
 // title: "Vertragsdokument",           name : "mrba:contractDocument"
 // title: "Mietvertrag",                name : "mrba:rentContract"
@@ -27,6 +25,7 @@
 // title: "Lizenzvertrag",              name : "mrba:licenseContract"
 // title: "Finanzierungsvertrag",       name : "mrba:financingContract"
 // title: "Werkvertrag",                name : "mrba:workContract"
+// title: "Kündigung",                  name : "mrba:contractCancellation"
 // title: "Sonstiger Vertrag",          name : "mrba:miscellaneousContractDocument"
 
 
@@ -47,6 +46,9 @@
 // mrba:outboundInvoice           mrba:outboundInvoice
 // mrba:outboundRevokedInvoice    mrba:outboundInvoice
 // mrba:outboundPartialInvoice    mrba:outboundInvoice
+
+// mrba:cancelledContract         mrba:contractDocument
+// mrba:contractDocument          mrba:contractDocument
 
 import { NodeAssociationEntry  } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
@@ -76,6 +78,8 @@ export const enum EMRBauDocumentAssociations {
   OUTBOUND_INVOICE_REFERENCE,
   OUTBOUND_REVOKED_INVOICE_REFERENCE,
   OUTBOUND_PARTIAL_INVOICE_REFERENCE,
+  CONTRACT_REFERENCE,
+  CANCELLED_CONTRACT_REFERENCE,
 }
 interface IDocumentAssociations {
   category: EMRBauDocumentAssociations,
@@ -97,6 +101,9 @@ export const DocumentAssociations = new Map<number, IDocumentAssociations>([
   [EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE,  aspectName: "mrba:outboundInvoiceReference", associationName: "mrba:outboundInvoice", targetClass: "mrba:outboundInvoice"}],
   [EMRBauDocumentAssociations.OUTBOUND_REVOKED_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_REVOKED_INVOICE_REFERENCE,  aspectName: "mrba:outboundRevokedInvoiceReference", associationName: "mrba:outboundRevokedInvoice", targetClass: "mrba:outboundInvoice"}],
   [EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:outboundPartialInvoiceReference", associationName: "mrba:outboundPartialInvoice", targetClass: "mrba:outboundInvoice"}],
+
+  [EMRBauDocumentAssociations.CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.CONTRACT_REFERENCE,  aspectName: "mrba:contractDocumentReference", associationName: "mrba:contractDocument", targetClass: "mrba:contractDocument"}],
+  [EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE,  aspectName: "mrba:cancelledContractReference", associationName: "mrba:cancelledContract", targetClass: "mrba:contractDocument"}],
 ]);
 
 export const enum EMRBauDocumentCategory {
@@ -113,15 +120,16 @@ export const enum EMRBauDocumentCategory {
   OTHER_BILL, //"mrba:miscellaneousDocument",
 
   // CONTRACTS
-  /*
-  LEASE_CONTRACT,
-  WAIVE_TERMINATION_RIGHT,
-  MAINTENANCE_CONTRACT,
-  ALL_IN_CONTRACT,
-  LICENSE_CONTRACT,
-  TERMINATION,
-  FUEL_CARD,
-  OTHER_CONTRACT*/
+  CONTRACT_DOCUMENT, //"mrba:contractDocument"
+  RENT_CONTRACT, //"mrba:rentContract"
+  CONTRACT_CANCELLATION_WAIVER, //"mrba:contractCancellationWaiver"
+  MAINTENANCE_CONTRACT, //"mrba:maintenanceContract"
+  ALL_IN_CONTRACT, //"mrba:allInContract"
+  LICENSE_CONTRACT, //"mrba:licenseContract"
+  FINANCING_CONTRACT, //"mrba:financingContract"
+  WORK_CONTRACT, //"mrba:workContract"
+  CONTRACT_CANCELLATION, //"mrba:contractCancellation"
+  OTHER_CONTRACT, //"mrba:miscellaneousContractDocument"
 }
 
 export const enum EMRBauDocumentCategoryGroup {
@@ -204,7 +212,6 @@ export interface IMRBauWorkflowState {
   onEnterAction? : MRBauWorkflowStateCallback; // perform on enter action
 }
 
-
 // COMMONLY USED DEFINITIONS
 const METADATA_EXTRACT_1_FORM_DEFINITION = [
     'title_mrba_companyId',
@@ -213,13 +220,58 @@ const METADATA_EXTRACT_1_FORM_DEFINITION = [
     'aspect_mrba_costCarrierDetails',
   ];
 
-
+const CONTRACT_DEFAULT_FORM_DEFINITION = {
+  'STATUS_METADATA_EXTRACT_1' : {
+    formlyFieldConfigs: [
+      'title_mrba_companyId',
+      'element_mrba_companyId',
+      'title_mrba_costCarrierDetails',
+      'aspect_mrba_costCarrierDetails',
+    ],
+    mandatoryRequiredProperties: [
+      'mrba:companyId',
+    ]
+  },
+  'STATUS_METADATA_EXTRACT_2' : {
+    formlyFieldConfigs: [
+      'title_mrba_documentIdentityDetails',
+      'aspect_mrba_documentIdentityDetails',
+      'title_mrba_contractCoreDetails',
+      'aspect_mrba_contractCoreDetails',
+    ],
+    mandatoryRequiredProperties: [
+      'mrba:documentTopic',
+      'mrba:documentNumber',
+      'mrba:documentDateValue',
+      'mrba:contractStartValue'
+    ]
+  },
+  'STATUS_DUPLICATE' : {
+    formlyFieldConfigs: [
+      'duplicated_document_form'
+    ],
+    mandatoryRequiredProperties: [
+    ]
+  },
+  'STATUS_ALL_SET' : {
+    formlyFieldConfigs: [
+      'workflow_all_set_form'
+      ],
+      mandatoryRequiredProperties: [
+      ]
+  }
+};
 
 // ARCHIVE MODEL
 export class MrbauArchiveModel {
   constructor(
     private mrbauWorkflowService : MrbauWorkflowService,
     ){}
+
+  isContractDocument(nodeType:string)
+  {
+    return this.mrbauContracts.map( d => d.name).indexOf(nodeType) >= 0;
+  }
 
   // find first task state if status is new, otherwise do nothing
   initTaskStateFromNodeType(state : EMRBauTaskStatus, nodeType: string) : EMRBauTaskStatus {
@@ -281,7 +333,7 @@ export class MrbauArchiveModel {
     return (workflowState) ? workflowState.prevState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.taskDetailNewDocument.task.status));
   }
 
-  readonly mrbauArchiveModelTypes : IMRBauDocumentType[] = [
+  readonly mrbauBelege : IMRBauDocumentType[] = [
     {
       title: "doc",
       name : "mrba:archiveDocument",
@@ -292,10 +344,10 @@ export class MrbauArchiveModel {
       //  "cm:versionable"
       //],
       category: EMRBauDocumentCategory.ARCHIVE_DOCUMENT,
-      folder: "99 doc",
+      folder: "-",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauFormDefinitions : { },
-      mrbauWorkflowDefinition: {states : []},
+      mrbauFormDefinitions : null,
+      mrbauWorkflowDefinition: {states : null},
     },
     {
       title: "Angebot",
@@ -1336,4 +1388,157 @@ export class MrbauArchiveModel {
       }
     }
   ];
+
+  readonly CONTRACT_DEFAULT_WORKFLOW_DEFINITION = {
+    states : [
+      {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+        nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+      {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+        onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data),
+        nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          this.mrbauWorkflowService.performDuplicateCheck(data)
+          .then( (duplicatedData) =>
+          {
+            resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+          })
+          .catch( (error) => reject(error))
+        }),
+        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+      },
+      {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+        nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          this.mrbauWorkflowService.resolveDuplicateIssue(data)
+          .then( (result) =>
+          {
+            let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+            switch (result)
+            {
+              case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+              case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+              case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+              case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+            }
+            resolve(newState);
+          })
+          .catch( (error) => reject(error))
+        }),
+        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+      },
+      {state : EMRBauTaskStatus.STATUS_ALL_SET,
+        nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+      {state : EMRBauTaskStatus.STATUS_FINISHED,
+        nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
+        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+    ]
+  }
+
+  readonly mrbauContracts : IMRBauDocumentType[] = [
+    {
+      title: "contract",
+      name : "mrba:contractDocument",
+      //parent : "mrba:archiveDocument",
+      //mandatoryAspects : [
+          //<aspect>mrba:companyIdentifiers</aspect>
+          //<aspect>mrba:documentIdentityDetails</aspect>
+          //<aspect>mrba:contractCoreDetails</aspect>
+      //],
+      category: EMRBauDocumentCategory.CONTRACT_DOCUMENT,
+      folder: "-",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauFormDefinitions : null,
+      mrbauWorkflowDefinition: {states : null},
+    },
+    {
+      title: "Mietvertrag",
+      name : "mrba:rentContract",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.RENT_CONTRACT,
+      folder: "01 Mietvertrag",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "Kündigungsverzicht",
+      name : "mrba:contractCancellationWaiver",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.CONTRACT_CANCELLATION_WAIVER,
+      folder: "02 Kündigungsverzicht",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "Wartungsvertrag",
+      name : "mrba:maintenanceContract",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.MAINTENANCE_CONTRACT,
+      folder: "03 Wartungsverträge",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "All-In-Vertrag",
+      name : "mrba:allInContract",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.ALL_IN_CONTRACT,
+      folder: "04 All-In",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "Lizenzvertrag",
+      name : "mrba:licenseContract",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.LICENSE_CONTRACT,
+      folder: "05 Lizenzverträge",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "Finanzierungsvertrag",
+      name : "mrba:financingContract",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.FINANCING_CONTRACT,
+      folder: "06 Finanzierungsverträge",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "Werkvertrag",
+      name : "mrba:workContract",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.WORK_CONTRACT,
+      folder: "07 Werkverträge",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    },
+    {
+      title: "Sonstiger Vertrag",
+      name : "mrba:miscellaneousContractDocument",
+      //parent : "mrba:contractDocument",
+      //mandatoryAspects : [],
+      category: EMRBauDocumentCategory.OTHER_CONTRACT,
+      folder: "08 Sonstige Verträge",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
+      mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,
+    }
+  ];
+
+  readonly mrbauArchiveModelTypes : IMRBauDocumentType[] = [...this.mrbauBelege, ...this.mrbauContracts];
 }

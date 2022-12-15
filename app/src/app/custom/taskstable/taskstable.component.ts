@@ -26,7 +26,7 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
   selectedTask : MRBauTask = null;
 
   pagination: BehaviorSubject<PaginationModel> = new BehaviorSubject<PaginationModel>({});
-  paginationSizes = [5, 10, 25];
+  paginationSizes = [25, 50, 100];
   updatePagination(params: PaginationModel) {
     //console.log(params);
     this.pagination.next(params);

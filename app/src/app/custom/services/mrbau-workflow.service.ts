@@ -43,9 +43,23 @@ export class MrbauWorkflowService {
   performDuplicateCheck(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     const nodeTypesForDuplicateCheck : string[] = [
       "mrba:offer",
+      "mrba:order",
       "mrba:frameworkContract",
-      "mrba:invoice",
-      "mrba:invoiceReviewSheet",
+      "mrba:deliveryNote",
+      "mrba:inboundInvoice",
+      "mrba:outboundInvoice",
+      "mrba:orderNegotiationProtocol",
+      "mrba:miscellaneousDocument",
+
+      "mrba:rentContract",
+      "mrba:contractCancellationWaiver",
+      "mrba:maintenanceContract",
+      "mrba:allInContract",
+      "mrba:licenseContract",
+      "mrba:financingContract",
+      "mrba:workContract",
+      "mrba:contractCancellation",
+      "mrba:miscellaneousContractDocument",
     ];
     const node = data.taskDetailNewDocument.taskNode;
     if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) >= 0)
@@ -60,7 +74,7 @@ export class MrbauWorkflowService {
           { query: `=TYPE:"${node.nodeType}"`},
           { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the actual document
           { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
-          { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
+          { query: `=mrba:companyId:"${node.properties['mrba:companyId']}"`},
           { query: `=mrba:documentNumber:"${node.properties['mrba:documentNumber']}"`},
           { query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents
         ],

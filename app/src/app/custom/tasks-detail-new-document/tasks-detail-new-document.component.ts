@@ -619,6 +619,14 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       return DocumentAssociations.get(EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE).associationName;
       // return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE).associationName;
     }
+    if (this.mrbauArchiveModelService.mrbauArchiveModel.isContractDocument(node.nodeType))
+    {
+      if (node.nodeType == 'mrba:contractCancellation')
+      {
+        return DocumentAssociations.get(EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE).associationName;
+      }
+      return DocumentAssociations.get(EMRBauDocumentAssociations.CONTRACT_REFERENCE).associationName;
+    }
     // standard cases
     const associations = Array.from(DocumentAssociations.values()).filter((item) => item.category != EMRBauDocumentAssociations.DOCUMENT_REFERENCE && item.targetClass == node.nodeType);
     if (associations.length == 1)

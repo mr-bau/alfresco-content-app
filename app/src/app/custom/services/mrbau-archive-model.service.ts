@@ -21,7 +21,7 @@ export class MrbauArchiveModelService {
   }
 
   getArchiveModelTypesFormOptions() : ISelectFormOptions[] {
-    return this.mrbauArchiveModel.mrbauArchiveModelTypes.filter( d => d.category != EMRBauDocumentCategory.ARCHIVE_DOCUMENT).map( d => ({label: d.title, value : d.category, group: d.group.label}));
+    return this.mrbauArchiveModel.mrbauArchiveModelTypes.filter((x) => x.mrbauFormDefinitions != null).map( d => ({label: d.title, value : d.category, group: d.group.label}));
   }
 
   getArchiveModelNodeTye(category:EMRBauDocumentCategory) : string

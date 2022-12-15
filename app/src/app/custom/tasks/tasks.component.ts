@@ -27,7 +27,6 @@ export interface IFileSelectData {
 export class TasksComponent implements OnInit {
   @ViewChild('TASKS_TABLE') tasksTableComponent : TasksTableComponent;
 
-  static readonly MAX_ITEMS : number = 5;
   SHOW_TOOLBAR : string = "#toolbar=1";
   document_url: SafeResourceUrl = null;
   private _remember_document_url : SafeResourceUrl = null;
