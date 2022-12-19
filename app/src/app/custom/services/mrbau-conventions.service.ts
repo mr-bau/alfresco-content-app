@@ -70,7 +70,7 @@ export class MrbauConventionsService {
   {
     data;
     status;
-    console.log("assign new user for state "+status);
+    //console.log("assign new user for state "+status);
     return "Wolfgang Moser";
     //return "admin";
   }

@@ -28,9 +28,6 @@
 // title: "Kündigung",                  name : "mrba:contractCancellation"
 // title: "Sonstiger Vertrag",          name : "mrba:miscellaneousContractDocument"
 
-
-//?? Kündigung "mrba:contractCancellation"
-
 //
 // * Associations
 // ================
@@ -813,7 +810,7 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.assignNewUser(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            this.mrbauWorkflowService.assignNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
             .then( () => { resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
             .catch( (error) => reject(error))
           }),
@@ -834,7 +831,7 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_FINAL_APPROVAL,
           nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.assignNewUser(data, EMRBauTaskStatus.STATUS_ACCOUNTING)
+            this.mrbauWorkflowService.assignNewUserWithDialog(data, EMRBauTaskStatus.STATUS_ACCOUNTING)
             .then( () => { resolve(EMRBauTaskStatus.STATUS_ACCOUNTING); })
             .catch( (error) => reject(error))
           }),
@@ -1107,8 +1104,7 @@ export class MrbauArchiveModel {
         }
       }
     },
-
-    /*{
+    {
       title: "Rechnungs-Prüfblatt",
       name : "mrba:invoiceReviewSheet",
       //parent : "mrba:archiveDocument",
@@ -1121,86 +1117,9 @@ export class MrbauArchiveModel {
       category: EMRBauDocumentCategory.INVOICE_REVIEW_SHEET,
       folder: "08 Rechnungsprüfblätter",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauWorkflowDefinition: {states : [
-        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => Promise.resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2),
-          prevState : () => Promise.resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)},
-        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.performDuplicateCheck(data)
-            .then( (duplicatedData) =>
-            {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
-            })
-            .catch( (error) => reject(error))
-          }),
-          prevState : () => Promise.resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)
-        },
-        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.resolveDuplicateIssue(data)
-            .then( (result) =>
-            {
-              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
-              switch (result)
-              {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
-                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
-                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
-              }
-              resolve(newState);
-            })
-            .catch( (error) => reject(error))
-          }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-        },
-        {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => Promise.resolve((EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => Promise.resolve((EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
-        {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => Promise.resolve((EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => Promise.resolve((EMRBauTaskStatus.STATUS_ALL_SET))},
-      ]},
-      mrbauFormDefinitions : {
-        'STATUS_METADATA_EXTRACT_1' : {
-          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
-          mandatoryRequiredProperties: [
-            'mrba:companyId',
-            'mrba:costCarrierNumber', //d:int
-            'mrba:projectName'
-          ]
-        },
-        'STATUS_LINK_DOCUMENTS' : {
-          formlyFieldConfigs: [],
-          mandatoryRequiredProperties: []
-        },
-        'STATUS_METADATA_EXTRACT_2' : {
-          formlyFieldConfigs: [
-            'title_mrba_documentIdentityDetails',
-            'aspect_mrba_documentIdentityDetails',
-          ],
-          mandatoryRequiredProperties: [
-            'mrba:documentNumber',
-            'mrba:documentDateValue',
-          ]
-        },
-        'STATUS_DUPLICATE' : {
-          formlyFieldConfigs: [
-            'duplicated_document_form'
-          ],
-          mandatoryRequiredProperties: [
-          ]
-        },
-        'STATUS_ALL_SET' : {
-          formlyFieldConfigs: [
-            'workflow_all_set_form'
-            ],
-            mandatoryRequiredProperties: [
-            ]
-        }
-      }
-    },*/
+      mrbauFormDefinitions : null,
+      mrbauWorkflowDefinition: {states : null},
+    },
     {
       title: "Vergabeverhandlungsprotokoll",
       name : "mrba:orderNegotiationProtocol",
@@ -1523,6 +1442,20 @@ export class MrbauArchiveModel {
       //mandatoryAspects : [],
       category: EMRBauDocumentCategory.WORK_CONTRACT,
       folder: "07 Werkverträge",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
+      mrbauFormDefinitions : null,
+      mrbauWorkflowDefinition: {states : null},
+    },
+    {
+      title:"Kündigung",
+      name: "mrba:contractCancellation",
+      //<parent>mrba:archiveDocument</parent>
+      //mandatoryAspects : [
+      //  <aspect>mrba:contractCancellationDetails</aspect>
+      //  <aspect>mrba:cancelledContractReference</aspect>
+      // ],
+      category: EMRBauDocumentCategory.CONTRACT_CANCELLATION,
+      folder: "08 Kündigungen",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.CONTRACTS),
       mrbauWorkflowDefinition: this.CONTRACT_DEFAULT_WORKFLOW_DEFINITION,
       mrbauFormDefinitions : CONTRACT_DEFAULT_FORM_DEFINITION,

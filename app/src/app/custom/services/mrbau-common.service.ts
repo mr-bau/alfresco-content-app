@@ -105,7 +105,7 @@ export class MrbauCommonService {
 
   getPeopleObservable() : Observable<EcmUserModel[]> {
     return new Observable(observer => {
-      this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "id", direction: "ASC"}}).subscribe(
+      this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
         data => observer.next(data.entries),
         err  => observer.error(err),
         ()   => observer.complete(),
@@ -251,6 +251,68 @@ export class MrbauCommonService {
     const date = new Date();
     const nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrba:discardDate": this.getFormDateValue(date)}};
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
+  }
+
+  progressWithNewUserConfirmDialog(assignedUserName : string) : Promise<string>
+  {
+    //this.model['mrbt:assignedUserName'] = task.assignedUserName;
+    // todo default use assignedUserName
+    return new Promise((resolve, reject) =>
+      {
+        // dialog
+        const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+          data: {
+            dialogTitle: 'Weiterleiten',
+            dialogMsg: 'Aufgabe an Mitarbeiter Weiterleiten',
+            dialogButtonOK: 'WEITERLEITEN',
+            callQueryData: false,
+            fieldsMain: [
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                  {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrbt:assignedUserName',
+                        defaultValue: assignedUserName,
+                        type: 'select',
+                        props: {
+                          label: 'Mitarbeiter',
+                          options: this.getPeopleObservable(),
+                          valueProp: 'id',
+                          labelProp: 'displayName',
+                        },
+                      }
+                    ]
+                  }
+
+                ]
+              }
+            ],
+            payload: null
+          }
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result)
+          {
+            if (result['mrbt:assignedUserName'])
+            {
+              resolve(result['mrbt:assignedUserName']);
+            }
+            else
+            {
+              reject("Kein Mitarbeiter ausgewählt");
+            }
+          }
+          else {
+            reject("Weiterleiten Abgebrochen");
+          }
+        });
+      }
+    )
   }
 
   discardDocumentWithConfirmDialog(nodeId : string) : Promise<boolean>

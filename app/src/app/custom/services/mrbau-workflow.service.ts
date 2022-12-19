@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Node, NodeAssociation, NodeAssociationEntry, NodePaging, SearchRequest } from '@alfresco/js-api';
+import { Node, NodeAssociation, NodeAssociationEntry, NodeEntry, NodePaging, SearchRequest } from '@alfresco/js-api';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
@@ -23,7 +23,21 @@ export class MrbauWorkflowService {
     private dialog: MatDialog,
     ) { }
 
-  assignNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<any> {
+  assignNewUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<NodeEntry> {
+    data;
+    return new Promise<NodeEntry>((resolve, reject) => {
+      let assignedUserName = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
+      this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
+      .then((name) => {
+        data.taskDetailNewDocument.task.assignedUserName = name;
+        return this.mrbauCommonService.updateTaskAssignNewUser(data.taskDetailNewDocument.task.id, data.taskDetailNewDocument.task.assignedUserName);
+      })
+      .then((nodeEntry) => resolve(nodeEntry))
+      .catch((error) => reject(error));
+    })
+  }
+
+  assignNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<NodeEntry> {
     data;
     data.taskDetailNewDocument.task.assignedUserName = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
     return this.mrbauCommonService.updateTaskAssignNewUser(data.taskDetailNewDocument.task.id, data.taskDetailNewDocument.task.assignedUserName);
@@ -62,55 +76,57 @@ export class MrbauWorkflowService {
       "mrba:miscellaneousContractDocument",
     ];
     const node = data.taskDetailNewDocument.taskNode;
-    if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) >= 0)
+    if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) == 0)
     {
-      let query : SearchRequest = {
-        query: {
-          query: '*',
-          language: 'afts'
-        },
-        filterQueries: [
-          { query: '=SITE:belegsammlung'},
-          { query: `=TYPE:"${node.nodeType}"`},
-          { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the actual document
-          { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
-          { query: `=mrba:companyId:"${node.properties['mrba:companyId']}"`},
-          { query: `=mrba:documentNumber:"${node.properties['mrba:documentNumber']}"`},
-          { query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents
-        ],
-        fields: [
-          // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
-          'id',
-          'name',
-          'nodeType',
-          'isFolder',
-          'isFile',
-          'modifiedAt',
-          'modifiedByUser',
-          'createdAt',
-          'createdByUser',
-        ],
-        include: ['properties', 'path', 'allowableOperations']
-      };
-      return new Promise((resolve, reject) => {
-        this.mrbauCommonService.queryNodes(query)
-        .then((result) => {
-          if (result.list.entries.length > 0)
-          {
-            data.taskDetailNewDocument.duplicateNode = result.list.entries[0].entry as Node;
-            resolve(result.list.entries[0]);
-          }
-          else
-          {
-            data.taskDetailNewDocument.duplicateNode = undefined;
-            resolve(null);
-          }
-        })
-        .catch((error) => reject(new Error(error)));
-      });
+      return new Promise((resolve) => resolve(null));
     }
 
-    return new Promise((resolve) => resolve(null));
+    let query : SearchRequest = {
+      query: {
+        query: '*',
+        language: 'afts'
+      },
+      filterQueries: [
+        { query: '=SITE:belegsammlung'},
+        { query: `=TYPE:"${node.nodeType}"`},
+        { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the actual document
+        { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+        { query: `=mrba:companyId:"${node.properties['mrba:companyId']}"`},
+        { query: `=mrba:documentNumber:"${node.properties['mrba:documentNumber']}"`},
+        { query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents
+      ],
+      fields: [
+        // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+        'id',
+        'name',
+        'nodeType',
+        'isFolder',
+        'isFile',
+        'modifiedAt',
+        'modifiedByUser',
+        'createdAt',
+        'createdByUser',
+      ],
+      include: ['properties', 'path', 'allowableOperations']
+    };
+
+    return new Promise((resolve, reject) => {
+      this.mrbauCommonService.queryNodes(query)
+      .then((result) => {
+        //console.log(result);
+        if (result.list.entries.length > 0)
+        {
+          data.taskDetailNewDocument.duplicateNode = result.list.entries[0].entry as Node;
+          resolve(result.list.entries[0]);
+        }
+        else
+        {
+          data.taskDetailNewDocument.duplicateNode = undefined;
+          resolve(null);
+        }
+      })
+      .catch((error) => reject(error));
+    });
   }
 
   resolveDuplicateIssue(data:MRBauWorkflowStateCallbackData) : Promise<any>
