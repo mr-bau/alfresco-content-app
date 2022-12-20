@@ -76,7 +76,7 @@ export class MrbauWorkflowService {
       "mrba:miscellaneousContractDocument",
     ];
     const node = data.taskDetailNewDocument.taskNode;
-    if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) == 0)
+    if (nodeTypesForDuplicateCheck.indexOf(node.nodeType) < 0)
     {
       return new Promise((resolve) => resolve(null));
     }
@@ -87,13 +87,14 @@ export class MrbauWorkflowService {
         language: 'afts'
       },
       filterQueries: [
-        { query: '=SITE:belegsammlung'},
         { query: `=TYPE:"${node.nodeType}"`},
-        { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the actual document
         { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
         { query: `=mrba:companyId:"${node.properties['mrba:companyId']}"`},
         { query: `=mrba:documentNumber:"${node.properties['mrba:documentNumber']}"`},
-        { query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents
+        { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
+        //{ query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents - NOT SUPPORTED WITH TMDQ
+        //{ query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
+        // { query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
       ],
       fields: [
         // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
@@ -113,10 +114,10 @@ export class MrbauWorkflowService {
     return new Promise((resolve, reject) => {
       this.mrbauCommonService.queryNodes(query)
       .then((result) => {
-        //console.log(result);
-        if (result.list.entries.length > 0)
+        const filteredResult = result.list.entries.filter(data => data.entry.id != node.id); // exclude the current document
+        if (filteredResult.entries.length > 0)
         {
-          data.taskDetailNewDocument.duplicateNode = result.list.entries[0].entry as Node;
+          data.taskDetailNewDocument.duplicateNode = filteredResult.entries[0].entry as Node;
           resolve(result.list.entries[0]);
         }
         else
@@ -405,7 +406,7 @@ export class MrbauWorkflowService {
           language: 'afts'
         },
         filterQueries: [
-          { query: '=SITE:belegsammlung'},
+          //{ query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
           { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
           { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
         ],
