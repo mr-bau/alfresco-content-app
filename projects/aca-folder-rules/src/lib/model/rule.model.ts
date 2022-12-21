@@ -41,3 +41,25 @@ export interface Rule {
   conditions: RuleCompositeCondition;
   actions: RuleAction[];
 }
+
+export interface RuleOptions {
+  isEnabled: boolean;
+  isInheritable: boolean;
+  isAsynchronous: boolean;
+  errorScript: string;
+}
+
+export interface RuleForForm {
+  id: string;
+  name: string;
+  description: string;
+  triggers: RuleTrigger[];
+  conditions: RuleCompositeCondition;
+  actions: RuleAction[];
+  options: RuleOptions;
+}
+
+export interface RuleSettings {
+  value: boolean;
+  key?: string;
+}

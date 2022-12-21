@@ -56,7 +56,7 @@ import {
   NewVersionUploaderData,
   NewVersionUploaderDataAction
 } from '@alfresco/adf-content-services';
-import { TranslationService, AlfrescoApiService } from '@alfresco/adf-core';
+import { TranslationService, AlfrescoApiService, NotificationService } from '@alfresco/adf-core';
 import {
   DeletedNodesPaging,
   MinimalNodeEntity,
@@ -69,7 +69,6 @@ import {
 } from '@alfresco/js-api';
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { forkJoin, Observable, of, zip } from 'rxjs';
 import { catchError, map, mergeMap, take, tap } from 'rxjs/operators';
@@ -96,7 +95,7 @@ export class ContentManagementService {
     private dialogRef: MatDialog,
     private nodeActionsService: NodeActionsService,
     private translation: TranslationService,
-    private snackBar: MatSnackBar,
+    private notificationService: NotificationService,
     private nodeAspectService: NodeAspectService,
     private appHookService: AppHookService,
     private newVersionUploaderService: NewVersionUploaderService,
@@ -241,10 +240,7 @@ export class ContentManagementService {
       if (node) {
         this.store.dispatch(new ReloadDocumentListAction());
       }
-<<<<<<<< HEAD:app/src/app/services/content-management.service.ts
-========
       this.focusAfterClose(this.createMenuButtonSelector);
->>>>>>>> develop:projects/aca-content/src/lib/services/content-management.service.ts
     });
   }
 
@@ -286,10 +282,7 @@ export class ContentManagementService {
         if (node) {
           this.appHookService.libraryCreated.next(node);
         }
-<<<<<<<< HEAD:app/src/app/services/content-management.service.ts
-========
         this.focusAfterClose(this.createMenuButtonSelector);
->>>>>>>> develop:projects/aca-content/src/lib/services/content-management.service.ts
       }),
       map((node: SiteEntry) => {
         if (node && node.entry && node.entry.guid) {
@@ -546,10 +539,9 @@ export class ContentManagementService {
       failed: failedItems
     });
 
-    this.snackBar
-      .open(message, undo, {
-        panelClass: 'info-snackbar',
-        duration: 3000
+    this.notificationService
+      .openSnackMessageAction(message, undo, {
+        panelClass: 'info-snackbar'
       })
       .onAction()
       .subscribe(() => this.undoCopyNodes(newItems));
@@ -592,23 +584,6 @@ export class ContentManagementService {
         title: 'VERSION.DIALOG.TITLE'
       };
       this.newVersionUploaderService
-<<<<<<<< HEAD:app/src/app/services/content-management.service.ts
-        .openUploadNewVersionDialog(newVersionUploaderDialogData, { width: '630px' })
-        .subscribe((newVersionUploaderData: NewVersionUploaderData) => {
-          switch (newVersionUploaderData.action) {
-            case NewVersionUploaderDataAction.refresh:
-              this.store.dispatch(new ReloadDocumentListAction());
-              break;
-            case NewVersionUploaderDataAction.view:
-              this.store.dispatch(
-                new ViewNodeVersionAction(node.id, newVersionUploaderData.versionId, {
-                  location: this.router.url
-                })
-              );
-              break;
-            default:
-              break;
-========
         .openUploadNewVersionDialog(newVersionUploaderDialogData, { width: '630px', role: 'dialog' }, focusedElementOnCloseSelector)
         .subscribe({
           next: (newVersionUploaderData: NewVersionUploaderData) => {
@@ -626,7 +601,6 @@ export class ContentManagementService {
               default:
                 break;
             }
->>>>>>>> develop:projects/aca-content/src/lib/services/content-management.service.ts
           }
         });
     } else {
@@ -703,7 +677,6 @@ export class ContentManagementService {
       const message = this.getDeleteMessage(status);
 
       if (message && status.someSucceeded) {
-        message.duration = 10000;
         message.userAction = new SnackbarUserAction('APP.ACTIONS.UNDO', new UndoDeleteNodesAction([...status.success]));
       }
 
@@ -1102,25 +1075,21 @@ export class ContentManagementService {
     });
 
     // TODO: review in terms of i18n
-    this.snackBar
-      .open(
+    this.notificationService
+      .openSnackMessageAction(
         messages[successMessage] + beforePartialSuccessMessage + messages[partialSuccessMessage] + beforeFailedMessage + messages[failedMessage],
         undo,
         {
-          panelClass: 'info-snackbar',
-          duration: 3000
+          panelClass: 'info-snackbar'
         }
       )
       .onAction()
       .subscribe(() => this.undoMoveNodes(moveResponse, initialParentId));
   }
-<<<<<<<< HEAD:app/src/app/services/content-management.service.ts
-========
 
   private focusAfterClose(focusedElementSelector: string): void {
     if (focusedElementSelector) {
       document.querySelector<HTMLElement>(focusedElementSelector).focus();
     }
   }
->>>>>>>> develop:projects/aca-content/src/lib/services/content-management.service.ts
 }

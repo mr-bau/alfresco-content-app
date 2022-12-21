@@ -30,7 +30,7 @@ import { ContentActionRef } from '@alfresco/adf-extensions';
 import { AppStore, getHeaderColor, getAppName, getLogoPath, getHeaderImagePath, getHeaderTextColor } from '@alfresco/aca-shared/store';
 import { AppExtensionService } from '@alfresco/aca-shared';
 import { takeUntil } from 'rxjs/operators';
-import { AppConfigService } from '@alfresco/adf-core';
+import { AppConfigService, SidenavLayoutComponent } from '@alfresco/adf-core';
 import { isContentServiceEnabled } from '@alfresco/aca-shared/rules';
 
 @Component({
@@ -42,10 +42,17 @@ import { isContentServiceEnabled } from '@alfresco/aca-shared/rules';
 })
 export class AppHeaderComponent implements OnInit, OnDestroy {
   private onDestroy$: Subject<boolean> = new Subject<boolean>();
+
   @Output()
   toggleClicked = new EventEmitter();
 
   @Input() expandedSidenav = true;
+
+  @Input() data: { layout?: SidenavLayoutComponent; isMenuMinimized?: boolean } = {};
+
+  get isSidenavExpanded(): boolean {
+    return !this.data.isMenuMinimized ?? this.expandedSidenav;
+  }
 
   appName$: Observable<string>;
   headerColor$: Observable<any>;
@@ -55,7 +62,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
 
   actions: Array<ContentActionRef> = [];
 
-  constructor(store: Store<AppStore>, private appExtensions: AppExtensionService, private appConfigService: AppConfigService) {
+  constructor(public store: Store<AppStore>, private appExtensions: AppExtensionService, private appConfigService: AppConfigService) {
     this.headerColor$ = store.select(getHeaderColor);
     this.headerTextColor$ = store.select(getHeaderTextColor);
     this.appName$ = store.select(getAppName);
@@ -78,6 +85,10 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
     this.headerTextColor$.subscribe((color) => {
       document.documentElement.style.setProperty('--adf-header-text-color', color);
     });
+  }
+
+  onToggleSidenav(_event: boolean): void {
+    this.data.layout.toggleMenu();
   }
 
   isContentServiceEnabled(): boolean {

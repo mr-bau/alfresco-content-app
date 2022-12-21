@@ -18,10 +18,11 @@
   <ng-template #ruleDetails>
     <aca-rule-details
       [actionDefinitions]="actionDefinitions$ | async"
-      [aspects]="aspects$ | async"
+      [parameterConstraints]="parameterConstraints$ | async"
       [value]="model"
+      [nodeId]="nodeId"
       (formValueChanged)="formValue = $event"
-      (formValidationChanged)="formValid = $event">
+      (formValidationChanged)="onFormValidChange($event)">
     </aca-rule-details>
   </ng-template>
 </mat-dialog-content>

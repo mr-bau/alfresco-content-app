@@ -26,8 +26,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppTestingModule } from '../../testing/app-testing.module';
 import { DetailsComponent } from './details.component';
-import { MetadataTabComponent } from './../info-drawer/metadata-tab/metadata-tab.component';
-import { CommentsTabComponent } from './../info-drawer/comments-tab/comments-tab.component';
+import { MetadataTabComponent } from '../info-drawer/metadata-tab/metadata-tab.component';
+import { CommentsTabComponent } from '../info-drawer/comments-tab/comments-tab.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';

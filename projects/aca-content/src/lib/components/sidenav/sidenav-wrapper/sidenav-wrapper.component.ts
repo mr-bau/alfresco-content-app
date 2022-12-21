@@ -23,14 +23,17 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { RuleContext } from '@alfresco/adf-extensions';
+import { Component, Input } from '@angular/core';
 
-export function isNodeRecord(context: RuleContext): boolean {
-  const { file } = context.selection;
-  return (
-    file &&
-    file.entry.isFile &&
-    file.entry.aspectNames &&
-    (file.entry.aspectNames.includes('rma:declaredRecord') || file.entry.aspectNames.includes('rma:record'))
-  );
+/**
+ * This wrapper is designated to be used with 'adf-dynamic-component'.
+ * It forwards the dynamic component inputs to original sidenav.
+ */
+@Component({
+  selector: 'aca-sidenav-wrapper',
+  templateUrl: './sidenav-wrapper.component.html'
+})
+export class SidenavWrapperComponent {
+  @Input()
+  data: { mode?: 'collapsed' | 'expanded' } = {};
 }

@@ -218,13 +218,6 @@ export class NodeActionsService {
       excludeSiteContent: ContentNodeDialogService.nonDocumentSiteContent
     };
 
-<<<<<<<< HEAD:app/src/app/services/node-actions.service.ts
-    this.dialog.open(ContentNodeSelectorComponent, {
-      data,
-      panelClass: 'adf-content-node-selector-dialog',
-      width: '630px'
-    });
-========
     this.dialog
       .open(ContentNodeSelectorComponent, {
         data,
@@ -234,7 +227,6 @@ export class NodeActionsService {
       })
       .afterClosed()
       .subscribe(() => this.focusAfterClose(focusedElementOnCloseSelector));
->>>>>>>> develop:projects/aca-content/src/lib/services/node-actions.service.ts
 
     data.select.subscribe({
       complete: this.close.bind(this)

@@ -23,13 +23,14 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Component, EventEmitter, Inject, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, OnDestroy, Output, ViewEncapsulation } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Rule } from '../model/rule.model';
 import { ActionsService } from '../services/actions.service';
 
 export interface EditRuleDialogOptions {
   model?: Partial<Rule>;
+  nodeId?: string;
 }
 
 @Component({
@@ -37,19 +38,23 @@ export interface EditRuleDialogOptions {
   templateUrl: './edit-rule-dialog.smart-component.html',
   styleUrls: ['./edit-rule-dialog.smart-component.scss'],
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'aca-edit-rule-dialog' }
+  host: { class: 'aca-edit-rule-dialog' },
+  providers: [{ provide: ActionsService, useClass: ActionsService }]
 })
-export class EditRuleDialogSmartComponent implements OnInit {
+export class EditRuleDialogSmartComponent implements OnInit, OnDestroy {
   formValid = false;
   model: Partial<Rule>;
+  nodeId = '';
   formValue: Partial<Rule>;
   @Output() submitted = new EventEmitter<Partial<Rule>>();
   actionDefinitions$ = this.actionsService.actionDefinitionsListing$;
   loading$ = this.actionsService.loading$;
-  aspects$ = this.actionsService.aspects$;
+  parameterConstraints$ = this.actionsService.parameterConstraints$;
+  private _actionDefinitionsSub;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: EditRuleDialogOptions, private actionsService: ActionsService) {
     this.model = this.data?.model || {};
+    this.nodeId = this.data?.nodeId;
   }
 
   get isUpdateMode(): boolean {
@@ -69,7 +74,20 @@ export class EditRuleDialogSmartComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.actionsService.loadAspects();
     this.actionsService.loadActionDefinitions();
+    this._actionDefinitionsSub = this.actionDefinitions$.subscribe((actionDefinitions) =>
+      this.actionsService.loadActionParameterConstraints(actionDefinitions)
+    );
+  }
+
+  ngOnDestroy() {
+    this._actionDefinitionsSub.unsubscribe();
+  }
+
+  onFormValidChange(isValid: boolean) {
+    // setTimeout needed to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.formValid = isValid;
+    }, 0);
   }
 }

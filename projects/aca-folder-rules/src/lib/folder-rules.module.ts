@@ -35,13 +35,15 @@ import { RuleCompositeConditionUiComponent } from './rule-details/conditions/rul
 import { RuleDetailsUiComponent } from './rule-details/rule-details.ui-component';
 import { RuleSimpleConditionUiComponent } from './rule-details/conditions/rule-simple-condition.ui-component';
 import { GenericErrorModule, PageLayoutModule } from '@alfresco/aca-shared';
-import { BreadcrumbModule, DocumentListModule } from '@alfresco/adf-content-services';
-import { RuleListItemUiComponent } from './rules-list/rule/rule-list-item.ui-component';
-import { RulesListUiComponent } from './rules-list/rules-list.ui-component';
+import { BreadcrumbModule, ContentNodeSelectorModule, DocumentListModule } from '@alfresco/adf-content-services';
+import { RuleListItemUiComponent } from './rule-list/rule-list-item/rule-list-item.ui-component';
+import { RuleListGroupingUiComponent } from './rule-list/rule-list-grouping/rule-list-grouping.ui-component';
 import { RuleTriggersUiComponent } from './rule-details/triggers/rule-triggers.ui-component';
 import { RuleOptionsUiComponent } from './rule-details/options/rule-options.ui-component';
 import { RuleActionListUiComponent } from './rule-details/actions/rule-action-list.ui-component';
 import { RuleActionUiComponent } from './rule-details/actions/rule-action.ui-component';
+import { RuleListUiComponent } from './rule-list/rule-list/rule-list.ui-component';
+import { RuleSetPickerSmartComponent } from './rule-set-picker/rule-set-picker.smart-component';
 
 const routes: Routes = [
   {
@@ -60,7 +62,8 @@ const routes: Routes = [
     BreadcrumbModule,
     DocumentListModule,
     ExtensionsModule,
-    GenericErrorModule
+    GenericErrorModule,
+    ContentNodeSelectorModule
   ],
   declarations: [
     EditRuleDialogSmartComponent,
@@ -69,9 +72,11 @@ const routes: Routes = [
     RuleActionUiComponent,
     RuleCompositeConditionUiComponent,
     RuleDetailsUiComponent,
-    RuleSimpleConditionUiComponent,
-    RulesListUiComponent,
+    RuleListGroupingUiComponent,
     RuleListItemUiComponent,
+    RuleListUiComponent,
+    RuleSetPickerSmartComponent,
+    RuleSimpleConditionUiComponent,
     RuleTriggersUiComponent,
     RuleOptionsUiComponent
   ]

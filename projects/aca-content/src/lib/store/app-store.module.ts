@@ -28,11 +28,6 @@ import { StoreModule } from '@ngrx/store';
 import { appReducer } from './reducers/app.reducer';
 import { StoreRouterConnectingModule, FullRouterStateSerializer } from '@ngrx/router-store';
 import { EffectsModule } from '@ngrx/effects';
-<<<<<<<< HEAD:app/src/app/store/app-store.module.ts
-import { environment } from '../../environments/environment';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
-========
->>>>>>>> develop:projects/aca-content/src/lib/store/app-store.module.ts
 import { SharedStoreModule } from '@alfresco/aca-shared/store';
 import {
   AppEffects,
@@ -44,8 +39,7 @@ import {
   UploadEffects,
   FavoriteEffects,
   TemplateEffects,
-  ContextMenuEffects,
-  MrbauEffects
+  ContextMenuEffects
 } from './effects';
 import { INITIAL_STATE } from './initial-state';
 
@@ -76,15 +70,8 @@ import { INITIAL_STATE } from './initial-state';
       UploadEffects,
       FavoriteEffects,
       TemplateEffects,
-<<<<<<<< HEAD:app/src/app/store/app-store.module.ts
-      ContextMenuEffects,
-      MrbauEffects
-    ]),
-    !environment.production ? StoreDevtoolsModule.instrument({ maxAge: 25 }) : []
-========
       ContextMenuEffects
     ])
->>>>>>>> develop:projects/aca-content/src/lib/store/app-store.module.ts
   ]
 })
 export class AppStoreModule {}

@@ -23,11 +23,10 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ActionDefinitionList } from '@alfresco/js-api';
 import { ActionDefinitionTransformed, ActionParameterDefinitionTransformed, RuleAction } from '../model/rule-action.model';
 import { ActionParameterConstraint } from '../model/action-parameter-constraint.model';
 
-export const actionDefListMock: ActionDefinitionList = {
+export const actionDefListMock = {
   list: {
     pagination: {
       count: 2,
@@ -57,6 +56,19 @@ export const actionDefListMock: ActionDefinitionList = {
             name: 'aspect-name',
             type: 'd:qname',
             multiValued: false,
+            mandatory: false,
+            parameterConstraintName: 'ac-aspects'
+          },
+          {
+            name: 'mock-action-parameter-noderef',
+            type: 'd:noderef',
+            multiValued: false,
+            mandatory: false
+          },
+          {
+            name: 'aspect-name',
+            type: 'd:noderef',
+            multiValued: false,
             mandatory: false
           }
         ],
@@ -81,7 +93,8 @@ const actionParam1TransformedMock: ActionParameterDefinitionTransformed = {
   type: 'd:text',
   multiValued: false,
   mandatory: true,
-  displayLabel: 'Mock action parameter text'
+  displayLabel: 'Mock action parameter text',
+  parameterConstraintName: ''
 };
 
 const actionParam2TransformedMock: ActionParameterDefinitionTransformed = {
@@ -89,7 +102,8 @@ const actionParam2TransformedMock: ActionParameterDefinitionTransformed = {
   type: 'd:boolean',
   multiValued: false,
   mandatory: false,
-  displayLabel: 'mock-action-parameter-boolean'
+  displayLabel: 'mock-action-parameter-boolean',
+  parameterConstraintName: ''
 };
 
 const actionParam3TransformedMock: ActionParameterDefinitionTransformed = {
@@ -97,7 +111,26 @@ const actionParam3TransformedMock: ActionParameterDefinitionTransformed = {
   type: 'd:qname',
   multiValued: false,
   mandatory: false,
-  displayLabel: 'aspect-name'
+  displayLabel: 'aspect-name',
+  parameterConstraintName: 'ac-aspects'
+};
+
+const actionParam4TransformedMock: ActionParameterDefinitionTransformed = {
+  name: 'mock-action-parameter-noderef',
+  type: 'd:noderef',
+  multiValued: false,
+  mandatory: false,
+  displayLabel: 'mock-action-parameter-noderef',
+  parameterConstraintName: ''
+};
+
+const actionParam5TransformedMock: ActionParameterDefinitionTransformed = {
+  name: 'aspect-name',
+  type: 'd:noderef',
+  multiValued: false,
+  mandatory: false,
+  displayLabel: 'aspect-name',
+  parameterConstraintName: ''
 };
 
 const actionParamLinkToCategoryTransformedMock = {
@@ -115,7 +148,13 @@ const action1TransformedMock: ActionDefinitionTransformed = {
   title: 'Action 1 title',
   applicableTypes: [],
   trackStatus: false,
-  parameterDefinitions: [actionParam1TransformedMock, actionParam2TransformedMock, actionParam3TransformedMock]
+  parameterDefinitions: [
+    actionParam1TransformedMock,
+    actionParam2TransformedMock,
+    actionParam3TransformedMock,
+    actionParam4TransformedMock,
+    actionParam5TransformedMock
+  ]
 };
 
 const action2TransformedMock: ActionDefinitionTransformed = {

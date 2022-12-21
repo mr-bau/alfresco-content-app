@@ -40,6 +40,7 @@ $blue-save-button-background: #1F74DB;
 $black-heading: #4e4c4c;
 $grey-dropdown-background: #eee;
 $grey-divider: rgba(0,0,0,.22);
+$pagination-background-color: #ffffff;
 
 $defaults: (
   --theme-primary-color: mat.get-color-from-palette($primary),
@@ -68,13 +69,10 @@ $defaults: (
   --theme-heading-color: $black-heading,
   --theme-dropdown-color: $grey-dropdown-background,
   --theme-grey-divider-color: $grey-divider,
-<<<<<<<< HEAD:app/src/app/ui/variables/variables.scss
-========
   --theme-pagination-background-color: $pagination-background-color,
   --theme-about-panel-border-color: $grey-background,
   --theme-about-panel-background-color: #ffffff,
   --theme-about-panel-title-color: #212121,
->>>>>>>> develop:projects/aca-content/src/lib/ui/variables/variables.scss
 );
 
 // propagates SCSS variables into the CSS variables scope

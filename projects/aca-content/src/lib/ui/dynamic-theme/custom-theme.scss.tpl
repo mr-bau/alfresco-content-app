@@ -1,10 +1,7 @@
 @import '@angular/material/theming';
 @import './overrides/adf-style-fixes.theme';
-<<<<<<<< HEAD:app/src/app/ui/dynamic-theme/custom-theme.scss.tpl
-========
 @import './overrides/adf-pagination.theme';
 @import './overrides/adf-about.theme.scss';
->>>>>>>> develop:projects/aca-content/src/lib/ui/dynamic-theme/custom-theme.scss.tpl
 @import "./dynamic-theme/theme-configuration";
 @import "./dynamic-theme/typography";
 @import "./dynamic-theme/custom-theme-palettes";
@@ -58,9 +55,6 @@ $custom-theme: mat-light-theme(
   }
 
   @include adf-style-fixes($theme);
-<<<<<<<< HEAD:app/src/app/ui/dynamic-theme/custom-theme.scss.tpl
-========
   @include adf-pagination-theme($theme);
   @include adf-about-theme($theme);
->>>>>>>> develop:projects/aca-content/src/lib/ui/dynamic-theme/custom-theme.scss.tpl
 }
