@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+@import './overrides/adf-style-fixes.theme';
+<<<<<<<< HEAD:app/src/app/ui/custom-theme.scss
+========
+@import './overrides/adf-pagination.theme';
+@import './overrides/ay11';
+@import './overrides/adf-about.theme.scss';
+>>>>>>>> develop:projects/aca-content/src/lib/ui/custom-theme.scss
+@import './colors';
+
+$mat-primary-palette: mat.define-palette($aca-primary-blue, A100);
+$mat-accent-palette: mat.define-palette($aca-accent-green, A200);
+$mat-warn-palette: mat.define-palette($aca-warn, A100);
+
+@include mat.core($alfresco-typography);
+
+$custom-theme: mat.define-light-theme(
+  $mat-primary-palette,
+  $mat-accent-palette,
+  $mat-warn-palette
+);
+
+@mixin custom-theme($theme) {
+  @include mat.all-component-themes($theme);
+  @include adf-core-theme($theme);
+  @include adf-style-fixes($theme);
+<<<<<<<< HEAD:app/src/app/ui/custom-theme.scss
+========
+  @include adf-pagination-theme($theme);
+  @include ay11-theme();
+  @include adf-about-theme($theme);
+>>>>>>>> develop:projects/aca-content/src/lib/ui/custom-theme.scss
+}

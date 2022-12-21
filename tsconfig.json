@@ -27,12 +27,13 @@
       "@alfresco/aca-testing-shared": ["projects/aca-testing-shared"],
       "@alfresco/aca-about": ["projects/aca-about/src/public-api.ts"],
       "@alfresco/aca-settings": ["projects/aca-settings/src/public-api.ts"],
-      "@alfresco/aca-folder-rules": ["projects/aca-folder-rules/src/public-api.ts"],
-      "package.json": ["package.json"],
-      "mrbau-extension": [
-        "dist/mrbau-extension/mrbau-extension",
-        "dist/mrbau-extension"
-      ]
+      "@alfresco/aca-folder-rules": [
+        "projects/aca-folder-rules/src/public-api.ts"
+      ],
+      "@alfresco/aca-content": [
+        "projects/aca-content/src/public-api.ts"
+      ],
+      "package.json": ["package.json"]
     }
   },
   "exclude": ["node_modules"],

@@ -151,4 +151,12 @@ export class ManageRulesSmartComponent implements OnInit, OnDestroy {
   onRuleUpdate(): void {
     this.openCreateUpdateRuleDialog(this.selectedRule);
   }
+
+  isMainRuleSetNotEmpty(mainRuleSet: RuleSet): boolean {
+    return !!mainRuleSet;
+  }
+
+  isInheritedRuleSetsNotEmpty(inheritedRuleSets: RuleSet[]): boolean {
+    return inheritedRuleSets.some((ruleSet) => ruleSet.rules.some((rule: Rule) => rule.isEnabled));
+  }
 }

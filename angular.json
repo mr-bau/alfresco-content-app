@@ -35,7 +35,7 @@
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "app/src/app/ui",
+                "projects/aca-content/src/lib/ui",
                 "node_modules"
               ]
             },
@@ -106,22 +106,13 @@
                 "glob": "**/*",
                 "input": "projects/aca-folder-rules/assets",
                 "output": "./assets/aca-folder-rules"
-              },
-              {
-                "glob": "**/*",
-                "input": "projects/mrbau-extension/assets",
-                "output": "./assets/mrbau-extension"
-              },
-              {
-                "glob": "mrbau-extension.json",
-                "input": "projects/mrbau-extension/assets",
-                "output": "./assets/plugins"
               }
             ],
             "styles": [
               "app/src/assets/fonts/material-icons/material-icons.css",
-              "app/src/assets/fonts/muli/muli.css",
+              "app/src/assets/fonts/OpenSans/OpenSans.css",
               "node_modules/cropperjs/dist/cropper.min.css",
+              "projects/aca-content/src/lib/ui/application.scss",
               "app/src/styles.scss"
             ],
             "scripts": [
@@ -155,8 +146,8 @@
                 {
                   "type": "bundle",
                   "name": "main",
-                  "maximumWarning": "4mb",
-                  "maximumError": "7mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "bundle",
@@ -207,6 +198,16 @@
               "sourceMap": true,
               "optimization": false,
               "namedChunks": true
+            },
+            "adfprod": {
+              "tsConfig": "app/tsconfig.app.adf.json",
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "app/src/environments/environment.ts",
+                  "with": "app/src/environments/environment.prod.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": ""
@@ -262,7 +263,7 @@
             "polyfills": "app/src/polyfills.ts",
             "stylePreprocessorOptions": {
               "includePaths": [
-                "app/src/app/ui",
+                "projects/aca-content/src/lib/ui/application.scss",
                 "node_modules"
               ]
             },
@@ -274,8 +275,9 @@
             ],
             "styles": [
               "app/src/assets/fonts/material-icons/material-icons.css",
-              "app/src/assets/fonts/muli/muli.css",
-              "app/src/styles.scss"
+              "app/src/assets/fonts/OpenSans/OpenSans.css",
+              "app/src/styles.scss",
+              "projects/aca-content/src/lib/ui/application.scss"
             ],
             "assets": [
               "app/src/assets",
@@ -306,6 +308,11 @@
                 "output": "/"
               }
             ]
+          },
+          "configurations": {
+            "adfprod": {
+              "tsConfig": "app/tsconfig.spec.adf.json"
+            }
           }
         },
         "lint": {
@@ -386,6 +393,11 @@
             "main": "projects/adf-office-services-ext/src/test.ts",
             "tsConfig": "projects/adf-office-services-ext/tsconfig.spec.json",
             "karmaConfig": "projects/adf-office-services-ext/karma.conf.js"
+          },
+          "configurations": {
+            "adfprod": {
+              "tsConfig": "projects/adf-office-services-ext/tsconfig.spec.adf.json"
+            }
           }
         },
         "lint": {
@@ -426,6 +438,11 @@
             "main": "projects/aca-shared/test.ts",
             "tsConfig": "projects/aca-shared/tsconfig.spec.json",
             "karmaConfig": "projects/aca-shared/karma.conf.js"
+          },
+          "configurations": {
+            "adfprod": {
+              "tsConfig": "projects/aca-shared/tsconfig.spec.adf.json"
+            }
           }
         },
         "lint": {
@@ -512,6 +529,11 @@
             "main": "projects/aca-settings/src/test.ts",
             "tsConfig": "projects/aca-settings/tsconfig.spec.json",
             "karmaConfig": "projects/aca-settings/karma.conf.js"
+          },
+          "configurations": {
+            "adfprod": {
+              "tsConfig": "projects/aca-settings/tsconfig.spec.adf.json"
+            }
           }
         },
         "lint": {
@@ -544,7 +566,8 @@
             "production": {
               "tsConfig": "projects/aca-folder-rules/tsconfig.lib.prod.json"
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
@@ -552,6 +575,11 @@
             "main": "projects/aca-folder-rules/src/test.ts",
             "tsConfig": "projects/aca-folder-rules/tsconfig.spec.json",
             "karmaConfig": "projects/aca-folder-rules/karma.conf.js"
+          },
+          "configurations": {
+            "adfprod": {
+              "tsConfig": "projects/aca-folder-rules/tsconfig.spec.adf.json"
+            }
           }
         },
         "lint": {
@@ -568,42 +596,36 @@
         }
       }
     },
-    "mrbau-extension": {
+    "aca-content": {
       "projectType": "library",
-      "root": "projects/mrbau-extension",
-      "sourceRoot": "projects/mrbau-extension/src",
+      "root": "projects/aca-content",
+      "sourceRoot": "projects/aca-content/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/mrbau-extension/tsconfig.lib.json",
-            "project": "projects/mrbau-extension/ng-package.json"
+            "project": "projects/aca-content/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/mrbau-extension/tsconfig.lib.prod.json"
+              "tsConfig": "projects/aca-content/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/aca-content/tsconfig.lib.json"
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/mrbau-extension/src/test.ts",
-            "tsConfig": "projects/mrbau-extension/tsconfig.spec.json",
-            "karmaConfig": "projects/mrbau-extension/karma.conf.js"
-          }
-        },
-        "lint": {
-        "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "projects/mrbau-extension/**/*.ts",
-              "projects/mrbau-extension/**/*.html"
-            ],
-            "cache": true,
-            "cacheLocation": ".eslintcache",
-            "ignorePath": ".eslintignore"
+            "main": "projects/aca-content/src/test.ts",
+            "tsConfig": "projects/aca-content/tsconfig.spec.json",
+            "karmaConfig": "projects/aca-content/karma.conf.js",
+            "styles": [
+              "projects/aca-content/src/lib/ui/application.scss"
+            ]
           }
         }
       }

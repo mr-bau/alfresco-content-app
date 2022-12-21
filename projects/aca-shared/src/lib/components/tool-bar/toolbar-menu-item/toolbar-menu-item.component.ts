@@ -43,12 +43,21 @@ import { AppExtensionService } from '../../../services/app.extension.service';
 export class ToolbarMenuItemComponent {
   @Input()
   actionRef: ContentActionRef;
+  @Input()
+  menuId?: string;
 
   constructor(private extensions: AppExtensionService) {}
 
   runAction() {
     if (this.hasClickAction(this.actionRef)) {
-      this.extensions.runActionById(this.actionRef.actions.click);
+      this.extensions.runActionById(
+        this.actionRef.actions.click,
+        this.menuId
+          ? {
+              focusedElementOnCloseSelector: `#${this.menuId.replace(/\./g, '\\.')}`
+            }
+          : undefined
+      );
     }
   }
 

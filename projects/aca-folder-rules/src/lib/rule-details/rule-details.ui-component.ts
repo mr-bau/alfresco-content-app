@@ -121,6 +121,10 @@ export class RuleDetailsUiComponent implements OnInit, OnDestroy {
     return this.form.get('isEnabled') as UntypedFormControl;
   }
 
+  get errorScriptConstraint(): ActionParameterConstraint {
+    return this.parameterConstraints.find((parameterConstraint: ActionParameterConstraint) => parameterConstraint.name === 'script-ref');
+  }
+
   ngOnInit() {
     this.form = new UntypedFormGroup({
       id: new UntypedFormControl(this.value.id),

@@ -35,10 +35,13 @@ import {
   CardViewUpdateService,
   UpdateNotification
 } from '@alfresco/adf-core';
-import { ActionParameterDefinition } from '@alfresco/js-api';
+import { ActionParameterDefinition, Node } from '@alfresco/js-api';
 import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Aspect } from '../../model/aspect.model';
+import { ActionParameterConstraint, ConstraintValue } from '../../model/action-parameter-constraint.model';
+import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData, NodeAction } from '@alfresco/adf-content-services';
+import { MatDialog } from '@angular/material/dialog';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'aca-rule-action',
@@ -56,6 +59,9 @@ import { Aspect } from '../../model/aspect.model';
   ]
 })
 export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDestroy {
+  @Input()
+  nodeId = '';
+
   private _actionDefinitions: ActionDefinitionTransformed[];
   @Input()
   get actionDefinitions(): ActionDefinitionTransformed[] {
@@ -74,13 +80,13 @@ export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDe
     this.setDisabledState(isReadOnly);
   }
 
-  private _aspects;
+  private _parameterConstraints = [];
   @Input()
-  get aspects(): Aspect[] {
-    return this._aspects;
+  get parameterConstraints(): ActionParameterConstraint[] {
+    return this._parameterConstraints;
   }
-  set aspects(value) {
-    this._aspects = this.parseAspectsToSelectOptions(value);
+  set parameterConstraints(value) {
+    this._parameterConstraints = value.map((obj) => ({ ...obj, constraints: this.parseConstraintsToSelectOptions(obj.constraints) }));
   }
 
   isFullWidth = false;
@@ -108,7 +114,7 @@ export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDe
   onChange: (action: RuleAction) => void = () => undefined;
   onTouch: () => void = () => undefined;
 
-  constructor(private cardViewUpdateService: CardViewUpdateService) {}
+  constructor(private cardViewUpdateService: CardViewUpdateService, private dialog: MatDialog, private translate: TranslateService) {}
 
   writeValue(action: RuleAction) {
     this.form.setValue({
@@ -161,6 +167,7 @@ export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDe
   setCardViewProperties() {
     this.cardViewItems = (this.selectedActionDefinition?.parameterDefinitions ?? []).map((paramDef) => {
       this.isFullWidth = false;
+      const constraintsForDropdownBox = this._parameterConstraints.find((obj) => obj.name === paramDef.name);
       const cardViewPropertiesModel = {
         label: paramDef.displayLabel + (paramDef.mandatory ? ' *' : ''),
         key: paramDef.name,
@@ -182,23 +189,73 @@ export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDe
             ...cardViewPropertiesModel,
             value: this.parameters[paramDef.name] ?? false
           });
-        case 'd:qname':
-          if (paramDef.name === 'aspect-name' && !this.readOnly) {
+        case 'd:noderef':
+          if (!constraintsForDropdownBox && !this.readOnly && paramDef.name !== 'category-value') {
+            return new CardViewTextItemModel({
+              ...cardViewPropertiesModel,
+              icon: 'folder',
+              default: this.translate.instant('ACA_FOLDER_RULES.RULE_DETAILS.PLACEHOLDER.CHOOSE_FOLDER'),
+              clickable: true,
+              clickCallBack: this.openSelectorDialog.bind(this, paramDef.name),
+              value: this.parameters[paramDef.name]
+            });
+          }
+        //  falls through
+        default:
+          if (constraintsForDropdownBox && !this.readOnly) {
             this.isFullWidth = true;
             return new CardViewSelectItemModel({
               ...cardViewPropertiesModel,
               value: (this.parameters[paramDef.name] as string) ?? '',
-              options$: of(this._aspects)
+              options$: of(constraintsForDropdownBox.constraints)
             });
           }
-        /* falls through */
-        default:
           return new CardViewTextItemModel({
             ...cardViewPropertiesModel,
             value: this.parameters[paramDef.name] ?? ''
           });
       }
     });
+  }
+
+  private openSelectorDialog(paramDefName) {
+    const data: ContentNodeSelectorComponentData = {
+      title: this.translate.instant('ACA_FOLDER_RULES.RULE_DETAILS.PLACEHOLDER.CHOOSE_FOLDER'),
+      actionName: NodeAction.CHOOSE,
+      currentFolderId: this.nodeId,
+      select: new Subject<Node[]>()
+    };
+
+    this.dialog.open(ContentNodeSelectorComponent, {
+      data,
+      panelClass: 'adf-content-node-selector-dialog',
+      width: '630px'
+    });
+
+    data.select.subscribe(
+      (selections: Node[]) => {
+        if (selections[0].id) {
+          this.writeValue({
+            actionDefinitionId: this.selectedActionDefinitionId,
+            params: {
+              ...this.parameters,
+              [paramDefName]: selections[0].id
+            }
+          });
+          this.onChange({
+            actionDefinitionId: this.selectedActionDefinitionId,
+            params: this.parameters
+          });
+          this.onTouch();
+        }
+      },
+      (error) => {
+        console.error(error);
+      },
+      () => {
+        this.dialog.closeAll();
+      }
+    );
   }
 
   setDefaultParameters() {
@@ -224,8 +281,8 @@ export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDe
     }
   }
 
-  private parseAspectsToSelectOptions(aspects: Aspect[]): CardViewSelectItemOption<unknown>[] {
-    return aspects
+  private parseConstraintsToSelectOptions(constraints: ConstraintValue[]): CardViewSelectItemOption<unknown>[] {
+    return constraints
       .sort((a, b) => {
         if (!a.label && b.label) {
           return 1;
@@ -235,9 +292,9 @@ export class RuleActionUiComponent implements ControlValueAccessor, OnInit, OnDe
         }
         return a.label?.localeCompare(b.label) ?? -1;
       })
-      .map((aspect) => ({
-        key: aspect.value,
-        label: aspect.label ? `${aspect.label} [${aspect.value}]` : aspect.value
+      .map((constraint) => ({
+        key: constraint.value,
+        label: constraint.label ? `${constraint.label} [${constraint.value}]` : constraint.value
       }));
   }
 }

@@ -25,6 +25,7 @@
 
 import { ActionDefinitionList } from '@alfresco/js-api';
 import { ActionDefinitionTransformed, ActionParameterDefinitionTransformed, RuleAction } from '../model/rule-action.model';
+import { ActionParameterConstraint } from '../model/action-parameter-constraint.model';
 
 export const actionDefListMock: ActionDefinitionList = {
   list: {
@@ -99,6 +100,14 @@ const actionParam3TransformedMock: ActionParameterDefinitionTransformed = {
   displayLabel: 'aspect-name'
 };
 
+const actionParamLinkToCategoryTransformedMock = {
+  name: 'category-value',
+  type: 'd:noderef',
+  multiValued: false,
+  mandatory: true,
+  displayLabel: 'Category value'
+};
+
 const action1TransformedMock: ActionDefinitionTransformed = {
   id: 'mock-action-1-definition',
   name: 'mock-action-1-definition',
@@ -117,6 +126,16 @@ const action2TransformedMock: ActionDefinitionTransformed = {
   applicableTypes: [],
   trackStatus: false,
   parameterDefinitions: []
+};
+
+export const actionLinkToCategoryTransformedMock: ActionDefinitionTransformed = {
+  id: 'mock-action-3-definition',
+  name: 'mock-action-3-definition',
+  description: '',
+  title: 'mock-action-3-definition',
+  applicableTypes: [],
+  trackStatus: false,
+  parameterDefinitions: [actionParamLinkToCategoryTransformedMock]
 };
 
 export const actionsTransformedListMock: ActionDefinitionTransformed[] = [action1TransformedMock, action2TransformedMock];
@@ -148,3 +167,17 @@ export const validActionsMock: RuleAction[] = [
     params: {}
   }
 ];
+
+export const errorScriptConstraintMock: ActionParameterConstraint = {
+  name: 'script-ref',
+  constraints: [
+    {
+      value: 'script-1-value',
+      label: 'Script 1'
+    },
+    {
+      value: 'script-2-value',
+      label: 'Script 2'
+    }
+  ]
+};
