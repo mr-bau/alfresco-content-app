@@ -1,5 +1,33 @@
 {
-  "ACA": {
-    "MRBAU_TITLE": "mrbau title tbd"
+  "MRBAU_EXTENSION":{
+    "SEARCH":{
+      "SEARCH_TITLE": "Standard M&R",
+      "ARCHIVE_DOCUMENT_TITLE" : "Dokument-Art",
+      "ARCHIVE_DOCUMENTS_AND_CONTRACTS" : "Belege und Verträge",
+      "ARCHIVE_DOCUMENTS" : "Belege",
+      "ARCHIVE_CONTRACTS" : "Verträge"
+    },
+    "MRBA_ARCHIVE_MODEL":{
+      "ARCHIVE_DOCUMENT": "Archiv Dokument / Beleg",
+      "OFFER":"Angebot",
+      "ORDER":"Auftrag",
+      "ORDER_NEGOTIATION_PROTOCOL":"Vergabeverhandlungsprotokoll",
+      "FRAMEWORK_CONTRACT":"Zahlungskonditionen / Jahresauftrag",
+      "DELIVERY_NOTE":"Lieferschein",
+      "INBOUND_INVOICE":"Eingangsrechnung",
+      "INVOICE_REVIEW_SHEET":"Rechnungsprüfblatt",
+      "OUTBOUND_INVOICE":"Ausgangsrechnung",
+      "MISCELLANEOUS_DOCUMENT":"Sonstiger Beleg",
+      "CONTRACT_DOCUMENT":"Vertragsdokument",
+      "RENT_CONTRACT":"Mietvertrag",
+      "CONTRACT_CANCELLATION_WAIVER":"Kündigungsverzicht",
+      "MAINTENANCE_CONTRACT":"Wartungsvertrag",
+      "ALL_IN_CONTRACT":"All-In Vertrag",
+      "LICENSE_CONTRACT":"Lizenzvertrag",
+      "FINANCING_CONTRACT":"Finanzierungsvertrag",
+      "WORK_CONTRACT":"Werkvertrag",
+      "CONTRACT_CANCELLATION":"Kündigung",
+      "MISCELLANEOUS_CONTRACT_DOCUMENT":"Sonstiger Vertrag"
+    }
   }
 }

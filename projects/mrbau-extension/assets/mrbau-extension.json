@@ -3,9 +3,19 @@
   "$id": "mrbau-extension",
   "$version": "1.0.0",
   "$vendor": "MRBau",
-  "$name": "plugin-mrbau",
+  "$name": "MRBau Plugin",
   "$description": "mrbau plugin desc",
   "$license": "MIT",
+
+  "appConfig": {
+    "locale": "de",
+    "application": {
+      "name": "M&R ECM Platform",
+      "logo": "assets/mrbau-extension/svg/logo_mr.svg",
+      "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
+      "copyright": "© 2022 M&R Bauholding GmbH, © 2017–2023 Alfresco Software, Inc. Alle Rechte vorbehalten."
+    }
+  },
 
   "routes": [
   {
@@ -220,6 +230,267 @@
         "id" : "mrbau:ocr",
         "value": "./assets/mrbau-extension/svg/icon-ocr.svg"
       }
-    ]
+    ],
+    "search": [
+      {
+        "id": "mrbau.extension.search.standard",
+        "order": 99,
+        "name": "MRBAU_EXTENSION.SEARCH.SEARCH_TITLE",
+        "default": true,
+        "filterWithContains": true,
+        "aca:fields": ["cm:name", "cm:title", "cm:description", "TEXT", "TAG"],
+        "include": ["path", "allowableOperations", "properties"],
+        "sorting": {
+          "options": [
+            {
+              "key": "score",
+              "label": "SEARCH.SORT.RELEVANCE",
+              "type": "SCORE",
+              "field": "score",
+              "ascending": false
+            },
+            {
+              "key": "name",
+              "label": "SEARCH.SORT.FILENAME",
+              "type": "FIELD",
+              "field": "cm:name",
+              "ascending": true
+            },
+            {
+              "key": "title",
+              "label": "SEARCH.SORT.TITLE",
+              "type": "FIELD",
+              "field": "cm:title",
+              "ascending": true
+            },
+            {
+              "key": "modified",
+              "label": "SEARCH.SORT.MODIFIED_DATE",
+              "type": "FIELD",
+              "field": "cm:modified",
+              "ascending": true
+            },
+            {
+              "key": "modifier",
+              "label": "SEARCH.SORT.MODIFIER",
+              "type": "FIELD",
+              "field": "cm:modifier",
+              "ascending": true
+            },
+            {
+              "key": "created",
+              "label": "SEARCH.SORT.CREATE_DATE",
+              "type": "FIELD",
+              "field": "cm:created",
+              "ascending": true
+            },
+            {
+              "key": "content.sizeInBytes",
+              "label": "SEARCH.SORT.SIZE",
+              "type": "FIELD",
+              "field": "content.size",
+              "ascending": true
+            }
+          ],
+          "defaults": [
+            {
+              "key": "score",
+              "type": "SCORE",
+              "field": "score",
+              "ascending": false
+            }
+          ]
+        },
+        "aca:triggeredOnChange": false,
+        "resetButton": true,
+        "filterQueries": [
+          { "query": "+TYPE:'cm:folder' OR +TYPE:'cm:content'" },
+          {
+            "query": "-TYPE:'cm:thumbnail' AND -TYPE:'cm:failedThumbnail' AND -TYPE:'cm:rating'"
+          },
+          { "query": "-cm:creator:System AND -QNAME:comment" },
+          {
+            "query": "-TYPE:'st:site' AND -ASPECT:'st:siteContainer' AND -ASPECT:'sys:hidden'"
+          },
+          {
+            "query": "-TYPE:'dl:dataList' AND -TYPE:'dl:todoList' AND -TYPE:'dl:issue'"
+          },
+          { "query": "-TYPE:'fm:topic' AND -TYPE:'fm:post'" },
+          { "query": "-TYPE:'lnk:link'" },
+          { "query": "-PNAME:'0/wiki'" }
+        ],
+        "facetFields": {
+          "expanded": true,
+          "fields": [
+            {
+              "mincount": 1,
+              "field": "mrba:organisationUnit",
+              "label": "Mandant",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "mrba:companyName",
+              "label": "Firma",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "SITE",
+              "label": "SEARCH.FACET_FIELDS.LOCATION",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "content.mimetype",
+              "label": "SEARCH.FACET_FIELDS.FILE_TYPE",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "creator",
+              "label": "SEARCH.FACET_FIELDS.CREATOR",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "modifier",
+              "label": "SEARCH.FACET_FIELDS.MODIFIER",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            }
+          ]
+        },
+        "facetQueries": {
+          "label": "SEARCH.CATEGORIES.MODIFIED_DATE",
+          "expanded": true,
+          "queries": [
+            { "query": "TYPE:'mrba:offer'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OFFER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:order'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ORDER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:frameworkContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FRAMEWORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:deliveryNote'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.DELIVERY_NOTE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:inboundInvoice'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INBOUND_INVOICE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:outboundInvoice'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OUTBOUND_INVOICE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:invoiceReviewSheet'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE_REVIEW_SHEET", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:orderNegotiationProtocol'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:miscellaneousDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:rentContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.RENT_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:contractCancellationWaiver'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION_WAIVER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:maintenanceContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MAINTENANCE_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:allInContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ALL_IN_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:licenseContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.LICENSE_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:financingContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FINANCING_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:workContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.WORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:contractCancellation'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+
+            {
+              "label": "SEARCH.FACET_QUERIES.TODAY",
+              "query": "cm:modified:[TODAY to TODAY]"
+            },
+            {
+              "label": "SEARCH.FACET_QUERIES.THIS_WEEK",
+              "query": "cm:modified:[NOW/DAY-7DAYS TO NOW/DAY+1DAY]"
+            },
+            {
+              "label": "SEARCH.FACET_QUERIES.THIS_MONTH",
+              "query": "cm:modified:[NOW/DAY-1MONTH TO NOW/DAY+1DAY]"
+            },
+            {
+              "label": "SEARCH.FACET_QUERIES.LAST_6_MONTHS",
+              "query": "cm:modified:[NOW/DAY-6MONTHS TO NOW/DAY+1DAY]"
+            },
+            {
+              "label": "SEARCH.FACET_QUERIES.THIS_YEAR",
+              "query": "cm:modified:[NOW/DAY-1YEAR TO NOW/DAY+1DAY]"
+            }
+          ],
+          "settings": {
+            "allowUpdateOnChange": false,
+            "hideDefaultAction": true
+          }
+        },
+        "categories": [
+          {
+            "id": "mrbau.extension.search.categories.mrbabase",
+            "name": "Kategorie",
+            "enabled": true,
+            "component": {
+              "selector": "check-list",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "options": [
+                  { "value": "TYPE:'mrba:archiveDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS_AND_CONTRACTS"},
+                  { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS"},
+                  { "value": "TYPE:'mrba:contractDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"}
+                ]
+              }
+            }
+          },
+          {
+            "id": "size",
+            "name": "SEARCH.CATEGORIES.SIZE",
+            "enabled": true,
+            "component": {
+              "selector": "check-list",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "options": [
+                  {
+                    "name": "SEARCH.CATEGORIES.SIZE_OPTIONS.SMALL",
+                    "value": "content.size:[0 TO 1048576>"
+                  },
+                  {
+                    "name": "SEARCH.CATEGORIES.SIZE_OPTIONS.MEDIUM",
+                    "value": "content.size:[1048576 TO 52428800]"
+                  },
+                  {
+                    "name": "SEARCH.CATEGORIES.SIZE_OPTIONS.LARGE",
+                    "value": "content.size:<52428800 TO 524288000]"
+                  },
+                  {
+                    "name": "SEARCH.CATEGORIES.SIZE_OPTIONS.HUGE",
+                    "value": "content.size:<524288000 TO MAX]"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "createdDateRange",
+            "name": "SEARCH.CATEGORIES.CREATED_DATE",
+            "enabled": true,
+            "component": {
+              "selector": "date-range",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "field": "cm:created",
+                "dateFormat": "DD-MMM-YY",
+                "maxDate": "today"
+              }
+            }
+          }
+        ]
+      }]
   }
 }
