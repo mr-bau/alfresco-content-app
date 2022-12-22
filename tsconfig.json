@@ -33,7 +33,11 @@
       "@alfresco/aca-content": [
         "projects/aca-content/src/public-api.ts"
       ],
-      "package.json": ["package.json"]
+      "package.json": ["package.json"],
+      "mrbau-extension": [
+        "dist/mrbau-extension/mrbau-extension",
+        "dist/mrbau-extension"
+      ]
     }
   },
   "exclude": ["node_modules"],

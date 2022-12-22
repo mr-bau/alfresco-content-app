@@ -106,6 +106,16 @@
                 "glob": "**/*",
                 "input": "projects/aca-folder-rules/assets",
                 "output": "./assets/aca-folder-rules"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/mrbau-extension/assets",
+                "output": "./assets/mrbau-extension"
+              },
+              {
+                "glob": "mrbau-extension.json",
+                "input": "projects/mrbau-extension/assets",
+                "output": "./assets/plugins"
               }
             ],
             "styles": [
@@ -146,8 +156,8 @@
                 {
                   "type": "bundle",
                   "name": "main",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "4mb",
+                  "maximumError": "7mb"
                 },
                 {
                   "type": "bundle",
@@ -626,6 +636,46 @@
             "styles": [
               "projects/aca-content/src/lib/ui/application.scss"
             ]
+          }
+        }
+      }
+    },
+    "mrbau-extension": {
+      "projectType": "library",
+      "root": "projects/mrbau-extension",
+      "sourceRoot": "projects/mrbau-extension/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/mrbau-extension/tsconfig.lib.json",
+            "project": "projects/mrbau-extension/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/mrbau-extension/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mrbau-extension/src/test.ts",
+            "tsConfig": "projects/mrbau-extension/tsconfig.spec.json",
+            "karmaConfig": "projects/mrbau-extension/karma.conf.js"
+          }
+        },
+        "lint": {
+        "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/mrbau-extension/**/*.ts",
+              "projects/mrbau-extension/**/*.html"
+            ],
+            "cache": true,
+            "cacheLocation": ".eslintcache",
+            "ignorePath": ".eslintignore"
           }
         }
       }

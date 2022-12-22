@@ -29,13 +29,15 @@ import { AcaAboutModule } from '@alfresco/aca-about';
 import { AcaSettingsModule } from '@alfresco/aca-settings';
 import { AcaFolderRulesModule } from '@alfresco/aca-folder-rules';
 import { environment } from '../environments/environment';
+import { MrbauExtensionModule } from 'mrbau-extension';
 
 @NgModule({
   imports: [
     AosExtensionModule,
     ...(environment.devTools ? [AcaSettingsModule] : []),
     AcaAboutModule.forRoot(environment.production),
-    AcaFolderRulesModule
+    AcaFolderRulesModule,
+    MrbauExtensionModule
   ]
 })
 export class AppExtensionsModule {}
