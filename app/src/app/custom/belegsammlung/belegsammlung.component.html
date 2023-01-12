@@ -1,0 +1,56 @@
+<div #main id="main">
+  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
+  <div> <p>TBD HEADER</p> </div>
+  <aca-mrbau-splitpane-belegsammlung *ngIf="!errorMessage" class="flexGrow">
+    <ng-container ngProjectAs="[splitAreaLeft]">
+      <adf-tree-view-list
+        [nodeId]="documentListStartFolder"
+        (nodeClicked)="onClick($event)"
+        (error)="onErrorOccurred($event)">
+      </adf-tree-view-list>
+    </ng-container>
+    <ng-container ngProjectAs="[splitAreaRight]">
+      <aca-page-layout>
+        <aca-page-layout-header>
+          <adf-breadcrumb
+            [folderNode]="selectedNode"
+            [readOnly]="true"
+            [root]="'Belegsammlung'"
+            [rootId]="documentListStartFolder">
+          </adf-breadcrumb>
+          <adf-toolbar class="adf-toolbar--inline">
+            <ng-container *ngFor="let entry of actions; trackBy: trackByActionId">
+              <aca-toolbar-action [actionRef]="entry"></aca-toolbar-action>
+            </ng-container>
+          </adf-toolbar>
+        </aca-page-layout-header>
+        <aca-page-layout-content>
+          <div class="main-content">
+            <adf-document-list
+                #documentList
+                [currentFolderId]="selectedNode?.id"
+                [emptyFolderImageUrl]=""
+                [contextMenuActions]="true"
+                (folderChange)="folderChange($event)"
+                [contentActions]="true">
+                <adf-custom-empty-content-template>
+                  <adf-empty-content
+                    icon="folder"
+                    title="Ordner ist leer"
+                    subtitle="Dieser Ordner enthält keine Elemente"
+                  >
+                  </adf-empty-content>
+                </adf-custom-empty-content-template>
+            </adf-document-list>
+            <adf-pagination acaPagination [target]="documentList"> </adf-pagination>
+          </div>
+          <!--
+          <div class="sidebar" *ngIf="infoDrawerOpened$ | async">
+            <aca-info-drawer [node]="$any(selection).library"></aca-info-drawer>
+          </div>
+          -->
+        </aca-page-layout-content>
+      </aca-page-layout>
+    </ng-container>
+  </aca-mrbau-splitpane-belegsammlung>
+</div>

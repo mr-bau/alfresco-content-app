@@ -1,0 +1,50 @@
+<div id="splitPaneMain" style="width: 100%;height: 100%">
+  <as-split
+    #split1
+    (dragStart)="dragStart($event)"
+    (dragEnd)="dragEnd($event)"
+    (gutterClick)="gutterClick($event)"
+    [disabled]="false"
+    [gutterSize]="10"
+    [restrictMove]="true"
+    direction="horizontal"
+    unit="percent"
+  >
+    <as-split-area
+      #areaLeft
+      [minSize]="10"
+      [size]="size1"
+      [order]="1"
+      >
+        <as-split
+          #split2
+          direction="vertical"
+          [restrictMove]="true"
+        >
+          <as-split-area
+            #areaLeft1
+            [minSize]="10"
+            [size]="30"
+          >
+            <ng-content select="[splitAreaUpperLeft]"></ng-content>
+          </as-split-area>
+          <as-split-area
+            #areaLeft2
+            [minSize]="10"
+            [size]="70"
+          >
+            <ng-content select="[splitAreaLowerLeft]"></ng-content>
+          </as-split-area>
+      </as-split>
+    </as-split-area>
+    <as-split-area
+      #areaRight
+      [minSize]="10"
+      [size]="size2"
+      [order]="2"
+      style="overflow-y: hidden;"
+      >
+        <ng-content select="[splitAreaUpperRight]"></ng-content>
+    </as-split-area>
+  </as-split>
+</div>

@@ -1,0 +1,161 @@
+$flex-width-base: 10rem;
+$toolbar-text-button-color: #d1ecf1;
+$toolbar-text-button-color-hover: #beebe5;
+$flex-width-gap: 10px;
+$flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
+
+.disable-flex-shrink {
+  flex-shrink: 0;
+}
+
+.adf-toolbar {
+  //color: var(--theme-text-color);
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.adf-form-label-title {
+  font-size: 90% ;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.54);
+}
+.adf-form-label-wrapper {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  width: auto;
+  padding: 0 0.5rem;
+  margin-bottom: 10px;
+  background-color: #f1f1f1;
+  border-color: #e1e1e1;
+}
+/*
+.mat-form-field {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}*/
+
+.version-history-tabgroup {
+  min-height:200px;
+}
+
+.toolbar-text-button {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  width: auto;
+  padding: 0 0.5rem;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.form-group-title {
+  font-size: 120% ;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.addMarginTop{
+  margin-top: 1rem;
+}
+
+.addMarginLeft{
+  margin-left: 1rem;
+}
+
+.addMarginRight{
+  margin-right: 1rem;
+}
+
+.addMarginBottom{
+  margin-bottom: 1rem;
+}
+
+.duplicate-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+  align-items: flex-start;
+}
+.duplicate-radio-button {
+  margin: 5px;
+}
+.node-detail-list {
+  list-style-type: none;
+}
+
+.drag-and-drop-border {
+  min-height: 36px;
+  display:inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+  //border: 1px dashed;
+  //border-color: lightblue;
+}
+
+.task-infobox, .task-description, .task-formbox, .task-history, .task-linked-docs {
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  border-radius: .25rem;
+  background: whitesmoke;
+  border: 1px solid var(--theme-border-color);
+  color: rgba(0, 0, 0, 0.87);
+}
+.task-infobox {
+  display: flex;
+}
+
+.flex-container, .flex-container-min-width {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content:space-around;
+  align-items:center;
+  gap: 0 #{$flex-width-gap};
+}
+
+.flex-container-min-width {
+  width: #{$flex-container-width};
+}
+
+.tasks-detail-main {
+  margin: 10px;
+  position: relative;
+}
+
+.status {
+  font-size: smaller;
+}
+
+.previewDocumentName {
+  font-size: smaller;
+  text-align: center;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 1 - #{$flex-width-gap}));
+}
+
+.flex-2 {
+  flex: 2;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 2 - #{$flex-width-gap}));
+}
+
+.flex-3 {
+  flex: 3;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 3 - #{$flex-width-gap}));
+}
+
+.flex-4 {
+  flex: 4;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 4 - #{$flex-width-gap}));
+}
+
+.flex-6 {
+  flex: 6;
+  min-width: #{$flex-container-width};
+}
+
+textarea.mat-input-element.cdk-textarea-autosize {
+  resize: vertical;
+}

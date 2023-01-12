@@ -28,7 +28,11 @@
       "@alfresco/aca-about": ["projects/aca-about/src/public-api.ts"],
       "@alfresco/aca-settings": ["projects/aca-settings/src/public-api.ts"],
       "@alfresco/aca-folder-rules": ["projects/aca-folder-rules/src/public-api.ts"],
-      "package.json": ["package.json"]
+      "package.json": ["package.json"],
+      "mrbau-extension": [
+        "dist/mrbau-extension/mrbau-extension",
+        "dist/mrbau-extension"
+      ]
     }
   },
   "exclude": ["node_modules"],

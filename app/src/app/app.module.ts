@@ -69,6 +69,7 @@ import { ContentUrlService } from './services/content-url.service';
 import { HomeComponent } from './components/home/home.component';
 
 import { registerLocaleData } from '@angular/common';
+
 import localeFr from '@angular/common/locales/fr';
 import localeDe from '@angular/common/locales/de';
 import localeIt from '@angular/common/locales/it';
@@ -85,6 +86,76 @@ import localePl from '@angular/common/locales/pl';
 import localeFi from '@angular/common/locales/fi';
 import localeDa from '@angular/common/locales/da';
 import localeSv from '@angular/common/locales/sv';
+
+// custom imports common
+import { ErrormsgpaneComponent } from './custom/errormsgpane/errormsgpane.component';
+import { LoaderoverlayComponent } from './custom/loaderoverlay/loaderoverlay.component';
+import { LOCALE_ID } from '@angular/core';
+import { DatePipe } from '@angular/common';
+
+// custom imports 3rd party Foerdermanager
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule  } from '@angular/material/sort';
+import { MatPaginatorModule  } from '@angular/material/paginator';
+import { NgxEchartsModule } from 'ngx-echarts';
+import 'echarts/theme/royal.js';
+
+// custom imports Fordermanager
+import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
+
+// custom imports 3rd party Belege
+import { AngularSplitModule } from 'angular-split';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormlyMaterialModule } from '@ngx-formly/material';
+import { MatStepperModule } from '@angular/material/stepper';
+
+// custom imports Belege
+import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
+//import { TestComponent } from './custom/test/test.component';
+import { TasksComponent } from './custom/tasks/tasks.component';
+import { SplitpaneComponent } from './custom/splitpane/splitpane.component';
+import { MrbauSplitpaneBelegsammlungComponent } from './custom/splitpane/splitpane-belegsammlung.component';
+import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
+import { TasksTableComponent } from './custom/taskstable/taskstable.component';
+import { TaskIndicatorComponent } from './custom/task-indicator/task-indicator.component';
+import { TasksdetailComponent } from './custom/tasksdetail/tasksdetail.component';
+import { MrbauNewTaskDialogComponent } from './custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
+import { MrbauFormlyNewTaskStepper } from './custom/form/mrbau-formly-new-task-stepper.component';
+import { MrbauFormlyAllSetComponent } from './custom/form/mrbau-formly-all-set.component';
+import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './custom/form/mrbau-formly-field-task-linked-documents.component';
+import { MrbauFormlyDuplicatedDocumentComponent } from  './custom/form/mrbau-formly-duplicated-document.component';
+import { MrbauFormlyAutocompleteComponent } from  './custom/form/mrbau-formly-autocomplete.component';
+import { MrbauFormlyAutocompleteSelectFormOptionsComponent } from  './custom/form/mrbau-formly-autocomplete-select-form-options.component';
+import { autocompleteNotValidValidationMessage, dateFutureValidator, autocompleteValueFromListValidator, maxlengthValidationMessage, maxValidationMessage, minlengthValidationMessage, minValidationMessage, notAValidValueValidationMessage, requiredValidationMessage, regexValidator, germanDecimalValidatorAndConverter, netGrossTaxRateValidatorAndConverter, netGrossTaxMismatchMessage } from './custom/form/mrbau-formly-validators';
+import { MRBauTaskStatusPipe, MRBauTaskCategoryPipe } from './custom/mrbau-task-declarations';
+import { MrbauDelegateTaskDialogComponent } from './custom/dialogs/mrbau-delegate-task-dialog/mrbau-delegate-task-dialog.component';
+import { TaskVersionlistComponent } from './custom/task-versionlist/task-versionlist.component';
+import { TaskVersionlistInvoiceWorkflowComponent } from './custom/task-versionlist/task-versionlist-invoice-workflow';
+import { MrbauConfirmTaskDialogComponent } from './custom/dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { TaskLinkedDocumentsComponent } from './custom/task-linked-documents/task-linked-documents.component';
+import { TaskLinkedDocumentsInvoiceWorkflowComponent } from './custom/task-linked-documents/task-linked-documents-invoice-workflow';
+import { TaskCommentlistComponent } from './custom/task-commentlist/task-commentlist.component';
+import { TaskCommentlistInvoiceWorkflowComponent } from './custom/task-commentlist/task-commentlist-invoice-workflow';
+import { TaskCommentBlockComponent } from './custom/task-commentlist/task-comment-block.component';
+import { MrbauInboxAssignDialogComponent } from './custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
+import { TasksDetailCommonComponent } from './custom/tasks-detail-common/tasks-detail-common.component';
+import { TaskSummaryComponent } from './custom/task-summary/task-summary.component';
+import { TasksDetailNewDocumentComponent } from './custom/tasks-detail-new-document/tasks-detail-new-document.component';
+import { TasksMenuDelegateComponent } from './custom/tasks-menu-delegate/tasks-menu-delegate.component';
+import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-delete.component';
+import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
+import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
+import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
+import { MRBauNodeAssociationEntryFilterPipeImpure } from './custom/mrbau-doc-declarations';
+import { TaskProposeMatchingDocuments } from './custom/task-linked-documents/task-propose-matching-documents';
+import { TasksMenuNewarchivetypeComponent } from './custom/tasks-menu-newarchivetype/tasks-menu-newarchivetype.component';
+import { MrbauCompareDocumentsComponent } from './custom/dialogs/mrbau-compare-documents/mrbau-compare-documents.component';
+import { LinkedDocumentDetailComponent } from './custom/linked-document-detail/linked-document-detail.component';
+import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-profile-picture/mrbau-userinfo-profile-picture.component';
+import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
+import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-upload-button.component';
+import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-margin-wrapper.component';
+
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -137,7 +208,64 @@ registerLocaleData(localeSv);
     AppHeaderModule,
     AppNodeVersionModule,
     HammerModule,
-    ViewProfileModule
+    ViewProfileModule,
+
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    NgxEchartsModule.forRoot({
+       // This will import all modules from echarts.
+       // If you only need custom modules,
+       // please refer to [Custom Build] section.
+      echarts: () => import('echarts'), // or import('./path-to-my-custom-echarts')
+    }),
+
+    MatStepperModule,
+    AngularSplitModule,
+    FormlyModule.forRoot({
+      validationMessages: [
+        { name: 'required', message: requiredValidationMessage },
+        { name: 'minlength', message: minlengthValidationMessage },
+        { name: 'maxlength', message: maxlengthValidationMessage },
+        { name: 'min', message: minValidationMessage },
+        { name: 'max', message: maxValidationMessage },
+        { name: 'pattern', message: notAValidValueValidationMessage},
+        { name: 'autocomplete', message: autocompleteNotValidValidationMessage},
+        { name: 'netGrossTaxMismatch', message: netGrossTaxMismatchMessage },
+      ],
+      validators: [
+        { name: 'date-future', validation: dateFutureValidator, options: { days: 0 } },
+        { name: 'mrbauAutocompleteValidator', validation: autocompleteValueFromListValidator, options: {} },
+        { name: 'mrbauGermanDecimalValidatorAndConverter', validation: germanDecimalValidatorAndConverter, options: {} },
+        { name: 'mrbauNetGrossTaxRateValidatorAndConverter', validation: netGrossTaxRateValidatorAndConverter, options: {} },
+        { name: 'mrbauRegexValidator', validation: regexValidator, options: {} }
+      ],
+      wrappers: [
+        { name: 'mrbauFormlyLabelWrapper', component: MrbauFormlyLabelWrapperComponent },
+        { name: 'mrbauFormlyMarginWrapper', component: MrbauFormlyMarginWrapperComponent },
+      ],
+      types: [
+        { name: 'mrbauFormlyNewTaskStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
+        { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { props: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
+        { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { props: {required: true}}},
+        { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
+        { name: 'mrbauFormlyLabel', component: MrbauFormlyLabelComponent, wrappers: ['mrbauFormlyLabelWrapper']},
+        { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
+        { name: 'mrbauFormlyTaskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['mrbauFormlyMarginWrapper'],
+        defaultOptions: {
+          props: {
+              btnType: 'default',
+              type: 'button',
+            },
+          },
+        },
+      ],
+      extras: {
+        checkExpressionOn: 'modelChange',
+        lazyRender: true
+        }
+      }),
+    FormlyMaterialModule
   ],
   declarations: [
     AppComponent,
@@ -149,7 +277,57 @@ registerLocaleData(localeSv);
     RecentFilesComponent,
     SharedFilesComponent,
     CreateFromTemplateDialogComponent,
-    HomeComponent
+    HomeComponent,
+
+    FoerdermanagerComponent,
+    ErrormsgpaneComponent,
+    LoaderoverlayComponent,
+
+    BelegsammlungComponent,
+    TasksComponent,
+    SplitpaneComponent,
+    MrbauSplitpaneBelegsammlungComponent,
+    PdfpreviewComponent,
+    TasksTableComponent,
+    TaskIndicatorComponent,
+    TasksdetailComponent,
+    MrbauNewTaskDialogComponent,
+    MrbauFormlyNewTaskStepper,
+    MrbauFormlyFieldTaskLinkedDocumentsComponent,
+    MrbauFormlyAllSetComponent,
+    MrbauFormlyDuplicatedDocumentComponent,
+    MrbauFormlyAutocompleteComponent,
+    MrbauFormlyAutocompleteSelectFormOptionsComponent,
+    MrbauFormlyLabelComponent,
+    MrbauFormlyLabelWrapperComponent,
+    MrbauFormlyMarginWrapperComponent,
+    MrbauDelegateTaskDialogComponent,
+    TaskVersionlistComponent,
+    TaskVersionlistInvoiceWorkflowComponent,
+    MrbauConfirmTaskDialogComponent,
+    TaskLinkedDocumentsComponent,
+    TaskLinkedDocumentsInvoiceWorkflowComponent,
+    TaskProposeMatchingDocuments,
+    TaskCommentBlockComponent,
+    TaskCommentlistComponent,
+    TaskCommentlistInvoiceWorkflowComponent,
+    MrbauInboxAssignDialogComponent,
+    TasksDetailCommonComponent,
+    TaskSummaryComponent,
+    TasksDetailNewDocumentComponent,
+    TasksMenuDelegateComponent,
+    TasksMenuDeleteComponent,
+    TasksMenuOcrComponent,
+    TasksMenuNewarchivetypeComponent,
+    MrbauCompareDocumentsComponent,
+    LinkedDocumentDetailComponent,
+    MrbauUserinfoProfilePictureComponent,
+    MrbauUploadButtonComponent,
+
+    MRBauTaskStatusPipe,
+    MRBauNodeAssociationEntryFilterPipeImpure,
+    MRBauTaskCategoryPipe,
+    MrbauUsernameInitialsPipe,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },
@@ -161,7 +339,12 @@ registerLocaleData(localeSv);
         name: 'app',
         source: 'assets'
       }
-    }
+    },
+    {
+      provide: LOCALE_ID,
+      useValue: 'de-AT' // 'de-DE' for Germany, 'fr-FR' for France ...
+    },
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

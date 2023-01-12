@@ -1,0 +1,25 @@
+#pdf-container {
+  position: relative;
+  height: 100%;
+}
+
+.center{
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.preview-text {
+  text-align:center;
+  font-size: 1.5em;
+  font-weight: bold;
+  opacity: 0.2;
+  margin: 0;
+}
+
+.preview-icon {
+  opacity: 0.2;
+}

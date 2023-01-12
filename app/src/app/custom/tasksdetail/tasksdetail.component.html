@@ -1,0 +1,28 @@
+<div class="tasks-detail-main" >
+  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
+
+  <div *ngIf="task != null; else noTask">
+    <mat-accordion multi="true">
+      <!-- common task panel -->
+      <div *ngIf="this.task && this.task.isCommonTask()">
+        <aca-tasks-detail-common [task]="this.task" (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-common>
+      </div>
+      <!-- new document task -->
+      <div *ngIf="this.task && this.task.isNewDocumentTask()">
+        <aca-tasks-detail-new-document [task]="this.task" (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" (errorEvent)="errorMessage=$event"></aca-tasks-detail-new-document>
+      </div>
+
+    </mat-accordion>
+
+    <div class="status addMarginTop">
+      Task: {{this.task.category | mrbauTaskCategory}} - ID {{this.task.id }} - erzeugt am {{this.task.createdDate | date:'medium'}} von {{this.task.createdUser.displayName}}
+    </div>
+  </div>
+
+  <ng-template #noTask>
+    <div class="task-description">
+      Please select a task to see details.
+    </div>
+  </ng-template>
+
+</div>

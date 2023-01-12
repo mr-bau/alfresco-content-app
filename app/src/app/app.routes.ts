@@ -40,6 +40,9 @@ import { DetailsComponent } from './components/details/details.component';
 import { HomeComponent } from './components/home/home.component';
 import { ViewProfileComponent } from './components/view-profile/view-profile.component';
 import { ViewProfileRuleGuard } from './components/view-profile/view-profile.guard';
+import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
+import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
+import { TasksComponent } from './custom/tasks/tasks.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -78,6 +81,19 @@ export const APP_ROUTES: Routes = [
     component: AppLayoutComponent,
     canActivate: [AuthGuard, ExtensionsDataLoaderGuard],
     children: [
+      {
+        path: 'foerdermanager',
+        component: FoerdermanagerComponent
+      },
+      {
+        path: 'belege',
+        component: BelegsammlungComponent
+        //component: TestComponent
+      },
+      {
+        path: 'tasks',
+        component: TasksComponent
+      },
       {
         path: 'profile',
         canActivate: [ViewProfileRuleGuard],

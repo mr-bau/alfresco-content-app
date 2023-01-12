@@ -1,0 +1,51 @@
+
+// based on https://codepen.io/kristinak/pen/bXqayB
+.commentList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.commentWrapper {
+  padding: 10px 10px;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+  align-self: flex-end;
+}
+.commentInlineContainer {
+  display: inline-flex;
+}
+.commentInlineContainer.own {
+  flex-direction: row-reverse;
+}
+.chatBox {
+  min-width: 30px;
+  max-width: 1400px;
+  padding: 14px 18px;
+  margin: 6px 8px;
+}
+.chatBoxRight {
+  background-color:#ecf7e6;// #bfe3ab;
+  border-radius: 16px 16px 0 16px;
+  border: 1px solid #738867;
+}
+.chatBoxLeft {
+  background-color: #ebf6f8; //#abdbe3;;
+  border-radius: 16px 16px 16px 0;
+  border: 1px solid #678388;
+}
+.own {
+  align-self: flex-end;
+}
+.inlineIcon {
+  width:40px;
+  align-self: center;
+}
+.inlineButton {
+  width:64px;
+  height:64px;
+  align-self:center;
+}
+.other {
+  align-self: flex-start;
+}

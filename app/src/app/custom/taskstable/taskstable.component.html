@@ -1,0 +1,93 @@
+<div class="main-content">
+  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
+  <mat-tab-group
+    [selectedIndex]="selectedTab.value"
+    (selectedIndexChange)="tabSelectionChanged($event)"
+    >
+    <mat-tab *ngFor="let tab of taskCategories; let index = index">
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">{{tab.tabIcon}}</mat-icon>
+        <span [matBadge]="tab.tabBadge" matBadgeOverlap="false" [matBadgeHidden]="tab.tabBadge == 0">{{tab.tabName}}</span>
+      </ng-template>
+      <adf-datatable #dataTable
+        [data]="data"
+        [loading]="isLoading"
+        (rowClick)="rowClicked($event)"
+        (sorting-changed)="sortingChanged($event)">
+      <data-columns>
+        <data-column
+          key="icon"
+          type="image"
+          [sortable]="false"
+          class="adf-desktop-only adf-expand-cell-1">
+        </data-column>
+        <data-column
+          key="desc"
+          title="Aufgabe"
+          [sortable]="true"
+          class="adf-expand-cell-5 adf-ellipsis-cell">
+        </data-column>
+        <data-column
+          key="dueDateValue"
+          title="Zu erledigen bis"
+          type="date"
+          format="timeAgo"
+          [sortable]="true"
+          class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
+          >
+        </data-column>
+        <data-column
+          key="status"
+
+          type="image"
+          class="adf-desktop-only adf-expand-cell-2"
+          [sortable]="true">
+          <ng-template let-entry="$implicit">
+            <aca-task-indicator [status]="entry.data.getValue(entry.row, entry.col)"></aca-task-indicator>
+          </ng-template>
+        </data-column>
+        <data-column
+          key="createdUser"
+          title="Created By"
+          class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
+          >
+        </data-column>
+        <data-column
+          key="createdDate"
+          title="Datum"
+          type="date"
+          format="shortDate"
+          [sortable]="true"
+          class="adf-desktop-only adf-expand-cell-1 adf-ellipsis-cell"
+          >
+        </data-column>
+      </data-columns>
+      <!-- ALL DONE TEMPLATE -->
+      <adf-no-content-template>
+        <ng-template>
+          <adf-empty-content
+            icon="thumb_up"
+            title="Alle Aufgaben erledigt!"
+            subtitle="Im Moment gibt es keine neuen Aufgaben in diesem Bereich.">
+          </adf-empty-content>
+        </ng-template>
+      </adf-no-content-template>
+      <!-- LOADING TEMPLATE -->
+      <adf-loading-content-template>
+        <ng-template>
+          <mat-progress-spinner
+            class="adf-document-list-loading-margin"
+            [color]="'primary'"
+            [mode]="'indeterminate'">
+          </mat-progress-spinner>
+        </ng-template>
+      </adf-loading-content-template>
+    </adf-datatable>
+    <adf-pagination
+      [target]="this"
+      [supportedPageSizes]="paginationSizes"
+    >
+    </adf-pagination>
+  </mat-tab>
+</mat-tab-group>
+</div>

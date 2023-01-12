@@ -28,6 +28,7 @@ import { AosExtensionModule } from '@alfresco/adf-office-services-ext';
 import { AcaAboutModule } from '@alfresco/aca-about';
 import { AcaSettingsModule } from '@alfresco/aca-settings';
 import { AcaFolderRulesModule } from '@alfresco/aca-folder-rules';
+import { MrbauExtensionModule } from 'mrbau-extension';
 import { environment } from '../environments/environment';
 
 @NgModule({
@@ -35,7 +36,8 @@ import { environment } from '../environments/environment';
     AosExtensionModule,
     ...(environment.devTools ? [AcaSettingsModule] : []),
     AcaAboutModule.forRoot(environment.production),
-    AcaFolderRulesModule
+    AcaFolderRulesModule,
+    MrbauExtensionModule
   ]
 })
 export class AppExtensionsModule {}
