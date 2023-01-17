@@ -4,6 +4,7 @@
   <h4><a [href]="siteLink"><mat-icon class="mat-18" title="Link zur Dateibibliothek">link</mat-icon> Link zur Dateibibliothek</a></h4>
   <h4><img class="textIcon" src="./assets/images/ft_ic_folder_shortcut_link.svg" alt="Dateibibliothek"> <a [href]="siteLink">Dateibibliothek</a></h4>
   -->
+  <div *ngIf="isSiteMember; else elseBlock">
 
   <section class="cards">
     <!-- Link to data -->
@@ -153,4 +154,7 @@
     </section>
     <div class="status"><p>{{ siteStatus }}<br>{{expandedElement}}</p></div>
   </div>
+
+  </div>
+  <ng-template #elseBlock>Zugriff nicht erlaubt.</ng-template>
 </div>

@@ -55,6 +55,7 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
 
   loaderVisible = true;
   errorMessage: string = null;
+  isSiteMember = true;
 
   dataTableSource = new MatTableDataSource<FoerderungenDataTableEntry>();
   documentListStartFolder = '-sites-';
@@ -152,33 +153,44 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
   ngAfterContentInit(): void {}
 
   ngOnInit(): void {
-    this.contentApi
-      .getNodeInfo('-root-', {
-        includeSource: true,
-        include: ['path', 'properties'],
-        relativePath: '/Sites/foerdermanager/documentLibrary'
-      })
-      .toPromise()
-      .then((node) => {
+    this.contentApi.sitesApi.listSites({maxItems:999})
+    .then(sitePaging => {
+        const entries = sitePaging.list.entries;
+        for (let i=0; i<entries.length; i++)
+        {
+          const entry = entries[i];
+          if (entry.entry.id == 'foerdermanager')
+          {
+            this.isSiteMember = true;
+            return this.contentApi.getNodeInfo('-root-', {
+                includeSource: true,
+                include: ['path', 'properties'],
+                relativePath: '/Sites/foerdermanager/documentLibrary'
+              })
+              .toPromise();
+          }
+        }
+        this.isSiteMember = false;
+        return Promise.reject();
+    })
+    .then((node) => {
         this.siteGuid = node.id;
         this.siteLink = '/#/libraries/' + node.id;
-      })
-      .catch((err) => this.setErrorMessage(err));
-    this.contentApi
-      .getNodeInfo('-root-', {
-        includeSource: true,
-        include: ['path', 'properties'],
-        relativePath: '/Sites/foerdermanager/documentLibrary/Förderungen'
-      })
-      .toPromise()
-      .then((node) => {
+        return this.contentApi
+        .getNodeInfo('-root-', {
+          includeSource: true,
+          include: ['path', 'properties'],
+          relativePath: '/Sites/foerdermanager/documentLibrary/Förderungen'
+        }).toPromise();
+    })
+    .then((node) => {
         //console.log(node);
         this.foerderungFolderId = node.id;
         this.documentListStartFolder = node.id;
         this.reloadData();
         this.changeDetector.detectChanges();
-      })
-      .catch((err) => this.setErrorMessage(err));
+    })
+    .catch((err) => this.setErrorMessage(err));
 
     // Override default filter behaviour of Material Datatable
     this.dataTableSource.filterPredicate = this.createFilter();
