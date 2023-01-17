@@ -153,25 +153,17 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
   ngAfterContentInit(): void {}
 
   ngOnInit(): void {
-    this.contentApi.sitesApi.listSites({maxItems:999})
-    .then(sitePaging => {
-        const entries = sitePaging.list.entries;
-        for (let i=0; i<entries.length; i++)
-        {
-          const entry = entries[i];
-          if (entry.entry.id == 'foerdermanager')
-          {
-            this.isSiteMember = true;
-            return this.contentApi.getNodeInfo('-root-', {
-                includeSource: true,
-                include: ['path', 'properties'],
-                relativePath: '/Sites/foerdermanager/documentLibrary'
-              })
-              .toPromise();
-          }
-        }
-        this.isSiteMember = false;
-        return Promise.reject();
+    const SITE_NAME = "foerdermanager";
+    this.isSiteMember = false;
+    this.contentApi.sitesApi.getSite(SITE_NAME)
+    .then(() => {
+        this.isSiteMember = true;
+        return this.contentApi.getNodeInfo('-root-', {
+            includeSource: true,
+            include: ['path', 'properties'],
+            relativePath: '/Sites/'+SITE_NAME+'/documentLibrary'
+          })
+          .toPromise();
     })
     .then((node) => {
         this.siteGuid = node.id;
@@ -180,7 +172,7 @@ export class FoerdermanagerComponent implements OnInit, AfterContentInit, AfterV
         .getNodeInfo('-root-', {
           includeSource: true,
           include: ['path', 'properties'],
-          relativePath: '/Sites/foerdermanager/documentLibrary/Förderungen'
+          relativePath: '/Sites/'+SITE_NAME+'/documentLibrary/Förderungen'
         }).toPromise();
     })
     .then((node) => {
