@@ -36,6 +36,7 @@
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
         </data-column>
+        <!--
         <data-column
           key="status"
 
@@ -46,11 +47,18 @@
             <aca-task-indicator [status]="entry.data.getValue(entry.row, entry.col)"></aca-task-indicator>
           </ng-template>
         </data-column>
+        -->
         <data-column
           key="createdUser"
           title="Created By"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
+        </data-column>
+        <data-column *ngIf="this.isAdmin"
+          key="assignedUser"
+          title="Assigned To"
+          class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
+        >
         </data-column>
         <data-column
           key="createdDate"

@@ -811,7 +811,9 @@ export class MrbauArchiveModel {
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
             this.mrbauWorkflowService.assignNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
-            .then( () => { resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
+            .then( (node) => {
+              console.log(node);
+              resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
             .catch( (error) => reject(error))
           }),
           prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),

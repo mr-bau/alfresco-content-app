@@ -29,7 +29,9 @@ export class MrbauWorkflowService {
       let assignedUserName = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
       this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
       .then((name) => {
+        console.log(name);
         data.taskDetailNewDocument.task.assignedUserName = name;
+
         return this.mrbauCommonService.updateTaskAssignNewUser(data.taskDetailNewDocument.task.id, data.taskDetailNewDocument.task.assignedUserName);
       })
       .then((nodeEntry) => resolve(nodeEntry))

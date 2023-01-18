@@ -153,7 +153,10 @@
             "label": "Link",
             "title": "Belegsammlung",
             "description": "Belegsammlung",
-            "route": "belege"
+            "route": "belege",
+            "rules": {
+              "visible": "user.isAdmin"
+            }
           },
           {
             "id": "mrbau.extension.tools",

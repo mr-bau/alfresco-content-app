@@ -106,6 +106,7 @@ export interface IMRBauTaskListEntry {
   task:MRBauTask;
   desc:string;
   createdUser:string;
+  assignedUser:string;
   createdDate: Date;
   dueDateValue: Date;
   icon:string;

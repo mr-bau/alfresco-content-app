@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { DataTableAdapter, SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
 import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask
@@ -7,21 +7,27 @@ import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask
 import { FormControl} from '@angular/forms';
 import { NodePaging, SearchRequest } from '@alfresco/js-api';
 import { ITaskChangedData } from '../tasks/tasks.component';
-
+import { Store } from '@ngrx/store';
+import { takeUntil } from 'rxjs/operators';
+import { isAdmin, AppStore } from '@alfresco/aca-shared/store';
+import { OnDestroy } from '@angular/core';
 @Component({
   selector: 'aca-taskstable',
   templateUrl: './taskstable.component.html',
   styleUrls: ['./taskstable.component.scss']
 })
-export class TasksTableComponent implements OnInit, PaginatedComponent {
+export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponent {
   @ViewChild('dataTable') adfDataTable : DataTableAdapter;
 
   @Input() taskCategories : IMRBauTasksCategory[] = null;
   @Output() taskSelectEvent = new EventEmitter<MRBauTask>();
 
+  onDestroy$: Subject<boolean> = new Subject<boolean>();
+
   data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
   isLoading : boolean = false;
   errorMessage : string = null;
+  isAdmin : boolean = false;
   selectedTab = new FormControl(0);
   selectedTask : MRBauTask = null;
 
@@ -33,10 +39,23 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
     this.queryNewData();
   }
 
-  constructor(private searchService: SearchService) {
+  constructor
+    (private searchService: SearchService,
+    private store: Store<AppStore>) {
+  }
+  ngOnDestroy(): void {
+    this.onDestroy$.next(true);
+    this.onDestroy$.complete();
   }
 
   ngOnInit(): void {
+    this.store
+    .select(isAdmin)
+    .pipe(takeUntil(this.onDestroy$))
+    .subscribe((value) => {
+      this.isAdmin = value;
+    });
+
     // load data
     this.pagination.value.maxItems = this.paginationSizes[0];
     this.tabSelectionChanged(0);
@@ -105,6 +124,10 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
       skipCount: this.pagination.value.skipCount,
       maxItems:  this.pagination.value.maxItems
     }
+
+    //searchRequest.query.query = "SELECT * FROM mrbt:task ORDER BY cmis:creationDate DESC";
+
+    console.log(searchRequest);
     this.searchService.searchByQueryBody(searchRequest).subscribe(
       (nodePaging : NodePaging) => {
         // use queryRemainingBadgeCounts
@@ -119,12 +142,14 @@ export class TasksTableComponent implements OnInit, PaginatedComponent {
         let results: IMRBauTaskListEntry[] = [];
 
         for (var nodeEntry of nodePaging.list.entries) {
+          console.log(nodeEntry);
           let task = new MRBauTask();
           task.updateWithNodeData(nodeEntry.entry);
           let e : IMRBauTaskListEntry = {
             task : task,
             desc : task.desc,
             createdUser : nodeEntry.entry.createdByUser.displayName,
+            assignedUser : nodeEntry.entry.properties["mrbt:assignedUserName"],
             createdDate : nodeEntry.entry.createdAt,
             dueDateValue : nodeEntry.entry.properties["mrbt:dueDateValue"],
             icon : 'material-icons://'+currentTab.tabIcon,
