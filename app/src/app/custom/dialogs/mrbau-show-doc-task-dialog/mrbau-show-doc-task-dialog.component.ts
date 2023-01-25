@@ -41,6 +41,7 @@ export class MrbauShowDocTaskDialogComponent extends MrbauBaseDialogComponent im
             type: 'radio',
             props: {
               label: 'Aufgabe aus der Liste auswählen',
+              description: 'suche...',
               required: true,
               options: [],
             },
@@ -64,14 +65,13 @@ export class MrbauShowDocTaskDialogComponent extends MrbauBaseDialogComponent im
         const selection = data.payload as SelectionState;
         selection.nodes.forEach(nodeEntry => {
           this.node = nodeEntry.entry;
-          //console.log(nodeEntry.entry);
           this.searchCMIS().then(rs => {
             rs.list.entries
-            //console.log(rs.list.entries);
             let options: any[] = [];
             rs.list.entries.forEach(element => {
               options.push({value:element.entry.id, label:element.entry.properties['mrbt:description'], tooltip:element.entry.name, node: element.entry});
             });
+            this.fields[0].fieldGroup[0].props.description = (rs.list.entries.length == 1) ? '1 Aufgabe gefunden' : ''+ rs.list.entries.length + ' Aufgaben gefunden';
             this.fields[0].fieldGroup[0].props.options = options;
             if (rs.list.entries.length == 1)
             {
