@@ -24,6 +24,7 @@
       <mat-divider></mat-divider>
       <aca-tasks-menu-delegate [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-delegate>
       <aca-tasks-menu-delete [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-delete>
+      <aca-tasks-menu-reopen [task]="task" (reopenClickedEvent)="reopenClickedEvent($event)"></aca-tasks-menu-reopen>
     </mat-menu>
   </div>
 </adf-toolbar>

@@ -158,6 +158,7 @@ import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-u
 import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-margin-wrapper.component';
 import { MrbauShowDocTaskDialogComponent } from './custom/dialogs/mrbau-show-doc-task-dialog/mrbau-show-doc-task-dialog.component';
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
+import { TasksMenuReopenComponent } from './custom/tasks-menu-reopen/tasks-menu-reopen.component';
 
 
 registerLocaleData(localeFr);
@@ -334,6 +335,7 @@ registerLocaleData(localeSv);
     MrbauUsernameInitialsPipe,
     MrbauShowDocTaskDialogComponent,
     TaskSingleViewComponent,
+    TasksMenuReopenComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

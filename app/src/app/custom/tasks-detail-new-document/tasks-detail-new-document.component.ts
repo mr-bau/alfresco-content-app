@@ -255,6 +255,16 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     //this.taskChangeEvent.emit({task : this.task, queryTasks : MRBauTask.isTaskInNotifyOrDoneState(newState)});
   }
 
+  reopenClickedEvent(taskChangedData?:ITaskChangedData)
+  {
+    this.log('reopenClickedEvent');
+    if (this._task == taskChangedData.task && this._task.isTaskInDoneState())
+    {
+      this.onPrevClicked(null);
+      this.emitTaskChangeEvent(taskChangedData);
+    }
+  }
+
   emitTaskChangeEvent(taskChangedData?:ITaskChangedData)
   {
     this.log('emitTaskChangeEvent');
