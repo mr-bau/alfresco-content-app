@@ -43,13 +43,16 @@ export class TaskSingleViewComponent implements OnInit {
 
   queryTask()
   {
-    this.mrbauCommonService.getNode(this.nodeId).toPromise().then(result => {
+    this.errorMessage=null;
+    this.mrbauCommonService.getNode(this.nodeId).toPromise()
+    .then(result => {
       //console.log(result);
       let task = new MRBauTask();
       task.updateWithNodeData(result.entry);
       this.taskSelected(task);
 
-    });
+    })
+    .catch(error => { this.errorMessage = error });
   }
 
   sanitizeUrl(url:string) : SafeResourceUrl {
