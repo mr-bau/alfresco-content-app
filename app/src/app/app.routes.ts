@@ -43,6 +43,7 @@ import { ViewProfileRuleGuard } from './components/view-profile/view-profile.gua
 import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.component';
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
+import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -92,7 +93,16 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'tasks',
-        component: TasksComponent
+        children: [
+          {
+            path: '',
+            component: TasksComponent
+          },
+          {
+            path: ':nodeId',
+            component: TaskSingleViewComponent
+          },
+        ]
       },
       {
         path: 'profile',

@@ -114,6 +114,7 @@ import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.com
 //import { TestComponent } from './custom/test/test.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
 import { SplitpaneComponent } from './custom/splitpane/splitpane.component';
+import { SplitpaneTwoColComponent } from './custom/splitpane/splitpane-two-col.component';
 import { MrbauSplitpaneBelegsammlungComponent } from './custom/splitpane/splitpane-belegsammlung.component';
 import { PdfpreviewComponent } from './custom/pdfpreview/pdfpreview.component';
 import { TasksTableComponent } from './custom/taskstable/taskstable.component';
@@ -155,6 +156,8 @@ import { MrbauUserinfoProfilePictureComponent } from './custom/mrbau-userinfo-pr
 import { MrbauUsernameInitialsPipe } from './custom/mrbau-userinfo-profile-picture/mrbau-username-initials-pipe.component';
 import { MrbauUploadButtonComponent } from './custom/mrbau-upload-button/mrbau-upload-button.component';
 import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-margin-wrapper.component';
+import { MrbauShowDocTaskDialogComponent } from './custom/dialogs/mrbau-show-doc-task-dialog/mrbau-show-doc-task-dialog.component';
+import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 
 
 registerLocaleData(localeFr);
@@ -286,6 +289,7 @@ registerLocaleData(localeSv);
     BelegsammlungComponent,
     TasksComponent,
     SplitpaneComponent,
+    SplitpaneTwoColComponent,
     MrbauSplitpaneBelegsammlungComponent,
     PdfpreviewComponent,
     TasksTableComponent,
@@ -328,6 +332,8 @@ registerLocaleData(localeSv);
     MRBauNodeAssociationEntryFilterPipeImpure,
     MRBauTaskCategoryPipe,
     MrbauUsernameInitialsPipe,
+    MrbauShowDocTaskDialogComponent,
+    TaskSingleViewComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

@@ -109,7 +109,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   queryData()
   {
     this.fields = [];
-    console.log(this._task);
+    //console.log(this._task);
     this._taskNode = undefined;
     if (!(this._task && this._task.associatedDocumentRef.length > 0))
     {

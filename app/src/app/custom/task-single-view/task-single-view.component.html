@@ -1,16 +1,12 @@
 <aca-mrbau-loaderoverlay *ngIf="loaderVisible"></aca-mrbau-loaderoverlay>
 <div #main id="main" *ngIf="!loaderVisible;">
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
-  <aca-splitpane (dragStartEvent)="dragStartEvent()" (dragEndEvent)="dragEndEvent()">
-    <ng-container ngProjectAs="[splitAreaUpperLeft]">
-      <aca-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"></aca-taskstable>
-    </ng-container>
-    <ng-container ngProjectAs="[splitAreaLowerLeft]">
+  <aca-splitpane-two-col (dragStartEvent)="dragStartEvent()" (dragEndEvent)="dragEndEvent()">
+    <ng-container ngProjectAs="[splitAreaLeft]">
       <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" [task]="selectedTask"></aca-tasksdetail>
     </ng-container>
-    <ng-container ngProjectAs="[splitAreaUpperRight]">
+    <ng-container ngProjectAs="[splitAreaRight]">
       <aca-pdfpreview [document_url]="document_url"></aca-pdfpreview>
     </ng-container>
-  </aca-splitpane>
+  </aca-splitpane-two-col>
 </div>
-

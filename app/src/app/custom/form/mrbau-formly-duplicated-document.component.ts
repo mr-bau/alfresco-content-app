@@ -66,7 +66,7 @@ export class MrbauFormlyDuplicatedDocumentComponent extends FieldType<FieldTypeC
   }
 
   onDocumentClick(id : string) {
-    console.log(this.model);
+    //console.log(this.model);
     this.model['ignore:callback'](id);
   }
 

@@ -125,9 +125,6 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
       maxItems:  this.pagination.value.maxItems
     }
 
-    //searchRequest.query.query = "SELECT * FROM mrbt:task ORDER BY cmis:creationDate DESC";
-
-    console.log(searchRequest);
     this.searchService.searchByQueryBody(searchRequest).subscribe(
       (nodePaging : NodePaging) => {
         // use queryRemainingBadgeCounts
@@ -142,7 +139,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
         let results: IMRBauTaskListEntry[] = [];
 
         for (var nodeEntry of nodePaging.list.entries) {
-          console.log(nodeEntry);
+          //console.log(nodeEntry);
           let task = new MRBauTask();
           task.updateWithNodeData(nodeEntry.entry);
           let e : IMRBauTaskListEntry = {

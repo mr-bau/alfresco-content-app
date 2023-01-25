@@ -609,6 +609,7 @@
       }
     }
   },
+  "defaultProject": "content-ce",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "aca",

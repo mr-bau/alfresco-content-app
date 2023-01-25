@@ -131,6 +131,13 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   text-align: center;
 }
 
+.flex-container-column {
+  display: flex;
+  flex: 1;
+  min-width: 100%;
+  flex-wrap: nowrap;
+}
+
 .flex-1 {
   flex: 1;
   min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 1 - #{$flex-width-gap}));

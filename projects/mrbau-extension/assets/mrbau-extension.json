@@ -51,6 +51,15 @@
       ]
     },
     {
+      "id": "mrbau.extension.rule.show-doc-task-visible",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "app.selection.file" },
+        { "type": "rule", "value": "mrbau.extension.rule.is-mrba-archiveDocument" }
+      ]
+    },
+    {
       "id": "mrbau.extension.rule.is-not-mrba-archiveDocument",
        "type": "core.not",
        "parameters": [
@@ -105,6 +114,11 @@
     {
       "id": "mrbau.extension.actions.inbox-assign-dialog",
       "type": "MRBAU_INBOX_ASSIGN_DIALOG",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.show-doc-task-dialog",
+      "type": "MRBAU_SHOW_DOC_TASK_DIALOG",
       "payload": "$(context.selection)"
     },
     {
@@ -187,6 +201,18 @@
         },
         "rules": {
           "visible": "mrbau.extension.rule.inbox-assign-visible"
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.show-doc-task",
+        "title": "Aufgabe anzeigen",
+        "order": 312,
+        "icon": "inbox",
+        "actions": {
+          "click": "mrbau.extension.actions.show-doc-task-dialog"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.show-doc-task-visible"
         }
       },
       {

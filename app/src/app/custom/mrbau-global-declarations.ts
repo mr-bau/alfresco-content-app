@@ -1,4 +1,4 @@
-import { NodeEntry, VersionEntry } from '@alfresco/js-api';
+import { NodeEntry, RequestFields, RequestInclude, VersionEntry } from '@alfresco/js-api';
 
 export const MRBAU_DATE_FORMAT = 'dd-MM-yyyy';
 export class CONST {
@@ -12,6 +12,9 @@ export class CONST {
   public static readonly MAX_TIME_COMMENT_EDITABLE_MILLISECONDS:  number = (1000*60*60*24); // 24 h
 
   public static readonly GET_NODE_DEFAULT_INCLUDE = ['path', 'properties', 'allowableOperations', 'permissions', 'definition'];
+  public static readonly SEARCH_REQUEST_DEFAULT_INCLUDE : RequestInclude = ['properties', 'aspectNames', 'path', 'isLink', 'allowableOperations', 'association']
+  // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+  public static readonly SEARCH_REQUEST_DEFAULT_FIELDS : RequestFields = ['id', 'name', 'nodeType', 'isFolder', 'isFile', 'modifiedAt', 'modifiedByUser', 'createdAt', 'createdByUser']
 
   public static readonly DMS_SERVER_URL:        string = "https://mrdms01.mrbau.at";
 
