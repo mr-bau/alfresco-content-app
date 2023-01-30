@@ -96,11 +96,14 @@ export class TaskProposeMatchingDocuments implements OnChanges {
 
   async queryAssociationsAndFilter()
   {
+    this.nodesApiService;
+    /*
     for (let i=this.resultNodes.length-1; i>=0; i--)
     {
       const node = this.resultNodes[i];
       await this.nodesApiService.nodesApi.listSourceAssociations(node.id, {skipCount:0, maxItems: 999})
       .then((result) => {
+        console.log(result);
         if (this.shouldFilterNode(node.nodeType, result.list.entries))
         {
           this.resultNodes.splice(i);
@@ -110,8 +113,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
         this.errorMessage = error;
         return;
       });
-    }
-    this.errorMessage = null;
+    }*/
   }
 
   shouldFilterNode(nodeType:string, sourceAssociations:NodeAssociationEntry[] ) : boolean
@@ -136,6 +138,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     this.filterCurrentAssociations();
     this.filterLatestFrameworkContract();
     await this.queryAssociationsAndFilter();
+    this.errorMessage = null;
   }
 
   filterLatestFrameworkContract()

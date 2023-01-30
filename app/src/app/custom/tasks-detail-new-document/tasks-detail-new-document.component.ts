@@ -683,7 +683,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     console.log(nodes);
     const bodyParams = this.getBodyParamsForAddAssociations(nodes);
     const pathParams = {'nodeId': this._taskNode.id};
-    const queryParams = {include:'association'};
+    const queryParams = {include:CONST.GET_NODE_DEFAULT_INCLUDE};
     const headerParams= {};
     const formParams = {};
     const contentTypes = ['application/json'];
@@ -695,7 +695,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         {
           const node = nodes[i];
           const bodyParam = bodyParams[i];
-          this._taskNodeAssociations.push({entry: {association: {assocType : bodyParam.assocType}, id:node.id, isFolder:node.isFolder, isFile:node.isFile, name: node.name,
+          this._taskNodeAssociations.push({entry: {association: {assocType : bodyParam.assocType}, properties: node.properties, id:node.id, isFolder:node.isFolder, isFile:node.isFile, name: node.name,
             nodeType: node.nodeType, modifiedAt: node.modifiedAt, modifiedByUser: node.modifiedByUser, createdAt:node.createdAt, createdByUser:node.createdByUser, allowableOperations: node.allowableOperations}});
         }
         this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
