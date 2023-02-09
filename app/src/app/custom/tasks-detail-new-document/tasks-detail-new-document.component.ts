@@ -680,7 +680,6 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     {
       return Promise.resolve(null);
     }
-    console.log(nodes);
     const bodyParams = this.getBodyParamsForAddAssociations(nodes);
     const pathParams = {'nodeId': this._taskNode.id};
     const queryParams = {include:CONST.GET_NODE_DEFAULT_INCLUDE};

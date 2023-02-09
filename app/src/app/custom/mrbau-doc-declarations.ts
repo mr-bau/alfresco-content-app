@@ -9,12 +9,13 @@
 // ================
 // title: "Angebot",                    name : "mrba:offer",
 // title: "Auftrag",                    name : "mrba:order",
+// title: "Vergabeverhandlungsprotokoll",name : "mrba:orderNegotiationProtocol",
 // title: "Zahlungsvereinbarungen",     name : "mrba:frameworkContract",
 // title: "Lieferschein",               name : "mrba:deliveryNote",
 // title: "Eingangsrechnung",           name : "mrba:inboundInvoice",
 // title: "Ausgangsrechnung",           name : "mrba:outboundInvoice",
 // title: "Rechnungsprüfblatt"          name : "mrba:invoiceReviewSheet",
-// title: "Vergabeverhandlungsprotokoll",name : "mrba:orderNegotiationProtocol",
+
 // title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
 
 // title: "Vertragsdokument",           name : "mrba:contractDocument"
@@ -53,6 +54,38 @@ import { EMRBauDuplicateResolveResult } from './form/mrbau-formly-duplicated-doc
 import { EMRBauTaskStatus } from './mrbau-task-declarations';
 import { MrbauWorkflowService } from './services/mrbau-workflow.service';
 import { TasksDetailNewDocumentComponent } from './tasks-detail-new-document/tasks-detail-new-document.component';
+
+@Pipe({name: 'mrbauArchiveNodeTypeLabel'})
+export class MRBauArchiveNodeTypeLabelPipe implements PipeTransform {
+  readonly data = {
+    "mrba:archiveDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ARCHIVE_DOCUMENT",
+    "mrba:offer":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OFFER",
+    "mrba:order":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ORDER",
+    "mrba:orderNegotiationProtocol":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ORDER_NEGOTIATION_PROTOCOL",
+    "mrba:frameworkContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FRAMEWORK_CONTRACT",
+    "mrba:deliveryNote":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.DELIVERY_NOTE",
+    "mrba:inboundInvoice":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INBOUND_INVOICE",
+    "mrba:invoiceReviewSheet":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE_REVIEW_SHEET",
+    "mrba:outboundInvoice":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OUTBOUND_INVOICE",
+    "mrba:miscellaneousDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT",
+
+    "mrba:contractDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_DOCUMENT",
+    "mrba:rentContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.RENT_CONTRACT",
+    "mrba:contractCancellationWaiver":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION_WAIVER",
+    "mrba:maintenanceContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MAINTENANCE_CONTRACT",
+    "mrba:allInContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ALL_IN_CONTRACT",
+    "mrba:licenseContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.LICENSE_CONTRACT",
+    "mrba:financingContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FINANCING_CONTRACT",
+    "mrba:workContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.WORK_CONTRACT",
+    "mrba:contractCancellation":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION",
+    "mrba:miscellaneousContractDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT",
+  };
+  transform(value: string): string {
+    const result = this.data[value];
+    console.log(value+ ' ' +result);
+    return (result) ? result : value;
+  }
+}
 
 @Pipe({name: 'mrbauNodeAssociationEntryFilterPipeImpure', pure: false})
 export class MRBauNodeAssociationEntryFilterPipeImpure implements PipeTransform {

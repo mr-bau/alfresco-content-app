@@ -161,8 +161,17 @@
             "route": "mrbau.extension.route.tasks"
           },
           {
-            "id": "app.navbar.belegsammlung",
+            "id": "mrbau.extension.docinboxbook",
             "order": 610,
+            "icon": "view_list",
+            "label": "Posteingangsbuch",
+            "title": "Posteingangsbuch",
+            "description": "Posteingangsbuch",
+            "route": "inbox"
+          },
+          {
+            "id": "mrbau.extension.belegsammlung",
+            "order": 620,
             "icon": "folder",
             "label": "Link",
             "title": "Belegsammlung",
@@ -174,7 +183,7 @@
           },
           {
             "id": "mrbau.extension.tools",
-            "order": 620,
+            "order": 630,
             "icon": "timeline",
             "title": "Anwendungen",
             "route": "mrbau.extension.route.main",
@@ -371,6 +380,15 @@
             },
             {
               "mincount": 1,
+              "field": "mrba:costCarrierNumber",
+              "label": "Kostenträger",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
               "field": "SITE",
               "label": "SEARCH.FACET_FIELDS.LOCATION",
               "settings": {
@@ -429,7 +447,6 @@
             { "query": "TYPE:'mrba:workContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.WORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
             { "query": "TYPE:'mrba:contractCancellation'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
             { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
-
             {
               "label": "SEARCH.FACET_QUERIES.TODAY",
               "query": "cm:modified:[TODAY to TODAY]"
@@ -520,6 +537,7 @@
             }
           }
         ]
-      }]
+      }
+    ]
   }
 }

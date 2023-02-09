@@ -147,7 +147,7 @@ import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-
 import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
 import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
-import { MRBauNodeAssociationEntryFilterPipeImpure } from './custom/mrbau-doc-declarations';
+import { MRBauNodeAssociationEntryFilterPipeImpure, MRBauArchiveNodeTypeLabelPipe } from './custom/mrbau-doc-declarations';
 import { TaskProposeMatchingDocuments } from './custom/task-linked-documents/task-propose-matching-documents';
 import { TasksMenuNewarchivetypeComponent } from './custom/tasks-menu-newarchivetype/tasks-menu-newarchivetype.component';
 import { MrbauCompareDocumentsComponent } from './custom/dialogs/mrbau-compare-documents/mrbau-compare-documents.component';
@@ -159,7 +159,8 @@ import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-ma
 import { MrbauShowDocTaskDialogComponent } from './custom/dialogs/mrbau-show-doc-task-dialog/mrbau-show-doc-task-dialog.component';
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 import { TasksMenuReopenComponent } from './custom/tasks-menu-reopen/tasks-menu-reopen.component';
-
+import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
+import { MrbauSearchWidgetChipComponent }  from './custom/doc-inbox-book/search-widget-chip/mrbau-search-widget-chip.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -328,14 +329,17 @@ registerLocaleData(localeSv);
     LinkedDocumentDetailComponent,
     MrbauUserinfoProfilePictureComponent,
     MrbauUploadButtonComponent,
+    MrbauSearchWidgetChipComponent,
 
     MRBauTaskStatusPipe,
     MRBauNodeAssociationEntryFilterPipeImpure,
     MRBauTaskCategoryPipe,
     MrbauUsernameInitialsPipe,
+    MRBauArchiveNodeTypeLabelPipe,
     MrbauShowDocTaskDialogComponent,
     TaskSingleViewComponent,
     TasksMenuReopenComponent,
+    DocInboxBookComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

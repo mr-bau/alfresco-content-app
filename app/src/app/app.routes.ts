@@ -44,6 +44,7 @@ import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.
 import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.component';
 import { TasksComponent } from './custom/tasks/tasks.component';
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
+import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -84,7 +85,10 @@ export const APP_ROUTES: Routes = [
     children: [
       {
         path: 'foerdermanager',
-        component: FoerdermanagerComponent
+        component: FoerdermanagerComponent,
+        data: {
+          title: 'Fördermanager',
+        }
       },
       {
         path: 'belege',
@@ -92,15 +96,29 @@ export const APP_ROUTES: Routes = [
         //component: TestComponent
       },
       {
+        path: 'inbox',
+        component: DocInboxBookComponent,
+        data: {
+          title: 'Posteingangsbuch',
+        }
+        //component: TestComponent
+      },
+      {
         path: 'tasks',
         children: [
           {
             path: '',
-            component: TasksComponent
+            component: TasksComponent,
+            data: {
+              title: 'Aufgaben',
+            }
           },
           {
             path: ':nodeId',
-            component: TaskSingleViewComponent
+            component: TaskSingleViewComponent,
+            data: {
+              title: 'Aufgabe',
+            }
           },
         ]
       },

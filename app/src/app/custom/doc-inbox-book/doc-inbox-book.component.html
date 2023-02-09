@@ -1,0 +1,123 @@
+<aca-page-layout>
+  <aca-page-layout-header>
+    <adf-breadcrumb [root]="title"> </adf-breadcrumb>
+    <adf-toolbar class="adf-toolbar--inline">
+      <ng-container *ngFor="let entry of actions">
+        <aca-toolbar-action [actionRef]="entry"></aca-toolbar-action>
+      </ng-container>
+    </adf-toolbar>
+  </aca-page-layout-header>
+
+  <aca-page-layout-content>
+    <div class="main-content">
+      <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
+      <div class="adf-search-results">
+        <div class="adf-search-results__content">
+          <mat-progress-bar *ngIf="isLoading" color="primary" mode="indeterminate" aria-live="polite"> </mat-progress-bar>
+
+          <div class="adf-search-results__content-header content">
+           <!-- <adf-search-filter-chips class="content__filter"></adf-search-filter-chips>-->
+
+            <mat-chip-list role="listbox" [attr.aria-label]="'SEARCH.FILTER.ARIA-LABEL.SEARCH_FILTER' | translate">
+              <ng-container *ngFor="let category of queryBuilder.categories">
+                  <mrbau-search-widget-chip [category]="category" [parent]="this"></mrbau-search-widget-chip>
+              </ng-container>
+<!--
+              <ng-container *ngIf="facetFiltersService.responseFacets && showContextFacets">
+                  <ng-container *ngFor="let field of facetFiltersService.responseFacets">
+                      <adf-search-facet-chip [field]="field" [attr.data-automation-id]="'search-fact-chip-' + field.field" ></adf-search-facet-chip>
+                  </ng-container>
+              </ng-container>-->
+            </mat-chip-list>
+
+            <!--<button
+              mat-button
+              (click)="onResetButtonClicked()"
+              class="content__reset-action"
+              title="{{'APP.BROWSE.SEARCH.RESET_ACTION' | translate }}"
+              [attr.aria-label]="'APP.BROWSE.SEARCH.RESET_ACTION' | translate ">
+              <mat-icon> refresh </mat-icon>
+            </button>-->
+          </div>
+
+          <adf-document-list
+            #documentList
+            acaDocumentList
+            acaContextActions
+            [selectionMode]="'multiple'"
+            [sortingMode]="'server'"
+            [sorting]="sorting"
+            [headerFilters]="false"
+            [filterValue]=""
+            (filterSelection)="onFilterSelected($event)"
+            [imageResolver]="imageResolver"
+            [node]="$any(data)"
+            (node-dblclick)="onHandleNodeClick($event)"
+            (sorting-changed)="onSortingChanged($event)"
+            (pagination-changed)="onPaginationChanged($event)"
+          >
+            <data-columns>
+              <data-column key="$thumbnail" type="image" [sr-title]="'ADF-DOCUMENT-LIST.LAYOUT.THUMBNAIL'" [sortable]="false">
+                <ng-template let-context>
+                  <aca-custom-thumbnail-column [context]="context"></aca-custom-thumbnail-column>
+                </ng-template>
+              </data-column>
+
+              <data-column key="createdAt" sortingKey="cm:created" type="date" format="short" title="Ablagedatum" class="adf-datatable-cell-value adf-expand-cell-1 adf-ellipsis-cell" [sortable]="true">
+              </data-column>
+
+              <!--
+              <data-column key="name" sortingKey="cm:name" type="text" title="APP.DOCUMENT_LIST.COLUMNS.NAME" class="adf-datatable-cell-value adf-expand-cell-3 adf-ellipsis-cell" [sortable]="true"></data-column>
+              -->
+
+              <data-column key="properties.mrba:archivedDateValue" sortingKey="mrba:archivedDate" type="date" title="Eingangsdatum" class="adf-datatable-cell-value adf-expand-cell-1 adf-ellipsis-cell" [sortable]="true">
+              </data-column>
+
+              <data-column key="properties.mrba:organisationUnit" sortingKey="mrba:organisationUnit" type="text" title="Mandant" class="adf-datatable-cell-value adf-expand-cell-1 adf-ellipsis-cell" [sortable]="true">
+              </data-column>
+
+              <data-column key="properties.mrba:companyName" sortingKey="mrba:companyName" type="text" title="Firma" class="adf-datatable-cell-value adf-expand-cell-3 adf-ellipsis-cell" [sortable]="true">
+               </data-column>
+
+              <data-column key="properties.mrba:costCarrierNumber" sortingKey="mrba:costCarrierNumber" type="text" title="KT" class="adf-datatable-cell-value adf-expand-cell-1 adf-ellipsis-cell" [sortable]="true">
+              </data-column>
+
+              <data-column key="nodeType" sortingKey="TYPE" type="text" title="Beleg-Art" class="adf-datatable-cell-value adf-expand-cell-2 adf-ellipsis-cell" [sortable]="true">
+                <ng-template let-context>
+                  <span class="adf-datatable-cell-value adf-ellipsis-cell">
+                  {{context.row?.node?.entry?.nodeType | mrbauArchiveNodeTypeLabel | translate }}
+                  </span>
+                </ng-template>
+              </data-column>
+
+              <data-column key type="text" sortingKey="name" class="adf-datatable-cell-value adf-ellipsis-cell adf-expand-cell-5" title="Pfad" [sortable]="true">
+                <ng-template let-context>
+                  <aca-search-results-row [context]="context"></aca-search-results-row>
+                </ng-template>
+              </data-column>
+
+              <data-column key="createdByUser.displayName" sortingKey="cm:author" title="Ersteller" class="adf-datatable-cell-value adf-expand-cell-2 adf-ellipsis-cell" [sortable]="true" *ngIf="!isSmallScreen"></data-column>
+            </data-columns>
+
+            <adf-custom-empty-content-template>
+              <ng-container *ngIf="data">
+                <div class="empty-search__block" aria-live="polite">
+                  <p class="empty-search__text">
+                    {{ 'APP.BROWSE.SEARCH.NO_RESULTS' | translate }}
+                  </p>
+                </div>
+              </ng-container>
+            </adf-custom-empty-content-template>
+          </adf-document-list>
+
+          <adf-pagination *ngIf="!documentList.isEmpty()" acaPagination [target]="documentList" (change)="onPaginationChanged($event)">
+          </adf-pagination>
+        </div>
+      </div>
+    </div>
+<!--
+    <div class="sidebar">
+      <aca-info-drawer [node]="selection.last"></aca-info-drawer>
+    </div>-->
+  </aca-page-layout-content>
+</aca-page-layout>
