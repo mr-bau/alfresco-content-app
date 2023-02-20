@@ -15,7 +15,6 @@ export interface IMrbauSearchQueryBuilder {
   /*  Stream that emits the error whenever user search  */
   error:Subject<unknown>;
 
-
   queryFragments: { [id: string]: string };
 
   get userQuery() :string;

@@ -1,6 +1,6 @@
 import { AlfrescoApiService, AppConfigService } from '@alfresco/adf-core';
 import { Subject } from 'rxjs';
-import { QueryBody, RequestFacetFields, RequestSortDefinition, ResultSetPaging, SearchApi } from '@alfresco/js-api';
+import { QueryBody, RequestFacetFields, RequestHighlight, RequestSortDefinition, ResultSetPaging, SearchApi } from '@alfresco/js-api';
 import { FacetQuery, SearchConfiguration } from '@alfresco/adf-content-services';
 import { IMrbauSearchQueryBuilder } from './mrbau-search-table-declarations';
 //import { SearchConfiguration } from '@alfresco/adf-content-services';
@@ -132,6 +132,14 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
         && this.config.facetIntervals.intervals.length > 0;
   }
 
+  protected get highlight(): RequestHighlight {
+    return this.hasFacetHighlight ? this.config.highlight : null;
+  }
+
+  get hasFacetHighlight(): boolean {
+    return !!(this.config && this.config.highlight);
+  }
+
   protected getFinalQuery(): string {
     let query = '';
 
@@ -184,8 +192,7 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
         facetIntervals: this.facetIntervals,
         facetFields: this.facetFields,
         sort: this.sort,
-
-        /*highlight: this.highlight*/
+        highlight: this.highlight
     };
 
     result['facetFormat'] = 'V2';
