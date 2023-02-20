@@ -19,7 +19,7 @@
            <!-- <adf-search-filter-chips class="content__filter"></adf-search-filter-chips>-->
 
             <mat-chip-list role="listbox" [attr.aria-label]="'SEARCH.FILTER.ARIA-LABEL.SEARCH_FILTER' | translate">
-              <ng-container *ngFor="let category of queryBuilder.categories">
+              <ng-container *ngFor="let category of queryBuilder.config.categories">
                   <mrbau-search-widget-chip [category]="category" [parent]="this"></mrbau-search-widget-chip>
               </ng-container>
 <!--

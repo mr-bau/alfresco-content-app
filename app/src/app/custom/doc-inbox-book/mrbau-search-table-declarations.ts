@@ -1,5 +1,5 @@
-import { SearchCategory } from '@alfresco/adf-content-services';
-import { QueryBody, RequestFacetFields, RequestFacetQueries, RequestFilterQueries, RequestSortDefinition, ResultSetPaging } from '@alfresco/js-api';
+import { SearchConfiguration } from '@alfresco/adf-content-services';
+import { QueryBody,  RequestSortDefinition, ResultSetPaging } from '@alfresco/js-api';
 import { Subject } from 'rxjs';
 
 export interface IMrbauSearchComponent {
@@ -15,19 +15,16 @@ export interface IMrbauSearchQueryBuilder {
   /*  Stream that emits the error whenever user search  */
   error:Subject<unknown>;
 
-  title : string;
-  categories: SearchCategory[];
+
   queryFragments: { [id: string]: string };
 
   get userQuery() :string;
   set userQuery(value: string);
 
-  include:string[];
   sort:RequestSortDefinition;
   paging: { maxItems?: number; skipCount?: number };
+  config:SearchConfiguration;
 
-  filterQueries:RequestFilterQueries;
-  facetFields:RequestFacetFields;
-  facetQueries:RequestFacetQueries;
+  updateConfig(config: SearchConfiguration);
   execute();
 }

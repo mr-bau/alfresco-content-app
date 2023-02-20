@@ -1,16 +1,11 @@
-import { Injectable } from '@angular/core';
 import { AlfrescoApiService, AppConfigService } from '@alfresco/adf-core';
-import jsonSearch from './dock-inbox-book-search-test.json';
 import { Subject } from 'rxjs';
-import { QueryBody, RequestFacetFields, RequestFacetQueries, RequestFilterQueries, RequestSortDefinition, ResultSetPaging, SearchApi } from '@alfresco/js-api';
-import { SearchCategory } from '@alfresco/adf-content-services';
+import { QueryBody, RequestFacetFields, RequestSortDefinition, ResultSetPaging, SearchApi } from '@alfresco/js-api';
+import { FacetQuery, SearchConfiguration } from '@alfresco/adf-content-services';
 import { IMrbauSearchQueryBuilder } from './mrbau-search-table-declarations';
 //import { SearchConfiguration } from '@alfresco/adf-content-services';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class MrbauSearchQueryBuilderService implements IMrbauSearchQueryBuilder{
+export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
   _searchApi: SearchApi;
   get searchApi(): SearchApi {
       this._searchApi = this._searchApi ?? new SearchApi(this.alfrescoApiService.getInstance());
@@ -26,7 +21,6 @@ export class MrbauSearchQueryBuilderService implements IMrbauSearchQueryBuilder{
   /*  Stream that emits the error whenever user search  */
   error = new Subject();
 
-  title : string = jsonSearch.name;
   paging: { maxItems?: number; skipCount?: number } = null;
 
   private _userQuery = '';
@@ -38,11 +32,10 @@ export class MrbauSearchQueryBuilderService implements IMrbauSearchQueryBuilder{
       this._userQuery = value ? `(${value})` : '';
   }
   sort : RequestSortDefinition;
-  filterQueries: RequestFilterQueries;
-  include: string[];
-  facetFields: RequestFacetFields;
-  facetQueries: RequestFacetQueries;
-  categories: SearchCategory[] = [];
+  config: SearchConfiguration = {
+    categories: []
+  };
+
 
   queryFragments: { [id: string]: string } = {};
 
@@ -54,10 +47,95 @@ export class MrbauSearchQueryBuilderService implements IMrbauSearchQueryBuilder{
       this.alfrescoApiService;
   }
 
+  updateConfig(config : SearchConfiguration) {
+    this.config = config;
+  }
+
+  protected get facetFields(): RequestFacetFields {
+    const facetFields = this.config.facetFields && this.config.facetFields.fields;
+
+    if (facetFields && facetFields.length > 0) {
+        return {
+            facets: facetFields.map((facet) => ({
+                field: facet.field,
+                mincount: facet.mincount,
+                label: this.getSupportedLabel(facet.label),
+                limit: facet.limit,
+                offset: facet.offset,
+                prefix: facet.prefix
+            } as any))
+        };
+    }
+
+    return null;
+  }
+
+  getSupportedLabel(configLabel: string): string {
+    const spaceInsideLabelIndex = configLabel.search(/\s/g);
+    if (spaceInsideLabelIndex > -1) {
+        return `"${configLabel}"`;
+    }
+    return configLabel;
+  }
+
+  protected get facetQueries(): FacetQuery[] {
+    if (this.hasFacetQueries) {
+        return this.config.facetQueries.queries.map((query) => {
+            query.group = this.getQueryGroup(query);
+            return { ...query };
+        });
+    }
+
+    return null;
+  }
+
+  getQueryGroup(query) {
+    return query.group || this.config.facetQueries.label || 'Facet Queries';
+  }
+
+  get hasFacetQueries(): boolean {
+    if (this.config
+        && this.config.facetQueries
+        && this.config.facetQueries.queries
+        && this.config.facetQueries.queries.length > 0) {
+        return true;
+    }
+    return false;
+  }
+
+  protected get facetIntervals(): any {
+    if (this.hasFacetIntervals) {
+        const configIntervals = this.config.facetIntervals;
+
+        return {
+            intervals: configIntervals.intervals.map((interval) => ({
+                label: this.getSupportedLabel(interval.label),
+                field: interval.field,
+                sets: interval.sets.map((set) => ({
+                        label: this.getSupportedLabel(set.label),
+                        start: set.start,
+                        end: set.end,
+                        startInclusive: set.startInclusive,
+                        endInclusive: set.endInclusive
+                    } as any))
+            } as any))
+        };
+    }
+
+    return null;
+  }
+
+  get hasFacetIntervals(): boolean {
+    return this.config
+        && this.config.facetIntervals
+        && this.config.facetIntervals.intervals
+        && this.config.facetIntervals.intervals.length > 0;
+  }
+
   protected getFinalQuery(): string {
     let query = '';
 
-    this.categories.forEach((facet) => {
+    this.config.categories.forEach((facet) => {
         const customQuery = this.queryFragments[facet.id];
         if (customQuery) {
             if (query.length > 0) {
@@ -90,7 +168,6 @@ export class MrbauSearchQueryBuilderService implements IMrbauSearchQueryBuilder{
     return result;
   }
 
-
   private buildQuery(): QueryBody {
     const query = this.getFinalQuery();
     console.log('final query: '+query);
@@ -99,12 +176,12 @@ export class MrbauSearchQueryBuilderService implements IMrbauSearchQueryBuilder{
             query: query,
             language: 'afts'
         },
-        include: this.include,
+        include: this.config.include,
         paging: this.paging,
-        /*fields: this.config.fields,*/
-        filterQueries: this.filterQueries,
+        fields: this.config.fields,
+        filterQueries: this.config.filterQueries,
         facetQueries: this.facetQueries,
-        /*facetIntervals: this.facetIntervals,*/
+        facetIntervals: this.facetIntervals,
         facetFields: this.facetFields,
         sort: this.sort,
 
