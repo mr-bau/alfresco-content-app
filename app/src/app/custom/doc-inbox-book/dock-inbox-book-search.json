@@ -4,23 +4,14 @@
   "name": "Posteingangsbuch",
   "filterWithContains": true,
   "include": ["path", "allowableOperations", "properties", "aspectNames"],
-  "sorting": {
-    "options": [],
-    "defaults": []
-  },
+  "sorting": { "options": [], "defaults": []},
   "resetButton": true,
   "filterQueries": [
     { "query": "+TYPE:'cm:folder' OR +TYPE:'cm:content'" },
-    {
-      "query": "-TYPE:'cm:thumbnail' AND -TYPE:'cm:failedThumbnail' AND -TYPE:'cm:rating'"
-    },
+    { "query": "-TYPE:'cm:thumbnail' AND -TYPE:'cm:failedThumbnail' AND -TYPE:'cm:rating'" },
     { "query": "-cm:creator:System AND -QNAME:comment" },
-    {
-      "query": "-TYPE:'st:site' AND -ASPECT:'st:siteContainer' AND -ASPECT:'sys:hidden'"
-    },
-    {
-      "query": "-TYPE:'dl:dataList' AND -TYPE:'dl:todoList' AND -TYPE:'dl:issue'"
-    },
+    { "query": "-TYPE:'st:site' AND -ASPECT:'st:siteContainer' AND -ASPECT:'sys:hidden'" },
+    { "query": "-TYPE:'dl:dataList' AND -TYPE:'dl:todoList' AND -TYPE:'dl:issue'" },
     { "query": "-TYPE:'fm:topic' AND -TYPE:'fm:post'" },
     { "query": "-TYPE:'lnk:link'" },
     { "query": "-PNAME:'0/wiki'" }
@@ -28,10 +19,9 @@
   "facetFields": {
     "expanded": true,
     "fields": [
-      {"field":"mrba:organisationUnit", "label":"Mandant", "mincount":1},
-      {"field":"mrba:companyName", "label":"Firma", "mincount":1},
-      {"field":"creator", "label":"SEARCH.FACET_FIELDS.CREATOR", "mincount":1},
-      {"field":"type", "label":"Beleg-Art", "mincount":1}
+      {"field":"mrba:organisationUnit", "label":"Mandant", "mincount":1, "settings": {"allowUpdateOnChange":true}},
+      {"field":"mrba:companyName", "label":"Firma", "mincount":1, "settings": {"allowUpdateOnChange":true}},
+      {"field":"creator", "label":"SEARCH.FACET_FIELDS.CREATOR", "mincount":1, "settings": {"allowUpdateOnChange":true}}
     ]
   },
   "facetQueries": {
@@ -58,7 +48,7 @@
         { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"}
     ],
     "settings": {
-      "allowUpdateOnChange": false,
+      "allowUpdateOnChange": true,
       "hideDefaultAction": true
     }
   },

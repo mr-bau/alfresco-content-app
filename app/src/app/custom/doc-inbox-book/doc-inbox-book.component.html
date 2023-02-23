@@ -22,12 +22,13 @@
               <ng-container *ngFor="let category of queryBuilder.config.categories">
                   <mrbau-search-widget-chip [category]="category" [parent]="this"></mrbau-search-widget-chip>
               </ng-container>
-<!--
-              <ng-container *ngIf="facetFiltersService.responseFacets && showContextFacets">
-                  <ng-container *ngFor="let field of facetFiltersService.responseFacets">
-                      <adf-search-facet-chip [field]="field" [attr.data-automation-id]="'search-fact-chip-' + field.field" ></adf-search-facet-chip>
+
+              <ng-container *ngIf="facetFilters.responseFacets">
+                  <ng-container *ngFor="let field of facetFilters.responseFacets">
+                    <!--<adf-search-facet-chip [field]="field" [attr.data-automation-id]="'search-fact-chip-' + field.field" ></adf-search-facet-chip>-->
+                      <mrbau-search-facet-chip [field]="field" [parent]="this" [attr.data-automation-id]="'search-fact-chip-' + field.field" ></mrbau-search-facet-chip>
                   </ng-container>
-              </ng-container>-->
+              </ng-container>
             </mat-chip-list>
 
             <!--<button
@@ -49,7 +50,6 @@
             [sorting]="sorting"
             [headerFilters]="false"
             [filterValue]=""
-            (filterSelection)="onFilterSelected($event)"
             [imageResolver]="imageResolver"
             [node]="$any(data)"
             (node-dblclick)="onHandleNodeClick($event)"

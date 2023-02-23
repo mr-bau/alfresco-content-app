@@ -1,10 +1,9 @@
-import { SearchConfiguration } from '@alfresco/adf-content-services';
+import { FacetField, FacetFieldBucket, SearchConfiguration } from '@alfresco/adf-content-services';
 import { QueryBody,  RequestSortDefinition, ResultSetPaging } from '@alfresco/js-api';
 import { Subject } from 'rxjs';
 
 export interface IMrbauSearchComponent {
   queryBuilder: IMrbauSearchQueryBuilder;
-
 }
 
 export interface IMrbauSearchQueryBuilder {
@@ -26,4 +25,9 @@ export interface IMrbauSearchQueryBuilder {
 
   updateConfig(config: SearchConfiguration);
   execute();
+  getQueryGroup(query:any);
+
+  addUserFacetBucket(field: FacetField, bucket: FacetFieldBucket);
+  removeUserFacetBucket(field: FacetField, bucket: FacetFieldBucket);
+  update();
 }

@@ -1,7 +1,7 @@
 import { AlfrescoApiService, AppConfigService } from '@alfresco/adf-core';
 import { Subject } from 'rxjs';
 import { QueryBody, RequestFacetFields, RequestHighlight, RequestSortDefinition, ResultSetPaging, SearchApi } from '@alfresco/js-api';
-import { FacetQuery, SearchConfiguration } from '@alfresco/adf-content-services';
+import { FacetField, FacetFieldBucket, FacetQuery, SearchConfiguration } from '@alfresco/adf-content-services';
 import { IMrbauSearchQueryBuilder } from './mrbau-search-table-declarations';
 //import { SearchConfiguration } from '@alfresco/adf-content-services';
 
@@ -38,6 +38,7 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
 
 
   queryFragments: { [id: string]: string } = {};
+  userFacetBuckets: { [key: string]: FacetFieldBucket[] } = {};
 
   constructor(
     private appConfig: AppConfigService,
@@ -157,7 +158,6 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
         .filter((entry) => entry)
         .join(' AND ');
 
-      /*
     if (this.userFacetBuckets) {
         Object.keys(this.userFacetBuckets).forEach((key) => {
             const subQuery = (this.userFacetBuckets[key] || [])
@@ -171,14 +171,13 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
                 result += `(${subQuery})`;
             }
         });
-    }*/
+    }
 
     return result;
   }
 
   private buildQuery(): QueryBody {
     const query = this.getFinalQuery();
-    console.log('final query: '+query);
     const result: QueryBody = {
         query: {
             query: query,
@@ -199,7 +198,7 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
     return result;
   }
 
-  private update(): QueryBody {
+  private updateQuery(): QueryBody {
     const query = this.buildQuery();
     this.updated.next(query);
     return query;
@@ -212,7 +211,7 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
    */
   async execute() {
     try {
-        const query = this.update();
+        const query = this.updateQuery();
         if (query) {
             const resultSetPaging: ResultSetPaging = await this.searchApi.search(query);
             this.executed.next(resultSetPaging);
@@ -229,6 +228,27 @@ export class MrbauSearchQueryBuilder implements IMrbauSearchQueryBuilder{
             }
         });
     }
+  }
+
+  addUserFacetBucket(field: FacetField, bucket: FacetFieldBucket) {
+    if (field && field.field && bucket) {
+      const buckets = this.userFacetBuckets[field.field] || [];
+      const existing = buckets.find((facetBucket) => facetBucket.label === bucket.label);
+      if (!existing) {
+          buckets.push(bucket);
+      }
+      this.userFacetBuckets[field.field] = buckets;
+    }
+  }
+  removeUserFacetBucket(field: FacetField, bucket: FacetFieldBucket) {
+    if (field && field.field && bucket) {
+      const buckets = this.userFacetBuckets[field.field] || [];
+      this.userFacetBuckets[field.field] = buckets
+          .filter((facetBucket) => facetBucket.label !== bucket.label);
+    }
+  }
+  update(){
+    this.execute();
   }
 
 }

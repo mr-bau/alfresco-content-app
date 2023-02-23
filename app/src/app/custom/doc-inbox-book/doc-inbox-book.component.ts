@@ -1,9 +1,9 @@
 
 import { ContentActionRef } from '@alfresco/adf-extensions';
-import { Pagination, ResultSetPaging } from '@alfresco/js-api';
+import { MinimalNodeEntity, Pagination, ResultSetPaging } from '@alfresco/js-api';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { PageComponent } from '../../components/page.component';
-import { AppStore, SnackbarErrorAction } from '@alfresco/aca-shared/store';
+import { AppStore, NavigateToFolder, SnackbarErrorAction, ViewNodeAction, ViewNodeExtras } from '@alfresco/aca-shared/store';
 import { AppExtensionService } from '@alfresco/aca-shared';
 import { ContentManagementService } from '../../services/content-management.service';
 import { Store } from '@ngrx/store';
@@ -14,6 +14,8 @@ import { IMrbauSearchComponent, IMrbauSearchQueryBuilder } from './mrbau-search-
 import { SearchConfiguration } from '@alfresco/adf-content-services';
 
 import jsonSearch from './dock-inbox-book-search.json';
+import { MrbauFacetFilters } from './mrbau-facet-filters';
+import { Router } from '@angular/router';
 interface SortingDefinition {
   key: string;
   sortingKey: string;
@@ -37,6 +39,7 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
   queryParams;
   config : SearchConfiguration;
   queryBuilder: IMrbauSearchQueryBuilder;
+  facetFilters: MrbauFacetFilters;
 
   constructor(
     store: Store<AppStore>,
@@ -45,16 +48,18 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
     alfrescoApiService: AlfrescoApiService,
     appConfig: AppConfigService,
     private translationService: TranslationService,
+    private router: Router,
   ) {
     super(store, extensions, content);
     this.config = JSON.parse(JSON.stringify(jsonSearch));
     this.title = this.config.name;
-
     this.queryBuilder = new MrbauSearchQueryBuilder(appConfig, alfrescoApiService);
     this.queryBuilder.paging = {
       skipCount: 0,
       maxItems: 25
     };
+
+    this.facetFilters = new MrbauFacetFilters(this.queryBuilder, this.translationService);
   }
 
   ngOnInit(): void {
@@ -62,7 +67,7 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
     this.queryBuilder.updateConfig(this.config);
 
     this.queryBuilder.userQuery = decodeURIComponent("TYPE:'mrba:archiveDocument'");
-    this.setSorting({ key: "createdAt", sortingKey: "cm:created", direction: "asc" });
+    this.setSorting({ key: "createdAt", sortingKey: "cm:created", direction: "desc" });
     this.subscriptions.push(
       this.queryBuilder.updated.subscribe((query) => {
         if (query) {
@@ -101,8 +106,8 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
   }
 
   onSearchResultLoaded(nodePaging: ResultSetPaging) {
-    console.log(nodePaging);
     this.data = nodePaging;
+    this.facetFilters.onSearchResultLoaded(this.data);
   }
 
   private setSorting(sortDef : SortingDefinition)
@@ -117,8 +122,6 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
 
   onPaginationChanged(event) {
     const pagination = event as Pagination;
-    console.log('onPaginationChanged');
-    console.log(event);
     this.queryBuilder.paging = {
       maxItems: pagination.maxItems,
       skipCount: pagination.skipCount
@@ -127,19 +130,35 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
   }
 
   onHandleNodeClick(event) {
-    console.log('handleNodeClick');
-    console.log(event);
+    const node:MinimalNodeEntity = (event as CustomEvent).detail?.node;
+    if (node && node.entry) {
+      if (node.entry.isFolder) {
+        this.store.dispatch(new NavigateToFolder(node));
+        return;
+      }
+
+      this.showPreview(node, { location: this.router.url });
+    }
+  }
+
+  showPreview(node: MinimalNodeEntity, extras?: ViewNodeExtras) {
+    if (node && node.entry) {
+      let id: string;
+
+      if (node.entry.nodeType === 'app:filelink') {
+        id = node.entry.properties['cm:destination'];
+      } else {
+        id = (node as any).entry.nodeId || (node as any).entry.guid || node.entry.id;
+      }
+
+
+      console.log("TODO FIX dispatch "+id+" "+extras);
+      this.store.dispatch(new ViewNodeAction(id, extras));
+    }
   }
 
   onSortingChanged(event) {
-    //console.log(event);
     this.setSorting(event.detail);
     this.queryBuilder.execute();
   }
-
-  onFilterSelected(event) {
-    console.log("onFilterSelected");
-    console.log(event);
-  }
-
 }
