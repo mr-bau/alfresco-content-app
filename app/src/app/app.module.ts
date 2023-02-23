@@ -160,9 +160,9 @@ import { MrbauShowDocTaskDialogComponent } from './custom/dialogs/mrbau-show-doc
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 import { TasksMenuReopenComponent } from './custom/tasks-menu-reopen/tasks-menu-reopen.component';
 import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
-import { MrbauSearchWidgetChipComponent }  from './custom/doc-inbox-book/mrbau-search-widget-chip/mrbau-search-widget-chip.component';
-import { MrbauSearchFacetChipComponent } from './custom/doc-inbox-book/mrbau-search-facet-chip/mrbau-search-facet-chip.component';
-import { MrbauSearchFacetFieldComponent } from './custom/doc-inbox-book/mrbau-search-facet-field/mrbau-search-facet-field.component';
+import { MrbauSearchWidgetChipComponent }  from './custom/mrbau-search-table/mrbau-search-widget-chip/mrbau-search-widget-chip.component';
+import { MrbauSearchFacetChipComponent } from './custom/mrbau-search-table/mrbau-search-facet-chip/mrbau-search-facet-chip.component';
+import { MrbauSearchFacetFieldComponent } from './custom/mrbau-search-table/mrbau-search-facet-field/mrbau-search-facet-field.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);

@@ -97,11 +97,41 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'inbox',
-        component: DocInboxBookComponent,
-        data: {
-          title: 'Posteingangsbuch',
-        }
-        //component: TestComponent
+        children: [
+          {
+            path: '',
+            component: DocInboxBookComponent,
+            data: {
+              title: 'Posteingangsbuch',
+            }
+          },
+          {
+            path: 'view/:nodeId',
+            outlet: 'viewer',
+            children: [
+              {
+                path: '',
+                data: {
+                  navigateSource: 'search'
+                },
+                loadChildren: () => import('./components/viewer/viewer.module').then((m) => m.AppViewerModule)
+              }
+            ]
+          },
+          {
+            path: 'view/:nodeId/:versionId',
+            outlet: 'viewer',
+            children: [
+              {
+                path: '',
+                data: {
+                  navigateSource: 'search'
+                },
+                loadChildren: () => import('./components/viewer/viewer.module').then((m) => m.AppViewerModule)
+              }
+            ]
+          }
+        ]
       },
       {
         path: 'tasks',

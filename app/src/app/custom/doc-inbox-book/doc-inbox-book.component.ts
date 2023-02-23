@@ -1,22 +1,22 @@
 
 import { ContentActionRef } from '@alfresco/adf-extensions';
 import { MinimalNodeEntity, Pagination, ResultSetPaging } from '@alfresco/js-api';
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { PageComponent } from '../../components/page.component';
-import { AppStore, NavigateToFolder, SnackbarErrorAction, ViewNodeAction, ViewNodeExtras } from '@alfresco/aca-shared/store';
+import { AppStore, isAdmin, SnackbarErrorAction } from '@alfresco/aca-shared/store';
 import { AppExtensionService } from '@alfresco/aca-shared';
 import { ContentManagementService } from '../../services/content-management.service';
 import { Store } from '@ngrx/store';
 import { AlfrescoApiService, AppConfigService, TranslationService } from '@alfresco/adf-core';
-import { MrbauSearchQueryBuilder } from './mrbau-search-query-builder';
-
-import { IMrbauSearchComponent, IMrbauSearchQueryBuilder } from './mrbau-search-table-declarations';
+import { MrbauSearchQueryBuilder } from '../mrbau-search-table/mrbau-search-query-builder';
+import { IMrbauSearchComponent, IMrbauSearchQueryBuilder } from '../mrbau-search-table/mrbau-search-table-declarations';
 import { SearchConfiguration } from '@alfresco/adf-content-services';
 
 import jsonSearch from './dock-inbox-book-search.json';
-import { MrbauFacetFilters } from './mrbau-facet-filters';
+import { MrbauFacetFilters } from '../mrbau-search-table/mrbau-facet-filters';
 import { Router } from '@angular/router';
-interface SortingDefinition {
+import { takeUntil } from 'rxjs/operators';
+interface MrbauSortingDefinition {
   key: string;
   sortingKey: string;
   direction: string;
@@ -28,8 +28,9 @@ interface SortingDefinition {
   encapsulation: ViewEncapsulation.None,
   styleUrls: ['./doc-inbox-book.component.scss']
 })
-export class DocInboxBookComponent extends PageComponent implements OnInit, IMrbauSearchComponent {
+export class DocInboxBookComponent extends PageComponent implements OnInit, OnDestroy, IMrbauSearchComponent {
 
+  isAdmin = false;
   isLoading: boolean = false;
   errorMessage: string;
   isSmallScreen = false;
@@ -88,7 +89,18 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
       })
     );
 
+    this.store
+    .select(isAdmin)
+    .pipe(takeUntil(this.onDestroy$))
+    .subscribe((value) => {
+      this.isAdmin = value;
+    });
+
     this.queryBuilder.execute();
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
   }
 
   onSearchError(error: { message: any }) {
@@ -110,7 +122,7 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
     this.facetFilters.onSearchResultLoaded(this.data);
   }
 
-  private setSorting(sortDef : SortingDefinition)
+  private setSorting(sortDef : MrbauSortingDefinition)
   {
     this.queryBuilder.sort = [{
       "type": "FIELD",
@@ -129,32 +141,18 @@ export class DocInboxBookComponent extends PageComponent implements OnInit, IMrb
     this.queryBuilder.execute();
   }
 
-  onHandleNodeClick(event) {
-    const node:MinimalNodeEntity = (event as CustomEvent).detail?.node;
+  navigateTo(node: MinimalNodeEntity) {
     if (node && node.entry) {
       if (node.entry.isFolder) {
-        this.store.dispatch(new NavigateToFolder(node));
+        // ignored
         return;
       }
-
       this.showPreview(node, { location: this.router.url });
     }
   }
 
-  showPreview(node: MinimalNodeEntity, extras?: ViewNodeExtras) {
-    if (node && node.entry) {
-      let id: string;
-
-      if (node.entry.nodeType === 'app:filelink') {
-        id = node.entry.properties['cm:destination'];
-      } else {
-        id = (node as any).entry.nodeId || (node as any).entry.guid || node.entry.id;
-      }
-
-
-      console.log("TODO FIX dispatch "+id+" "+extras);
-      this.store.dispatch(new ViewNodeAction(id, extras));
-    }
+  onHandleNodeClick(event) {
+    this.navigateTo((event as CustomEvent).detail?.node);
   }
 
   onSortingChanged(event) {

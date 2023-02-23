@@ -21,6 +21,7 @@
     "fields": [
       {"field":"mrba:organisationUnit", "label":"Mandant", "mincount":1, "settings": {"allowUpdateOnChange":true}},
       {"field":"mrba:companyName", "label":"Firma", "mincount":1, "settings": {"allowUpdateOnChange":true}},
+      {"field":"mrba:costCarrierNumber", "label":"KT", "mincount":1, "settings": {"allowUpdateOnChange":true}},
       {"field":"creator", "label":"SEARCH.FACET_FIELDS.CREATOR", "mincount":1, "settings": {"allowUpdateOnChange":true}}
     ]
   },

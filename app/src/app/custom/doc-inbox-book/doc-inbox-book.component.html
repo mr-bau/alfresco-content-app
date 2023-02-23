@@ -53,6 +53,7 @@
             [imageResolver]="imageResolver"
             [node]="$any(data)"
             (node-dblclick)="onHandleNodeClick($event)"
+            (name-click)="onHandleNodeClick($event)"
             (sorting-changed)="onSortingChanged($event)"
             (pagination-changed)="onPaginationChanged($event)"
           >
@@ -82,7 +83,7 @@
               <data-column key="properties.mrba:costCarrierNumber" sortingKey="mrba:costCarrierNumber" type="text" title="KT" class="adf-datatable-cell-value adf-expand-cell-1 adf-ellipsis-cell" [sortable]="true">
               </data-column>
 
-              <data-column key="nodeType" sortingKey="TYPE" type="text" title="Beleg-Art" class="adf-datatable-cell-value adf-expand-cell-2 adf-ellipsis-cell" [sortable]="true">
+              <data-column key="nodeType" sortingKey="TYPE" type="text" title="Dokument-Art" class="adf-datatable-cell-value adf-expand-cell-2 adf-ellipsis-cell" [sortable]="true">
                 <ng-template let-context>
                   <span class="adf-datatable-cell-value adf-ellipsis-cell">
                   {{context.row?.node?.entry?.nodeType | mrbauArchiveNodeTypeLabel | translate }}
@@ -115,9 +116,9 @@
         </div>
       </div>
     </div>
-<!--
-    <div class="sidebar">
+
+    <div class="sidebar" *ngIf="infoDrawerOpened$ | async">
       <aca-info-drawer [node]="selection.last"></aca-info-drawer>
-    </div>-->
+    </div>
   </aca-page-layout-content>
 </aca-page-layout>
