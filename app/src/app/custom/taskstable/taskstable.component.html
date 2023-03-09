@@ -70,6 +70,7 @@
           >
         </data-column>
       </data-columns>
+
       <!-- ALL DONE TEMPLATE -->
       <adf-no-content-template>
         <ng-template>
@@ -91,9 +92,9 @@
         </ng-template>
       </adf-loading-content-template>
     </adf-datatable>
-    <adf-pagination
-      [target]="this"
-      [supportedPageSizes]="paginationSizes"
+    <adf-pagination acaPagination
+    [target]="this"
+    [supportedPageSizes]="paginationSizes"
     >
     </adf-pagination>
   </mat-tab>

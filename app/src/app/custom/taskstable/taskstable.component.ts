@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsulation} from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DataTableAdapter, SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
@@ -14,7 +14,8 @@ import { OnDestroy } from '@angular/core';
 @Component({
   selector: 'aca-taskstable',
   templateUrl: './taskstable.component.html',
-  styleUrls: ['./taskstable.component.scss']
+  styleUrls: ['./taskstable.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponent {
   @ViewChild('dataTable') adfDataTable : DataTableAdapter;

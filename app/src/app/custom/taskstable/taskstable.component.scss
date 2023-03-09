@@ -16,3 +16,21 @@
 .adf-empty-content {
   min-height: 200px;
 }
+
+.mat-tab-body-wrapper {
+  height: 100%;
+}
+
+.mat-tab-body-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.adf-pagination {
+  background-color: #fafafa;
+  border-top: 1px solid #eee!important;
+}
+
+.adf-datatable {
+  overflow-y: auto!important;
+}
