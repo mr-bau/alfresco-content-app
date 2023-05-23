@@ -10,10 +10,10 @@
   "appConfig": {
     "locale": "de",
     "application": {
-      "name": "M&R ECM Platform",
+      "name": "M&R DMS/ECM Platform",
       "logo": "assets/mrbau-extension/svg/logo_mr.svg",
       "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
-      "copyright": "© 2022-2023 M&R Bauholding GmbH, © 2017-2023 Alfresco Software, Inc. Alle Rechte vorbehalten."
+      "copyright": "© 2022-2023 M&R Holding GmbH, © 2017-2023 Alfresco Software, Inc. Alle Rechte vorbehalten."
     }
   },
 
