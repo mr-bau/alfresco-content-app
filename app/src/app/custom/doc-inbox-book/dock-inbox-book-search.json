@@ -94,6 +94,19 @@
           "maxDate": "today"
         }
       }
+    },
+    {
+      "id": "mrbau.extension.docinbox.categories.documentDateRange", "name": "Dokumentdatum", "enabled": true, "expanded":false,
+      "component": {
+        "selector": "date-range",
+        "settings": {
+          "allowUpdateOnChange": false,
+          "hideDefaultAction": true,
+          "field": "mrba:documentDateValue",
+          "dateFormat": "DD-MMM-YY",
+          "maxDate": "today"
+        }
+      }
     }
   ]
 }
