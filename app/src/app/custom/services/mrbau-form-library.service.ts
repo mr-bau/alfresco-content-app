@@ -565,7 +565,8 @@ export class MrbauFormLibraryService {
       pattern: REGEX_nonNegativeInt,
     },
     expressions: {
-      hide: "model['mrba:inboundInvoiceType']!='Anzahlung'",
+      // TODO nur für Rechnungen Prüffrist ausblenden
+      //hide: "model['mrba:inboundInvoiceType']!='Anzahlung'",
     }
   }
 
