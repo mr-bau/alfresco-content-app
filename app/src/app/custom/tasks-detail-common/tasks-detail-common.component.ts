@@ -333,7 +333,7 @@ export class TasksDetailCommonComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result)
       {
-        this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, result.comment);
+        this.saveStatusCommentUser(EMRBauTaskStatus.STATUS_NOTIFY_DECLINED, result.comment, this._task.createdUser.id);
       }
     });
   }

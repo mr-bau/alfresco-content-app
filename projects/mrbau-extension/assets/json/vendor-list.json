@@ -1,5 +1,18 @@
 {
-    "201129": {
+  "307281": {
+    "mrba:companyId": "307281",
+    "mrba:companyName": "T.G. TANGL und GRANDL Gerüstebau u.-verleih GmbH",
+    "mrba:companyStreet": "Wiener Straße 206",
+    "mrba:companyZipCode": "8680",
+    "mrba:companyCity": "Mürzzuschlag",
+    "ZZiel": "0,00",
+    "SktoProz1": "0,00",
+    "SktoTage1": "0,00",
+    "mrba:companyVatID": "ATU45263209",
+    "Ohne Steuer": "",
+    "-": null
+  },
+  "201129": {
         "mrba:companyId": "201129",
         "mrba:companyName": "Kfz-Handel Nihad Kulovic",
         "mrba:companyStreet": "",
