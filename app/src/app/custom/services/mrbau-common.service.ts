@@ -16,7 +16,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
   providedIn: 'root'
 })
 export class MrbauCommonService {
-  // TODO implement caching
+  // MR-TODO implement caching
   constructor(
     private dialog: MatDialog,
     private peopleContentService: PeopleContentService,
@@ -256,7 +256,7 @@ export class MrbauCommonService {
   progressWithNewUserConfirmDialog(assignedUserName : string) : Promise<string>
   {
     //this.model['mrbt:assignedUserName'] = task.assignedUserName;
-    // todo default use assignedUserName
+    // MR-TODO default use assignedUserName
     return new Promise((resolve, reject) =>
       {
         // dialog

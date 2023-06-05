@@ -1178,10 +1178,6 @@ export class MrbauFormLibraryService {
     ]
   };
 
-  // TODO sachliche Rechnungskorrektur
-
-
-
   readonly mrba_netAmountVerified : FormlyFieldConfig =
   {
     className: 'flex-2',

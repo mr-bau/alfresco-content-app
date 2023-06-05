@@ -27,6 +27,12 @@ export const enum EMRBauTaskStatus {
   STATUS_CANCELED    = 9001
 }
 
+// encapsulate a EMRBauTaskStatus value with an optional new assigned user value
+export interface IMRBauTaskStatusAndUser {
+  state:EMRBauTaskStatus;
+  userName?:string;
+}
+
 export interface MRBauTaskStatusData {
   state : EMRBauTaskStatus;
   stateAsString : string;

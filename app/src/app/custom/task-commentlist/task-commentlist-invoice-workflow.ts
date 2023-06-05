@@ -106,7 +106,6 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
 
   buttonAddComment()
   {
-    // todo add comment
     this.addComment(this.model.comment);
   }
 

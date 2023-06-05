@@ -108,7 +108,6 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       this.notificationService.showError('Fehler: NodeType nicht gefunden!');
       return;
     }
-    // TODO add entry to incoming post book
 
     // execute sequentially !
     this.changeDocumentType(node, nodeType) // adapt document type and set receive time stamp and fiscal year

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Node, NodeAssociation, NodeAssociationEntry, NodeEntry, NodePaging, SearchRequest } from '@alfresco/js-api';
+import { Node, NodeAssociation, NodeAssociationEntry, NodePaging, SearchRequest } from '@alfresco/js-api';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
@@ -23,26 +23,22 @@ export class MrbauWorkflowService {
     private dialog: MatDialog,
     ) { }
 
-  assignNewUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<NodeEntry> {
+  getNewUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
     data;
-    return new Promise<NodeEntry>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       let assignedUserName = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
       this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
       .then((name) => {
-        console.log(name);
-        data.taskDetailNewDocument.task.assignedUserName = name;
-
-        return this.mrbauCommonService.updateTaskAssignNewUser(data.taskDetailNewDocument.task.id, data.taskDetailNewDocument.task.assignedUserName);
+        resolve(name);
       })
-      .then((nodeEntry) => resolve(nodeEntry))
       .catch((error) => reject(error));
     })
   }
 
-  assignNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<NodeEntry> {
+  getNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
     data;
-    data.taskDetailNewDocument.task.assignedUserName = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
-    return this.mrbauCommonService.updateTaskAssignNewUser(data.taskDetailNewDocument.task.id, data.taskDetailNewDocument.task.assignedUserName);
+    let newUser = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
+    return Promise.resolve(newUser);
   }
 
   createAssociationsForProposedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {

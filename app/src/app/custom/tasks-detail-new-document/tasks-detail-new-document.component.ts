@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { DocumentAssociations, DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOrderTypes, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
-import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
+import { EMRBauTaskStatus, IMRBauTaskStatusAndUser, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
@@ -187,20 +187,24 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {taskDetailNewDocument: this});
   }
 
-  private doPerformStateChangePromise(newState, data) : Promise<any> {
+  private doPerformStateChangePromise(newState:IMRBauTaskStatusAndUser, data:MRBauWorkflowStateCallbackData) : Promise<IMRBauTaskStatusAndUser> {
     this.log('doPerformStateChangePromise');
-    const performAction = (this._task.status != newState);
+    const performAction = (this._task.status != newState.state);
     if (performAction)
     {
-      this.updateTaskStatusAndButtons(newState);
+      this.updateTaskStatusAndButtons(newState.state);
       this.updateFormDC();
       const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType(data);
       if (workflowState.onEnterAction)
       {
-        return workflowState.onEnterAction(data);
+        return new Promise((resolve, reject) => {
+          workflowState.onEnterAction(data)
+          .then( () => resolve(newState))
+          .catch( (error) => reject(error))
+        });
       }
     }
-    return new Promise((resolve) => resolve(null));
+    return new Promise((resolve) => resolve(newState));
   }
 
   performStateChangeAction(nextStateFunction : MRBauWorkflowStateCallback, data: MRBauWorkflowStateCallbackData)
@@ -209,9 +213,12 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.writeMetadata() // update document meta data
     .then( () => {return this.updateTaskNodeMetadataFromServer();}) // update local document meta data
     .then( () => {return nextStateFunction(data);})
-    .then( (newState) => {return this.doPerformStateChangePromise(newState, data)})
-    .then( () => {return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status)}) // update task meta data
+    .then( (newStateObject) => {return this.doPerformStateChangePromise(newStateObject, data)})
+    .then( (newStateObject) => {
+      if (newStateObject.userName) {data.taskDetailNewDocument.task.assignedUserName = newStateObject.userName;}
+      return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status, newStateObject.userName)}) // update task meta data
     .then( () => {
+      console.log('xxx4');
       this.emitTaskChangeEvent();
       this.recreateForm(); // create new form to reflect data from model
       this.finishLoading();})

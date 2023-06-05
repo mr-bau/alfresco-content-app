@@ -51,7 +51,7 @@
 import { NodeAssociationEntry  } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
 import { EMRBauDuplicateResolveResult } from './form/mrbau-formly-duplicated-document.component';
-import { EMRBauTaskStatus } from './mrbau-task-declarations';
+import { EMRBauTaskStatus, IMRBauTaskStatusAndUser } from './mrbau-task-declarations';
 import { MrbauWorkflowService } from './services/mrbau-workflow.service';
 import { TasksDetailNewDocumentComponent } from './tasks-detail-new-document/tasks-detail-new-document.component';
 
@@ -234,7 +234,7 @@ export interface MRBauWorkflowStateCallbackData {
   model: any,
   form: FormGroup,*/
 }
-export type MRBauWorkflowStateCallback = (data?:MRBauWorkflowStateCallbackData) => Promise<any>;
+export type MRBauWorkflowStateCallback = (data?:MRBauWorkflowStateCallbackData) => Promise<IMRBauTaskStatusAndUser>;
 export interface IMRBauWorkflowState {
   state: EMRBauTaskStatus;
   nextState : MRBauWorkflowStateCallback; // get next State
@@ -353,14 +353,14 @@ export class MrbauArchiveModel {
     return null;
   }
 
-  getNextTaskStateFromNodeType(data:MRBauWorkflowStateCallbackData) : Promise<EMRBauTaskStatus> {
+  getNextTaskStateFromNodeType(data:MRBauWorkflowStateCallbackData) : Promise<IMRBauTaskStatusAndUser> {
     const workflowState = this.getWorkFlowStateFromNodeType(data);
-    return (workflowState) ? workflowState.nextState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.taskDetailNewDocument.task.status));
+    return (workflowState) ? workflowState.nextState(data) : new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:data.taskDetailNewDocument.task.status}));
   }
 
-  getPrevTaskStateFromNodeType(data:MRBauWorkflowStateCallbackData) : Promise<EMRBauTaskStatus> {
+  getPrevTaskStateFromNodeType(data:MRBauWorkflowStateCallbackData) : Promise<IMRBauTaskStatusAndUser> {
     const workflowState = this.getWorkFlowStateFromNodeType(data);
-    return (workflowState) ? workflowState.prevState(data) : new Promise<EMRBauTaskStatus>(resolve => resolve(data.taskDetailNewDocument.task.status));
+    return (workflowState) ? workflowState.prevState(data) : new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:data.taskDetailNewDocument.task.status}));
   }
 
   readonly mrbauBelege : IMRBauDocumentType[] = [
@@ -394,22 +394,22 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -421,18 +421,18 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -490,32 +490,32 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
             .then( () =>
             {
-              resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2);
+              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
             })
             .catch( (error) => reject(error))
             }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -527,18 +527,18 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -607,22 +607,22 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -634,18 +634,18 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -700,22 +700,22 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -727,18 +727,18 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -798,32 +798,32 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
             .then( () =>
             {
-              resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2);
+              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
             })
             .catch( (error) => reject(error))
             }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_FORMAL_REVIEW);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -835,53 +835,52 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_FORMAL_REVIEW;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.assignNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
-            .then( (node) => {
-              console.log(node);
-              resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION); })
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            .then( (userName) => {
+              resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,userName:userName}); })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_REVIEW)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FORMAL_REVIEW)),
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_REVIEW})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW})),
           onEnterAction : (data) => this.mrbauWorkflowService.invoiceVerificationPrefillValues(data)
         },
         {state : EMRBauTaskStatus.STATUS_INVOICE_REVIEW,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.assignNewUser(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
-            .then( () => { resolve(EMRBauTaskStatus.STATUS_FINAL_APPROVAL); })
-            .catch( (error) => reject(error))
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.getNewUser(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
+            .then( (userName) => {resolve({state:EMRBauTaskStatus.STATUS_FINAL_APPROVAL, userName:userName}); })
+            .catch( (error) => { reject(error)})
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION})),
         },
         {state : EMRBauTaskStatus.STATUS_FINAL_APPROVAL,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
-            this.mrbauWorkflowService.assignNewUserWithDialog(data, EMRBauTaskStatus.STATUS_ACCOUNTING)
-            .then( () => { resolve(EMRBauTaskStatus.STATUS_ACCOUNTING); })
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_ACCOUNTING)
+            .then( (userName) => { resolve({state:EMRBauTaskStatus.STATUS_ACCOUNTING, userName: userName}); })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION})),
         },
         {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)),
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ACCOUNTING))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ACCOUNTING}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -1027,32 +1026,32 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
             .then( () =>
             {
-              resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2);
+              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
             })
             .catch( (error) => reject(error))
             }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ACCOUNTING);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ACCOUNTING});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_LINK_DOCUMENTS)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -1064,21 +1063,21 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_FORMAL_REVIEW;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ACCOUNTING;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ACCOUNTING))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ACCOUNTING}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -1171,22 +1170,22 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -1198,18 +1197,18 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -1269,22 +1268,22 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -1296,18 +1295,18 @@ export class MrbauArchiveModel {
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
                 case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
               }
-              resolve(newState);
+              resolve({state:newState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-          prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
       ]},
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
@@ -1346,22 +1345,22 @@ export class MrbauArchiveModel {
   readonly CONTRACT_DEFAULT_WORKFLOW_DEFINITION = {
     states : [
       {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-        nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
-        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1))},
+        nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
       {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
         onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data),
-        nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+        nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
           this.mrbauWorkflowService.performDuplicateCheck(data)
           .then( (duplicatedData) =>
           {
-            resolve( duplicatedData ? EMRBauTaskStatus.STATUS_DUPLICATE : EMRBauTaskStatus.STATUS_ALL_SET);
+            resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
           })
           .catch( (error) => reject(error))
         }),
-        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1)),
+        prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
       },
       {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-        nextState : (data) => new Promise<EMRBauTaskStatus>((resolve, reject) => {
+        nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
           this.mrbauWorkflowService.resolveDuplicateIssue(data)
           .then( (result) =>
           {
@@ -1373,18 +1372,18 @@ export class MrbauArchiveModel {
               case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
               case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
             }
-            resolve(newState);
+            resolve({state:newState});
           })
           .catch( (error) => reject(error))
         }),
-        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2)),
+        prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
       },
       {state : EMRBauTaskStatus.STATUS_ALL_SET,
-        nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2))},
+        nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+        prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
       {state : EMRBauTaskStatus.STATUS_FINISHED,
-        nextState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_FINISHED)),
-        prevState : () => new Promise<EMRBauTaskStatus>(resolve => resolve(EMRBauTaskStatus.STATUS_ALL_SET))},
+        nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+        prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
     ]
   }
 
