@@ -97,7 +97,7 @@ export class MrbauConventionsService {
 
   readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
   readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
-  readonly discountDefaultValues = ['3,00', '2,00','1,00'];
+  readonly discountDefaultValues = ['1,00','2,00','3,00'];
 
   private createVendorString(v : IVendor) : string {
     let result = v['mrba:companyName'];

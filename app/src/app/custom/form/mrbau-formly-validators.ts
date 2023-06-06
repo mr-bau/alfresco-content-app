@@ -111,6 +111,7 @@ export function germanDecimalValidatorAndConverter(control: FormControl, field: 
   return null;
 }
 
+var netGrossTaxRateValidatorAndConverterRecursionTest = true;
 export function netGrossTaxRateValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
   control;
   field;
@@ -121,6 +122,10 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   const netAmount = field.form.get('mrba:netAmount') ? germanParseFloat(field.form.get('mrba:netAmount').value) : undefined;
   const grossAmount = field.form.get('mrba:grossAmount') ? germanParseFloat(field.form.get('mrba:grossAmount').value) : undefined;
   const taxRate = field.form.get('mrba:taxRate') ? germanParseFloat(field.form.get('mrba:taxRate').value) : undefined;
+
+  const netAmountControl = field.parent?.get('mrba:netAmount')?.formControl;
+  const grossAmountControl = field.parent?.get('mrba:grossAmount')?.formControl;
+  const taxRateControl = field.parent?.get('mrba:taxRate')?.formControl;
 
   // autofill grossAmount
   if (grossAmount == null && netAmount != null && taxRate != null && field.form.get('mrba:grossAmount'))
@@ -150,6 +155,15 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   if (netAmount == null || grossAmount == null || taxRate == null)
   {
     return null;
+  }
+
+  // also update validity of other fields
+  if (netGrossTaxRateValidatorAndConverterRecursionTest) {
+    netGrossTaxRateValidatorAndConverterRecursionTest = false;
+    if (control != netAmountControl && netAmountControl) netAmountControl.updateValueAndValidity();
+    if (control != grossAmountControl && grossAmountControl) grossAmountControl.updateValueAndValidity();
+    if (control != taxRateControl && taxRateControl)  taxRateControl.updateValueAndValidity();
+    netGrossTaxRateValidatorAndConverterRecursionTest = true;
   }
 
   // check if values are valid with 1 cent tolerance

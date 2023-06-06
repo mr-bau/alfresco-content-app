@@ -392,7 +392,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Steuersatz [%]',
       placeholder: 'Steuersatz in % z.B. 20,0',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.taxRateDefaultValues) : this.mrbauConventionsService.taxRateDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.taxRateDefaultValues) : this.mrbauConventionsService.taxRateDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.taxRateDefaultValues),
     },
     modelOptions: {
       updateOn: 'blur',
@@ -412,7 +413,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:taxRateComment',
     type: 'input',
     props: {
-      label: 'Optionaler Kommentar',
+      label: 'Optionaler Kommentar Steuersatz',
       maxLength: CONST.MAX_LENGTH_COMMENT_SHORT,
     }
   }
@@ -561,7 +562,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Prüffrist Anzahlungsrechnungen [Tage]',
       placeholder: 'z.B. 14',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
       pattern: REGEX_nonNegativeInt,
     },
     expressions: {
@@ -581,8 +583,12 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Prüffrist Schlussrechnungen [Tage]',
       placeholder: 'z.B. 30',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
       pattern: REGEX_nonNegativeInt,
+    },
+    expressions: {
+      hide: "model['mrba:inboundInvoiceType']=='Anzahlung'",
     }
   }
 
@@ -594,7 +600,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Nettofrist [Tage]',
       placeholder: 'z.B. 60',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
       pattern: REGEX_nonNegativeInt,
     }
   }
@@ -606,7 +613,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Skontofrist 1 [Tage]',
       placeholder: 'z.B. 28',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
       pattern: REGEX_nonNegativeInt,
     }
   }
@@ -618,7 +626,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Skontofrist 2 [Tage]',
       placeholder: 'z.B. 36',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
       pattern: REGEX_nonNegativeInt,
     }
   }
@@ -630,7 +639,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Skonto 1 [%]',
       placeholder: 'Skonto in % z.B. 3,00',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.discountDefaultValues),
     },
     modelOptions: {
       updateOn: 'blur',
@@ -651,7 +661,8 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Skonto 2 [%]',
       placeholder: 'Skonto in % z.B. 2,00',
-      filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.discountDefaultValues),
     },
     modelOptions: {
       updateOn: 'blur',
@@ -835,12 +846,12 @@ export class MrbauFormLibraryService {
   readonly aspect_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
+      this.mrba_taxRate,        // d:text, mrba:germanDecimalOneDecimalPlace
+      //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
       //this.mrbauFormLibraryService.mrba_netAmountCents,    // d:int kept in sync with mrba:netAmount
       this.mrba_netAmount,         // d:text
       //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:int kept in sync with mrba:netAmount
       this.mrba_grossAmount,       // d:text
-      this.mrba_taxRate,        // d:text, mrba:germanDecimalOneDecimalPlace
-      //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
       this.mrba_taxRateComment, // d:text
     ]
   };
