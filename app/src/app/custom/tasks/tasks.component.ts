@@ -117,7 +117,7 @@ export class TasksComponent implements OnInit {
           //query: '(cm:name:*oemag* or cm:name:*photo*) and +TYPE:\"cm:content\"',
           //query: "+ASPECT:'foer:Foerderungsordner' and cm:name:'aws'",
           //query: 'foer:ProjektNr:*',
-          //query: `+TYPE:"mrbt:task" and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd xxxx"`,
+          //query: `+TYPE:"mrbt:task" and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}" and cm:name:"tbd ...."`,
           //language: 'afts'
           query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_FINISHED} `+ ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `) + 'ORDER BY B.cmis:creationDate DESC',
           language: 'cmis'

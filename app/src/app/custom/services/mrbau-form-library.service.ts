@@ -565,8 +565,11 @@ export class MrbauFormLibraryService {
       pattern: REGEX_nonNegativeInt,
     },
     expressions: {
-      // TODO nur für Rechnungen Prüffrist ausblenden
-      //hide: "model['mrba:inboundInvoiceType']!='Anzahlung'",
+      hide: (field: FormlyFieldConfig) => {
+        //console.log(field);
+        return field.model['mrba:inboundInvoiceType']=='Einzelrechnung' || field.model['mrba:inboundInvoiceType']=='Schlussrechnung';
+      }
+      //hide: "model['mrba:inboundInvoiceType']=='Einzelrechnung' || model['mrba:inboundInvoiceType']=='Schlussrechnung'",
     }
   }
 

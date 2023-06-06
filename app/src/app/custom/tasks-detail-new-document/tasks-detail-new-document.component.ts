@@ -218,7 +218,6 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       if (newStateObject.userName) {data.taskDetailNewDocument.task.assignedUserName = newStateObject.userName;}
       return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status, newStateObject.userName)}) // update task meta data
     .then( () => {
-      console.log('xxx4');
       this.emitTaskChangeEvent();
       this.recreateForm(); // create new form to reflect data from model
       this.finishLoading();})

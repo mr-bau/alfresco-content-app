@@ -1,4 +1,4 @@
-//declare module "xxx" {
+//declare module "..." {
 
   export interface IOrganisationUnit {
       id: number;
