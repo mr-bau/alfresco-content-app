@@ -541,6 +541,19 @@ export class MrbauFormLibraryService {
     }
   };
 
+  readonly mrba_offerType : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:offerType',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getOfferTypeFormOptions()[0].value,
+    props: {
+      label: 'Angebots-Typ auswählen',
+      options: this.mrbauConventionsService.getOfferTypeFormOptions(),
+      required: true,
+    },
+  };
+
   readonly mrba_orderType : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -752,12 +765,62 @@ export class MrbauFormLibraryService {
     ],
   };
 
+  readonly mrba_addonOfferNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:addonOfferNumber', //d:int
+    type: 'input',
+    props: {
+      label: 'Nachtragsangebot-Nummer (min=1, max=99)',
+      placeholder: 'z.B. 1',
+      type: 'number',
+      min: 1,
+      max: 99,
+    },
+    validation: {
+      show: true,
+    },
+    expressions: {
+      hide: "model['mrba:offerType']!='Angebot'",
+      'props.required': "model['mrba:offerType']=='Nachtragsangebot'",
+    },
+  }
+
+  readonly title_mrba_offerType : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Angebots-Typ</span>',
+  };
+  readonly element_mrba_offerType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_offerType, this.mrba_addonOfferNumber],
+  };
+
+  readonly mrba_addonOrderNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:addonOrderNumber', //d:int
+    type: 'input',
+    props: {
+      label: 'Zusatzauftrag-Nummer (min=1, max=99)',
+      placeholder: 'z.B. 1',
+      type: 'number',
+      min: 1,
+      max: 99,
+    },
+    validation: {
+      show: true,
+    },
+    expressions: {
+      hide: "model['mrba:orderType']!='Auftrag'",
+      'props.required': "model['mrba:orderType']=='Zusatzauftrag'",
+    },
+  }
+
   readonly title_mrba_orderType : FormlyFieldConfig ={
     template: '<span class="form-group-title">Auftrags-Typ</span>',
   };
   readonly element_mrba_orderType : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
-    fieldGroup: [this.mrba_orderType],
+    fieldGroup: [this.mrba_orderType, this.mrba_addonOrderNumber],
   };
 
   readonly title_mrba_companyId : FormlyFieldConfig ={
