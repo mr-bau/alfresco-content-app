@@ -31,6 +31,8 @@
 //
 // * Associations
 // ================
+// mrba:offer                     mrba:offer
+// mrba:addonOffer                mrba:offer
 // mrba:order                     mrba:order
 // mrba:addonOrder                mrba:order
 // mrba:frameworkContract         mrba:frameworkContract
@@ -92,6 +94,7 @@ export const enum EMRBauDocumentAssociations {
   DOCUMENT_REFERENCE,
   ARCHIVE_DOCUMENT_REFERENCE,
   OFFER_REFERENCE,
+  ADDON_OFFER_REFERENCE,
   ORDER_REFERENCE,
   ADDON_ORDER_REFERENCE,
   FRAMEWORK_CONTRACT_REFERENCE,
@@ -111,6 +114,7 @@ export const DocumentAssociations = new Map<number, IDocumentAssociations>([
   [EMRBauDocumentAssociations.DOCUMENT_REFERENCE, {category: EMRBauDocumentAssociations.DOCUMENT_REFERENCE,  aspectName: "mrba:documentReference", associationName: "mrba:document", targetClass: "cm:content"}],
   [EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE, {category: EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE,  aspectName: "mrba:archiveDocumentReference", associationName: "mrba:archiveDocument", targetClass: "mrba:archiveDocument"}],
   [EMRBauDocumentAssociations.OFFER_REFERENCE, {category: EMRBauDocumentAssociations.OFFER_REFERENCE,  aspectName: "mrba:offerReference", associationName: "mrba:offer", targetClass: "mrba:offer"}],
+  [EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE, {category: EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE,  aspectName: "mrba:addonOfferReference", associationName: "mrba:addonOffer", targetClass: "mrba:offer"}],
   [EMRBauDocumentAssociations.ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ORDER_REFERENCE,  aspectName: "mrba:orderReference", associationName: "mrba:order", targetClass: "mrba:order"}],
   [EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE,  aspectName: "mrba:addonOrderReference", associationName: "mrba:addonOrder", targetClass: "mrba:order"}],
   [EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE,  aspectName: "mrba:frameworkContractReference", associationName: "mrba:frameworkContract", targetClass: "mrba:frameworkContract"}],
@@ -158,6 +162,21 @@ interface IDocumentCategoryGroupData {
 export const DocumentCategoryGroups = new Map<number, IDocumentCategoryGroupData>([
   [EMRBauDocumentCategoryGroup.BILLS, {category: EMRBauDocumentCategoryGroup.BILLS, label: "Belege", folder: "01 Belege"}],
   [EMRBauDocumentCategoryGroup.CONTRACTS, {category: EMRBauDocumentCategoryGroup.CONTRACTS, label: "Verträge", folder: "02 Verträge"}],
+]);
+
+export const enum EMRBauOfferTypes {
+  ANGEBOT       = 0,
+  NACHTRAGSANGEBOT = 1,
+}
+
+interface IDocumentOfferTypeData {
+  category: EMRBauOfferTypes,
+  label: string,
+  value: string,
+}
+export const DocumentOfferTypes = new Map<number, IDocumentOfferTypeData>([
+  [EMRBauOfferTypes.ANGEBOT, {category: EMRBauOfferTypes.ANGEBOT, label :"Angebot", value :"Angebot"}],
+  [EMRBauOfferTypes.NACHTRAGSANGEBOT, {category: EMRBauOfferTypes.NACHTRAGSANGEBOT, label: "Nachtragsangebot", value:"Nachtragsangebot"}],
 ]);
 
 export const enum EMRBauOrderTypes {
@@ -427,12 +446,15 @@ export class MrbauArchiveModel {
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
+            'title_mrba_offerType',
+            'element_mrba_offerType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
             'aspect_mrba_amountDetails_mrba_taxRate',
           ],
           mandatoryRequiredProperties: [
+            'mrba:offerType',
             'mrba:documentNumber',
             'mrba:documentDateValue',
           ]

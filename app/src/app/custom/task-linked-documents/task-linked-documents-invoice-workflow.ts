@@ -93,6 +93,7 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
 
   readonly linkedDocumentsCategories : ILinkedDocumentsCategories[] = [
     {filter:'mrba:offer', name:'Angebote'},
+    {filter:'mrba:addonOffer', name:'Nachtragsangebote'},
     {filter:'mrba:order', name:'Aufträge'},
     {filter:'mrba:addonOrder', name:'Zusatzaufträge'},
     {filter:'mrba:frameworkContract', name:'Zahlungsvereinbarungen'},

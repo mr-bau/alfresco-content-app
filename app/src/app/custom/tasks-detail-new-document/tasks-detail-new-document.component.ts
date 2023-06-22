@@ -5,7 +5,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, On
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { DocumentAssociations, DocumentInvoiceTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOrderTypes, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { DocumentAssociations, DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOfferTypes, EMRBauOrderTypes, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
 import { EMRBauTaskStatus, IMRBauTaskStatusAndUser, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
@@ -607,6 +607,17 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   getAssocTypeByNodeType(node:Node) : string
   {
     // special cases
+    if (node.nodeType == 'mrba:offer')
+    {
+      if (node.properties['mrba:offerType'] == DocumentOfferTypes.get(EMRBauOfferTypes.ANGEBOT).value)
+      {
+        return DocumentAssociations.get(EMRBauDocumentAssociations.OFFER_REFERENCE).associationName;
+      }
+      if (node.properties['mrba:offerType'] == DocumentOfferTypes.get(EMRBauOfferTypes.NACHTRAGSANGEBOT).value)
+      {
+        return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE).associationName;
+      }
+    }
     if (node.nodeType == 'mrba:order')
     {
       if (node.properties['mrba:orderType'] == DocumentOrderTypes.get(EMRBauOrderTypes.AUFTRAG).value)
@@ -620,7 +631,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     }
     if (node.nodeType == 'mrba:invoice')
     {
-      if (node.properties['mrba:orderType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.TEILRECHNUNG).value)
+      if (node.properties['mrba:invoiceType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.TEILRECHNUNG).value)
       {
         return DocumentAssociations.get(EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE).associationName;
       }
