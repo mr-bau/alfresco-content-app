@@ -27,6 +27,7 @@ import { Store } from '@ngrx/store';
     <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
     <button mat-button color="primary" [mat-dialog-close]="true" [disabled]="formIsInValid()">ZUORDNEN</button>
     <button mat-button mat-dialog-close>ABBRECHEN</button>
+    <!-- MR-TODO <button mat-button (click)="test()">test</button>-->
   </mat-dialog-actions>
   `,
   styleUrls: ['../mrbau-dialog-global.scss', '../../form/mrbau-form-global.scss',],
@@ -66,8 +67,8 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
     )
   {
     super();
-
     this.fields = this.fieldsMain;
+
     // make all fields mandatory
     for (const f of this.fields)
     {
@@ -87,6 +88,16 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
       this.onDialogClose(result);
     });
   }
+  /* MR-TODO:
+  test(){
+    this.options.resetModel();
+    /*
+    Object.keys(this.form.controls).forEach((key) => {
+      const control = this.form.controls[key];
+      control.markAsPristine();
+      control.markAsUntouched();
+    });
+  }*/
 
   onDialogClose(result : boolean)
   {

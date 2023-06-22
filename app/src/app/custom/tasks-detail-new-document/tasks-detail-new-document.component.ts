@@ -618,23 +618,13 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE).associationName;
       }
     }
-    if (node.nodeType == 'mrba:inboundInvoice')
+    if (node.nodeType == 'mrba:invoice')
     {
-      if (node.properties['mrba:orderType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.ANZAHLUNG).value)
+      if (node.properties['mrba:orderType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.TEILRECHNUNG).value)
       {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE).associationName;
+        return DocumentAssociations.get(EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE).associationName;
       }
-      return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE).associationName;
-      // return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE).associationName;
-    }
-    if (node.nodeType == 'mrba:outboundInvoice')
-    {
-      if (node.properties['mrba:orderType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.ANZAHLUNG).value)
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE).associationName;
-      }
-      return DocumentAssociations.get(EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE).associationName;
-      // return DocumentAssociations.get(EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE).associationName;
+      return DocumentAssociations.get(EMRBauDocumentAssociations.INVOICE_REFERENCE).associationName;
     }
     if (this.mrbauArchiveModelService.mrbauArchiveModel.isContractDocument(node.nodeType))
     {

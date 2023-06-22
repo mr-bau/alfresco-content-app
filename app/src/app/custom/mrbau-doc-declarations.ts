@@ -12,8 +12,7 @@
 // title: "Vergabeverhandlungsprotokoll",name : "mrba:orderNegotiationProtocol",
 // title: "Zahlungsvereinbarungen",     name : "mrba:frameworkContract",
 // title: "Lieferschein",               name : "mrba:deliveryNote",
-// title: "Eingangsrechnung",           name : "mrba:inboundInvoice",
-// title: "Ausgangsrechnung",           name : "mrba:outboundInvoice",
+// title: "Rechnung",                   name : "mrba:invoice",
 // title: "Rechnungsprüfblatt"          name : "mrba:invoiceReviewSheet",
 
 // title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
@@ -36,14 +35,10 @@
 // mrba:addonOrder                mrba:order
 // mrba:frameworkContract         mrba:frameworkContract
 // mrba:deliveryNote              mrba:deliveryNote
-// mrba:inboundInvoice            mrba:inboundInvoice
-// mrba:inboundRevokedInvoice     mrba:inboundInvoice
-// mrba:inboundPartialInvoice     mrba:inboundInvoice
+// mrba:invoice                   mrba:invoice
+// mrba:partialInvoice            mrba:invoice
 // mrba:archiveDocument           mrba:archiveDocument
 // mrba:document                  mrba:document
-// mrba:outboundInvoice           mrba:outboundInvoice
-// mrba:outboundRevokedInvoice    mrba:outboundInvoice
-// mrba:outboundPartialInvoice    mrba:outboundInvoice
 
 // mrba:cancelledContract         mrba:contractDocument
 // mrba:contractDocument          mrba:contractDocument
@@ -64,9 +59,8 @@ export class MRBauArchiveNodeTypeLabelPipe implements PipeTransform {
     "mrba:orderNegotiationProtocol":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ORDER_NEGOTIATION_PROTOCOL",
     "mrba:frameworkContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FRAMEWORK_CONTRACT",
     "mrba:deliveryNote":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.DELIVERY_NOTE",
-    "mrba:inboundInvoice":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INBOUND_INVOICE",
     "mrba:invoiceReviewSheet":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE_REVIEW_SHEET",
-    "mrba:outboundInvoice":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OUTBOUND_INVOICE",
+    "mrba:invoice":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE",
     "mrba:miscellaneousDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT",
 
     "mrba:contractDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_DOCUMENT",
@@ -102,12 +96,8 @@ export const enum EMRBauDocumentAssociations {
   ADDON_ORDER_REFERENCE,
   FRAMEWORK_CONTRACT_REFERENCE,
   DELIVERY_NOTE_REFERENCE,
-  INBOUND_INVOICE_REFERENCE,
-  INBOUND_REVOKED_INVOICE_REFERENCE,
-  INBOUND_PARTIAL_INVOICE_REFERENCE,
-  OUTBOUND_INVOICE_REFERENCE,
-  OUTBOUND_REVOKED_INVOICE_REFERENCE,
-  OUTBOUND_PARTIAL_INVOICE_REFERENCE,
+  INVOICE_REFERENCE,
+  PARTIAL_INVOICE_REFERENCE,
   CONTRACT_REFERENCE,
   CANCELLED_CONTRACT_REFERENCE,
 }
@@ -125,13 +115,8 @@ export const DocumentAssociations = new Map<number, IDocumentAssociations>([
   [EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE,  aspectName: "mrba:addonOrderReference", associationName: "mrba:addonOrder", targetClass: "mrba:order"}],
   [EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE,  aspectName: "mrba:frameworkContractReference", associationName: "mrba:frameworkContract", targetClass: "mrba:frameworkContract"}],
   [EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE, {category: EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE,  aspectName: "mrba:deliveryNoteReference", associationName: "mrba:deliveryNote", targetClass: "mrba:deliveryNote"}],
-  [EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_INVOICE_REFERENCE,  aspectName: "mrba:inboundInvoiceReference", associationName: "mrba:inboundInvoice", targetClass: "mrba:inboundInvoice"}],
-  [EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_REVOKED_INVOICE_REFERENCE,  aspectName: "mrba:inboundRevokedInvoiceReference", associationName: "mrba:inboundRevokedInvoice", targetClass: "mrba:inboundInvoice"}],
-  [EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INBOUND_PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:inboundPartialInvoiceReference", associationName: "mrba:inboundPartialInvoice", targetClass: "mrba:inboundInvoice"}],
-  [EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_INVOICE_REFERENCE,  aspectName: "mrba:outboundInvoiceReference", associationName: "mrba:outboundInvoice", targetClass: "mrba:outboundInvoice"}],
-  [EMRBauDocumentAssociations.OUTBOUND_REVOKED_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_REVOKED_INVOICE_REFERENCE,  aspectName: "mrba:outboundRevokedInvoiceReference", associationName: "mrba:outboundRevokedInvoice", targetClass: "mrba:outboundInvoice"}],
-  [EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.OUTBOUND_PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:outboundPartialInvoiceReference", associationName: "mrba:outboundPartialInvoice", targetClass: "mrba:outboundInvoice"}],
-
+  [EMRBauDocumentAssociations.INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INVOICE_REFERENCE,  aspectName: "mrba:invoiceReference", associationName: "mrba:invoice", targetClass: "mrba:invoice"}],
+  [EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:partialInvoiceReference", associationName: "mrba:partialInvoice", targetClass: "mrba:invoice"}],
   [EMRBauDocumentAssociations.CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.CONTRACT_REFERENCE,  aspectName: "mrba:contractDocumentReference", associationName: "mrba:contractDocument", targetClass: "mrba:contractDocument"}],
   [EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE,  aspectName: "mrba:cancelledContractReference", associationName: "mrba:cancelledContract", targetClass: "mrba:contractDocument"}],
 ]);
@@ -143,8 +128,7 @@ export const enum EMRBauDocumentCategory {
   ORDER, //"mrba:order",
   ORDER_NEGOTIATION_PROTOCOL, // "mrba:orderNegotiationProtocol",
   DELIVERY_NOTE,  //"mrba:deliveryNote",
-  ER, //"mrba:inboundInvoice",
-  AR, //"mrba:outboundInvoice",
+  INVOICE, //"mrba:invoice",
   PAYMENT_TERMS,//"mrba:frameworkContract",
   INVOICE_REVIEW_SHEET, //mrba:invoiceReviewSheet
   OTHER_BILL, //"mrba:miscellaneousDocument",
@@ -193,7 +177,7 @@ export const DocumentOrderTypes = new Map<number, IDocumentOrderTypeData>([
 export const enum EMRBauInvoiceTypes {
   EINZELRECHNUNG  = 0,
   SCHLUSSRECHNUNG = 1,
-  ANZAHLUNG = 2,
+  TEILRECHNUNG = 2,
 }
 interface IDocumentInvoiceTypeData {
   category: EMRBauInvoiceTypes,
@@ -203,7 +187,7 @@ interface IDocumentInvoiceTypeData {
 export const DocumentInvoiceTypes = new Map<number, IDocumentInvoiceTypeData>([
   [EMRBauInvoiceTypes.EINZELRECHNUNG, {category: EMRBauInvoiceTypes.EINZELRECHNUNG, label :"Einzelrechnung", value :"Einzelrechnung"}],
   [EMRBauInvoiceTypes.SCHLUSSRECHNUNG, {category: EMRBauInvoiceTypes.SCHLUSSRECHNUNG, label: "Schlussrechnung", value:"Schlussrechnung"}],
-  [EMRBauInvoiceTypes.ANZAHLUNG, {category: EMRBauInvoiceTypes.ANZAHLUNG, label: "Teil-/Anzahlungsrechnung", value:"Anzahlung"}],
+  [EMRBauInvoiceTypes.TEILRECHNUNG, {category: EMRBauInvoiceTypes.TEILRECHNUNG, label: "Teil-/Anzahlungsrechnung", value:"Teilrechnung"}],
 ]);
 
 export interface IMRBauFormDefinition {
@@ -597,10 +581,10 @@ export class MrbauArchiveModel {
       //parent : "mrba:archiveDocument",
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
-      // TODO mrba:documentIdentityDetails
+      // MR-TODO mrba:documentIdentityDetails
       //  "mrba:paymentConditionDetails",
-      //  "mrba:inboundInvoiceReference",
-      //  "mrba:inboundPartialInvoiceReference",
+      //  "mrba:invoiceReference",
+      //  "mrba:partialInvoiceReference",
       //],
       category: EMRBauDocumentCategory.PAYMENT_TERMS,
       folder: "03 Zahlungsvereinbarungen",
@@ -777,24 +761,23 @@ export class MrbauArchiveModel {
     },
     {
       title: "Eingangsrechnung",
-      name : "mrba:inboundInvoice",
+      name : "mrba:invoice",
       //parent : "mrba:archiveDocument",
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
       //  "mrba:documentIdentityDetails",
       //  "mrba:fiscalYearDetails", ?
-      //  "mrba:inboundInvoiceDetails",
+      //  "mrba:invoiceDetails",
       //  "mrba:taxRate",
       //  "mrba:paymentConditionDetails",
       //  "mrba:costCarrierDetails",
       //  "mrba:orderReference",
       //  "mrba:deliveryNoteReference",
-      //  "mrba:inboundInvoiceReference",
-      //  "mrba:inboundRevokedInvoiceReference",
-      //  "mrba:inboundPartialInvoiceReference",
+      //  "mrba:invoiceReference",
+      //  "mrba:partialInvoiceReference",
       //],
-      category: EMRBauDocumentCategory.ER,
-      folder: "05 Eingangsrechnungen",
+      category: EMRBauDocumentCategory.INVOICE,
+      folder: "05 Rechnungen",
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
@@ -897,8 +880,8 @@ export class MrbauArchiveModel {
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
-            'title_mrba_inboundInvoiceType',
-            'element_mrba_inboundInvoiceType',
+            'title_mrba_invoiceType',
+            'element_mrba_invoiceType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
@@ -907,7 +890,7 @@ export class MrbauArchiveModel {
             'aspect_mrba_paymentConditionDetails',
           ],
           mandatoryRequiredProperties: [
-            'mrba:inboundInvoiceType',
+            'mrba:invoiceType',
             'mrba:documentNumber',
             'mrba:documentDateValue',
             'mrba:netAmount',
@@ -1003,13 +986,12 @@ export class MrbauArchiveModel {
     },
     {
      title: "Ausgangsrechnung",
-     name : "mrba:outboundInvoice",
+     name : "mrba:invoice",
      //parent : "mrba:archiveDocument",
       //mandatoryAspects : [
         //mrba:companyIdentifiers
         //mrba:documentIdentityDetails
         //mrba:fiscalYearDetails
-        //mrba:outboundInvoiceDetails
         //mrba:invoiceDetails
         //mrba:amountDetails
         //mrba:taxRate
@@ -1017,12 +999,11 @@ export class MrbauArchiveModel {
         //mrba:costCarrierDetails
         //mrba:orderReference
         //mrba:deliveryNoteReference
-        //mrba:outboundInvoiceReference
-        //mrba:outboundRevokedInvoiceReference
-        //mrba:outboundPartialInvoiceReference
+        //mrba:invoiceReference
+        //mrba:partialInvoiceReference
       //],
-      category: EMRBauDocumentCategory.AR,
-      folder: "06 Ausgangsrechnungen",
+      category: EMRBauDocumentCategory.INVOICE,
+      folder: "05 Rechnungen", //AR
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
@@ -1094,8 +1075,8 @@ export class MrbauArchiveModel {
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
-            'title_mrba_outboundInvoiceType',
-            'element_mrba_outboundInvoiceType',
+            'title_mrba_invoiceType',
+            'element_mrba_invoiceType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
@@ -1104,7 +1085,7 @@ export class MrbauArchiveModel {
             'aspect_mrba_paymentConditionDetails',
           ],
           mandatoryRequiredProperties: [
-            'mrba:outboundInvoiceType',
+            'mrba:invoiceType',
             'mrba:documentNumber',
             'mrba:documentDateValue',
             'mrba:netAmount',
@@ -1146,7 +1127,7 @@ export class MrbauArchiveModel {
       //  "mrba:companyIdentifiers"
       //  "mrba:costCarrierDetails"
       //  "mrba:documentIdentityDetails"
-      //  "mrba:inboundInvoiceReference"
+      //  "mrba:invoiceReference"
       //],
       category: EMRBauDocumentCategory.INVOICE_REVIEW_SHEET,
       folder: "08 Rechnungsprüfblätter",
@@ -1261,7 +1242,7 @@ export class MrbauArchiveModel {
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
       //  "mrba:documentIdentityDetails",
-      //  TODO "mrba:costCarrierDetails",
+      //  MR-TODO "mrba:costCarrierDetails",
       //],
       category: EMRBauDocumentCategory.OTHER_BILL,
       folder: "99 Sonstige Belege",

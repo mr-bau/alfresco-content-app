@@ -560,7 +560,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:reviewDaysPartialInvoice',
     type: 'mrbauFormlyAutocomplete',
     props: {
-      label: 'Prüffrist Anzahlungsrechnungen [Tage]',
+      label: 'Prüffrist Teilrechnungen [Tage]',
       placeholder: 'z.B. 14',
       //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
       filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
@@ -569,9 +569,9 @@ export class MrbauFormLibraryService {
     expressions: {
       hide: (field: FormlyFieldConfig) => {
         //console.log(field);
-        return field.model['mrba:inboundInvoiceType']=='Einzelrechnung' || field.model['mrba:inboundInvoiceType']=='Schlussrechnung';
+        return field.model['mrba:invoiceType']=='Einzelrechnung' || field.model['mrba:invoiceType']=='Schlussrechnung';
       }
-      //hide: "model['mrba:inboundInvoiceType']=='Einzelrechnung' || model['mrba:inboundInvoiceType']=='Schlussrechnung'",
+      //hide: "model['mrba:invoiceType']=='Einzelrechnung' || model['mrba:invoiceType']=='Schlussrechnung'",
     }
   }
 
@@ -588,7 +588,7 @@ export class MrbauFormLibraryService {
       pattern: REGEX_nonNegativeInt,
     },
     expressions: {
-      hide: "model['mrba:inboundInvoiceType']=='Anzahlung'",
+      hide: "model['mrba:invoiceType']=='Teilrechnung'",
     }
   }
 
@@ -675,10 +675,10 @@ export class MrbauFormLibraryService {
     }
   }
 
-  readonly mrba_inboundInvoiceType : FormlyFieldConfig =
+  readonly mrba_invoiceType : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'mrba:inboundInvoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
+    key: 'mrba:invoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
     type: 'select',
     defaultValue: this.mrbauConventionsService.getInvoiceTypeFormOptions()[0].value,
     props: {
@@ -688,10 +688,10 @@ export class MrbauFormLibraryService {
     },
   }
 
-  readonly mrba_inboundPartialInvoiceNumber : FormlyFieldConfig =
+  readonly mrba_partialInvoiceNumber : FormlyFieldConfig =
   {
     className: 'flex-2',
-    key: 'mrba:inboundPartialInvoiceNumber', //d:int
+    key: 'mrba:partialInvoiceNumber', //d:int
     type: 'input',
     props: {
       label: 'Teil-/Anzahlungsrechnung-Nummer (min=1, max=99)',
@@ -704,42 +704,8 @@ export class MrbauFormLibraryService {
       show: true,
     },
     expressions: {
-      hide: "model['mrba:inboundInvoiceType']!='Anzahlung'",
-      'props.required': "model['mrba:inboundInvoiceType']=='Anzahlung'",
-    },
-  }
-
-  readonly mrba_outboundInvoiceType : FormlyFieldConfig =
-  {
-    className: 'flex-2',
-    key: 'mrba:outboundInvoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
-    type: 'select',
-    defaultValue: this.mrbauConventionsService.getInvoiceTypeFormOptions()[0].value,
-    props: {
-      label: 'Rechnungs-Typ auswählen',
-      options: this.mrbauConventionsService.getInvoiceTypeFormOptions(),
-      required: true,
-    },
-  }
-
-  readonly mrba_outboundPartialInvoiceNumber : FormlyFieldConfig =
-  {
-    className: 'flex-2',
-    key: 'mrba:outboundPartialInvoiceNumber', //d:int
-    type: 'input',
-    props: {
-      label: 'Teil-/Anzahlungsrechnung-Nummer (min=1, max=99)',
-      placeholder: 'z.B. 1',
-      type: 'number',
-      min: 1,
-      max: 99,
-    },
-    validation: {
-      show: true,
-    },
-    expressions: {
-      hide: "model['mrba:outboundInvoiceType']!='Anzahlung'",
-      'props.required': "model['mrba:outboundInvoiceType']=='Anzahlung'",
+      hide: "model['mrba:invoiceType']!='Teilrechnung'",
+      'props.required': "model['mrba:invoiceType']=='Teilrechnung'",
     },
   }
 
@@ -775,25 +741,14 @@ export class MrbauFormLibraryService {
     ]
   };
 
-  readonly title_mrba_inboundInvoiceType : FormlyFieldConfig ={
+  readonly title_mrba_invoiceType : FormlyFieldConfig ={
     template: '<span class="form-group-title">Rechnungs-Typ</span>',
   };
-  readonly element_mrba_inboundInvoiceType : FormlyFieldConfig = {
+  readonly element_mrba_invoiceType : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
-      this.mrba_inboundInvoiceType,
-      this.mrba_inboundPartialInvoiceNumber
-    ],
-  };
-
-  readonly title_mrba_outboundInvoiceType : FormlyFieldConfig ={
-    template: '<span class="form-group-title">Rechnungs-Typ</span>',
-  };
-  readonly element_mrba_outboundInvoiceType : FormlyFieldConfig = {
-    fieldGroupClassName: 'flex-container',
-    fieldGroup: [
-      this.mrba_outboundInvoiceType,
-      this.mrba_outboundPartialInvoiceNumber
+      this.mrba_invoiceType,
+      this.mrba_partialInvoiceNumber
     ],
   };
 
@@ -953,7 +908,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:reviewDaysPartialInvoice',
     type: 'mrbauFormlyLabel',
     props: {
-      label: 'Prüffrist Anzahlungsrechnungen [Tage]',
+      label: 'Prüffrist Teilrechnungen [Tage]',
       placeholder: '-',
       readonly: true,
     },

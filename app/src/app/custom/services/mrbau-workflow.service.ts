@@ -58,8 +58,7 @@ export class MrbauWorkflowService {
       "mrba:order",
       "mrba:frameworkContract",
       "mrba:deliveryNote",
-      "mrba:inboundInvoice",
-      "mrba:outboundInvoice",
+      "mrba:invoice",
       "mrba:orderNegotiationProtocol",
       "mrba:miscellaneousDocument",
 
@@ -360,7 +359,7 @@ export class MrbauWorkflowService {
     let reviewDate = new Date(props['mrba:archivedDateValue']);
     if (data.taskDetailNewDocument.model['mrba:verifyDateValue'] == null)
     {
-      const reviewDays = props['mrba:inboundInvoiceType'] == 'Anzahlung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
+      const reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
       reviewDate.setDate(reviewDate.getDate() + reviewDays);
       this.correctWeekend(reviewDate);
       data.taskDetailNewDocument.model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
@@ -443,17 +442,13 @@ export class MrbauWorkflowService {
     {
       query.filterQueries.push({ query: `=TYPE:"mrba:order" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
     }
-    else if (node.nodeType == 'mrba:inboundInvoice')
-    {
-      query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
-    }
-    else if (node.nodeType == 'mrba:outboundInvoice')
+    else if (node.nodeType == 'mrba:invoice')
     {
       query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
     }
     else if (node.nodeType == 'mrba:invoiceReviewSheet')
     {
-      query.filterQueries.push({ query: `=TYPE:"mrba:inboundInvoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
+      query.filterQueries.push({ query: `=TYPE:"mrba:invoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
     }
     else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument')
     {
