@@ -1,8 +1,9 @@
 {
-  "organisationUnitDefault" : 0,
+  "organisationUnitDefault" : 3,
   "organisationUnits" : [
-    {"id": 0, "label": "Mandant1", "folder": "Mandant1"},
-    {"id": 1, "label": "Mandant2", "folder": "Mandant2"},
-    {"id": 2, "label": "Mandant3", "folder": "Mandant4"}
+    {"id": 0, "label": "M&R Holding GmbH", "folder": "M&R Holding"},
+    {"id": 1, "label": "M&R Beteiligungs GmbH", "folder": "M&R Beteiligung"},
+    {"id": 2, "label": "M&R Bau GmbH", "folder": "M&R Bau"},
+    {"id": 3, "label": "M&R Globalbau GmbH", "folder": "M&R Globalbau"}
   ]
 }

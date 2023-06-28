@@ -18,25 +18,20 @@ export interface ISelectFormOptions {
 export interface IVendor {
   "mrba:companyId" : string,
   "mrba:companyName" : string,
-  "mrba:companyVatID" : string,
   "mrba:companyStreet" : string,
   "mrba:companyZipCode" : string,
   "mrba:companyCity" : string,
-  "mrba:companyCountryCode": string,
-  // v--- not used but present in exported json
-  "ZZiel"?: string,
-  "SktoProz1"?: string,
-  "SktoTage1"?: string,
-  "Ohne Steuer"?: string,
-  "-"?: string,
+  "mrba:companyVatID" : string,
+  "mrba:companyEmail" : string,
+  "mrba:companyPhone" : string,
 }
 
 interface ICostCarrier {
-  'mrba:costCarrierNumber' : string
-  'mrba:projectName' : string,
-  // v--- not used but present in exported json
-  'Kostentyp' : string,
-  '-' : string,
+  "mrba:costCarrierNumber" : string,
+  "mrba:projectName" : string,
+  "auditor1" : string,
+  "auditor2" : string,
+  "accountant" : string,
 }
 
 // SERVICE
@@ -92,7 +87,8 @@ export class MrbauConventionsService {
     task;
     documentCategory;
     client;
-    return "Wolfgang Moser";
+    return null;
+    //return "Wolfgang Moser";
   }
 
   readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
@@ -104,7 +100,6 @@ export class MrbauConventionsService {
     result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
     result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
     result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
-    result = (v['mrba:companyCountryCode']) ? result.concat(', ').concat(v['mrba:companyCountryCode']) : result;
     return result;
   }
 

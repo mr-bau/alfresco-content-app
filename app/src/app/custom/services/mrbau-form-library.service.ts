@@ -441,7 +441,7 @@ export class MrbauFormLibraryService {
     key: 'mrba:costCarrierNumber',
     type: 'mrbauFormlyAutocompleteSelectFormOptions',
     props: {
-      label: 'Kostenträger',
+      label: 'Kostenträger/-stelle',
       filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getKtListFormOptions()) : this.mrbauConventionsService.getKtListFormOptions().slice()),
       change: (field: FormlyFieldConfig) => {
         if (field)
@@ -781,8 +781,8 @@ export class MrbauFormLibraryService {
       show: true,
     },
     expressions: {
-      hide: "model['mrba:offerType']!='Angebot'",
-      'props.required': "model['mrba:offerType']=='Nachtragsangebot'",
+      hide: "model['mrba:offerType']=='Angebot'",
+      'props.required': "model['mrba:offerType']!='Angebot'",
     },
   }
 
@@ -810,8 +810,8 @@ export class MrbauFormLibraryService {
       show: true,
     },
     expressions: {
-      hide: "model['mrba:orderType']!='Auftrag'",
-      'props.required': "model['mrba:orderType']=='Zusatzauftrag'",
+      hide: "model['mrba:orderType']=='Auftrag'",
+      'props.required': "model['mrba:orderType']!='Auftrag'",
     },
   }
 

@@ -146,26 +146,38 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
 
   doCreateTask(node :Node, taskCategory : EMRBauTaskCategory, docCategory? : EMRBauDocumentCategory, status?: EMRBauTaskStatus) : Promise<any>
   {
-    const contentTypes = ['application/json'];
-    const pathParams = {'nodeId': '-root-' };
-    const accepts = ['application/json'];
-    const postBody = `
-    {
-      "name": "-",
-      "nodeType": "${MRBauTask.MRBT_TASK}",
-      "relativePath": "${MRBauTask.TASK_RELATIVE_ROOT_PATH}",
-      "properties":{
-        "mrbt:category": ${taskCategory},
-        "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_NEW},
-        "mrbt:priority": 2,
-        "mrbt:description": "${this.mrbauArchiveModelService.getTaskDescription(taskCategory, docCategory)}",
-        "mrbt:assignedUserName": "${this.mrbauConventionsService.getNewTaskDefaultAssignedUserId(taskCategory)}",
-        "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory)}"
-      },
-      "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]
-    }`;
-    //console.log(postBody);
-    return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts);
+    return new Promise((resolve, reject) => {
+      this.mrbauCommonService.getCurrentUser()
+      .then((user) => {
+        let currentUser = user.entry.id;
+        let defaultAssignedUser = this.mrbauConventionsService.getNewTaskDefaultAssignedUserId(taskCategory);
+        if (!defaultAssignedUser) {
+          defaultAssignedUser = currentUser;
+        }
+        const contentTypes = ['application/json'];
+        const pathParams = {'nodeId': '-root-' };
+        const accepts = ['application/json'];
+        const postBody = `
+        {
+          "name": "-",
+          "nodeType": "${MRBauTask.MRBT_TASK}",
+          "relativePath": "${MRBauTask.TASK_RELATIVE_ROOT_PATH}",
+          "properties":{
+            "mrbt:category": ${taskCategory},
+            "mrbt:status": ${status ? status : EMRBauTaskStatus.STATUS_NEW},
+            "mrbt:priority": 2,
+            "mrbt:description": "${this.mrbauArchiveModelService.getTaskDescription(taskCategory, docCategory)}",
+            "mrbt:assignedUserName": "${defaultAssignedUser}",
+            "mrbt:dueDateValue": "${this.mrbauConventionsService.getTaskDueDateValue(taskCategory)}"
+          },
+          "targets": [{"targetId":"${node.id}","assocType":"mrbt:associatedDocument"}]
+        }`;
+        //console.log(postBody);
+         return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/children", "POST", pathParams, {}, {}, {}, postBody, contentTypes, accepts);
+      })
+      .then((data) => resolve(data))
+      .catch(error => reject(error))
+    });
   }
 
   doNotify()
