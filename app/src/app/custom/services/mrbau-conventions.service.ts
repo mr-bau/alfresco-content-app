@@ -63,11 +63,24 @@ export class MrbauConventionsService {
 
   getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : string
   {
-    data;
-    status;
-    //console.log("assign new user for state "+status);
-    return "Wolfgang Moser";
-    //return "admin";
+    let taskCategory = data?.taskDetailNewDocument?.task?.category;
+    let kt = data?.taskDetailNewDocument?.taskNode?.properties['mrba:costCarrierNumber'];
+    if (taskCategory == EMRBauTaskCategory.NewDocumentValidateAndArchive && kt && jsonKtList[kt])
+    {
+      let project = jsonKtList[kt] as ICostCarrier;
+      switch (status)
+      {
+        case EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION:
+          return project.auditor1;
+        case EMRBauTaskStatus.STATUS_FINAL_APPROVAL:
+          return project.auditor2;
+        case EMRBauTaskStatus.STATUS_ACCOUNTING:
+          return project.accountant;
+        default:
+          break;
+      }
+    }
+    return null;
   }
 
   getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string
@@ -87,8 +100,8 @@ export class MrbauConventionsService {
     task;
     documentCategory;
     client;
+    // return null to use the current user
     return null;
-    //return "Wolfgang Moser";
   }
 
   readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
