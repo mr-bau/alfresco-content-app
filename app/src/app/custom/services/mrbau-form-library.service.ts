@@ -204,6 +204,18 @@ export class MrbauFormLibraryService {
     },
   };
 
+  readonly mrba_organisationPosition : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:organisationPosition',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getOrganisationPositionFormOptions()[0].value,
+    props: {
+      label: 'Auftraggeber/Auftragnehmer',
+      options: this.mrbauConventionsService.getOrganisationPositionFormOptions(),
+    },
+  };
+
   readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -583,8 +595,8 @@ export class MrbauFormLibraryService {
       hide: (field: FormlyFieldConfig) => {
         //console.log(field);
         return field.model['mrba:invoiceType']=='Einzelrechnung' || field.model['mrba:invoiceType']=='Schlussrechnung';
-      }
-      //hide: "model['mrba:invoiceType']=='Einzelrechnung' || model['mrba:invoiceType']=='Schlussrechnung'",
+      },
+      'props.required': "model['mrba:invoiceType']=='Teilrechnung'"
     }
   }
 
@@ -829,6 +841,14 @@ export class MrbauFormLibraryService {
   readonly element_mrba_companyId : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [this.mrba_companyId],
+  };
+
+  readonly title_mrba_organisationPosition : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Mandantenstellung (M&amp;R)</span>',
+  };
+  readonly element_mrba_organisationPosition : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_organisationPosition],
   };
 
   readonly title_mrba_documentIdentityDetails : FormlyFieldConfig = {

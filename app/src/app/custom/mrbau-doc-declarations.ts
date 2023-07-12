@@ -78,7 +78,6 @@ export class MRBauArchiveNodeTypeLabelPipe implements PipeTransform {
   };
   transform(value: string): string {
     const result = this.data[value];
-    console.log(value+ ' ' +result);
     return (result) ? result : value;
   }
 }
@@ -187,11 +186,29 @@ interface IDocumentOrderTypeData {
   category: EMRBauOrderTypes,
   label: string,
   value: string,
+  default?: boolean,
 }
 export const DocumentOrderTypes = new Map<number, IDocumentOrderTypeData>([
   [EMRBauOrderTypes.AUFTRAG, {category: EMRBauOrderTypes.AUFTRAG, label :"Auftrag", value :"Auftrag"}],
   [EMRBauOrderTypes.ZUSATZAUFTRAG, {category: EMRBauOrderTypes.ZUSATZAUFTRAG, label: "Zusatzauftrag", value:"Zusatzauftrag"}],
 ]);
+
+export const enum EMRBauOrganisationPositionTypes {
+  AUFTRAGGEBER = 0,
+  AUFTRAGNEHMER = 1,
+
+}
+interface IOrganisationPositionTypeData {
+  category: EMRBauOrganisationPositionTypes,
+  label: string,
+  value: string,
+}
+export const OrganisationPositionTypes = new Map<number, IOrganisationPositionTypeData>([
+  [EMRBauOrganisationPositionTypes.AUFTRAGGEBER, {category: EMRBauOrganisationPositionTypes.AUFTRAGGEBER, label :"Auftraggeber", value :"Auftraggeber"}],
+  [EMRBauOrganisationPositionTypes.AUFTRAGNEHMER, {category: EMRBauOrganisationPositionTypes.AUFTRAGNEHMER, label: "Auftragnehmer", value:"Auftragnehmer"}],
+]);
+
+
 
 export const enum EMRBauInvoiceTypes {
   EINZELRECHNUNG  = 0,
@@ -247,6 +264,8 @@ export interface IMRBauWorkflowState {
 
 // COMMONLY USED DEFINITIONS
 const METADATA_EXTRACT_1_FORM_DEFINITION = [
+    'title_mrba_organisationPosition',
+    'element_mrba_organisationPosition',
     'title_mrba_companyId',
     'element_mrba_companyId',
     'title_mrba_costCarrierDetails',
@@ -256,6 +275,8 @@ const METADATA_EXTRACT_1_FORM_DEFINITION = [
 const CONTRACT_DEFAULT_FORM_DEFINITION = {
   'STATUS_METADATA_EXTRACT_1' : {
     formlyFieldConfigs: [
+      'title_mrba_organisationPosition',
+      'element_mrba_organisationPosition',
       'title_mrba_companyId',
       'element_mrba_companyId',
       'title_mrba_costCarrierDetails',
@@ -263,6 +284,7 @@ const CONTRACT_DEFAULT_FORM_DEFINITION = {
     ],
     mandatoryRequiredProperties: [
       'mrba:companyId',
+      'mrba:organisationPosition',
     ]
   },
   'STATUS_METADATA_EXTRACT_2' : {
@@ -300,6 +322,14 @@ export class MrbauArchiveModel {
   constructor(
     private mrbauWorkflowService : MrbauWorkflowService,
     ){}
+
+  isAuftraggeber( organisationPosition:string) : boolean {
+    return organisationPosition == OrganisationPositionTypes.get(EMRBauOrganisationPositionTypes.AUFTRAGGEBER).value;
+  }
+
+  isAuftragnehmer( organisationPosition:string) : boolean {
+    return organisationPosition == OrganisationPositionTypes.get(EMRBauOrganisationPositionTypes.AUFTRAGNEHMER).value;
+  }
 
   isContractDocument(nodeType:string)
   {
@@ -442,6 +472,7 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
           ]
         },
         'STATUS_METADATA_EXTRACT_2' : {
@@ -551,6 +582,7 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName'
           ]
@@ -656,11 +688,14 @@ export class MrbauArchiveModel {
       mrbauFormDefinitions : {
         'STATUS_METADATA_EXTRACT_1' : {
           formlyFieldConfigs: [
+            'title_mrba_organisationPosition',
+            'element_mrba_organisationPosition',
             'title_mrba_companyId',
             'element_mrba_companyId',
           ],
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
           ]
         },
         'STATUS_METADATA_EXTRACT_2' : {
@@ -751,6 +786,7 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName'
           ]
@@ -782,7 +818,7 @@ export class MrbauArchiveModel {
       }
     },
     {
-      title: "Eingangsrechnung",
+      title: "Rechnung",
       name : "mrba:invoice",
       //parent : "mrba:archiveDocument",
       //mandatoryAspects : [
@@ -799,7 +835,7 @@ export class MrbauArchiveModel {
       //  "mrba:partialInvoiceReference",
       //],
       category: EMRBauDocumentCategory.INVOICE,
-      folder: "05 Rechnungen",
+      folder: "05 Rechnungen", // ER AR
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
@@ -817,10 +853,12 @@ export class MrbauArchiveModel {
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
+            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_FORMAL_REVIEW : EMRBauTaskStatus.STATUS_ALL_SET;
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:nextState});
             })
             .catch( (error) => reject(error))
           }),
@@ -829,16 +867,19 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
+            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_FORMAL_REVIEW : EMRBauTaskStatus.STATUS_ALL_SET
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                // TODO
+                case EMRBauDuplicateResolveResult.IGNORE: newState = nextState; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
-                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_FORMAL_REVIEW;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = nextState;break;
               }
               resolve({state:newState});
             })
@@ -882,7 +923,12 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ACCOUNTING}))},
+          prevState : (data) => new Promise<IMRBauTaskStatusAndUser>(resolve => {
+            let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
+            let prev = invoiceIsER ? EMRBauTaskStatus.STATUS_ACCOUNTING : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2
+            resolve({state:prev})
+            }
+            )},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -892,6 +938,7 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName'
           ]
@@ -1007,141 +1054,6 @@ export class MrbauArchiveModel {
       }
     },
     {
-     title: "Ausgangsrechnung",
-     name : "mrba:invoice",
-     //parent : "mrba:archiveDocument",
-      //mandatoryAspects : [
-        //mrba:companyIdentifiers
-        //mrba:documentIdentityDetails
-        //mrba:fiscalYearDetails
-        //mrba:invoiceDetails
-        //mrba:amountDetails
-        //mrba:taxRate
-        //mrba:paymentConditionDetails
-        //mrba:costCarrierDetails
-        //mrba:orderReference
-        //mrba:deliveryNoteReference
-        //mrba:invoiceReference
-        //mrba:partialInvoiceReference
-      //],
-      category: EMRBauDocumentCategory.INVOICE,
-      folder: "05 Rechnungen", //AR
-      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
-      mrbauWorkflowDefinition: {states : [
-        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
-        {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
-          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
-            this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
-            .then( () =>
-            {
-              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
-            })
-            .catch( (error) => reject(error))
-            }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
-        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
-          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
-            this.mrbauWorkflowService.performDuplicateCheck(data)
-            .then( (duplicatedData) =>
-            {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ACCOUNTING});
-            })
-            .catch( (error) => reject(error))
-          }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
-          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
-        },
-        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
-          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
-            this.mrbauWorkflowService.resolveDuplicateIssue(data)
-            .then( (result) =>
-            {
-              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
-              switch (result)
-              {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ACCOUNTING; break;
-                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
-                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_FORMAL_REVIEW;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ACCOUNTING;break;
-              }
-              resolve({state:newState});
-            })
-            .catch( (error) => reject(error))
-          }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
-        },
-        {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
-        {state : EMRBauTaskStatus.STATUS_ALL_SET,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ACCOUNTING}))},
-        {state : EMRBauTaskStatus.STATUS_FINISHED,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
-      ]},
-      mrbauFormDefinitions : {
-        'STATUS_METADATA_EXTRACT_1' : {
-          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
-          mandatoryRequiredProperties: [
-            'mrba:companyId',
-            'mrba:costCarrierNumber', //d:int
-            'mrba:projectName'
-          ]
-        },
-        'STATUS_LINK_DOCUMENTS' : {
-          formlyFieldConfigs: [],
-          mandatoryRequiredProperties: []
-        },
-        'STATUS_METADATA_EXTRACT_2' : {
-          formlyFieldConfigs: [
-            'title_mrba_invoiceType',
-            'element_mrba_invoiceType',
-            'title_mrba_documentIdentityDetails',
-            'aspect_mrba_documentIdentityDetails',
-            'title_mrba_amountDetails_mrba_taxRate',
-            'aspect_mrba_amountDetails_mrba_taxRate',
-            'title_mrba_paymentConditionDetails',
-            'aspect_mrba_paymentConditionDetails',
-          ],
-          mandatoryRequiredProperties: [
-            'mrba:invoiceType',
-            'mrba:documentNumber',
-            'mrba:documentDateValue',
-            'mrba:netAmount',
-            'mrba:grossAmount',
-            'mrba:taxRate',
-            'mrba:reviewDaysFinalInvoice',
-            'mrba:paymentTargetDays',
-          ]
-        },
-        'STATUS_DUPLICATE' : {
-          formlyFieldConfigs: [
-            'duplicated_document_form'
-          ],
-          mandatoryRequiredProperties: [
-          ]
-        },
-        'STATUS_ACCOUNTING' : {
-          formlyFieldConfigs: [
-            'mrba_accountingId',
-          ],
-          mandatoryRequiredProperties: [
-            'mrba:accountingId',
-          ]
-        },
-        'STATUS_ALL_SET' : {
-          formlyFieldConfigs: [
-            'workflow_all_set_form'
-            ],
-            mandatoryRequiredProperties: [
-            ]
-        }
-      }
-    },
-    {
       title: "Rechnungs-Prüfblatt",
       name : "mrba:invoiceReviewSheet",
       //parent : "mrba:archiveDocument",
@@ -1218,6 +1130,7 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName'
           ]

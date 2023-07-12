@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
-import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauWorkflowStateCallbackData, OrganisationPositionTypes } from '../mrbau-doc-declarations';
 
 import jsonMrbauAppConfig from '../../../../../projects/mrbau-extension/assets/json/mrbau-app-config.json';
 import { IMrbauAppConfig  } from '../../../../../projects/mrbau-extension/src/mrbau-app-config';
@@ -54,6 +54,12 @@ export class MrbauConventionsService {
     //console.log(jsonVendorList);
     let result : ISelectFormOptions[] = [];
     this.mrbauAppConfig.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.folder}));
+    return result;
+  }
+
+  getOrganisationPositionFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    OrganisationPositionTypes.forEach( (d) => result.push({label: d.label, value : d.value}));
     return result;
   }
 

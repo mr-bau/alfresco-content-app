@@ -77,7 +77,6 @@ export class MrbauWorkflowService {
     {
       return new Promise((resolve) => resolve(null));
     }
-
     let query : SearchRequest = {
       query: {
         query: '*',
@@ -88,6 +87,7 @@ export class MrbauWorkflowService {
         { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
         { query: `=mrba:companyId:"${node.properties['mrba:companyId']}"`},
         { query: `=mrba:documentNumber:"${node.properties['mrba:documentNumber']}"`},
+        { query: `=mrba:organisationPosition:"${node.properties['mrba:organisationPosition']}"`},
         { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
         //{ query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents - NOT SUPPORTED WITH TMDQ
         //{ query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
@@ -107,15 +107,14 @@ export class MrbauWorkflowService {
       ],
       include: ['properties', 'path', 'allowableOperations']
     };
-
     return new Promise((resolve, reject) => {
       this.mrbauCommonService.queryNodes(query)
       .then((result) => {
         const filteredResult = result.list.entries.filter(data => data.entry.id != node.id); // exclude the current document
-        if (filteredResult.entries.length > 0)
+        if (filteredResult.length > 0)
         {
-          data.taskDetailNewDocument.duplicateNode = filteredResult.entries[0].entry as Node;
-          resolve(result.list.entries[0]);
+          data.taskDetailNewDocument.duplicateNode = filteredResult[0].entry as Node;
+          resolve(filteredResult[0].entry);
         }
         else
         {

@@ -355,10 +355,13 @@ export class MrbauCommonService {
             .then(() => {return this.discardDocument(nodeId)})
             .then((result) =>
             {
-              console.log(result);
+              result;
               return resolve(true);
             })
             .catch((error) => reject(error));
+          }
+          else {
+            resolve(false);
           }
         });
       }

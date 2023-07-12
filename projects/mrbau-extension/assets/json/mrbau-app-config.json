@@ -5,5 +5,9 @@
     {"id": 1, "label": "M&R Beteiligungs GmbH", "folder": "M&R Beteiligung"},
     {"id": 2, "label": "M&R Bau GmbH", "folder": "M&R Bau"},
     {"id": 3, "label": "M&R Globalbau GmbH", "folder": "M&R Globalbau"}
+  ],
+  "organisationPositions" : [
+    {"id": 0, "label": "Auftraggeber"},
+    {"id": 1, "label": "Auftragnehmer"}
   ]
 }
