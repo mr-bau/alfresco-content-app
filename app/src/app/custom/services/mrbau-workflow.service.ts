@@ -405,6 +405,8 @@ export class MrbauWorkflowService {
           //{ query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
           { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
           { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+          { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
+          { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
         ],
         fields: [
           // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
@@ -419,6 +421,7 @@ export class MrbauWorkflowService {
           'createdByUser',
         ],
         include: ['properties', 'path', 'allowableOperations'],
+        //'association'
         sort: [
           {
             type: 'FIELD',
@@ -433,23 +436,23 @@ export class MrbauWorkflowService {
         ]
       };
     }
-    if (node.nodeType == 'mrba:offer' || node.nodeType == 'mrba:order')
+    if (node.nodeType == 'mrba:order' || node.nodeType == 'mrba:orderNegotiationProtocol')
     {
       query.filterQueries.push({ query: `(=TYPE:"mrba:offer" AND cm:created:[NOW/DAY-120DAYS TO NOW/DAY+1DAY]) OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
     }
-    else if (node.nodeType == 'mrba:orderNegotiationProtocol')
-    {
-      query.filterQueries.push({ query: `=TYPE:"mrba:order" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
-    }
     else if (node.nodeType == 'mrba:invoice')
     {
-      query.filterQueries.push({ query: `((=TYPE:"mrba:order" OR =TYPE:"mrba:deliveryNote" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}") OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+      query.filterQueries.push({ query: `
+      ((=TYPE:"mrba:order" OR =TYPE:"mrba:invoice" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}")
+      OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])
+      OR (=TYPE:"mrba:deliveryNote" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" AND (!ASPECT:"mrba:referencedDeliveryNote" OR =mrba:deliveryNoteBeingReferencedCount:0))
+      `});
     }
     else if (node.nodeType == 'mrba:invoiceReviewSheet')
     {
       query.filterQueries.push({ query: `=TYPE:"mrba:invoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
     }
-    else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument')
+    else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument' || node.nodeType == 'mrba:offer' )
     {
       query = null;
     }
