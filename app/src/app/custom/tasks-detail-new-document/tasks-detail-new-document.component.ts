@@ -5,7 +5,8 @@ import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, On
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { DocumentAssociations, DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDocumentAssociations, EMRBauInvoiceTypes, EMRBauOfferTypes, EMRBauOrderTypes, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { DocumentAssociations,  EMRBauDocumentAssociations, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+//import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauInvoiceTypes, EMRBauOfferTypes, EMRBauOrderTypes  } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
 import { EMRBauTaskStatus, IMRBauTaskStatusAndUser, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
@@ -607,27 +608,22 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   getAssocTypeByNodeType(node:Node) : string
   {
     // special cases
+    /*
     if (node.nodeType == 'mrba:offer')
     {
-      if (node.properties['mrba:offerType'] == DocumentOfferTypes.get(EMRBauOfferTypes.ANGEBOT).value)
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.OFFER_REFERENCE).associationName;
-      }
       if (node.properties['mrba:offerType'] == DocumentOfferTypes.get(EMRBauOfferTypes.NACHTRAGSANGEBOT).value)
       {
         return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE).associationName;
       }
+      return DocumentAssociations.get(EMRBauDocumentAssociations.OFFER_REFERENCE).associationName;
     }
     if (node.nodeType == 'mrba:order')
     {
-      if (node.properties['mrba:orderType'] == DocumentOrderTypes.get(EMRBauOrderTypes.AUFTRAG).value)
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.ORDER_REFERENCE).associationName;
-      }
       if (node.properties['mrba:orderType'] == DocumentOrderTypes.get(EMRBauOrderTypes.ZUSATZAUFTRAG).value)
       {
         return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE).associationName;
       }
+      return DocumentAssociations.get(EMRBauDocumentAssociations.ORDER_REFERENCE).associationName;
     }
     if (node.nodeType == 'mrba:invoice')
     {
@@ -644,7 +640,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         return DocumentAssociations.get(EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE).associationName;
       }
       return DocumentAssociations.get(EMRBauDocumentAssociations.CONTRACT_REFERENCE).associationName;
-    }
+    }*/
     // standard cases
     const associations = Array.from(DocumentAssociations.values()).filter((item) => item.category != EMRBauDocumentAssociations.DOCUMENT_REFERENCE && item.targetClass == node.nodeType);
     if (associations.length == 1)
