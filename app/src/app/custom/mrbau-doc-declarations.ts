@@ -196,7 +196,6 @@ export const DocumentOrderTypes = new Map<number, IDocumentOrderTypeData>([
 export const enum EMRBauOrganisationPositionTypes {
   AUFTRAGGEBER = 0,
   AUFTRAGNEHMER = 1,
-
 }
 interface IOrganisationPositionTypeData {
   category: EMRBauOrganisationPositionTypes,
@@ -207,8 +206,6 @@ export const OrganisationPositionTypes = new Map<number, IOrganisationPositionTy
   [EMRBauOrganisationPositionTypes.AUFTRAGGEBER, {category: EMRBauOrganisationPositionTypes.AUFTRAGGEBER, label :"Auftraggeber", value :"Auftraggeber"}],
   [EMRBauOrganisationPositionTypes.AUFTRAGNEHMER, {category: EMRBauOrganisationPositionTypes.AUFTRAGNEHMER, label: "Auftragnehmer", value:"Auftragnehmer"}],
 ]);
-
-
 
 export const enum EMRBauInvoiceTypes {
   EINZELRECHNUNG  = 0,
@@ -224,6 +221,25 @@ export const DocumentInvoiceTypes = new Map<number, IDocumentInvoiceTypeData>([
   [EMRBauInvoiceTypes.EINZELRECHNUNG, {category: EMRBauInvoiceTypes.EINZELRECHNUNG, label :"Einzelrechnung", value :"Einzelrechnung"}],
   [EMRBauInvoiceTypes.SCHLUSSRECHNUNG, {category: EMRBauInvoiceTypes.SCHLUSSRECHNUNG, label: "Schlussrechnung", value:"Schlussrechnung"}],
   [EMRBauInvoiceTypes.TEILRECHNUNG, {category: EMRBauInvoiceTypes.TEILRECHNUNG, label: "Teil-/Anzahlungsrechnung", value:"Teilrechnung"}],
+]);
+
+export const enum EMRBauSigningStatusTypes {
+  IN_ERSTELLUNG = 0,
+  VERSENDET = 1,
+  IN_PRUEFUNG = 2,
+  FINAL = 3,
+}
+interface IMRBauSigningStatusTypeData {
+  category: EMRBauSigningStatusTypes,
+  label: string,
+  value: string,
+  default?: boolean,
+}
+export const MRBauSigningStatusTypes = new Map<number, IMRBauSigningStatusTypeData>([
+  [EMRBauSigningStatusTypes.IN_ERSTELLUNG, {category: EMRBauSigningStatusTypes.IN_ERSTELLUNG, label :"In Erstellung", value :"In Erstellung"}],
+  [EMRBauSigningStatusTypes.VERSENDET, {category: EMRBauSigningStatusTypes.VERSENDET, label: "Versendet", value:"Versendet"}],
+  [EMRBauSigningStatusTypes.IN_PRUEFUNG, {category: EMRBauSigningStatusTypes.IN_PRUEFUNG, label: "In Prüfung", value:"In Prüfung"}],
+  [EMRBauSigningStatusTypes.FINAL, {category: EMRBauSigningStatusTypes.FINAL, label: "Final", value:"Final"}],
 ]);
 
 export interface IMRBauFormDefinition {
@@ -544,7 +560,7 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_SIGNING});
             })
             .catch( (error) => reject(error))
           }),
@@ -559,10 +575,10 @@ export class MrbauArchiveModel {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_SIGNING; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_SIGNING;break;
               }
               resolve({state:newState});
             })
@@ -570,9 +586,12 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_SIGNING,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -620,11 +639,21 @@ export class MrbauArchiveModel {
           mandatoryRequiredProperties: [
           ]
         },
+        'STATUS_SIGNING' : {
+          formlyFieldConfigs: [
+            'title_mrba_signingStatus',
+            'element_mrba_signingStatus',
+            ],
+            mandatoryRequiredProperties: [
+              'mrba:signingStatus'
+            ]
+        },
         'STATUS_ALL_SET' : {
           formlyFieldConfigs: [
             'workflow_all_set_form'
             ],
             mandatoryRequiredProperties: [
+              'mrba:signingStatus'
             ]
         }
       }
@@ -652,7 +681,7 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_SIGNING});
             })
             .catch( (error) => reject(error))
           }),
@@ -667,10 +696,10 @@ export class MrbauArchiveModel {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_SIGNING; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_SIGNING;break;
               }
               resolve({state:newState});
             })
@@ -678,9 +707,12 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_SIGNING,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -717,6 +749,15 @@ export class MrbauArchiveModel {
           ],
           mandatoryRequiredProperties: [
           ]
+        },
+        'STATUS_SIGNING' : {
+          formlyFieldConfigs: [
+            'title_mrba_signingStatus',
+            'element_mrba_signingStatus',
+            ],
+            mandatoryRequiredProperties: [
+              'mrba:signingStatus'
+            ]
         },
         'STATUS_ALL_SET' : {
           formlyFieldConfigs: [

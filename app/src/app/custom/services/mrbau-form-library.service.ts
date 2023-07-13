@@ -579,6 +579,20 @@ export class MrbauFormLibraryService {
     },
   };
 
+  readonly mrba_signingStatus : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:signingStatus',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getSigningStatusFormOptions()[0].value,
+    props: {
+      label: 'Signatur Status auswählen',
+      options: this.mrbauConventionsService.getSigningStatusFormOptions(),
+      required: true,
+    },
+  };
+
+
   readonly mrba_reviewDaysPartialInvoice: FormlyFieldConfig =
   {
     className: 'flex-2',
@@ -826,6 +840,16 @@ export class MrbauFormLibraryService {
       'props.required': "model['mrba:orderType']!='Auftrag'",
     },
   }
+
+
+  readonly title_mrba_signingStatus : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Signatur-Status</span>',
+  };
+  readonly element_mrba_signingStatus : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_signingStatus],
+  };
+
 
   readonly title_mrba_orderType : FormlyFieldConfig ={
     template: '<span class="form-group-title">Auftrags-Typ</span>',

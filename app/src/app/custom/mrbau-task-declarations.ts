@@ -16,7 +16,7 @@ export const enum EMRBauTaskStatus {
   STATUS_ALL_SET              = 207,
   STATUS_INVOICE_REVIEW       = 208,
   STATUS_LINK_DOCUMENTS       = 209,
-
+  STATUS_SIGNING              = 210,
 
   // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
   STATUS_NOTIFY_DONE      = 8000,
@@ -48,6 +48,7 @@ export const MRBauTaskStatusDefinition = new Map<number, MRBauTaskStatusData>([
   [EMRBauTaskStatus.STATUS_LINK_DOCUMENTS, {state: EMRBauTaskStatus.STATUS_LINK_DOCUMENTS, stateAsString: "STATUS_LINK_DOCUMENTS", label: 'Dokumente zuordnen'}],
   [EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, {state: EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2, stateAsString: "STATUS_METADATA_EXTRACT_2", label: 'Metadaten Zuweisen'}],
   [EMRBauTaskStatus.STATUS_DUPLICATE, {state: EMRBauTaskStatus.STATUS_DUPLICATE, stateAsString: "STATUS_DUPLICATE", label: 'Dublettenprüfung'}],
+  [EMRBauTaskStatus.STATUS_SIGNING, {state: EMRBauTaskStatus.STATUS_SIGNING, stateAsString: "STATUS_SIGNING", label: 'Versand- u. Signatur-Status'}],
   [EMRBauTaskStatus.STATUS_FORMAL_REVIEW, {state: EMRBauTaskStatus.STATUS_FORMAL_REVIEW, stateAsString: "STATUS_FORMAL_REVIEW", label: 'Formale Rechnungsprüfun'}],
   [EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, {state: EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION, stateAsString: "STATUS_INVOICE_VERIFICATION", label: 'Sachliche Rechnungsprüfung'}],
   [EMRBauTaskStatus.STATUS_INVOICE_REVIEW, {state: EMRBauTaskStatus.STATUS_INVOICE_REVIEW, stateAsString: "STATUS_INVOICE_REVIEW", label: 'Sachliche Rechnungsprüfung Freigabe'}],
