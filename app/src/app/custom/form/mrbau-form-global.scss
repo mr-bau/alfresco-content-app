@@ -88,8 +88,8 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   display:inline-block;
   padding-left: 10px;
   padding-right: 10px;
-  //border: 1px dashed;
-  //border-color: lightblue;
+  border: 1px dashed;
+  border-color: lightblue;
 }
 
 .task-infobox, .task-description, .task-formbox, .task-history, .task-linked-docs {
