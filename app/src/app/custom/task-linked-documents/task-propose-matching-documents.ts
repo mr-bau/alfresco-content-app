@@ -78,8 +78,6 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     // query
     await this.mrbauWorkflowService.queryProposedDocuments(this.node)
     .then((result) => {
-      console.log("xxx");
-      console.log(result);
       if (result == null)
       {
         return;

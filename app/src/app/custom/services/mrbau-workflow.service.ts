@@ -393,12 +393,17 @@ export class MrbauWorkflowService {
 
   queryProposedDocuments(node: Node) : Promise<NodePaging>
   {
+    // query: '*',  - NOT SUPPORTED WITH TMDQ
+    // { query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
+    // { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
+    // sort // NOT SUPPORTED WITH TMDQ
+    // OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY]) // DATE INTERVAL NOT SUPPORTED WITH TMDQ
     let query : SearchRequest;
     if (node != null)
     {
       query = {
         query: {
-          query: '*',
+          query: 'TYPE:"cm:content"',
           language: 'afts'
         },
         filterQueries: [
@@ -421,7 +426,6 @@ export class MrbauWorkflowService {
           'createdByUser',
         ],
         include: ['properties', 'path', 'allowableOperations'],
-        //'association'
         sort: [
           {
             type: 'FIELD',
@@ -432,7 +436,7 @@ export class MrbauWorkflowService {
             type: 'FIELD',
             field: 'cm:name',
             ascending: true
-          },
+          }
         ]
       };
     }
@@ -444,7 +448,7 @@ export class MrbauWorkflowService {
     {
       query.filterQueries.push({ query: `
       ((=TYPE:"mrba:order" OR =TYPE:"mrba:invoice" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}")
-      OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])
+      OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY]) // date interval NOT SUPPORTED WITH TMDQ
       OR (=TYPE:"mrba:deliveryNote" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" AND (!ASPECT:"mrba:referencedDeliveryNote" OR =mrba:deliveryNoteBeingReferencedCount:0))
       `});
     }
