@@ -6,8 +6,8 @@
     </div>
   </div>
   <ng-template #elseBlock>
-    <!--<embed id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="document_url">-->
     <!--<object id="pdf-frame" type="application/pdf" width="100%" height="100%" [data]="document_url"></object>-->
-    <iframe id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="document_url" ></iframe>
+    <embed *ngIf="!useIframe" id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="document_url">
+    <iframe *ngIf="useIframe" id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="document_url" ></iframe>
   </ng-template>
 </div>
