@@ -64,8 +64,10 @@
             "hideDefaultAction": true,
             "field" : "",
             "options": [
-              { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS"},
-              { "value": "TYPE:'mrba:contractDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"}
+              { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS"},
+              { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument' AND +ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS_DISCARDED"},
+              { "value": "TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"},
+              { "value": "TYPE:'mrba:contractDocument' AND +ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS_DISCARDED"}
             ]
           }
         }
