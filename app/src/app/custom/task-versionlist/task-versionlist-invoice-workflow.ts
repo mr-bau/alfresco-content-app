@@ -201,6 +201,7 @@ export class TaskVersionlistInvoiceWorkflowComponent implements OnInit {
     this.htmlDataDoc = [];
     let v : VersionDataDoc = {
     };
+
     for (let i=0; i<this.versionDataDoc.length; i++)
     {
       v = this.versionDataDoc[i];
@@ -263,14 +264,12 @@ export class TaskVersionlistInvoiceWorkflowComponent implements OnInit {
         for (let i=list.list.entries.length-1; i>=0; i--)
         {
           const a = list.list.entries[i];
-
           this.versionDataDoc.push(
             {id:a.entry.id,
              name: a.entry.name,
              comment : a.entry.versionComment,
              modifiedAt: a.entry.modifiedAt,
              modifiedBy: a.entry.modifiedByUser,
-
             });
         }
         this.createHtmlDataDoc();

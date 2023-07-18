@@ -1,6 +1,6 @@
 import { NotificationService } from '@alfresco/adf-core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MRBauTask } from '../mrbau-task-declarations';
+import { EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauWorkflowService } from '../services/mrbau-workflow.service';
@@ -27,7 +27,7 @@ export class TasksMenuNewarchivetypeComponent {
     ) { }
 
   isDisabled() : boolean {
-    return !this.task || this.task.associatedDocumentRef.length == 0;
+    return !this.task || this.task.associatedDocumentRef.length == 0 || this.task.status != EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
   }
 
   onMenuClicked()
