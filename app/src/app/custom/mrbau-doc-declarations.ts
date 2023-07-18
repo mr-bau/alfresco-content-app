@@ -664,7 +664,7 @@ export class MrbauArchiveModel {
       //parent : "mrba:archiveDocument",
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
-      // MR-TODO mrba:documentIdentityDetails
+      //  "mrba:documentIdentityDetails",
       //  "mrba:paymentConditionDetails",
       //  "mrba:invoiceReference",
       //  "mrba:partialInvoiceReference",
@@ -1218,7 +1218,7 @@ export class MrbauArchiveModel {
       //mandatoryAspects : [
       //  "mrba:companyIdentifiers",
       //  "mrba:documentIdentityDetails",
-      //  MR-TODO "mrba:costCarrierDetails",
+      //  "mrba:costCarrierDetails",
       //],
       category: EMRBauDocumentCategory.OTHER_BILL,
       folder: "99 Sonstige Belege",

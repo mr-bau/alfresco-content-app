@@ -256,7 +256,6 @@ export class MrbauCommonService {
   progressWithNewUserConfirmDialog(assignedUserName : string) : Promise<string>
   {
     //this.model['mrbt:assignedUserName'] = task.assignedUserName;
-    // MR-TODO default use assignedUserName
     return new Promise((resolve, reject) =>
       {
         // dialog
