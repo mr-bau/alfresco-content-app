@@ -110,12 +110,39 @@ export function germanDecimalValidatorAndConverter(control: FormControl, field: 
     control.setValue(value);
   return null;
 }
+/*
+export function netGrossValidator(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
+  field;
+  options;
+  const netAmountText = control.value['mrba:netAmount'];
+  const grossAmountText = control.value['mrba:grossAmount'];
+  const taxRateText = control.value['mrba:taxRate'];
+
+  // ignore - not all values filled
+  if (netAmountText == null || grossAmountText == null || taxRateText == null)
+  {
+    return null;
+  }
+
+  const netAmount = netAmountText ? germanParseFloat(netAmountText) : undefined;
+  const grossAmount = grossAmountText ? germanParseFloat(grossAmountText) : undefined;
+  const taxRate = taxRateText ? germanParseFloat(taxRateText) : undefined;
+
+  // check if values are valid with 1 cent tolerance
+  const diff = grossAmount - netAmount * (1 + taxRate / 100);
+  if (Math.abs(diff) > 0.01)
+  {
+    return { 'netGrossTaxMismatch' : diff.toLocaleString('de-De') };
+  }
+  return null;
+}*/
 
 var netGrossTaxRateValidatorAndConverterRecursionTest = true;
 export function netGrossTaxRateValidatorAndConverter(control: FormControl, field: FormlyFieldConfig, options : any): ValidationErrors {
   control;
   field;
   options;
+
   if (!control.value)
     return null;
 
@@ -131,7 +158,8 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   if (grossAmount == null && netAmount != null && taxRate != null && field.form.get('mrba:grossAmount'))
   {
     const grossValue = netAmount * (1 + taxRate / 100);
-    field.form.get('mrba:grossAmount').setValue(grossValue.toLocaleString('de-De'));
+    grossAmountControl.setValue(grossValue.toLocaleString('de-De'));
+    //field.form.get('mrba:grossAmount').setValue(grossValue.toLocaleString('de-De'));
     return null;
   }
 
@@ -139,7 +167,8 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   if (grossAmount != null && netAmount == null && taxRate != null && field.form.get('mrba:netAmount'))
   {
     const netValue = grossAmount / (1 + taxRate / 100);
-    field.form.get('mrba:netAmount').setValue(netValue.toLocaleString('de-De'));
+    netAmountControl.setValue(netValue.toLocaleString('de-De'));
+    //field.form.get('mrba:netAmount').setValue(netValue.toLocaleString('de-De'));
     return null;
   }
 
@@ -147,7 +176,8 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   if (grossAmount != null && netAmount != null && taxRate == null && field.form.get('mrba:taxRate'))
   {
     const taxValue = (grossAmount / netAmount - 1) * 100;
-    field.form.get('mrba:taxRate').setValue(taxValue.toLocaleString('de-De'));
+    taxRateControl.setValue(taxValue.toLocaleString('de-De'));
+    //field.form.get('mrba:taxRate').setValue(taxValue.toLocaleString('de-De'));
     return null;
   }
 
@@ -160,9 +190,9 @@ export function netGrossTaxRateValidatorAndConverter(control: FormControl, field
   // also update validity of other fields
   if (netGrossTaxRateValidatorAndConverterRecursionTest) {
     netGrossTaxRateValidatorAndConverterRecursionTest = false;
-    if (control != netAmountControl && netAmountControl) netAmountControl.updateValueAndValidity();
-    if (control != grossAmountControl && grossAmountControl) grossAmountControl.updateValueAndValidity();
-    if (control != taxRateControl && taxRateControl)  taxRateControl.updateValueAndValidity();
+    if (control != netAmountControl && netAmountControl) {netAmountControl.markAsTouched(); netAmountControl.updateValueAndValidity();}
+    if (control != grossAmountControl && grossAmountControl) {grossAmountControl.markAsTouched(); grossAmountControl.updateValueAndValidity();}
+    if (control != taxRateControl && taxRateControl) { taxRateControl.markAsTouched(); taxRateControl.updateValueAndValidity();}
     netGrossTaxRateValidatorAndConverterRecursionTest = true;
   }
 

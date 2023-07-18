@@ -245,6 +245,7 @@ registerLocaleData(localeSv);
         { name: 'mrbauAutocompleteValidator', validation: autocompleteValueFromListValidator, options: {} },
         { name: 'mrbauGermanDecimalValidatorAndConverter', validation: germanDecimalValidatorAndConverter, options: {} },
         { name: 'mrbauNetGrossTaxRateValidatorAndConverter', validation: netGrossTaxRateValidatorAndConverter, options: {} },
+//        { name: 'mrbauNetGrossValidator', validation: netGrossValidator, options: {} },
         { name: 'mrbauRegexValidator', validation: regexValidator, options: {} }
       ],
       wrappers: [

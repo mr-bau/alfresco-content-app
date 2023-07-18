@@ -917,7 +917,7 @@ export class MrbauFormLibraryService {
       this.mrba_taxRateComment, // d:text
     ]
   };
-
+/*
   readonly aspect_mrba_amountDetails : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
@@ -926,7 +926,7 @@ export class MrbauFormLibraryService {
       //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:intkept in sync with mrba:netAmount
       this.mrba_grossAmount,       // d:text
     ]
-  };
+  };*/
 
   readonly aspect_mrba_taxRate : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
