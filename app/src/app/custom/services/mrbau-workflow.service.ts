@@ -345,8 +345,16 @@ export class MrbauWorkflowService {
     let weekendOffset = 0;
     if (date.getDay() == 6) weekendOffset = 2;
     if (date.getDay() == 0) weekendOffset = 1;
-    date.setDate(date.getDate() + weekendOffset);
+    if (weekendOffset > 0) {
+      date.setDate(date.getDate() + weekendOffset);
+    }
   }
+
+  private addDays(date: Date, days: number) : Date {
+    let result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
 
   invoiceVerificationPrefillValues(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     const props = data.taskDetailNewDocument.taskNode.properties;
@@ -359,31 +367,28 @@ export class MrbauWorkflowService {
     if (data.taskDetailNewDocument.model['mrba:verifyDateValue'] == null)
     {
       const reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
-      reviewDate.setDate(reviewDate.getDate() + reviewDays);
+      reviewDate = this.addDays(reviewDate, reviewDays);
       this.correctWeekend(reviewDate);
       data.taskDetailNewDocument.model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
     }
 
     if (data.taskDetailNewDocument.model['mrba:paymentDateNetValue'] == null && props['mrba:paymentTargetDays'])
     {
-      let date = new Date();
-      date.setDate(reviewDate.getDate() + props['mrba:paymentTargetDays']);
+      let date = this.addDays(reviewDate, props['mrba:paymentTargetDays'])
       this.correctWeekend(date);
       data.taskDetailNewDocument.model['mrba:paymentDateNetValue'] = this.mrbauCommonService.getFormDateValue(date);
     }
 
     if (data.taskDetailNewDocument.model['mrba:paymentDateDiscount1Value'] == null && props['mrba:earlyPaymentDiscountDays1'])
     {
-      let date = new Date();
-      date.setDate(reviewDate.getDate() + props['mrba:earlyPaymentDiscountDays1']);
+      let date = this.addDays(reviewDate, props['mrba:earlyPaymentDiscountDays1'])
       this.correctWeekend(date);
       data.taskDetailNewDocument.model['mrba:paymentDateDiscount1Value'] = this.mrbauCommonService.getFormDateValue(date);
     }
 
     if (data.taskDetailNewDocument.model['mrba:paymentDateDiscount2Value'] == null && props['mrba:earlyPaymentDiscountDays2'])
     {
-      let date = new Date();
-      date.setDate(reviewDate.getDate() + props['mrba:earlyPaymentDiscountDays2']);
+      let date = this.addDays(reviewDate, props['mrba:earlyPaymentDiscountDays2'])
       this.correctWeekend(date);
       data.taskDetailNewDocument.model['mrba:paymentDateDiscount2Value'] = this.mrbauCommonService.getFormDateValue(date);
     }
