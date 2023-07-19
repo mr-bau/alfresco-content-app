@@ -1,4 +1,24 @@
 {
+    "306888": {
+        "mrba:companyId": "306888",
+        "mrba:companyName": "Amazon EU S.\u00e0.r.l.",
+        "mrba:companyStreet": "38 avenue John F. Kennedy",
+        "mrba:companyZipCode": "1855",
+        "mrba:companyCity": "Luxembourg",
+        "mrba:companyVatID": "CZ681208919",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "300574": {
+        "mrba:companyId": "300574",
+        "mrba:companyName": "B\u00fcro Handel GmbH",
+        "mrba:companyStreet": "Vogelweiderstr. 37",
+        "mrba:companyZipCode": "4600",
+        "mrba:companyCity": "Wels",
+        "mrba:companyVatID": "ATU41436709",
+        "mrba:companyEmail": "office@buerohandel.at",
+        "mrba:companyPhone": "+43 (508) 15"
+    },
     "307241": {
         "mrba:companyId": "307241",
         "mrba:companyName": "ELBA POOLTECHNIK GmbH",
@@ -19,6 +39,16 @@
         "mrba:companyEmail": "office@elbe.at",
         "mrba:companyPhone": "+43 (4242) 51115"
     },
+    "200476": {
+        "mrba:companyId": "200476",
+        "mrba:companyName": "Elbe GmbH",
+        "mrba:companyStreet": "Tiroler Stra\u00dfe 21",
+        "mrba:companyZipCode": "9500",
+        "mrba:companyCity": "Villach",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "300961": {
         "mrba:companyId": "300961",
         "mrba:companyName": "Elbe Vermietung GmbH",
@@ -38,5 +68,15 @@
         "mrba:companyVatID": "ATU48398103",
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
+    },
+    "307718": {
+        "mrba:companyId": "307718",
+        "mrba:companyName": "electronic4you GmbH",
+        "mrba:companyStreet": "Inglitschstra\u00dfe 26",
+        "mrba:companyZipCode": "9020",
+        "mrba:companyCity": "Klagenfurt am W\u00f6rthersee",
+        "mrba:companyVatID": "ATU25777406",
+        "mrba:companyEmail": "b2b@electronic4you.at",
+        "mrba:companyPhone": "+43 (463) 3721146"
     }
 }
