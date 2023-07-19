@@ -143,6 +143,15 @@ export class MrbauConventionsService {
   getVendor(key : string) : IVendor {
     return jsonVendorList[key] as IVendor
   }
+  addVendor() {
+    this.mrbauCommonService.addVendorWithConfirmDialog().then((result) => {
+        if (result) {
+          jsonVendorList
+        }
+      }
+    )
+    .catch((error) => console.log(error));
+  }
 
   private createKtString(v:ICostCarrier) : string {
     let result = v['mrba:costCarrierNumber'];

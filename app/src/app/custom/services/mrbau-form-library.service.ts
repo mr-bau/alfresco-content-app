@@ -216,6 +216,8 @@ export class MrbauFormLibraryService {
     },
   };
 
+
+
   readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -748,6 +750,24 @@ export class MrbauFormLibraryService {
     },
   }
 
+    // Buttons
+    readonly button_new_company : FormlyFieldConfig =
+    {
+      className: 'flex-1',
+      key: 'ignore:mrbauNewCompanyButton',
+      type: 'mrbauFormlyButton',
+      props: {
+        label: 'Neue Firma anlegen',
+        text: 'Neue Firma anlegen',
+        btnType: 'default',
+        onClick: () => {
+          this.mrbauConventionsService.addVendor();
+
+  //        this.form.get('someInput').setValue('clicked!');
+        },
+      },
+    }
+
   // ASPECT GROUPS
   readonly title_mrba_paymentConditionDetails : FormlyFieldConfig ={
     template: '<span class="form-group-title">Zahlungskonditionen</span>',
@@ -866,6 +886,10 @@ export class MrbauFormLibraryService {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [this.mrba_companyId],
   };
+  readonly element_mrba_companyId_wbtn : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_companyId, this.button_new_company],
+  };
 
   readonly title_mrba_organisationPosition : FormlyFieldConfig ={
     template: '<span class="form-group-title">Mandantenstellung (M&amp;R)</span>',
@@ -947,6 +971,7 @@ export class MrbauFormLibraryService {
       this.mrba_projectName, //d:text
     ]
   };
+
 
 
   // Labels

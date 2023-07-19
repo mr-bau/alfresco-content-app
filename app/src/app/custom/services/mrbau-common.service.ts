@@ -11,6 +11,8 @@ import { ContentApiService } from '../../../../../projects/aca-shared/src/public
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { ContentManagementService } from '../../services/content-management.service';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { IVendor } from './mrbau-conventions.service';
+import { MrbauDbService } from './mrbau-db.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +30,7 @@ export class MrbauCommonService {
     private notificationService : NotificationService,
     private authenticationService : AuthenticationService,
     private contentManagementService: ContentManagementService,
+    private mrbauDbService:MrbauDbService,
     ) {
     }
 
@@ -386,5 +389,156 @@ export class MrbauCommonService {
     {
       formlyFieldConfig.fieldGroup.forEach( (fc) => this.patchFormFieldConfigRequiredPropertyRecursive(fc, mandatoryRequiredProperties))
     }
+  }
+
+  addVendorWithConfirmDialogCache= {};
+  addVendorWithConfirmDialog() : Promise<IVendor>
+  {
+    this.mrbauDbService;
+    // this.mrbauDbService.getVendors().then((res) => { console.log(res); });
+    return new Promise((resolve) =>
+    {
+      // dialog
+      const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+        data: {
+          dialogTitle: 'Neue Firma anlegen',
+          dialogMsg: 'Neue Firma anlegen',
+          dialogButtonOK: 'FIRMA ANLEGEN',
+          callQueryData: false,
+          fieldsMain: [
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-4',
+                        key: 'mrba_companyName',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyName'],
+                        props: {
+                          label: 'Firmenname',
+                          description: 'Firmenname',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                    ]
+                }, {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyStreet',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyStreet'],
+                        props: {
+                          label: 'Straße',
+                          description: 'Straße',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      }
+                    ]
+                  }, {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyZipCode',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyZipCode'],
+                        props: {
+                          label: 'PLZ',
+                          description: 'PLZ',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                      {
+                        className: 'flex-4',
+                        key: 'mrba_companyCity',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyCity'],
+                        props: {
+                          label: 'Stadt',
+                          description: 'Stadt',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      }
+                    ]
+                  }, {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyVatID',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyVatID'],
+                        props: {
+                          label: 'VAT',
+                          description: 'UID',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyEmail',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyEmail'],
+                        props: {
+                          label: 'Email',
+                          description: 'Email',
+                          maxLength: CONST.MAX_LENGTH_EMAIL,
+                          required: true,
+                        },
+                      },
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyPhone',
+                        type: 'input',
+                        defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyPhone'],
+                        props: {
+                          label: 'Telefon',
+                          description: 'Telefon',
+                          maxLength: CONST.MAX_LENGTH_PHONE,
+                          required: false,
+                        },
+                      },
+                    ]
+                },
+              ]
+            }
+          ],
+          payload: null
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result)
+        {/*
+          this.addVendorWithConfirmDialogCache = result;
+          this.mrbauDbService.addVendor(result).then((res) => {
+            if (res.result === 'OK') {
+              resolve(res);
+            }
+            else {
+              reject(res);
+            }
+          })
+          .catch(error => {
+            reject(error);
+          })
+          */
+        }
+        else {
+          resolve(null);
+        }
+      });
+    }
+  )
   }
 }

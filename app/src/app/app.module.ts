@@ -163,6 +163,8 @@ import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.co
 import { MrbauSearchWidgetChipComponent }  from './custom/mrbau-search-table/mrbau-search-widget-chip/mrbau-search-widget-chip.component';
 import { MrbauSearchFacetChipComponent } from './custom/mrbau-search-table/mrbau-search-facet-chip/mrbau-search-facet-chip.component';
 import { MrbauSearchFacetFieldComponent } from './custom/mrbau-search-table/mrbau-search-facet-field/mrbau-search-facet-field.component';
+import { TasksMenuDiscardDocumentComponent } from './custom/tasks-menu-discard-document/tasks-menu-discard-document';
+import { MrbauFormlyButtonComponent } from './custom/form/mrbau-formly-button.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -254,17 +256,13 @@ registerLocaleData(localeSv);
       ],
       types: [
         { name: 'mrbauFormlyNewTaskStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
-        { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [],  defaultOptions: { props: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
+        { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [], defaultOptions: { props: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
         { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { props: {required: true}}},
         { name: 'mrbauFormlyAutocomplete', component: MrbauFormlyAutocompleteComponent, wrappers: ['form-field']},
         { name: 'mrbauFormlyLabel', component: MrbauFormlyLabelComponent, wrappers: ['mrbauFormlyLabelWrapper']},
+        { name: 'mrbauFormlyButton', component: MrbauFormlyButtonComponent, wrappers: [], defaultOptions: { props: { btnType: 'default', type: 'button'}},},
         { name: 'mrbauFormlyAutocompleteSelectFormOptions', component: MrbauFormlyAutocompleteSelectFormOptionsComponent, wrappers: ['form-field']},
-        { name: 'mrbauFormlyTaskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['mrbauFormlyMarginWrapper'],
-        defaultOptions: {
-          props: {
-              btnType: 'default',
-              type: 'button',
-            },
+        { name: 'mrbauFormlyTaskLinkedDocuments', component: MrbauFormlyFieldTaskLinkedDocumentsComponent, wrappers: ['mrbauFormlyMarginWrapper'], defaultOptions: { props: { btnType: 'default', type: 'button'},
           },
         },
       ],
@@ -308,6 +306,7 @@ registerLocaleData(localeSv);
     MrbauFormlyAutocompleteComponent,
     MrbauFormlyAutocompleteSelectFormOptionsComponent,
     MrbauFormlyLabelComponent,
+    MrbauFormlyButtonComponent,
     MrbauFormlyLabelWrapperComponent,
     MrbauFormlyMarginWrapperComponent,
     MrbauDelegateTaskDialogComponent,
@@ -326,6 +325,7 @@ registerLocaleData(localeSv);
     TasksDetailNewDocumentComponent,
     TasksMenuDelegateComponent,
     TasksMenuDeleteComponent,
+    TasksMenuDiscardDocumentComponent,
     TasksMenuOcrComponent,
     TasksMenuNewarchivetypeComponent,
     MrbauCompareDocumentsComponent,
