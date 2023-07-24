@@ -453,9 +453,9 @@ export class MrbauWorkflowService {
     {
       query.filterQueries.push({ query: `
       ((=TYPE:"mrba:order" OR =TYPE:"mrba:invoice" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}")
-      OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY]) // date interval NOT SUPPORTED WITH TMDQ
+      OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])
       OR (=TYPE:"mrba:deliveryNote" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" AND (!ASPECT:"mrba:referencedDeliveryNote" OR =mrba:deliveryNoteBeingReferencedCount:0))
-      `});
+      `}); // date interval NOT SUPPORTED WITH TMDQ
     }
     else if (node.nodeType == 'mrba:invoiceReviewSheet')
     {
