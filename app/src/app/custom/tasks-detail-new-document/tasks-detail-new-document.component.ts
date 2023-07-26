@@ -176,6 +176,25 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.onNextClicked();
   }
 
+  getPrevStat() : EMRBauTaskStatus {
+    return EMRBauTaskStatus.STATUS_SIGNING;
+  }
+
+  isButtonPauseVisible() : boolean {
+    if (this.task &&
+      (this.task.status === EMRBauTaskStatus.STATUS_PAUSED ||  this.task.status === EMRBauTaskStatus.STATUS_SIGNING)) {
+      return true;
+    }
+    return false;
+  }
+
+  onButtonPauseClicked() {
+    this.reloadTaskRequiredFlag = true;
+    const newState : EMRBauTaskStatus = (this.task.status === EMRBauTaskStatus.STATUS_PAUSED) ? this.getPrevStat() : EMRBauTaskStatus.STATUS_PAUSED;
+    const callback : MRBauWorkflowStateCallback = () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:newState}));
+    this.performStateChangeAction(callback, {taskDetailNewDocument: this});
+  }
+
   onNextClicked(event?:any)
   {
     event;
@@ -196,7 +215,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       this.updateTaskStatusAndButtons(newState.state);
       this.updateFormDC();
       const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType(data);
-      if (workflowState.onEnterAction)
+      if (workflowState?.onEnterAction)
       {
         return new Promise((resolve, reject) => {
           workflowState.onEnterAction(data)
@@ -214,7 +233,8 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.writeMetadata() // update document meta data
     .then( () => {return this.updateTaskNodeMetadataFromServer();}) // update local document meta data
     .then( () => {return nextStateFunction(data);})
-    .then( (newStateObject) => {return this.doPerformStateChangePromise(newStateObject, data)})
+    .then( (newStateObject) => {
+      return this.doPerformStateChangePromise(newStateObject, data)})
     .then( (newStateObject) => {
       if (newStateObject.userName) {data.taskDetailNewDocument.task.assignedUserName = newStateObject.userName;}
       return this.mrbauCommonService.updateTaskStatus(this._task.id, this._task.status, newStateObject.userName)}) // update task meta data

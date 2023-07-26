@@ -50,6 +50,7 @@
         *ngIf="isProposeMatchingDocumentsVisible()">
       </aca-task-propose-matching-documents>
       <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="onButtonSubmitClicked()" matTooltip="Weiter" [disabled]="!isFormValid()">{{submitButtonText}}</button>
+      <button *ngIf="isButtonPauseVisible()" mat-raised-button type="button" class="mat-flat-button toolbar-button-spacing mat-button-base mat-primary addMarginTop" color="primary" (click)="onButtonPauseClicked()" matTooltip="Pause"> <mat-icon>pause</mat-icon></button>
     </form>
   </mat-expansion-panel>
 </div>
