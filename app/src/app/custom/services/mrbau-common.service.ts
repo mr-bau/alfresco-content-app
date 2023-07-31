@@ -394,9 +394,7 @@ export class MrbauCommonService {
   addVendorWithConfirmDialogCache= {};
   addVendorWithConfirmDialog() : Promise<IVendor>
   {
-    this.mrbauDbService;
-    // this.mrbauDbService.getVendors().then((res) => { console.log(res); });
-    return new Promise((resolve) =>
+    return new Promise((resolve, reject) =>
     {
       // dialog
       const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
@@ -519,9 +517,9 @@ export class MrbauCommonService {
 
       dialogRef.afterClosed().subscribe((result) => {
         if (result)
-        {/*
+        {
           this.addVendorWithConfirmDialogCache = result;
-          this.mrbauDbService.addVendor(result).then((res) => {
+          this.mrbauDbService.addVendor(result).toPromise().then((res) => {
             if (res.result === 'OK') {
               resolve(res);
             }
@@ -532,7 +530,6 @@ export class MrbauCommonService {
           .catch(error => {
             reject(error);
           })
-          */
         }
         else {
           resolve(null);

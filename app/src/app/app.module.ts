@@ -165,6 +165,9 @@ import { MrbauSearchFacetChipComponent } from './custom/mrbau-search-table/mrbau
 import { MrbauSearchFacetFieldComponent } from './custom/mrbau-search-table/mrbau-search-facet-field/mrbau-search-facet-field.component';
 import { TasksMenuDiscardDocumentComponent } from './custom/tasks-menu-discard-document/tasks-menu-discard-document';
 import { MrbauFormlyButtonComponent } from './custom/form/mrbau-formly-button.component';
+import { MatSelectModule } from '@angular/material/select';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { MrbauFormlySelectSearchComponent } from './custom/form/types/mrbau-formly-selectsearch.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -231,6 +234,8 @@ registerLocaleData(localeSv);
 
     MatStepperModule,
     AngularSplitModule,
+    MatSelectModule,
+    NgxMatSelectSearchModule,
     FormlyModule.forRoot({
       validationMessages: [
         { name: 'required', message: requiredValidationMessage },
@@ -255,6 +260,7 @@ registerLocaleData(localeSv);
         { name: 'mrbauFormlyMarginWrapper', component: MrbauFormlyMarginWrapperComponent },
       ],
       types: [
+        { name: 'mrbauFormlySelectSearch', component: MrbauFormlySelectSearchComponent, wrappers: ['form-field'] },
         { name: 'mrbauFormlyNewTaskStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
         { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [], defaultOptions: { props: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
         { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { props: {required: true}}},
@@ -299,6 +305,7 @@ registerLocaleData(localeSv);
     TaskIndicatorComponent,
     TasksdetailComponent,
     MrbauNewTaskDialogComponent,
+    MrbauFormlySelectSearchComponent,
     MrbauFormlyNewTaskStepper,
     MrbauFormlyFieldTaskLinkedDocumentsComponent,
     MrbauFormlyAllSetComponent,

@@ -216,7 +216,44 @@ export class MrbauFormLibraryService {
     },
   };
 
-
+/*
+  readonly mrba_companyId : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:companyId',
+    type: 'mrbauFormlySelectSearch',
+    props: {
+      label: 'Firma auswählen',
+      placeholder: 'Firma suchen z.B. %Elbe%',
+      change: (field: FormlyFieldConfig) => {
+        const mrba_company_fields = [
+          'mrba:companyName',
+          'mrba:companyVatID',
+          'mrba:companyStreet',
+          'mrba:companyZipCode',
+          'mrba:companyCity',
+          'mrba:companyCountryCode',
+          ];
+        if (field)
+        {
+          const data = field.model[field.key as string];
+          const vendor = null;
+          console.log("xxx y");
+          console.log(data);
+          console.log(field.formControl);
+          console.log(field.model);
+          console.log("xxx yy");
+          //const vendor = this.mrbauConventionsService.getVendor(data);
+          for (const key of mrba_company_fields)
+          {
+            field.model[key] = (vendor) ? vendor[key] : undefined;
+          }
+        }
+      }
+    },
+    hooks: {},
+    validators: { },
+  }*/
 
   readonly mrba_companyId : FormlyFieldConfig =
   {
@@ -757,8 +794,8 @@ export class MrbauFormLibraryService {
       key: 'ignore:mrbauNewCompanyButton',
       type: 'mrbauFormlyButton',
       props: {
-        label: 'Neue Firma anlegen',
-        text: 'Neue Firma anlegen',
+        label: 'Firma anlegen',
+        text: 'FIRMA ANLEGEN',
         btnType: 'default',
         onClick: () => {
           this.mrbauConventionsService.addVendor();

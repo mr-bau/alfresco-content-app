@@ -45,6 +45,7 @@ export class MrbauConventionsService {
   // MR-TODO extract from JSON File
   constructor(
     private mrbauCommonService: MrbauCommonService,
+    //private mrbauDbService:MrbauDbService
     )
   {
   }
@@ -110,18 +111,18 @@ export class MrbauConventionsService {
     return null;
   }
 
-  readonly reviewDaysDefaultValues = ['0','7','10', '14','28','30','36'];
-  readonly taxRateDefaultValues = ['0,0', '20,0','10,0'];
+  readonly reviewDaysDefaultValues = ['0','7','10','14','28','30','36'];
+  readonly taxRateDefaultValues = ['0,0', '20,0','13,0', '10,0'];
   readonly discountDefaultValues = ['1,00','2,00','3,00'];
 
-  private createVendorString(v : IVendor) : string {
+  public createVendorString(v : IVendor) : string {
     let result = v['mrba:companyName'];
     result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
     result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
     result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
+    console.log(result);
     return result;
   }
-
   private _vendorListFormOptions : ISelectFormOptions[];
   getVendorListFormOptions() : ISelectFormOptions[] {
     if (this._vendorListFormOptions) {
@@ -143,13 +144,12 @@ export class MrbauConventionsService {
   getVendor(key : string) : IVendor {
     return jsonVendorList[key] as IVendor
   }
+
   addVendor() {
     this.mrbauCommonService.addVendorWithConfirmDialog().then((result) => {
-        if (result) {
-          jsonVendorList
-        }
+      if (result) {
       }
-    )
+    })
     .catch((error) => console.log(error));
   }
 

@@ -435,10 +435,13 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     const nodeType = this._taskNode.nodeType;
     this.task.status = this.mrbauArchiveModelService.mrbauArchiveModel.initTaskStateFromNodeType(this.task.status, nodeType);
     const stateName = MRBauTask.getStateAsString(this.task.status);
+
     this.fields = this.mrbauFormLibraryService.getFormForNodeType(stateName, nodeType);
     // note https://stackblitz.com/edit/angular-ivy-yspupc?file=src%2Fapp%2Fapp.component.ts
+    //console.log('xxx');
+    //console.log(this.fields);
     this.updateFormValues();
-
+    //console.log(this.model);
     // new FormGroup is delayed to allow additional model changes in onEnterAction. Is done in performStateChangeAction
     //this.form = new FormGroup({});
   }
