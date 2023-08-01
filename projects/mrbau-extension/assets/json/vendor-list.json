@@ -7439,6 +7439,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007001": {
+        "mrba:companyId": "007001",
+        "mrba:companyName": "Bezirkshauptmannschaft Neunkirchen",
+        "mrba:companyStreet": "Peischingerstra\u00dfe 17",
+        "mrba:companyZipCode": "2620",
+        "mrba:companyCity": "Neunkirchen",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": "02742 9005 9393"
+    },
     "306917": {
         "mrba:companyId": "306917",
         "mrba:companyName": "Bezirkshauptmannschaft Tulln",
@@ -36095,6 +36105,16 @@
         "mrba:companyStreet": "Mozartstra\u00dfe 28",
         "mrba:companyZipCode": "9020",
         "mrba:companyCity": "Klagenfurt am W\u00f6rthersee",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007002": {
+        "mrba:companyId": "007002",
+        "mrba:companyName": "KEOB Fliesen GmbH",
+        "mrba:companyStreet": "Liesinger-Flur-Gasse 17",
+        "mrba:companyZipCode": "1230",
+        "mrba:companyCity": "Wien",
         "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
