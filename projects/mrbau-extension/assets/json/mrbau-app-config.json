@@ -1,10 +1,11 @@
 {
-  "organisationUnitDefault" : 3,
+  "organisationUnitDefault" : 2,
   "organisationUnits" : [
     {"id": 0, "label": "M&R Holding GmbH", "folder": "M&R Holding"},
     {"id": 1, "label": "M&R Beteiligungs GmbH", "folder": "M&R Beteiligung"},
     {"id": 2, "label": "M&R Bau GmbH", "folder": "M&R Bau"},
-    {"id": 3, "label": "M&R Globalbau GmbH", "folder": "M&R Globalbau"}
+    {"id": 3, "label": "M&R Globalbau GmbH", "folder": "M&R Globalbau"},
+    {"id": 4, "label": "Hermine Schwab GmbH", "folder": "Schwab"}
   ],
   "organisationPositions" : [
     {"id": 0, "label": "Auftraggeber"},
