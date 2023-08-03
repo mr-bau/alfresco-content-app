@@ -21989,6 +21989,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007003": {
+        "mrba:companyId": "007003",
+        "mrba:companyName": "GU-Bau GmbH",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "203304": {
         "mrba:companyId": "203304",
         "mrba:companyName": "GU-Bau GmbH - Katschberghof",
@@ -47098,6 +47108,16 @@
         "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
+    },
+    "007004": {
+        "mrba:companyId": "007004",
+        "mrba:companyName": "M&R Globalbau",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "office@globalbau.at",
+        "mrba:companyPhone": "+43 (4276) 37150"
     },
     "340114": {
         "mrba:companyId": "340114",
