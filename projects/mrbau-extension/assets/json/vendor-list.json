@@ -1109,6 +1109,16 @@
         "mrba:companyEmail": "office@stein-fliesen-design.at",
         "mrba:companyPhone": "+43 (3136) 81958"
     },
+    "007016": {
+        "mrba:companyId": "007016",
+        "mrba:companyName": "ASFINAG - GO Direkt Team",
+        "mrba:companyStreet": "Bahnhof-Umgebung 16",
+        "mrba:companyZipCode": "6170",
+        "mrba:companyCity": "Zirl",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "300204": {
         "mrba:companyId": "300204",
         "mrba:companyName": "ASFINAG-Autobahnen GO Service Team",
