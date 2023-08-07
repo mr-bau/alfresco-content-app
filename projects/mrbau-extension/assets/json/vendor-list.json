@@ -4859,6 +4859,16 @@
         "mrba:companyEmail": "hohenems@bgg.at",
         "mrba:companyPhone": "+43 (5576) 73244"
     },
+    "007005": {
+        "mrba:companyId": "007005",
+        "mrba:companyName": "BGN Reinigungsservice GmbH",
+        "mrba:companyStreet": "Salurnergasse 5",
+        "mrba:companyZipCode": "2340",
+        "mrba:companyCity": "M\u00f6dling",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "200230": {
         "mrba:companyId": "200230",
         "mrba:companyName": "BGN Reinigungsservice Kostic KEG",
@@ -27939,6 +27949,16 @@
         "mrba:companyEmail": "office@haltmeyer.at",
         "mrba:companyPhone": "+43 (2742) 27560-0"
     },
+    "007007": {
+        "mrba:companyId": "007007",
+        "mrba:companyName": "Haltmeyer GmbH",
+        "mrba:companyStreet": "Lainzer Stra\u00dfe 127",
+        "mrba:companyZipCode": "1130",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "306307": {
         "mrba:companyId": "306307",
         "mrba:companyName": "Halwachs Georg Hans",
@@ -47309,6 +47329,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007008": {
+        "mrba:companyId": "007008",
+        "mrba:companyName": "M&R Holding GmbH",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "302910": {
         "mrba:companyId": "302910",
         "mrba:companyName": "M&R Holding GmbH-div.BVH",
@@ -55008,6 +55038,16 @@
         "mrba:companyVatID": "ATU37514301",
         "mrba:companyEmail": "korneuburg@oekotel.com",
         "mrba:companyPhone": "+43 (59) 459410"
+    },
+    "007006": {
+        "mrba:companyId": "007006",
+        "mrba:companyName": "OEKOTEL Traiskirchen",
+        "mrba:companyStreet": "Hochm\u00fchlstra\u00dfe 5",
+        "mrba:companyZipCode": "2514",
+        "mrba:companyCity": "Traiskirchen",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "307108": {
         "mrba:companyId": "307108",
@@ -74788,6 +74828,16 @@
         "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (4242) 23215240"
+    },
+    "007009": {
+        "mrba:companyId": "007009",
+        "mrba:companyName": "Stadt Wien - Verkehrsorganisation und technische Verkehrsangelegenheiten",
+        "mrba:companyStreet": "Niederhofstra\u00dfe 21",
+        "mrba:companyZipCode": "1120",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
     },
     "304573": {
         "mrba:companyId": "304573",
