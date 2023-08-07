@@ -5214,6 +5214,13 @@
         "auditor2": "",
         "accountant": ""
     },
+    "7500": {
+        "mrba:costCarrierNumber": "7500",
+        "mrba:projectName": "Partienausstattung Allgemein",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
     "7501": {
         "mrba:costCarrierNumber": "7501",
         "mrba:projectName": "Partienausstattung Skivjani",
