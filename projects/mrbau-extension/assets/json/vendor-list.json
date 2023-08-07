@@ -519,6 +519,16 @@
         "mrba:companyEmail": "info@adv-pax.de",
         "mrba:companyPhone": "+49 (7123) 38007"
     },
+    "007015": {
+        "mrba:companyId": "007015",
+        "mrba:companyName": "AD\u2014Profischwarzdeckerei OG",
+        "mrba:companyStreet": "Hasnerstra\u00dfe 21",
+        "mrba:companyZipCode": "1160",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "307575": {
         "mrba:companyId": "307575",
         "mrba:companyName": "AEE Energiedienstleistungen GmbH",
@@ -50339,6 +50349,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007011": {
+        "mrba:companyId": "007011",
+        "mrba:companyName": "Max \u2014 Lochboden GmbH",
+        "mrba:companyStreet": "Tr\u00f6stlberg 35",
+        "mrba:companyZipCode": "4431",
+        "mrba:companyCity": "Haidershofen",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "303078": {
         "mrba:companyId": "303078",
         "mrba:companyName": "Mayer & Co GmbH-Krottenbachstra\u00dfe",
@@ -61949,6 +61969,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007012": {
+        "mrba:companyId": "007012",
+        "mrba:companyName": "RP Stadtalpinisten OG",
+        "mrba:companyStreet": "DI W. Ha\u00dflingerstra\u00dfe 3/25",
+        "mrba:companyZipCode": "2340",
+        "mrba:companyCity": "M\u00f6dling",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "305895": {
         "mrba:companyId": "305895",
         "mrba:companyName": "RS Components Handelsgesellschaft m.b.H.",
@@ -69018,6 +69048,16 @@
         "mrba:companyVatID": "ATU71917269",
         "mrba:companyEmail": "office@scheucher-trockenbau.at",
         "mrba:companyPhone": "+43 (1) 9551520"
+    },
+    "007014": {
+        "mrba:companyId": "007014",
+        "mrba:companyName": "Scheybal GmbH",
+        "mrba:companyStreet": "Franzosengraben 7",
+        "mrba:companyZipCode": "1030",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "340119": {
         "mrba:companyId": "340119",
@@ -84039,6 +84079,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2252) 71544"
     },
+    "007013": {
+        "mrba:companyId": "007013",
+        "mrba:companyName": "WBF Wiedermann Brandschutz- & Feuerwehrtechnik GmbH",
+        "mrba:companyStreet": "Hofstra\u00dfe 35",
+        "mrba:companyZipCode": "2105",
+        "mrba:companyCity": "Oberrohrbach",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "305255": {
         "mrba:companyId": "305255",
         "mrba:companyName": "WBF Wiedermann GmbH-Otterweg",
@@ -90866,6 +90916,16 @@
         "mrba:companyZipCode": "13581",
         "mrba:companyCity": "Berlin",
         "mrba:companyVatID": "PL5263173338",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007010": {
+        "mrba:companyId": "007010",
+        "mrba:companyName": "mmcit\u00e9 at",
+        "mrba:companyStreet": "Schottenfeldgasse 72/2/B",
+        "mrba:companyZipCode": "1070",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
