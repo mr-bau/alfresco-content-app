@@ -5242,6 +5242,13 @@
         "auditor2": "",
         "accountant": ""
     },
+    "7408": {
+        "mrba:costCarrierNumber": "7408",
+        "mrba:projectName": "Umbau Fitness Breitenfurlerstra\u00dfe 308",
+        "auditor1": "",
+        "auditor2": "egger",
+        "accountant": ""
+    },
     "7500": {
         "mrba:costCarrierNumber": "7500",
         "mrba:projectName": "Partienausstattung Allgemein",
