@@ -6,6 +6,20 @@
         "auditor2": "",
         "accountant": ""
     },
+    "64": {
+        "mrba:costCarrierNumber": "64",
+        "mrba:projectName": "FE-364 CH Opel Vivaro Enjoy 2,0",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
+    "301": {
+        "mrba:costCarrierNumber": "301",
+        "mrba:projectName": "FE-639 BZ LKW Volvo FM-440",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
     "1269": {
         "mrba:costCarrierNumber": "1269",
         "mrba:projectName": "M&R Bauholding GmbH,2340 B\u00fcroumb.M\u00f6dling",
@@ -4220,6 +4234,13 @@
         "auditor2": "",
         "accountant": ""
     },
+    "7000": {
+        "mrba:costCarrierNumber": "7000",
+        "mrba:projectName": "Lager",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
     "7010": {
         "mrba:costCarrierNumber": "7010",
         "mrba:projectName": "Kleinbaust. Mo",
@@ -5497,6 +5518,13 @@
     "9000": {
         "mrba:costCarrierNumber": "9000",
         "mrba:projectName": "Zentralregie",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
+    "9010": {
+        "mrba:costCarrierNumber": "9010",
+        "mrba:projectName": "N\u00e4chtigungen Baustelle",
         "auditor1": "",
         "auditor2": "",
         "accountant": ""

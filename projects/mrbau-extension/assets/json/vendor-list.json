@@ -29639,6 +29639,16 @@
         "mrba:companyEmail": "info@mayertransporte.at",
         "mrba:companyPhone": "+43 (2168) 62885"
     },
+    "007017": {
+        "mrba:companyId": "007017",
+        "mrba:companyName": "Hermine Schwab Gesellschaft m.b.H",
+        "mrba:companyStreet": "Zimmerei Schwab-Weg 8",
+        "mrba:companyZipCode": "2340",
+        "mrba:companyCity": "M\u00f6dling",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "307740": {
         "mrba:companyId": "307740",
         "mrba:companyName": "Hermine Schwab GesmbH- WHA Rathausgr\u00fcnde",
@@ -47438,6 +47448,16 @@
         "mrba:companyVatID": "ATU62107437",
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2236) 660041"
+    },
+    "007018": {
+        "mrba:companyId": "007018",
+        "mrba:companyName": "M.Berger Ges.m.b.H",
+        "mrba:companyStreet": "Grundauerweg 10",
+        "mrba:companyZipCode": "2500",
+        "mrba:companyCity": "Baden",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "302932": {
         "mrba:companyId": "302932",
