@@ -1045,6 +1045,7 @@ export class MrbauArchiveModel {
             'title_mrba_documentSummary',
             'label_group_reviewDays',
             'label_group_netPayment',
+            'label_group_grossPayment',
             'label_group_earlyPaymentDiscount1',
             'label_group_earlyPaymentDiscount2',
           ],
@@ -1061,6 +1062,7 @@ export class MrbauArchiveModel {
             'title_mrba_documentSummary',
             'label_group_reviewDays',
             'label_group_netPayment',
+            'label_group_grossPayment',
             'label_group_earlyPaymentDiscount1',
             'label_group_earlyPaymentDiscount2',
           ],
@@ -1074,10 +1076,10 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [
             'workflow_invoice_review',
             'title_mrba_verifyData',
-            'label_group_paymentNet',
+            'label_group_paymentNetVerified',
+            'label_group_paymentGrossVerified',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
-            'label_group_taxRate',
             ],
             mandatoryRequiredProperties: [
             ]
@@ -1086,10 +1088,16 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [
             'workflow_invoice_approval',
             'title_mrba_verifyData',
-            'label_group_paymentNet',
+            'label_group_paymentNetVerified',
+            'label_group_paymentGrossVerified',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
-            'label_group_taxRate',
+            'title_mrba_documentSummary',
+            'label_group_reviewDays',
+            'label_group_netPayment',
+            'label_group_grossPayment',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
           ],
           mandatoryRequiredProperties: [
           ]
@@ -1098,10 +1106,16 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [
             'mrba_accountingId',
             'title_mrba_verifyData',
-            'label_group_paymentNet',
+            'label_group_paymentNetVerified',
+            'label_group_paymentGrossVerified',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
-            'label_group_taxRate',
+            'title_mrba_documentSummary',
+            'label_group_reviewDays',
+            'label_group_netPayment',
+            'label_group_grossPayment',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
           ],
           mandatoryRequiredProperties: [
             'mrba:accountingId',
