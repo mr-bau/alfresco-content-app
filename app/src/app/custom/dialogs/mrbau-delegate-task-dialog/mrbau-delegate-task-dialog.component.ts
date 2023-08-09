@@ -25,10 +25,10 @@ import { MrbauFormLibraryService } from '../../services/mrbau-form-library.servi
   encapsulation: ViewEncapsulation.None
 })
 export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogComponent implements OnInit {
-  dialogTitle: string = 'Aufgabe deligieren';
+  dialogTitle: string = 'Aufgabe delegieren';
   dialogMsg: string = 'Aufgabe einer anderen Person übertragen.';
   dialogButtonCancel: string = 'ABBRECHEN';
-  dialogButtonOK: string = 'DELIGIEREN';
+  dialogButtonOK: string = 'DELEGIEREN';
 
   constructor(
     private mrbauFormLibraryService : MrbauFormLibraryService,

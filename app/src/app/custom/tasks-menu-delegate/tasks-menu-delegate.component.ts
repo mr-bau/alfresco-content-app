@@ -12,7 +12,7 @@ import { ITaskChangedData } from '../tasks/tasks.component';
   template: `
     <button mat-menu-item (click)="onDelegateTaskClicked()">
       <mat-icon>send</mat-icon>
-        <span>Aufgabe Deligieren</span>
+        <span>Aufgabe Delegieren</span>
     </button>
   `,
 })
