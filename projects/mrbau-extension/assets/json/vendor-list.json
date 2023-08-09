@@ -21859,6 +21859,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007022": {
+        "mrba:companyId": "007022",
+        "mrba:companyName": "GPT GmbH",
+        "mrba:companyStreet": "Gewerbeweg 11",
+        "mrba:companyZipCode": "7411",
+        "mrba:companyCity": "Markt Allhau",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "301565": {
         "mrba:companyId": "301565",
         "mrba:companyName": "GPT GmbH-LudwigGruberWeg",
@@ -74919,6 +74929,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (4242) 23215240"
     },
+    "007021": {
+        "mrba:companyId": "007021",
+        "mrba:companyName": "Stadt Wien - Parkraumbewirtschaftung",
+        "mrba:companyStreet": "Ungergasse 33",
+        "mrba:companyZipCode": "1030",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "007009": {
         "mrba:companyId": "007009",
         "mrba:companyName": "Stadt Wien - Verkehrsorganisation und technische Verkehrsangelegenheiten",
@@ -89048,6 +89068,16 @@
         "mrba:companyVatID": "ATU56822228",
         "mrba:companyEmail": "office@capri.co.at",
         "mrba:companyPhone": "+43 (1) 3280053"
+    },
+    "007023": {
+        "mrba:companyId": "007023",
+        "mrba:companyName": "ZELLNER Personal Losungen GmbH",
+        "mrba:companyStreet": "E\u00dflinggasse 20",
+        "mrba:companyZipCode": "1010",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
     },
     "306356": {
         "mrba:companyId": "306356",
