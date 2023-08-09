@@ -21869,6 +21869,16 @@
         "mrba:companyEmail": "post@ma46.wien.gv.at",
         "mrba:companyPhone": ""
     },
+    "007025": {
+        "mrba:companyId": "007025",
+        "mrba:companyName": "GPT GmbH",
+        "mrba:companyStreet": "Wolfauer Stra\u00dfe 71",
+        "mrba:companyZipCode": "7411",
+        "mrba:companyCity": "Markt Allhau",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "301565": {
         "mrba:companyId": "301565",
         "mrba:companyName": "GPT GmbH-LudwigGruberWeg",
@@ -89073,6 +89083,16 @@
         "mrba:companyId": "007023",
         "mrba:companyName": "ZELLNER Personal Losungen GmbH",
         "mrba:companyStreet": "E\u00dflinggasse 20",
+        "mrba:companyZipCode": "1010",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
+    "007024": {
+        "mrba:companyId": "007024",
+        "mrba:companyName": "ZELLNER Personal Losungen GmbH",
+        "mrba:companyStreet": "Franz\u2014Josefs-Kai 53/2\u20143",
         "mrba:companyZipCode": "1010",
         "mrba:companyCity": "Wien",
         "mrba:companyVatID": "",
