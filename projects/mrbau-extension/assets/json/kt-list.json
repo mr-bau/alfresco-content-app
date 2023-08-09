@@ -6,6 +6,13 @@
         "auditor2": "",
         "accountant": ""
     },
+    "52": {
+        "mrba:costCarrierNumber": "52",
+        "mrba:projectName": "FE-534 CB Opel Vivaro B",
+        "auditor1": "",
+        "auditor2": "egger",
+        "accountant": ""
+    },
     "64": {
         "mrba:costCarrierNumber": "64",
         "mrba:projectName": "FE-364 CH Opel Vivaro Enjoy 2,0",
@@ -25,6 +32,13 @@
         "mrba:projectName": "FE-639 BZ LKW Volvo FM-440",
         "auditor1": "",
         "auditor2": "",
+        "accountant": ""
+    },
+    "536": {
+        "mrba:costCarrierNumber": "536",
+        "mrba:projectName": "FE-845BZ Skoda Rapid",
+        "auditor1": "",
+        "auditor2": "egger",
         "accountant": ""
     },
     "1269": {
