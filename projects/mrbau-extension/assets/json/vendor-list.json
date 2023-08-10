@@ -67109,6 +67109,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (316) 9000-0"
     },
+    "007029": {
+        "mrba:companyId": "007029",
+        "mrba:companyName": "STIERLEN Gro\u00dfk\u00fcchenger\u00e4te Vertriebs GmbH",
+        "mrba:companyStreet": "Perfektastra\u00dfe 87",
+        "mrba:companyZipCode": "1230",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "307202": {
         "mrba:companyId": "307202",
         "mrba:companyName": "STIKA & STINGL Ziviltechniker GmbH",
