@@ -81919,6 +81919,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007033": {
+        "mrba:companyId": "007033",
+        "mrba:companyName": "Tschautscher KG",
+        "mrba:companyStreet": "Jagern 56",
+        "mrba:companyZipCode": "4761",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "305082": {
         "mrba:companyId": "305082",
         "mrba:companyName": "Tschelisnig GmbH-Dr.Greinix",
