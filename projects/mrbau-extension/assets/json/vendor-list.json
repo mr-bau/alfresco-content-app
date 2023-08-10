@@ -11379,6 +11379,16 @@
         "mrba:companyEmail": "office@copterlogservices.com",
         "mrba:companyPhone": "+43 (463) 992696"
     },
+    "007032": {
+        "mrba:companyId": "007032",
+        "mrba:companyName": "Copyboxx GesmbH",
+        "mrba:companyStreet": "Taubstummengasse 13",
+        "mrba:companyZipCode": "1040",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "203723": {
         "mrba:companyId": "203723",
         "mrba:companyName": "Cornelia und Alexander Klepp",
@@ -34047,6 +34057,16 @@
         "mrba:companyCity": "Hallwang",
         "mrba:companyVatID": "ATU57628348",
         "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007030": {
+        "mrba:companyId": "007030",
+        "mrba:companyName": "Informatika Consulting &RW GmbH",
+        "mrba:companyStreet": "Radetzkystra\u00dfe 18",
+        "mrba:companyZipCode": "9020",
+        "mrba:companyCity": "Klagenfurt",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
         "mrba:companyPhone": ""
     },
     "302154": {
@@ -64037,6 +64057,16 @@
         "mrba:companyCity": "P\u00f6lfing-Brunn",
         "mrba:companyVatID": "",
         "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007031": {
+        "mrba:companyId": "007031",
+        "mrba:companyName": "Reiterer GmbH",
+        "mrba:companyStreet": "Gewerbestra\u00dfe 4",
+        "mrba:companyZipCode": "2721",
+        "mrba:companyCity": "Bad Fischau-Brunn",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
         "mrba:companyPhone": ""
     },
     "303924": {
