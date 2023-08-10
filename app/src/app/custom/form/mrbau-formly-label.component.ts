@@ -5,7 +5,12 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'aca-mrbau-formly-label',
   template: `
-  <p>{{(formControl.value == null) ? to.placeholder : formControl.value}}</p>
+  <p>{{getValue()}}</p>
   `,
  })
- export class MrbauFormlyLabelComponent extends FieldType<FieldTypeConfig> {}
+ export class MrbauFormlyLabelComponent extends FieldType<FieldTypeConfig> {
+  getValue() : any {
+    return (this.formControl.value == null) ? this.props.placeholder : this.formControl.value;
+  }
+
+ }

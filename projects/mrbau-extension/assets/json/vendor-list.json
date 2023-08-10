@@ -18599,6 +18599,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2622) 21081"
     },
+    "007026": {
+        "mrba:companyId": "007026",
+        "mrba:companyName": "Fassadengr\u00fcn e.K.",
+        "mrba:companyStreet": "Brandiser Stra\u00dfe 69",
+        "mrba:companyZipCode": "D-04316",
+        "mrba:companyCity": "Leipzig",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "301127": {
         "mrba:companyId": "301127",
         "mrba:companyName": "Fast Transport Tessar Ruza e.U.",
@@ -46649,6 +46659,16 @@
         "mrba:companyEmail": "ml_personal@gmx.at",
         "mrba:companyPhone": "+43 (664) 5292564"
     },
+    "007027": {
+        "mrba:companyId": "007027",
+        "mrba:companyName": "M&R Bau GmbH",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "302930": {
         "mrba:companyId": "302930",
         "mrba:companyName": "M&R Bau GmbH",
@@ -49687,6 +49707,16 @@
         "mrba:companyCity": "Moosburg",
         "mrba:companyVatID": "ATU50814604",
         "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007028": {
+        "mrba:companyId": "007028",
+        "mrba:companyName": "Marktgemeinde Perchtoldsdorf",
+        "mrba:companyStreet": "Marktplatz 11",
+        "mrba:companyZipCode": "2380",
+        "mrba:companyCity": "Perchtoldsdorf",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
         "mrba:companyPhone": ""
     },
     "303040": {

@@ -1190,6 +1190,28 @@ export class MrbauFormLibraryService {
     },
   }
 
+  readonly label_mrba_costCarrierNumber : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Kostenträger/-stelle',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
+  readonly label_mrba_projectName : FormlyFieldConfig = {
+    className: 'flex-4',
+    key: 'mrba:projectName',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Projektbezeichnung',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
   multiplyPercentDiscount(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
   {
     let val = germanParseFloat(field.form.get(nameValue) == null ? undefined : field.form.get(nameValue).value);
@@ -1365,6 +1387,14 @@ export class MrbauFormLibraryService {
       this.label_mrba_archivedDateValue,
       this.label_mrba_reviewDaysFinalInvoice,
       this.label_mrba_reviewDaysPartialInvoice,
+    ]
+  };
+
+  readonly label_group_costCarrierDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_costCarrierNumber,
+      this.label_mrba_projectName,
     ]
   };
 
