@@ -145,6 +145,7 @@ import { TasksDetailNewDocumentComponent } from './custom/tasks-detail-new-docum
 import { TasksMenuDelegateComponent } from './custom/tasks-menu-delegate/tasks-menu-delegate.component';
 import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-delete.component';
 import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
+import { TasksMenuMaintenanceComponent } from './custom/tasks-menu-maintenance/tasks-menu-maintenance.component';
 import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
 import { MRBauNodeAssociationEntryFilterPipeImpure, MRBauArchiveNodeTypeLabelPipe } from './custom/mrbau-doc-declarations';
@@ -167,7 +168,8 @@ import { TasksMenuDiscardDocumentComponent } from './custom/tasks-menu-discard-d
 import { MrbauFormlyButtonComponent } from './custom/form/mrbau-formly-button.component';
 import { MatSelectModule } from '@angular/material/select';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { MrbauFormlySelectSearchComponent } from './custom/form/types/mrbau-formly-selectsearch.component';
+import { MrbauFormlySelectSearchVendorComponent } from './custom/form/types/mrbau-formly-selectsearch-vendor.component';
+import { MrbauFormlySelectSearchProjectComponent } from './custom/form/types/mrbau-formly-selectsearch-project.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -260,7 +262,8 @@ registerLocaleData(localeSv);
         { name: 'mrbauFormlyMarginWrapper', component: MrbauFormlyMarginWrapperComponent },
       ],
       types: [
-        { name: 'mrbauFormlySelectSearch', component: MrbauFormlySelectSearchComponent, wrappers: ['form-field'] },
+        { name: 'mrbauFormlySelectSearchVendor', component: MrbauFormlySelectSearchVendorComponent, wrappers: ['form-field'] },
+        { name: 'mrbauFormlySelectSearchProject', component: MrbauFormlySelectSearchProjectComponent, wrappers: ['form-field'] },
         { name: 'mrbauFormlyNewTaskStepper', component: MrbauFormlyNewTaskStepper, wrappers: [] },
         { name: 'mrbauFormlyAllSet', component: MrbauFormlyAllSetComponent, wrappers: [], defaultOptions: { props: { icon : 'done', title : 'Alle Schritte wurden erledigt.', subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen.'}}},
         { name: 'mrbauFormlyDuplicatedDocument', component: MrbauFormlyDuplicatedDocumentComponent, wrappers: [], defaultOptions: { props: {required: true}}},
@@ -305,7 +308,8 @@ registerLocaleData(localeSv);
     TaskIndicatorComponent,
     TasksdetailComponent,
     MrbauNewTaskDialogComponent,
-    MrbauFormlySelectSearchComponent,
+    MrbauFormlySelectSearchVendorComponent,
+    MrbauFormlySelectSearchProjectComponent,
     MrbauFormlyNewTaskStepper,
     MrbauFormlyFieldTaskLinkedDocumentsComponent,
     MrbauFormlyAllSetComponent,
@@ -332,6 +336,7 @@ registerLocaleData(localeSv);
     TasksDetailNewDocumentComponent,
     TasksMenuDelegateComponent,
     TasksMenuDeleteComponent,
+    TasksMenuMaintenanceComponent,
     TasksMenuDiscardDocumentComponent,
     TasksMenuOcrComponent,
     TasksMenuNewarchivetypeComponent,

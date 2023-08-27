@@ -2,17 +2,21 @@ import { ChangeDetectionStrategy, Component,  OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ReplaySubject, Subject } from 'rxjs';
 import { debounceTime, delay, filter, map, takeUntil, tap } from 'rxjs/operators';
-import { IVendor } from '../../services/mrbau-conventions.service';
+import { ICostCarrier } from '../../services/mrbau-conventions.service';
 import { MrbauDbService } from '../../services/mrbau-db.service';
 import { MatSelectChange } from '@angular/material/select';
 import { FieldTypeConfig  } from '@ngx-formly/core';
 import { FieldType  } from '@ngx-formly/material/form-field';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
 
+ interface IProjectFormOption extends ICostCarrier {
+  value?: any;
+  label?:string;
+}
 
 @Component({
-  selector: 'aca-mrbau-formly-select-search',
+  selector: 'aca-mrbau-formly-select-search-project',
   template: `
-
       <mat-select
         class="mat-select"
         [formControl]="formControl"
@@ -29,7 +33,6 @@ import { FieldType  } from '@ngx-formly/material/form-field';
         [disableOptionCentering]="props.disableOptionCentering"
         [typeaheadDebounceInterval]="props.typeaheadDebounceInterval"
         [panelClass]="props.panelClass"
-        [value]="1"
         #singleSelect
           >
       <mat-option>
@@ -38,18 +41,18 @@ import { FieldType  } from '@ngx-formly/material/form-field';
           [placeholderLabel]="to.placeholder"
           ></ngx-mat-select-search>
       </mat-option>
-      <mat-option *ngFor="let vendor of filteredServerSideVendors | async; let i = index;"
-        [id]="id+' '+i"
-        [matTooltip]="createToolTipString(vendor)"
-        [value]="vendor['mrba:companyId']">
-        {{createVendorString(vendor)}}
-      </mat-option>
+        <mat-option (click)="change(null)" style="background-color:#F0FFF0;" [id]="id+' current'" *ngIf="(currentValue)" [value]="currentValue" [matTooltip]="currentValue?.label">{{currentValue?.label}}</mat-option>
+        <mat-option *ngFor="let project of filteredServerSideProjects | async; let i = index;"
+          [id]="id+' '+i"
+          [matTooltip]="project.label"
+          [value]="project">
+          {{createProjectString(project)}}
+        </mat-option>
       </mat-select>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MrbauFormlySelectSearchComponent  extends FieldType<FieldTypeConfig> implements OnDestroy {
-
+export class MrbauFormlySelectSearchProjectComponent  extends FieldType<FieldTypeConfig> implements OnDestroy {
   /** control for filter for server side. */
   public serverSideFilteringCtrl: FormControl<string> = new FormControl<string>('');
 
@@ -57,12 +60,15 @@ export class MrbauFormlySelectSearchComponent  extends FieldType<FieldTypeConfig
   public searching = false;
 
   /** list of banks filtered after simulating server side search */
-  public  filteredServerSideVendors: ReplaySubject<IVendor[]> = new ReplaySubject<IVendor[]>(1);
+  public  filteredServerSideProjects: ReplaySubject<IProjectFormOption[]> = new ReplaySubject<IProjectFormOption[]>(1);
 
   /** Subject that emits when the component has been destroyed. */
   protected _onDestroy = new Subject<void>();
 
-  constructor(private mrbauDbService: MrbauDbService) {
+  constructor(
+    private mrbauDbService: MrbauDbService,
+    private mrbauCommonService : MrbauCommonService
+    ) {
     super();
   }
 
@@ -88,22 +94,40 @@ export class MrbauFormlySelectSearchComponent  extends FieldType<FieldTypeConfig
 
   change($event: MatSelectChange) {
     this.props.change?.(this.field, $event);
+    this.formControl.updateValueAndValidity();
   }
 
-  public createToolTipString(v : IVendor) : string {
-    return this.createVendorString(v);
-  }
-
-  public createVendorString(v : IVendor) : string {
-    let result = v['mrba:companyName'];
-    result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
-    result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
-    result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
-    console.log(result);
+  public createProjectString(v : ICostCarrier) : string {
+    let result = v['mrba:costCarrierNumber'];
+    result = (v['mrba:projectName']) ? result.concat(', ').concat(v['mrba:projectName']) : result;
     return result;
   }
 
+  addValueLabel(d:IProjectFormOption) {
+    d['value']=d['mrba:costCarrierNumber'];
+    d['label']=this.createProjectString(d);
+  }
+
+  currentValue:any = undefined;
+
   ngOnInit() {
+    this.currentValue = undefined;
+    if (this.formControl.value) {
+      this.mrbauDbService.getProject(this.formControl.value).subscribe(
+        result => {
+          if (typeof result === 'string') {
+            this.mrbauCommonService.showError(result);
+            return;
+          }
+          this.addValueLabel(result as ICostCarrier);
+          this.currentValue = result;
+          this.formControl.setValue(this.currentValue);
+        },
+        error => {
+          this.mrbauCommonService.showError(error.message);
+        },
+      );
+    }
 
     // listen for search field value changes
     this.serverSideFilteringCtrl.valueChanges
@@ -113,7 +137,7 @@ export class MrbauFormlySelectSearchComponent  extends FieldType<FieldTypeConfig
         takeUntil(this._onDestroy),
         debounceTime(200),
         map((search) => {
-          return this.mrbauDbService.searchVendors(search);
+          return this.mrbauDbService.searchProjects(search);
           })
         ,
         delay(200),
@@ -121,13 +145,15 @@ export class MrbauFormlySelectSearchComponent  extends FieldType<FieldTypeConfig
       )
       .subscribe((filteredBanks) => {
         filteredBanks.subscribe(data => {
+          if (typeof data === 'string') {
+            this.mrbauCommonService.showError(data);
+            this.searching = false;
+            return;
+          }
           this.searching = false;
-          this.filteredServerSideVendors.next(data);
+          (data as ICostCarrier[]).forEach(d => this.addValueLabel(d));
+          this.filteredServerSideProjects.next(data as IProjectFormOption[]);
         })
-      },
-      error => {
-        console.log(error);
-        this.searching = false;
       });
   }
 

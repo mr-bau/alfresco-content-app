@@ -6,7 +6,7 @@ import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDoc
 import jsonMrbauAppConfig from '../../../../../projects/mrbau-extension/assets/json/mrbau-app-config.json';
 import { IMrbauAppConfig  } from '../../../../../projects/mrbau-extension/src/mrbau-app-config';
 import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
-import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
+//import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
 
 // INTERFACES
 export interface ISelectFormOptions {
@@ -26,7 +26,7 @@ export interface IVendor {
   "mrba:companyPhone" : string,
 }
 
-interface ICostCarrier {
+export interface ICostCarrier {
   "mrba:costCarrierNumber" : string,
   "mrba:projectName" : string,
   "auditor1" : string,
@@ -115,12 +115,12 @@ export class MrbauConventionsService {
   readonly taxRateDefaultValues = ['0,0', '20,0','13,0', '10,0'];
   readonly discountDefaultValues = ['1,00','2,00','3,00'];
 
-  public createVendorString(v : IVendor) : string {
+  /*public createVendorString(v : IVendor) : string {
     let result = v['mrba:companyName'];
     result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
     result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
     result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
-    console.log(result);
+    //console.log(result);
     return result;
   }
   private _vendorListFormOptions : ISelectFormOptions[];
@@ -143,14 +143,24 @@ export class MrbauConventionsService {
   }
   getVendor(key : string) : IVendor {
     return jsonVendorList[key] as IVendor
-  }
+  }*/
 
   addVendor() {
     this.mrbauCommonService.addVendorWithConfirmDialog().then((result) => {
-      if (result) {
-      }
+      if (result) { }
     })
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  addProject() {
+    this.mrbauCommonService.addProjectWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
   }
 
   private createKtString(v:ICostCarrier) : string {

@@ -216,12 +216,11 @@ export class MrbauFormLibraryService {
     },
   };
 
-/*
   readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
     key: 'mrba:companyId',
-    type: 'mrbauFormlySelectSearch',
+    type: 'mrbauFormlySelectSearchVendor',
     props: {
       label: 'Firma auswählen',
       placeholder: 'Firma suchen z.B. %Elbe%',
@@ -236,14 +235,7 @@ export class MrbauFormLibraryService {
           ];
         if (field)
         {
-          const data = field.model[field.key as string];
-          const vendor = null;
-          console.log("xxx y");
-          console.log(data);
-          console.log(field.formControl);
-          console.log(field.model);
-          console.log("xxx yy");
-          //const vendor = this.mrbauConventionsService.getVendor(data);
+          const vendor = field.model[field.key as string];
           for (const key of mrba_company_fields)
           {
             field.model[key] = (vendor) ? vendor[key] : undefined;
@@ -253,8 +245,8 @@ export class MrbauFormLibraryService {
     },
     hooks: {},
     validators: { },
-  }*/
-
+  }
+/*
   readonly mrba_companyId : FormlyFieldConfig =
   {
     className: 'flex-4',
@@ -274,7 +266,10 @@ export class MrbauFormLibraryService {
           ];
         if (field)
         {
+
           const data = field.model[field.key as string];
+          console.log('yyy');
+          console.log(data);
           const value = (data) ? data.value : undefined;
           const vendor = this.mrbauConventionsService.getVendor(value);
           for (const key of mrba_company_fields)
@@ -297,7 +292,7 @@ export class MrbauFormLibraryService {
     validators: {
       validation: [{ name: 'mrbauAutocompleteValidator'}],
     },
-  }
+  }*/
 
   readonly mrba_archivedDateValue : FormlyFieldConfig =
   {
@@ -486,7 +481,7 @@ export class MrbauFormLibraryService {
     },
   }
 */
-  readonly mrba_costCarrierNumber : FormlyFieldConfig =
+  readonly mrba_costCarrierNumber_old : FormlyFieldConfig =
   {
     className: 'flex-2',
     key: 'mrba:costCarrierNumber',
@@ -524,6 +519,32 @@ export class MrbauFormLibraryService {
     validators: {
       validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getKtListFormOptions() } }],
     },
+  }
+
+  readonly mrba_costCarrierNumber : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlySelectSearchProject',
+    props: {
+      label: 'Kostenträger/-stelle',
+      placeholder: 'KT suchen z.B. %9000%',
+      change: (field: FormlyFieldConfig) => {
+        if (field)
+        {
+          const data = field.model[field.key as string];
+          const key = 'mrba:projectName';
+          //field.model[key] = (data) ? data[key] : undefined;
+          const control = field.form.get('mrba:projectName');
+          if (control && data && data[key])
+          {
+            control.setValue(data[key]);
+          }
+        }
+      },
+    },
+    hooks: {},
+    validators: { },
   }
 
   readonly mrba_projectName: FormlyFieldConfig =
@@ -788,22 +809,35 @@ export class MrbauFormLibraryService {
   }
 
     // Buttons
-    readonly button_new_company : FormlyFieldConfig =
-    {
-      className: 'flex-1',
-      key: 'ignore:mrbauNewCompanyButton',
-      type: 'mrbauFormlyButton',
-      props: {
-        label: 'Firma anlegen',
-        text: 'FIRMA ANLEGEN',
-        btnType: 'default',
-        onClick: () => {
-          this.mrbauConventionsService.addVendor();
-
-  //        this.form.get('someInput').setValue('clicked!');
-        },
+  readonly button_new_company : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: 'ignore:mrbauNewCompanyButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      label: 'Firma anlegen',
+      text: 'FIRMA ANLEGEN',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauConventionsService.addVendor();
       },
-    }
+    },
+  }
+
+  readonly button_new_project : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: 'ignore:mrbauNewProjectButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      label: 'Projekt anlegen',
+      text: 'KT/KS ANLEGEN',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauConventionsService.addProject();
+      },
+    },
+  }
 
   // ASPECT GROUPS
   readonly title_mrba_paymentConditionDetails : FormlyFieldConfig ={
@@ -999,7 +1033,7 @@ export class MrbauFormLibraryService {
   };
 
   readonly title_mrba_costCarrierDetails : FormlyFieldConfig ={
-    template: '<span class="form-group-title">Kostenträger</span>',
+    template: '<span class="form-group-title">Kostenträger/-stelle</span>',
   };
   readonly aspect_mrba_costCarrierDetails : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
@@ -1008,7 +1042,14 @@ export class MrbauFormLibraryService {
       this.mrba_projectName, //d:text
     ]
   };
-
+  readonly aspect_mrba_costCarrierDetails_wbtn : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_costCarrierNumber, //d:int
+      this.mrba_projectName, //d:text
+      this.button_new_project
+    ]
+  };
 
 
   // Labels

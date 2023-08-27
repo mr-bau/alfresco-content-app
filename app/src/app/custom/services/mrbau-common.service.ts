@@ -11,7 +11,7 @@ import { ContentApiService } from '../../../../../projects/aca-shared/src/public
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { ContentManagementService } from '../../services/content-management.service';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { IVendor } from './mrbau-conventions.service';
+import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 import { MrbauDbService } from './mrbau-db.service';
 
 @Injectable({
@@ -479,7 +479,6 @@ export class MrbauCommonService {
                           label: 'VAT',
                           description: 'UID',
                           maxLength: CONST.MAX_LENGTH_DEFAULT,
-                          required: true,
                         },
                       },
                       {
@@ -491,7 +490,6 @@ export class MrbauCommonService {
                           label: 'Email',
                           description: 'Email',
                           maxLength: CONST.MAX_LENGTH_EMAIL,
-                          required: true,
                         },
                       },
                       {
@@ -518,8 +516,166 @@ export class MrbauCommonService {
       dialogRef.afterClosed().subscribe((result) => {
         if (result)
         {
+          //console.log(result);
           this.addVendorWithConfirmDialogCache = result;
-          this.mrbauDbService.addVendor(result).toPromise().then((res) => {
+          this.mrbauDbService.addVendor(result).toPromise()
+          .then((res) => {
+            if (res.result === 'OK') {
+              resolve(res);
+            }
+            else {
+              reject(res);
+            }
+          })
+          .catch(error => {
+            reject(error);
+          })
+        }
+        else {
+          resolve(null);
+        }
+      });
+    }
+  )
+  }
+
+  addProjectWithConfirmDialogCache= {};
+  addProjectWithConfirmDialog() : Promise<ICostCarrier>
+  {
+    return new Promise((resolve, reject) =>
+    {
+
+      /*
+mrba_projectId INT PRIMARY KEY AUTO_INCREMENT,
+       mrba_costCarrierNumber VARCHAR(256) NOT NULL,
+       mrba_projectName VARCHAR(256) NOT NULL,
+       auditor1 VARCHAR(256),
+       auditor2 VARCHAR(256),
+       accountant VARCHAR(256),
+
+
+      "mrba:costCarrierNumber" : string,
+  "mrba:projectName" : string,
+  "auditor1" : string,
+  "auditor2" : string,
+  "accountant" : string,
+*/
+      // dialog
+      const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+        data: {
+          dialogTitle: 'Neues Projekt anlegen',
+          dialogMsg: 'Neues Projekt anlegen',
+          dialogButtonOK: 'KT/KS ANLEGEN',
+          callQueryData: false,
+          fieldsMain: [
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-4',
+                        key: 'mrba_costCarrierNumber',
+                        type: 'input',
+                        defaultValue: this.addProjectWithConfirmDialogCache['mrba_costCarrierNumber'],
+                        props: {
+                          label: 'Kostenträger/Kostenstelle Nummer',
+                          description: 'Kostenträger/Kostenstelle Nummer',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                    ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'mrba_projectName',
+                      type: 'input',
+                      defaultValue: this.addVendorWithConfirmDialogCache['mrba_projectName'],
+                      props: {
+                        label: 'Projekt Bezeichnung',
+                        description: 'Projekt Bezeichnung',
+                        maxLength: CONST.MAX_LENGTH_DEFAULT,
+                        required: true,
+                      },
+                    }
+                  ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'auditor1',
+                      type: 'select',
+                      defaultValue: this.addVendorWithConfirmDialogCache['auditor1'],
+                      props: {
+                        label: 'Bauleiter',
+                        description: 'Bauleiter',
+                        options: this.getPeopleObservable(),
+                        valueProp: 'id',
+                        labelProp: 'displayName',
+                        required: true,
+                      },
+                    }
+                  ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'auditor2',
+                      type: 'select',
+                      defaultValue: this.addVendorWithConfirmDialogCache['auditor2'],
+                      props: {
+                        label: 'Oberbauleiter',
+                        description: 'Oberbauleiter',
+                        options: this.getPeopleObservable(),
+                        valueProp: 'id',
+                        labelProp: 'displayName',
+                        required: true,
+                      },
+                    }
+                  ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'accountant',
+                      type: 'select',
+                      defaultValue: this.addVendorWithConfirmDialogCache['accountant'],
+                      props: {
+                        label: 'Buchhaltung',
+                        description: 'Buchhaltung',
+                        options: this.getPeopleObservable(),
+                        valueProp: 'id',
+                        labelProp: 'displayName',
+                        required: true,
+                      },
+                    }
+                  ]
+                },
+              ]
+            }
+          ],
+          payload: null
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result)
+        {
+          //console.log(result);
+          this.addProjectWithConfirmDialogCache = result;
+          this.mrbauDbService.addProject(result).toPromise()
+          .then((res) => {
             if (res.result === 'OK') {
               resolve(res);
             }

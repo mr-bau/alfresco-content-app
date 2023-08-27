@@ -12,7 +12,7 @@ import { ITaskChangedData } from '../tasks/tasks.component';
   template: `
     <button mat-menu-item (click)="onDelegateTaskClicked()">
       <mat-icon>send</mat-icon>
-        <span>Aufgabe Deligieren</span>
+        <span>Aufgabe Delegieren</span>
     </button>
   `,
 })
@@ -55,7 +55,12 @@ export class TasksMenuDelegateComponent {
       nodeBodyUpdate.properties["mrbt:status"] = ""+EMRBauTaskStatus.STATUS_NEW;
     }
 
-    this.mrbauCommonService.addComment(this.task.id, model.comment)
+    let commentNodeId = this.task.id;
+    if (this.task.isNewDocumentTask() && this.task.associatedDocumentRef.length > 0 )
+    {
+      commentNodeId = this.task.associatedDocumentRef[0];
+    }
+    this.mrbauCommonService.addComment(commentNodeId, model.comment)
     .then(() => {return this.contentService.nodesApi.updateNode(this.task.id, nodeBodyUpdate);})
     .then(
       (nodeEntry) => {

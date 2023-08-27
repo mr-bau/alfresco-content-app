@@ -337,7 +337,6 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       {
         // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
         const value = (this.model[key].value) ? (this.model[key].value) : this.model[key];
-
         // only update node if some values have changed
         let nodeValue = this._taskNode.properties[key];
         // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
@@ -457,7 +456,6 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     {
       if (this._taskNode.properties[key] || this._taskNode.properties[key] === 0  || this._taskNode.properties[key] === false)
       {
-
         let value = this._taskNode.properties[key]
         if (formlyFieldConfig.props.type == 'date')
         {
@@ -468,7 +466,6 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
       if (formlyFieldConfig.type == 'mrbauFormlyDuplicatedDocument')
       {
-       //
        this.model['ignore:taskNode'] = this.taskNode;
        this.model['ignore:duplicateNode'] = this.duplicateNode;
        this.model['ignore:callback'] = this.mrbauFormlyDuplicatedDocumentCallback.bind(this);
