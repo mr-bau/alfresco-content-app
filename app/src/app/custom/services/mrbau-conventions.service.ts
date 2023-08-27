@@ -5,7 +5,8 @@ import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDoc
 
 import jsonMrbauAppConfig from '../../../../../projects/mrbau-extension/assets/json/mrbau-app-config.json';
 import { IMrbauAppConfig  } from '../../../../../projects/mrbau-extension/src/mrbau-app-config';
-import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
+import { MrbauDbService } from './mrbau-db.service';
+//import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
 //import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
 
 // INTERFACES
@@ -45,14 +46,12 @@ export class MrbauConventionsService {
   // MR-TODO extract from JSON File
   constructor(
     private mrbauCommonService: MrbauCommonService,
-    //private mrbauDbService:MrbauDbService
+    private mrbauDbService:MrbauDbService
     )
   {
   }
 
   getOrganisationUnitFormOptions() : ISelectFormOptions[] {
-    //console.log(jsonKtList);
-    //console.log(jsonVendorList);
     let result : ISelectFormOptions[] = [];
     this.mrbauAppConfig.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.folder}));
     return result;
@@ -68,26 +67,40 @@ export class MrbauConventionsService {
     return this.mrbauAppConfig.organisationUnits[this.mrbauAppConfig.organisationUnitDefault].folder;
   }
 
-  getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : string
+  getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string>
   {
     let taskCategory = data?.taskDetailNewDocument?.task?.category;
     let kt = data?.taskDetailNewDocument?.taskNode?.properties['mrba:costCarrierNumber'];
-    if (taskCategory == EMRBauTaskCategory.NewDocumentValidateAndArchive && kt && jsonKtList[kt])
-    {
-      let project = jsonKtList[kt] as ICostCarrier;
-      switch (status)
+    return new Promise((resolve, reject) => {
+      if (taskCategory == EMRBauTaskCategory.NewDocumentValidateAndArchive && kt)
       {
-        case EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION:
-          return project.auditor1;
-        case EMRBauTaskStatus.STATUS_FINAL_APPROVAL:
-          return project.auditor2;
-        case EMRBauTaskStatus.STATUS_ACCOUNTING:
-          return project.accountant;
-        default:
-          break;
+        this.mrbauDbService.getProject(kt).subscribe(
+          result => {
+            //console.log(result);
+            if (typeof result === 'string') {
+              reject(result);
+              return;
+            }
+            let project = result as ICostCarrier;
+            switch (status)
+            {
+              case EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION:
+                resolve(project.auditor1);
+              case EMRBauTaskStatus.STATUS_FINAL_APPROVAL:
+                resolve(project.auditor2);
+              case EMRBauTaskStatus.STATUS_ACCOUNTING:
+                resolve(project.accountant);
+              default:
+                resolve(null);
+            }
+            return;
+          },
+          error => {
+            reject(error);
+          },
+        );
       }
-    }
-    return null;
+    });
   }
 
   getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string
@@ -162,7 +175,7 @@ export class MrbauConventionsService {
       this.mrbauCommonService.showError(error);
     });
   }
-
+/*
   private createKtString(v:ICostCarrier) : string {
     let result = v['mrba:costCarrierNumber'];
     result = (v['mrba:projectName']) ? result.concat(', ').concat(v['mrba:projectName']) : result;
@@ -189,7 +202,7 @@ export class MrbauConventionsService {
   }
   getCostCarrier(key : string) : ICostCarrier {
     return jsonKtList[key] as ICostCarrier
-  }
+  }*/
 
   getOfferTypeFormOptions() : ISelectFormOptions[] {
     let result : ISelectFormOptions[] = [];

@@ -41,7 +41,7 @@ import { MrbauCommonService } from '../../services/mrbau-common.service';
           [placeholderLabel]="to.placeholder"
           ></ngx-mat-select-search>
       </mat-option>
-        <mat-option (click)="change(null)" style="background-color:#F0FFF0;" [id]="id+' current'" *ngIf="(currentValue)" [value]="currentValue" [matTooltip]="currentValue?.label">{{currentValue?.label}}</mat-option>
+        <mat-option (click)="change(null)" style="background-color:#F0FFF0;" [id]="id+' current'" *ngIf="(currentValue)" [value]="currentValue?.value" [matTooltip]="currentValue?.label">{{currentValue?.label}}</mat-option>
         <mat-option *ngFor="let project of filteredServerSideProjects | async; let i = index;"
           [id]="id+' '+i"
           [matTooltip]="project.label"
@@ -93,6 +93,16 @@ export class MrbauFormlySelectSearchProjectComponent  extends FieldType<FieldTyp
   }
 
   change($event: MatSelectChange) {
+    const data = this.field.model[this.field.key as string];
+    const key = 'mrba:projectName';
+    //field.model[key] = (data) ? data[key] : undefined;
+    const control = this.field.form.get('mrba:projectName');
+    let projectData = data[key] || this.currentValue[key];
+    if (control && data && projectData)
+    {
+      control.setValue(projectData);
+    }
+
     this.props.change?.(this.field, $event);
     this.formControl.updateValueAndValidity();
   }
@@ -121,7 +131,7 @@ export class MrbauFormlySelectSearchProjectComponent  extends FieldType<FieldTyp
           }
           this.addValueLabel(result as ICostCarrier);
           this.currentValue = result;
-          this.formControl.setValue(this.currentValue);
+          this.formControl.updateValueAndValidity();
         },
         error => {
           this.mrbauCommonService.showError(error.message);

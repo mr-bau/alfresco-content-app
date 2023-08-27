@@ -481,6 +481,7 @@ export class MrbauFormLibraryService {
     },
   }
 */
+/*
   readonly mrba_costCarrierNumber_old : FormlyFieldConfig =
   {
     className: 'flex-2',
@@ -519,7 +520,7 @@ export class MrbauFormLibraryService {
     validators: {
       validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getKtListFormOptions() } }],
     },
-  }
+  }*/
 
   readonly mrba_costCarrierNumber : FormlyFieldConfig =
   {
@@ -529,19 +530,6 @@ export class MrbauFormLibraryService {
     props: {
       label: 'Kostenträger/-stelle',
       placeholder: 'KT suchen z.B. %9000%',
-      change: (field: FormlyFieldConfig) => {
-        if (field)
-        {
-          const data = field.model[field.key as string];
-          const key = 'mrba:projectName';
-          //field.model[key] = (data) ? data[key] : undefined;
-          const control = field.form.get('mrba:projectName');
-          if (control && data && data[key])
-          {
-            control.setValue(data[key]);
-          }
-        }
-      },
     },
     hooks: {},
     validators: { },

@@ -144,7 +144,7 @@ export class MrbauDbService {
     .pipe(
       map((result) =>
         {
-          console.log(result);
+          //console.log(result);
           let project : IMrbauDbService_mrba_project = result.mrba_project;
           if (!project) {
             return null;

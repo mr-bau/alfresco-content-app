@@ -26,19 +26,20 @@ export class MrbauWorkflowService {
   getNewUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
     data;
     return new Promise<string>((resolve, reject) => {
-      let assignedUserName = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
-      this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
-      .then((name) => {
-        resolve(name);
+      this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status)
+      .then((assignedUserName) => {
+        this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
+        .then((name) => {
+          resolve(name);
+        })
+        .catch((error) => reject(error));
       })
       .catch((error) => reject(error));
-    })
+    });
   }
 
   getNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
-    data;
-    let newUser = this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
-    return Promise.resolve(newUser);
+    return this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
   }
 
   createAssociationsForProposedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {
