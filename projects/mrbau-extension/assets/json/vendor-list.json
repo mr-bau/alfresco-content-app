@@ -519,6 +519,16 @@
         "mrba:companyEmail": "info@adv-pax.de",
         "mrba:companyPhone": "+49 (7123) 38007"
     },
+    "007015": {
+        "mrba:companyId": "007015",
+        "mrba:companyName": "AD\u2014Profischwarzdeckerei OG",
+        "mrba:companyStreet": "Hasnerstra\u00dfe 21",
+        "mrba:companyZipCode": "1160",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "307575": {
         "mrba:companyId": "307575",
         "mrba:companyName": "AEE Energiedienstleistungen GmbH",
@@ -1098,6 +1108,16 @@
         "mrba:companyVatID": "ATU71060415",
         "mrba:companyEmail": "office@stein-fliesen-design.at",
         "mrba:companyPhone": "+43 (3136) 81958"
+    },
+    "007016": {
+        "mrba:companyId": "007016",
+        "mrba:companyName": "ASFINAG - GO Direkt Team",
+        "mrba:companyStreet": "Bahnhof-Umgebung 16",
+        "mrba:companyZipCode": "6170",
+        "mrba:companyCity": "Zirl",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "300204": {
         "mrba:companyId": "300204",
@@ -4858,6 +4878,16 @@
         "mrba:companyVatID": "ATU62115525",
         "mrba:companyEmail": "hohenems@bgg.at",
         "mrba:companyPhone": "+43 (5576) 73244"
+    },
+    "007005": {
+        "mrba:companyId": "007005",
+        "mrba:companyName": "BGN Reinigungsservice GmbH",
+        "mrba:companyStreet": "Salurnergasse 5",
+        "mrba:companyZipCode": "2340",
+        "mrba:companyCity": "M\u00f6dling",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "200230": {
         "mrba:companyId": "200230",
@@ -11348,6 +11378,16 @@
         "mrba:companyVatID": "ATU72485278",
         "mrba:companyEmail": "office@copterlogservices.com",
         "mrba:companyPhone": "+43 (463) 992696"
+    },
+    "007032": {
+        "mrba:companyId": "007032",
+        "mrba:companyName": "Copyboxx GesmbH",
+        "mrba:companyStreet": "Taubstummengasse 13",
+        "mrba:companyZipCode": "1040",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
     },
     "203723": {
         "mrba:companyId": "203723",
@@ -18569,6 +18609,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2622) 21081"
     },
+    "007026": {
+        "mrba:companyId": "007026",
+        "mrba:companyName": "Fassadengr\u00fcn e.K.",
+        "mrba:companyStreet": "Brandiser Stra\u00dfe 69",
+        "mrba:companyZipCode": "D-04316",
+        "mrba:companyCity": "Leipzig",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "301127": {
         "mrba:companyId": "301127",
         "mrba:companyName": "Fast Transport Tessar Ruza e.U.",
@@ -21829,6 +21879,26 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007022": {
+        "mrba:companyId": "007022",
+        "mrba:companyName": "GPT GmbH",
+        "mrba:companyStreet": "Gewerbeweg 11",
+        "mrba:companyZipCode": "7411",
+        "mrba:companyCity": "Markt Allhau",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
+    "007025": {
+        "mrba:companyId": "007025",
+        "mrba:companyName": "GPT GmbH",
+        "mrba:companyStreet": "Wolfauer Stra\u00dfe 71",
+        "mrba:companyZipCode": "7411",
+        "mrba:companyCity": "Markt Allhau",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "301565": {
         "mrba:companyId": "301565",
         "mrba:companyName": "GPT GmbH-LudwigGruberWeg",
@@ -21982,6 +22052,16 @@
     "203656": {
         "mrba:companyId": "203656",
         "mrba:companyName": "GU-Bau - Errichtung Weber Store",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007003": {
+        "mrba:companyId": "007003",
+        "mrba:companyName": "GU-Bau GmbH",
         "mrba:companyStreet": "M&R Gewerbepark 1",
         "mrba:companyZipCode": "9560",
         "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
@@ -27929,6 +28009,16 @@
         "mrba:companyEmail": "office@haltmeyer.at",
         "mrba:companyPhone": "+43 (2742) 27560-0"
     },
+    "007007": {
+        "mrba:companyId": "007007",
+        "mrba:companyName": "Haltmeyer GmbH",
+        "mrba:companyStreet": "Lainzer Stra\u00dfe 127",
+        "mrba:companyZipCode": "1130",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "306307": {
         "mrba:companyId": "306307",
         "mrba:companyName": "Halwachs Georg Hans",
@@ -29588,6 +29678,16 @@
         "mrba:companyVatID": "ATU17749408",
         "mrba:companyEmail": "info@mayertransporte.at",
         "mrba:companyPhone": "+43 (2168) 62885"
+    },
+    "007017": {
+        "mrba:companyId": "007017",
+        "mrba:companyName": "Hermine Schwab Gesellschaft m.b.H",
+        "mrba:companyStreet": "Zimmerei Schwab-Weg 8",
+        "mrba:companyZipCode": "2340",
+        "mrba:companyCity": "M\u00f6dling",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "307740": {
         "mrba:companyId": "307740",
@@ -33957,6 +34057,16 @@
         "mrba:companyCity": "Hallwang",
         "mrba:companyVatID": "ATU57628348",
         "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007030": {
+        "mrba:companyId": "007030",
+        "mrba:companyName": "Informatika Consulting &RW GmbH",
+        "mrba:companyStreet": "Radetzkystra\u00dfe 18",
+        "mrba:companyZipCode": "9020",
+        "mrba:companyCity": "Klagenfurt",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
         "mrba:companyPhone": ""
     },
     "302154": {
@@ -46569,6 +46679,16 @@
         "mrba:companyEmail": "ml_personal@gmx.at",
         "mrba:companyPhone": "+43 (664) 5292564"
     },
+    "007027": {
+        "mrba:companyId": "007027",
+        "mrba:companyName": "M&R Bau GmbH",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "302930": {
         "mrba:companyId": "302930",
         "mrba:companyName": "M&R Bau GmbH",
@@ -47099,6 +47219,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007004": {
+        "mrba:companyId": "007004",
+        "mrba:companyName": "M&R Globalbau GmbH",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "office@globalbau.at",
+        "mrba:companyPhone": "+43 (4276) 37150"
+    },
     "340114": {
         "mrba:companyId": "340114",
         "mrba:companyName": "M&R Globalbau GmbH-Inzersdorferstr",
@@ -47289,6 +47419,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007008": {
+        "mrba:companyId": "007008",
+        "mrba:companyName": "M&R Holding GmbH",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "302910": {
         "mrba:companyId": "302910",
         "mrba:companyName": "M&R Holding GmbH-div.BVH",
@@ -47312,6 +47452,16 @@
     "204101": {
         "mrba:companyId": "204101",
         "mrba:companyName": "M&R Immo GmbH-WA Alt-Ossiach",
+        "mrba:companyStreet": "M&R Gewerbepark 1",
+        "mrba:companyZipCode": "9560",
+        "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007019": {
+        "mrba:companyId": "007019",
+        "mrba:companyName": "M&R Mobilbau GmbH",
         "mrba:companyStreet": "M&R Gewerbepark 1",
         "mrba:companyZipCode": "9560",
         "mrba:companyCity": "Feldkirchen in K\u00e4rnten",
@@ -47368,6 +47518,16 @@
         "mrba:companyVatID": "ATU62107437",
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2236) 660041"
+    },
+    "007018": {
+        "mrba:companyId": "007018",
+        "mrba:companyName": "M.Berger Ges.m.b.H",
+        "mrba:companyStreet": "Grundauerweg 10",
+        "mrba:companyZipCode": "2500",
+        "mrba:companyCity": "Baden",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "302932": {
         "mrba:companyId": "302932",
@@ -48689,6 +48849,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2685) 373"
     },
+    "007020": {
+        "mrba:companyId": "007020",
+        "mrba:companyName": "Maler Slady K&S Matijasevic OG",
+        "mrba:companyStreet": "IIgplatz 7",
+        "mrba:companyZipCode": "Wien",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "306589": {
         "mrba:companyId": "306589",
         "mrba:companyName": "Malerei Wieser GmbH",
@@ -49559,6 +49729,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007028": {
+        "mrba:companyId": "007028",
+        "mrba:companyName": "Marktgemeinde Perchtoldsdorf",
+        "mrba:companyStreet": "Marktplatz 11",
+        "mrba:companyZipCode": "2380",
+        "mrba:companyCity": "Perchtoldsdorf",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "303040": {
         "mrba:companyId": "303040",
         "mrba:companyName": "Marktgemeinde Perchtoldsdorf",
@@ -50286,6 +50466,16 @@
         "mrba:companyZipCode": "8712",
         "mrba:companyCity": "Niklasdorf",
         "mrba:companyVatID": "ATU29807206",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007011": {
+        "mrba:companyId": "007011",
+        "mrba:companyName": "Max \u2014 Lochboden GmbH",
+        "mrba:companyStreet": "Tr\u00f6stlberg 35",
+        "mrba:companyZipCode": "4431",
+        "mrba:companyCity": "Haidershofen",
+        "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
@@ -54988,6 +55178,16 @@
         "mrba:companyVatID": "ATU37514301",
         "mrba:companyEmail": "korneuburg@oekotel.com",
         "mrba:companyPhone": "+43 (59) 459410"
+    },
+    "007006": {
+        "mrba:companyId": "007006",
+        "mrba:companyName": "OEKOTEL Traiskirchen",
+        "mrba:companyStreet": "Hochm\u00fchlstra\u00dfe 5",
+        "mrba:companyZipCode": "2514",
+        "mrba:companyCity": "Traiskirchen",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "307108": {
         "mrba:companyId": "307108",
@@ -61889,6 +62089,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007012": {
+        "mrba:companyId": "007012",
+        "mrba:companyName": "RP Stadtalpinisten OG",
+        "mrba:companyStreet": "DI W. Ha\u00dflingerstra\u00dfe 3/25",
+        "mrba:companyZipCode": "2340",
+        "mrba:companyCity": "M\u00f6dling",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
     "305895": {
         "mrba:companyId": "305895",
         "mrba:companyName": "RS Components Handelsgesellschaft m.b.H.",
@@ -63847,6 +64057,16 @@
         "mrba:companyCity": "P\u00f6lfing-Brunn",
         "mrba:companyVatID": "",
         "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007031": {
+        "mrba:companyId": "007031",
+        "mrba:companyName": "Reiterer GmbH",
+        "mrba:companyStreet": "Gewerbestra\u00dfe 4",
+        "mrba:companyZipCode": "2721",
+        "mrba:companyCity": "Bad Fischau-Brunn",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
         "mrba:companyPhone": ""
     },
     "303924": {
@@ -66919,6 +67139,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (316) 9000-0"
     },
+    "007029": {
+        "mrba:companyId": "007029",
+        "mrba:companyName": "STIERLEN Gro\u00dfk\u00fcchenger\u00e4te Vertriebs GmbH",
+        "mrba:companyStreet": "Perfektastra\u00dfe 87",
+        "mrba:companyZipCode": "1230",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "307202": {
         "mrba:companyId": "307202",
         "mrba:companyName": "STIKA & STINGL Ziviltechniker GmbH",
@@ -68958,6 +69188,16 @@
         "mrba:companyVatID": "ATU71917269",
         "mrba:companyEmail": "office@scheucher-trockenbau.at",
         "mrba:companyPhone": "+43 (1) 9551520"
+    },
+    "007014": {
+        "mrba:companyId": "007014",
+        "mrba:companyName": "Scheybal GmbH",
+        "mrba:companyStreet": "Franzosengraben 7",
+        "mrba:companyZipCode": "1030",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "340119": {
         "mrba:companyId": "340119",
@@ -74768,6 +75008,26 @@
         "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (4242) 23215240"
+    },
+    "007021": {
+        "mrba:companyId": "007021",
+        "mrba:companyName": "Stadt Wien - Parkraumbewirtschaftung",
+        "mrba:companyStreet": "Ungergasse 33",
+        "mrba:companyZipCode": "1030",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
+    "007009": {
+        "mrba:companyId": "007009",
+        "mrba:companyName": "Stadt Wien - Verkehrsorganisation und technische Verkehrsangelegenheiten",
+        "mrba:companyStreet": "Niederhofstra\u00dfe 21",
+        "mrba:companyZipCode": "1120",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
     },
     "304573": {
         "mrba:companyId": "304573",
@@ -81659,6 +81919,16 @@
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },
+    "007033": {
+        "mrba:companyId": "007033",
+        "mrba:companyName": "Tschautscher KG",
+        "mrba:companyStreet": "Jagern 56",
+        "mrba:companyZipCode": "4761",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "305082": {
         "mrba:companyId": "305082",
         "mrba:companyName": "Tschelisnig GmbH-Dr.Greinix",
@@ -83968,6 +84238,16 @@
         "mrba:companyVatID": "ATU63832856",
         "mrba:companyEmail": "",
         "mrba:companyPhone": "+43 (2252) 71544"
+    },
+    "007013": {
+        "mrba:companyId": "007013",
+        "mrba:companyName": "WBF Wiedermann Brandschutz- & Feuerwehrtechnik GmbH",
+        "mrba:companyStreet": "Hofstra\u00dfe 35",
+        "mrba:companyZipCode": "2105",
+        "mrba:companyCity": "Oberrohrbach",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
     },
     "305255": {
         "mrba:companyId": "305255",
@@ -88879,6 +89159,26 @@
         "mrba:companyEmail": "office@capri.co.at",
         "mrba:companyPhone": "+43 (1) 3280053"
     },
+    "007023": {
+        "mrba:companyId": "007023",
+        "mrba:companyName": "ZELLNER Personal Losungen GmbH",
+        "mrba:companyStreet": "E\u00dflinggasse 20",
+        "mrba:companyZipCode": "1010",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
+    "007024": {
+        "mrba:companyId": "007024",
+        "mrba:companyName": "ZELLNER Personal Losungen GmbH",
+        "mrba:companyStreet": "Franz\u2014Josefs-Kai 53/2\u20143",
+        "mrba:companyZipCode": "1010",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
+        "mrba:companyEmail": "post@ma46.wien.gv.at",
+        "mrba:companyPhone": ""
+    },
     "306356": {
         "mrba:companyId": "306356",
         "mrba:companyName": "ZIEGLER Au\u00dfenanlagen GmbH",
@@ -90796,6 +91096,16 @@
         "mrba:companyZipCode": "13581",
         "mrba:companyCity": "Berlin",
         "mrba:companyVatID": "PL5263173338",
+        "mrba:companyEmail": "",
+        "mrba:companyPhone": ""
+    },
+    "007010": {
+        "mrba:companyId": "007010",
+        "mrba:companyName": "mmcit\u00e9 at",
+        "mrba:companyStreet": "Schottenfeldgasse 72/2/B",
+        "mrba:companyZipCode": "1070",
+        "mrba:companyCity": "Wien",
+        "mrba:companyVatID": "",
         "mrba:companyEmail": "",
         "mrba:companyPhone": ""
     },

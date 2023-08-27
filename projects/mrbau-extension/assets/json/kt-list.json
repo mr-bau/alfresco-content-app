@@ -6,6 +6,41 @@
         "auditor2": "",
         "accountant": ""
     },
+    "52": {
+        "mrba:costCarrierNumber": "52",
+        "mrba:projectName": "FE-534 CB Opel Vivaro B",
+        "auditor1": "",
+        "auditor2": "egger",
+        "accountant": ""
+    },
+    "64": {
+        "mrba:costCarrierNumber": "64",
+        "mrba:projectName": "FE-364 CH Opel Vivaro Enjoy 2,0",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
+    "66": {
+        "mrba:costCarrierNumber": "66",
+        "mrba:projectName": "FE-450 CK VW Caddy Cargo",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
+    "301": {
+        "mrba:costCarrierNumber": "301",
+        "mrba:projectName": "FE-639 BZ LKW Volvo FM-440",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
+    "536": {
+        "mrba:costCarrierNumber": "536",
+        "mrba:projectName": "FE-845BZ Skoda Rapid",
+        "auditor1": "",
+        "auditor2": "egger",
+        "accountant": ""
+    },
     "1269": {
         "mrba:costCarrierNumber": "1269",
         "mrba:projectName": "M&R Bauholding GmbH,2340 B\u00fcroumb.M\u00f6dling",
@@ -4220,6 +4255,13 @@
         "auditor2": "",
         "accountant": ""
     },
+    "7000": {
+        "mrba:costCarrierNumber": "7000",
+        "mrba:projectName": "Lager",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
     "7010": {
         "mrba:costCarrierNumber": "7010",
         "mrba:projectName": "Kleinbaust. Mo",
@@ -5214,6 +5256,20 @@
         "auditor2": "",
         "accountant": ""
     },
+    "7408": {
+        "mrba:costCarrierNumber": "7408",
+        "mrba:projectName": "Umbau Fitness Breitenfurlerstra\u00dfe 308",
+        "auditor1": "",
+        "auditor2": "egger",
+        "accountant": ""
+    },
+    "7500": {
+        "mrba:costCarrierNumber": "7500",
+        "mrba:projectName": "Partienausstattung Allgemein",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
     "7501": {
         "mrba:costCarrierNumber": "7501",
         "mrba:projectName": "Partienausstattung Skivjani",
@@ -5490,6 +5546,13 @@
     "9000": {
         "mrba:costCarrierNumber": "9000",
         "mrba:projectName": "Zentralregie",
+        "auditor1": "",
+        "auditor2": "",
+        "accountant": ""
+    },
+    "9010": {
+        "mrba:costCarrierNumber": "9010",
+        "mrba:projectName": "N\u00e4chtigungen Baustelle",
         "auditor1": "",
         "auditor2": "",
         "accountant": ""

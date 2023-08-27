@@ -60,6 +60,7 @@ export class TasksMenuDelegateComponent {
     {
       commentNodeId = this.task.associatedDocumentRef[0];
     }
+
     this.mrbauCommonService.addComment(commentNodeId, model.comment)
     .then(() => {return this.contentService.nodesApi.updateNode(this.task.id, nodeBodyUpdate);})
     .then(

@@ -403,7 +403,7 @@ export class MrbauFormLibraryService {
       validation: [
         { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
         { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
-        { name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
       ],
     }
   }
@@ -424,7 +424,7 @@ export class MrbauFormLibraryService {
       validation: [
         { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
         { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
-        { name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
       ],
     }
 
@@ -448,7 +448,7 @@ export class MrbauFormLibraryService {
       validation: [
         { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 1 } },
         { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalOneDecimalPlace },
-        { name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
       ],
     }
   }
@@ -1102,6 +1102,17 @@ export class MrbauFormLibraryService {
     }
   }
 
+  readonly label_mrba_grossAmount : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:grossAmount',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Brutto Betrag [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
   readonly label_mrba_paymentTargetDays : FormlyFieldConfig = {
     className: 'flex-2',
     key: 'mrba:paymentTargetDays',
@@ -1220,11 +1231,59 @@ export class MrbauFormLibraryService {
     },
   }
 
-  multiplyPercent(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  readonly label_mrba_costCarrierNumber : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Kostenträger/-stelle',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
+  readonly label_mrba_projectName : FormlyFieldConfig = {
+    className: 'flex-4',
+    key: 'mrba:projectName',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Projektbezeichnung',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
+  multiplyPercentDiscount(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
   {
     let val = germanParseFloat(field.form.get(nameValue) == null ? undefined : field.form.get(nameValue).value);
     const percent = germanParseFloat(field.form.get(namePercent) == null ? undefined : field.form.get(namePercent).value);
     const valueFloat = val*(100-percent)/100;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  multiplyPercentGross(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  {
+    let val = germanParseFloat(field.form.get(nameValue) == null ? undefined : field.form.get(nameValue).value);
+    const percent = germanParseFloat(field.form.get(namePercent) == null ? undefined : field.form.get(namePercent).value);
+    const valueFloat = val*(100+percent)/100;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  multiplyPercentTax(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  {
+    let val = germanParseFloat(field.form.get(nameValue) == null ? undefined : field.form.get(nameValue).value);
+    const percent = germanParseFloat(field.form.get(namePercent) == null ? undefined : field.form.get(namePercent).value);
+    const valueFloat = val*(percent)/100;
     const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     const result = field.form.get(nameResult);
     if (result)
@@ -1238,15 +1297,45 @@ export class MrbauFormLibraryService {
     key: 'ignore:calcPaymentValueDiscount1',
     type: 'mrbauFormlyLabel',
     props: {
-      label: 'Betrag Skonto 1 [€]',
+      label: 'Betrag Skonto 1 Netto [€]',
       readonly: true,
     },
     hooks: {
       afterContentInit: (field) => {
-        this.multiplyPercent(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent1','ignore:calcPaymentValueDiscount1');
+        this.multiplyPercentDiscount(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent1','ignore:calcPaymentValueDiscount1');
       },
     },
     hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_calcGrossAmountVerified : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcGrossAmountVerified',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Geprüfter Betrag Brutto [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercentGross(field,'mrba:netAmountVerified', 'mrba:taxRate','ignore:calcGrossAmountVerified');
+      },
+    }
+  }
+
+  readonly label_calcTaxAmountVerified : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcTaxAmountVerified',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Geprüfter Betrag USt [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercentTax(field,'mrba:netAmountVerified', 'mrba:taxRate','ignore:calcTaxAmountVerified');
+      },
+    }
   }
 
   readonly label_calcPaymentValueDiscount2 : FormlyFieldConfig = {
@@ -1254,12 +1343,12 @@ export class MrbauFormLibraryService {
     key: 'ignore:calcPaymentValueDiscount2',
     type: 'mrbauFormlyLabel',
     props: {
-      label: 'Betrag Skonto 2 [€]',
+      label: 'Betrag Skonto 2 Netto [€]',
       readonly: true,
     },
     hooks: {
       afterContentInit: (field) => {
-        this.multiplyPercent(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent2','ignore:calcPaymentValueDiscount2');
+        this.multiplyPercentDiscount(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent2','ignore:calcPaymentValueDiscount2');
       },
     },
     hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
@@ -1298,11 +1387,20 @@ export class MrbauFormLibraryService {
     ]
   };
 
-  readonly label_group_paymentNet : FormlyFieldConfig = {
+  readonly label_group_paymentNetVerified : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
       this.label_mrba_netAmountVerified,
       this.label_mrba_paymentDateNetValue,
+    ]
+  };
+
+  readonly label_group_paymentGrossVerified : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_calcGrossAmountVerified,
+      this.label_calcTaxAmountVerified,
+      this.label_mrba_taxRate,
     ]
   };
 
@@ -1333,11 +1431,26 @@ export class MrbauFormLibraryService {
     ]
   };
 
+  readonly label_group_costCarrierDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_costCarrierNumber,
+      this.label_mrba_projectName,
+    ]
+  };
+
   readonly label_group_netPayment : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
       this.label_mrba_netAmount,
       this.label_mrba_paymentTargetDays,
+    ]
+  };
+  readonly label_group_grossPayment : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_grossAmount,
+      this.label_mrba_taxRate,
     ]
   };
 
@@ -1373,7 +1486,7 @@ export class MrbauFormLibraryService {
       validation: [
         { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
         { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
-        { name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
       ],
     }
   }
