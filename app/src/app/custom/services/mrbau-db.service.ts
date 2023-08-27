@@ -1,14 +1,14 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of  } from 'rxjs';
-import {  catchError, map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 
 
 export const environment = {
-  production: false,
-  serverUrl: 'http://localhost:5000'
-  //serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
+  production: true,
+  //serverUrl: 'http://localhost:5000'
+  serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
 };
 
 export interface IMrbauDbService_mrba_vendor {

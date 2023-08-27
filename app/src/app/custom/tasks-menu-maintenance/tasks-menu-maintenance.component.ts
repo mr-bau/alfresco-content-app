@@ -18,7 +18,7 @@ import { IMrbauDbService_mrba_project, IMrbauDbService_mrba_vendor, MrbauDbServi
 export class TasksMenuMaintenanceComponent {
   @Input() task: MRBauTask;
 
-  DRYRUN = true;
+  DRYRUN = false;
 
   constructor(
     private contentService: ContentService,
