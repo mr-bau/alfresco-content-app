@@ -7,6 +7,7 @@ import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 
 export const environment = {
   production: true,
+
   //serverUrl: 'http://localhost:5000'
   serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
 };
@@ -139,6 +140,13 @@ export class MrbauDbService {
     );
   }
 
+  updateVendor(data:IMrbauDbService_mrba_vendor) : Observable<any>{
+    return this.request('POST', `${environment.serverUrl}/mrba_vendor/update`, data).pipe(
+      map((result) => result),
+      catchError(val => of(this.getErrorMessage(val)))
+    );
+  }
+
   getProject(costCarrierNumber:string) : Observable<string | ICostCarrier> {
     return this.request('GET', `${environment.serverUrl}/mrba_project/get/${costCarrierNumber}`)
     .pipe(
@@ -150,6 +158,7 @@ export class MrbauDbService {
             return null;
           }
           return {
+            "mrba:projectId" : project.mrba_projectId,
             "mrba:costCarrierNumber" : project.mrba_costCarrierNumber,
             "mrba:projectName" : project.mrba_projectName,
             "auditor1" : project.auditor1,
@@ -171,11 +180,19 @@ export class MrbauDbService {
     );
   }
 
+  updateProject(data:IMrbauDbService_mrba_project) : Observable<any>{
+    return this.request('POST', `${environment.serverUrl}/mrba_project/update`, data).pipe(
+      map((result) => result),
+      catchError(val => of(this.getErrorMessage(val)))
+    );
+  }
+
   searchProjects(searchValue:string) : Observable<string | ICostCarrier[]>{
     return this.request('GET', `${environment.serverUrl}/mrba_project/search?name=${searchValue}`).pipe(
       map((result) =>
         { return (result.mrba_projects as IMrbauDbService_mrba_project[]).map(project =>
           { return {
+            "mrba:projectId" : project.mrba_projectId,
             "mrba:costCarrierNumber" : project.mrba_costCarrierNumber,
             "mrba:projectName" : project.mrba_projectName,
             "auditor1" : project.auditor1,

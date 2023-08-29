@@ -170,6 +170,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MrbauFormlySelectSearchVendorComponent } from './custom/form/types/mrbau-formly-selectsearch-vendor.component';
 import { MrbauFormlySelectSearchProjectComponent } from './custom/form/types/mrbau-formly-selectsearch-project.component';
+import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -298,6 +299,7 @@ registerLocaleData(localeSv);
     ErrormsgpaneComponent,
     LoaderoverlayComponent,
 
+    MrbauSettingsComponent,
     BelegsammlungComponent,
     TasksComponent,
     SplitpaneComponent,

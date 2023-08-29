@@ -1039,7 +1039,6 @@ export class MrbauFormLibraryService {
     ]
   };
 
-
   // Labels
 
   readonly title_mrba_documentSummary : FormlyFieldConfig ={

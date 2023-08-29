@@ -45,6 +45,7 @@ import { BelegsammlungComponent } from './custom/belegsammlung/belegsammlung.com
 import { TasksComponent } from './custom/tasks/tasks.component';
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
+import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -88,6 +89,13 @@ export const APP_ROUTES: Routes = [
         component: FoerdermanagerComponent,
         data: {
           title: 'Fördermanager',
+        }
+      },
+      {
+        path: 'mrbausettings',
+        component: MrbauSettingsComponent,
+        data: {
+          title: 'Administration',
         }
       },
       {

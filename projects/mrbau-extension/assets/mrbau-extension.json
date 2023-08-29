@@ -144,6 +144,15 @@
             "title": "Fördermanager",
             "description": "Fördermanager",
             "route": "foerdermanager"
+          },
+          {
+            "id": "app.navbar.mrbausettings",
+            "order": 500,
+            "icon": "settings",
+            "label": "Link",
+            "title": "Administration",
+            "description": "Administration",
+            "route": "mrbausettings"
           }
         ]
       },

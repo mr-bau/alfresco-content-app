@@ -167,8 +167,26 @@ export class MrbauConventionsService {
     });
   }
 
+  editVendor() {
+    this.mrbauCommonService.editVendorWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
   addProject() {
     this.mrbauCommonService.addProjectWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  editProject() {
+    this.mrbauCommonService.editProjectWithConfirmDialog().then((result) => {
       if (result) { }
     })
     .catch((error) => {

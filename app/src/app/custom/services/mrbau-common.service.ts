@@ -539,27 +539,198 @@ export class MrbauCommonService {
   )
   }
 
+  editVendorWithConfirmDialog() : Promise<IVendor>
+  {
+    return new Promise((resolve, reject) =>
+    {
+      // dialog
+      const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+        data: {
+          dialogTitle: 'Firma ändern',
+          dialogMsg: 'Firma ändern',
+          dialogButtonOK: 'FIRMA ÄNDERN',
+          callQueryData: false,
+          fieldsMain: [
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                {
+                  className: 'flex-4',
+                  key: 'mrba:companyId',
+                  type: 'mrbauFormlySelectSearchVendor',
+                  props: {
+                    label: 'Firma auswählen',
+                    placeholder: 'Firma suchen z.B. %Elbe%',
+                    change: (field: FormlyFieldConfig) => {
+                      const mrba_company_fields = [
+                        {id:'mrba_companyName', value:'mrba:companyName'},
+                        {id:'mrba_companyVatID', value: 'mrba:companyVatID'},
+                        {id:'mrba_companyStreet', value: 'mrba:companyStreet'},
+                        {id:'mrba_companyZipCode', value:'mrba:companyZipCode'},
+                        {id:'mrba_companyCity', value:'mrba:companyCity'},
+                        {id:'mrba_companyCountryCode', value:'mrba:companyCountryCode'},
+                        {id:'mrba_companyPhone', value:'mrba:companyPhone'},
+                        {id:'mrba_companyEmail', value:'mrba:companyEmail'},
+                      ];
+                      if (field)
+                      {
+                        const vendor = field.model[field.key as string];
+                        for (const element of mrba_company_fields)
+                        {
+                          const control = field.form.get(element.id);
+                          if (control)
+                          {
+                            control.setValue((vendor) ? vendor[element.value] : undefined);
+                          }
+                        }
+                      }
+                    }
+                  },
+                  hooks: {},
+                  validators: { },},
+                  ]
+                },
+                {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-4',
+                        key: 'mrba_companyName',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyName'],
+                        props: {
+                          label: 'Firmenname',
+                          description: 'Firmenname',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                    ]
+                }, {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyStreet',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyStreet'],
+                        props: {
+                          label: 'Straße',
+                          description: 'Straße',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      }
+                    ]
+                  }, {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyZipCode',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyZipCode'],
+                        props: {
+                          label: 'PLZ',
+                          description: 'PLZ',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                      {
+                        className: 'flex-4',
+                        key: 'mrba_companyCity',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyCity'],
+                        props: {
+                          label: 'Stadt',
+                          description: 'Stadt',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      }
+                    ]
+                  }, {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyVatID',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyVatID'],
+                        props: {
+                          label: 'VAT',
+                          description: 'UID',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                        },
+                      },
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyEmail',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyEmail'],
+                        props: {
+                          label: 'Email',
+                          description: 'Email',
+                          maxLength: CONST.MAX_LENGTH_EMAIL,
+                        },
+                      },
+                      {
+                        className: 'flex-2',
+                        key: 'mrba_companyPhone',
+                        type: 'input',
+                        //defaultValue: this.addVendorWithConfirmDialogCache['mrba_companyPhone'],
+                        props: {
+                          label: 'Telefon',
+                          description: 'Telefon',
+                          maxLength: CONST.MAX_LENGTH_PHONE,
+                          required: false,
+                        },
+                      },
+                    ]
+                },
+              ]
+            }
+          ],
+          payload: null
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result)
+        {
+          result['mrba_companyId'] = result['mrba:companyId']['mrba:companyId'];
+          delete(result['mrba:companyId']);
+          //console.log(result);
+          this.mrbauDbService.updateVendor(result).toPromise()
+          .then((res) => {
+            if (res.result === 'OK') {
+              resolve(res);
+            }
+            else {
+              reject(res);
+            }
+          })
+          .catch(error => {
+            reject(error);
+          })
+        }
+        else {
+          resolve(null);
+        }
+      });
+    }
+  )
+  }
+
   addProjectWithConfirmDialogCache= {};
   addProjectWithConfirmDialog() : Promise<ICostCarrier>
   {
     return new Promise((resolve, reject) =>
     {
-
-      /*
-mrba_projectId INT PRIMARY KEY AUTO_INCREMENT,
-       mrba_costCarrierNumber VARCHAR(256) NOT NULL,
-       mrba_projectName VARCHAR(256) NOT NULL,
-       auditor1 VARCHAR(256),
-       auditor2 VARCHAR(256),
-       accountant VARCHAR(256),
-
-
-      "mrba:costCarrierNumber" : string,
-  "mrba:projectName" : string,
-  "auditor1" : string,
-  "auditor2" : string,
-  "accountant" : string,
-*/
       // dialog
       const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
         data: {
@@ -675,6 +846,178 @@ mrba_projectId INT PRIMARY KEY AUTO_INCREMENT,
           //console.log(result);
           this.addProjectWithConfirmDialogCache = result;
           this.mrbauDbService.addProject(result).toPromise()
+          .then((res) => {
+            if (res.result === 'OK') {
+              resolve(res);
+            }
+            else {
+              reject(res);
+            }
+          })
+          .catch(error => {
+            reject(error);
+          })
+        }
+        else {
+          resolve(null);
+        }
+      });
+    }
+  )
+  }
+
+  editProjectWithConfirmDialog() : Promise<ICostCarrier>
+  {
+    return new Promise((resolve, reject) =>
+    {
+      // dialog
+      const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+        data: {
+          dialogTitle: 'Projekt ändern',
+          dialogMsg: 'Projekt ändern',
+          dialogButtonOK: 'KT/KS ÄNDERN',
+          callQueryData: false,
+          fieldsMain: [
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'mrba:costCarrierNumber',
+                      type: 'mrbauFormlySelectSearchProject',
+                      props: {
+                        label: 'Kostenträger/-stelle',
+                        placeholder: 'KT suchen z.B. %9000%',
+                        change: (field: FormlyFieldConfig) => {
+                          const mrba_company_fields = [
+                            {id:'mrba_costCarrierNumber', value:'mrba:costCarrierNumber'},
+                            {id:'mrba_projectName', value: 'mrba:projectName'},
+                            {id:'auditor1', value: 'auditor1'},
+                            {id:'auditor2', value:'auditor2'},
+                            {id:'accountant', value:'accountant'},
+                          ];
+                          if (field)
+                          {
+                            const vendor = field.model[field.key as string];
+                            for (const element of mrba_company_fields)
+                            {
+                              const control = field.form.get(element.id);
+                              if (control)
+                              {
+                                control.setValue((vendor) ? vendor[element.value] : undefined);
+                              }
+                            }
+                          }
+                        }
+                      },
+                      hooks: {},
+                      validators: { },
+                    },
+                  ]
+                },
+                {
+                    fieldGroupClassName: 'flex-container-min-width',
+                    fieldGroup: [
+                      {
+                        className: 'flex-4',
+                        key: 'mrba_costCarrierNumber',
+                        type: 'input',
+                        props: {
+                          label: 'Kostenträger/Kostenstelle Nummer',
+                          description: 'Kostenträger/Kostenstelle Nummer',
+                          maxLength: CONST.MAX_LENGTH_DEFAULT,
+                          required: true,
+                        },
+                      },
+                    ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'mrba_projectName',
+                      type: 'input',
+                      props: {
+                        label: 'Projekt Bezeichnung',
+                        description: 'Projekt Bezeichnung',
+                        maxLength: CONST.MAX_LENGTH_DEFAULT,
+                        required: true,
+                      },
+                    }
+                  ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'auditor1',
+                      type: 'select',
+                      props: {
+                        label: 'Bauleiter',
+                        description: 'Bauleiter',
+                        options: this.getPeopleObservable(),
+                        valueProp: 'id',
+                        labelProp: 'displayName',
+                        required: false,
+                      },
+                    }
+                  ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'auditor2',
+                      type: 'select',
+                      props: {
+                        label: 'Oberbauleiter',
+                        description: 'Oberbauleiter',
+                        options: this.getPeopleObservable(),
+                        valueProp: 'id',
+                        labelProp: 'displayName',
+                        required: false,
+                      },
+                    }
+                  ]
+                },
+                {
+                  fieldGroupClassName: 'flex-container-min-width',
+                  fieldGroup: [
+                    {
+                      className: 'flex-4',
+                      key: 'accountant',
+                      type: 'select',
+                      props: {
+                        label: 'Buchhaltung',
+                        description: 'Buchhaltung',
+                        options: this.getPeopleObservable(),
+                        valueProp: 'id',
+                        labelProp: 'displayName',
+                        required: false,
+                      },
+                    }
+                  ]
+                },
+              ]
+            }
+          ],
+          payload: null
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result)
+        {
+          result['mrba_projectId'] = result['mrba:costCarrierNumber']['mrba:projectId'];
+          delete(result['mrba:costCarrierNumber']);
+          //console.log(result);
+          this.mrbauDbService.updateProject(result).toPromise()
           .then((res) => {
             if (res.result === 'OK') {
               resolve(res);
