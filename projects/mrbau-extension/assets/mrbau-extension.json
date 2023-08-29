@@ -167,7 +167,7 @@
             "order": 600,
             "icon": "assignment",
             "title": "Aufgaben",
-            "route": "mrbau.extension.route.tasks"
+            "route": "tasks"
           },
           {
             "id": "mrbau.extension.docinboxbook",
