@@ -1,9 +1,10 @@
-import { ContentService, NodesApiService, NotificationService } from '@alfresco/adf-core';
+import { ContentService, NotificationService } from '@alfresco/adf-core';
 import { Component, Input } from '@angular/core';
 import { MRBauTask } from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
-import { NodeBodyUpdate, SearchRequest } from '@alfresco/js-api';
-import { IMrbauDbService_mrba_project, IMrbauDbService_mrba_vendor, MrbauDbService } from '../services/mrbau-db.service';
+//import {  NodesApiService } from '@alfresco/adf-core';
+//import { NodeBodyUpdate, SearchRequest } from '@alfresco/js-api';
+//import { IMrbauDbService_mrba_project, IMrbauDbService_mrba_vendor, MrbauDbService } from '../services/mrbau-db.service';
 
 
 @Component({
@@ -11,25 +12,26 @@ import { IMrbauDbService_mrba_project, IMrbauDbService_mrba_vendor, MrbauDbServi
   template: `
     <button *ngIf="!isDisabled()" mat-menu-item (click)="onItemClicked()" [disabled]="isDisabled()">
       <mat-icon>star</mat-icon>
-        <span>Maintenance Taks</span>
+        <span>Maintenance Task</span>
     </button>
   `,
 })
 export class TasksMenuMaintenanceComponent {
   @Input() task: MRBauTask;
-
-  DRYRUN = false;
+  DRYRUN = true;
 
   constructor(
     private contentService: ContentService,
     private notificationService:NotificationService,
     private mrbauCommonService: MrbauCommonService,
-    private mrbauDbService: MrbauDbService,
-    private nodesApiService: NodesApiService
-    ) { }
+    //private mrbauDbService: MrbauDbService,
+    //private nodesApiService: NodesApiService
+    ) {
+
+    }
 
   isDisabled() : boolean {
-    return !this.mrbauCommonService.isAdminUser();
+    return true || !this.mrbauCommonService.isAdminUser();
   }
 
   onItemClicked()
@@ -39,6 +41,12 @@ export class TasksMenuMaintenanceComponent {
     this.doMaintainanceTask();
   }
 
+  doMaintainanceTask() {
+    console.error('Nothing to do!');
+  }
+}
+
+/*
   existingCompanies = {};
   existingProjects = {};
 
@@ -118,7 +126,7 @@ export class TasksMenuMaintenanceComponent {
     }
   }
 
-  doMaintainanceTask() {
+  doMaintainanceTaskMigrateExistingVendorAndProjectIdsToMysql() {
     this.existingCompanies = {};
     let query : SearchRequest = {
       query: {
@@ -198,5 +206,5 @@ export class TasksMenuMaintenanceComponent {
       console.log(error);
     });
   }
-
 }
+*/
