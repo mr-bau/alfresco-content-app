@@ -1,22 +1,25 @@
+
 import { ContentService, NotificationService } from '@alfresco/adf-core';
 import { Component, Input } from '@angular/core';
 import { MRBauTask } from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
-//import {  NodesApiService } from '@alfresco/adf-core';
+//import { NodesApiService } from '@alfresco/adf-core';
 //import { NodeBodyUpdate, SearchRequest } from '@alfresco/js-api';
-//import { IMrbauDbService_mrba_project, IMrbauDbService_mrba_vendor, MrbauDbService } from '../services/mrbau-db.service';
+//import { IMrbauDbService_mrba_project, IMrbauDbService_mrba_vendor } from '../services/mrbau-db.service';
+import { MrbauDbService } from '../services/mrbau-db.service';
+import { ICostCarrier } from '../services/mrbau-conventions.service';
 
 
 @Component({
-  selector: 'aca-tasks-menu-maintenance',
+  selector: 'aca-maintenance-tasks',
   template: `
-    <button *ngIf="!isDisabled()" mat-menu-item (click)="onItemClicked()" [disabled]="isDisabled()">
-      <mat-icon>star</mat-icon>
-        <span>Maintenance Task</span>
-    </button>
+    <h3>Maintenance</h3>
+    <div style="display:flex;gap:10px">
+      <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonTest()" matTooltip="Log Projects ohne Oberbauleiter">Log Projects w/o auditor2</button>
+    </div>
   `,
 })
-export class TasksMenuMaintenanceComponent {
+export class MrbauMaintenanceComponent {
   @Input() task: MRBauTask;
   DRYRUN = true;
 
@@ -24,7 +27,7 @@ export class TasksMenuMaintenanceComponent {
     private contentService: ContentService,
     private notificationService:NotificationService,
     private mrbauCommonService: MrbauCommonService,
-    //private mrbauDbService: MrbauDbService,
+    private mrbauDbService: MrbauDbService,
     //private nodesApiService: NodesApiService
     ) {
 
@@ -34,15 +37,31 @@ export class TasksMenuMaintenanceComponent {
     return true || !this.mrbauCommonService.isAdminUser();
   }
 
-  onItemClicked()
-  {
+  buttonTest() {
     this.contentService;
     this.notificationService;
     this.doMaintainanceTask();
   }
 
   doMaintainanceTask() {
-    console.error('Nothing to do!');
+    //console.error('Nothing to do!');
+    this.logProjects();
+  }
+
+  logProjects(){
+    this.mrbauDbService.searchProjects("%_%", 999).toPromise()
+    .then((res) => {
+      const result = res as ICostCarrier[];
+      for (let i=1; i < result.length; i++)
+      {
+        const entry = result[i];
+        if (!entry.auditor2)
+        {
+          console.log(entry['mrba:costCarrierNumber']+';'+entry['mrba:projectName']+';');
+        }
+      }
+    })
+    .catch(error => console.log(error));
   }
 }
 

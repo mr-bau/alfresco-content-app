@@ -4,11 +4,11 @@ import { Observable, of  } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 
-
 export const environment = {
   production: true,
 
   //serverUrl: 'http://localhost:5000'
+  //serverUrl: 'https://mrdev01.mrbau.at/mysql-db'
   serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
 };
 
@@ -36,7 +36,8 @@ export interface IMrbauDbService_mrba_project {
   providedIn: 'root'
 })
 export class MrbauDbService {
-  constructor(private http: HttpClient)
+  constructor(private http: HttpClient,
+  )
   {
   }
 
@@ -187,8 +188,12 @@ export class MrbauDbService {
     );
   }
 
-  searchProjects(searchValue:string) : Observable<string | ICostCarrier[]>{
-    return this.request('GET', `${environment.serverUrl}/mrba_project/search?name=${searchValue}`).pipe(
+  searchProjects(searchValue:string, limit?:number) : Observable<string | ICostCarrier[]>{
+    let request = `${environment.serverUrl}/mrba_project/search?name=${searchValue}`;
+    if (limit) {
+      request = request + `&limit=${limit}`;
+    }
+    return this.request('GET', request).pipe(
       map((result) =>
         { return (result.mrba_projects as IMrbauDbService_mrba_project[]).map(project =>
           { return {

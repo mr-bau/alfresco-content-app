@@ -19,6 +19,10 @@ import { MrbauConventionsService } from '../services/mrbau-conventions.service';
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonEditProject()" matTooltip="Projekt ändern">Projekt ändern</button>
         </div>
       </div>
+
+      <div *ngIf="isUserAllowedMaintenance; else elseBlock">
+        <aca-maintenance-tasks></aca-maintenance-tasks>
+      </div>
       <ng-template #elseBlock>Zugriff nicht erlaubt.</ng-template>
     </div>
   `,
@@ -26,9 +30,12 @@ import { MrbauConventionsService } from '../services/mrbau-conventions.service';
 })
 export class MrbauSettingsComponent implements OnInit {
   isUserAllowed = false;
+  isUserAllowedMaintenance = false;
 
   ngOnInit(): void {
     this.isUserAllowed = false;
+    this.isUserAllowedMaintenance = false;
+
     const user = this.authenticationService.getEcmUsername().toLowerCase();
     if (user == "admin" ||
         user == "wolfgang moser" ||
@@ -37,12 +44,18 @@ export class MrbauSettingsComponent implements OnInit {
     {
       this.isUserAllowed = true;
     }
+
+    if (user == "admin" ||
+        user == "wolfgang moser" )
+    {
+      this.isUserAllowedMaintenance = true;
+    }
   }
 
   constructor(
     private authenticationService: AuthenticationService,
     private mrbauConventionsService: MrbauConventionsService
-    ){
+    ) {
   }
 
   buttonNewVendor() {
@@ -60,4 +73,5 @@ export class MrbauSettingsComponent implements OnInit {
   buttonEditProject() {
     this.mrbauConventionsService.editProject();
   }
+
 }

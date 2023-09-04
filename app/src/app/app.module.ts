@@ -145,7 +145,6 @@ import { TasksDetailNewDocumentComponent } from './custom/tasks-detail-new-docum
 import { TasksMenuDelegateComponent } from './custom/tasks-menu-delegate/tasks-menu-delegate.component';
 import { TasksMenuDeleteComponent } from './custom/tasks-menu-delete/tasks-menu-delete.component';
 import { TasksMenuOcrComponent } from './custom/tasks-menu-ocr/tasks-menu-ocr.component';
-import { TasksMenuMaintenanceComponent } from './custom/tasks-menu-maintenance/tasks-menu-maintenance.component';
 import { MrbauFormlyLabelComponent } from './custom/form/mrbau-formly-label.component';
 import { MrbauFormlyLabelWrapperComponent } from './custom/form/mrbau-formly-label-wrapper-component';
 import { MRBauNodeAssociationEntryFilterPipeImpure, MRBauArchiveNodeTypeLabelPipe } from './custom/mrbau-doc-declarations';
@@ -171,6 +170,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MrbauFormlySelectSearchVendorComponent } from './custom/form/types/mrbau-formly-selectsearch-vendor.component';
 import { MrbauFormlySelectSearchProjectComponent } from './custom/form/types/mrbau-formly-selectsearch-project.component';
 import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
+import { MrbauMaintenanceComponent } from './custom/mrbau-settings/mrbau-maintenance.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -300,6 +300,7 @@ registerLocaleData(localeSv);
     LoaderoverlayComponent,
 
     MrbauSettingsComponent,
+    MrbauMaintenanceComponent,
     BelegsammlungComponent,
     TasksComponent,
     SplitpaneComponent,
@@ -338,7 +339,6 @@ registerLocaleData(localeSv);
     TasksDetailNewDocumentComponent,
     TasksMenuDelegateComponent,
     TasksMenuDeleteComponent,
-    TasksMenuMaintenanceComponent,
     TasksMenuDiscardDocumentComponent,
     TasksMenuOcrComponent,
     TasksMenuNewarchivetypeComponent,
