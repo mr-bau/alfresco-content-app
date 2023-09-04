@@ -629,9 +629,9 @@ export class MrbauArchiveModel {
             'mrba:orderType',
             'mrba:documentNumber',
             'mrba:documentDateValue',
-            'mrba:netAmount',
+            /*'mrba:netAmount',
             'mrba:grossAmount',
-            'mrba:taxRate',
+            'mrba:taxRate',*/
             'mrba:reviewDaysFinalInvoice',
             'mrba:paymentTargetDays',
           ]
