@@ -101,7 +101,7 @@ export const MRBauTaskCategoryNames = {
   1001 : "Allgemein",
   1002 : "Info",
   1003 : "Approval",
-  2001 : "Dokument prüfen und archivieren",
+  2001 : "Dokument",
 };
 
 @Pipe({name: 'mrbauTaskCategory'})
@@ -120,6 +120,8 @@ export interface IMRBauTaskListEntry {
   dueDateValue: Date;
   icon:string;
   status: string;
+  company?: string;
+  kt?:string;
 }
 
 export class MRBauTask {

@@ -1072,8 +1072,8 @@ export class MrbauArchiveModel {
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName',
             'mrba:netAmountVerified',
-            'mrba:verifyDateValue',
-            'mrba:paymentDateNetValue',
+            //'mrba:verifyDateValue',
+            //'mrba:paymentDateNetValue',
           ]
         },
         'STATUS_INVOICE_REVIEW' : {

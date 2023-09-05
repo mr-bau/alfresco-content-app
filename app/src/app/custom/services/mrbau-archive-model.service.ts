@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EMRBauDocumentCategory, IMRBauDocumentType, MrbauArchiveModel } from '../mrbau-doc-declarations';
-import { EMRBauTaskCategory } from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, MRBauTaskCategoryNames } from '../mrbau-task-declarations';
 import { ISelectFormOptions } from './mrbau-conventions.service';
 import { MrbauWorkflowService } from './mrbau-workflow.service';
 
@@ -54,7 +54,7 @@ export class MrbauArchiveModelService {
   {
     if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
     {
-      return "Dokument prüfen und archivieren" + (documentCategory ? " - "+this.getArchiveModelNodeTitle(documentCategory) : "");
+      return MRBauTaskCategoryNames['2001'] + (documentCategory ? " - "+this.getArchiveModelNodeTitle(documentCategory) : "");
     }
 
     return "description for "+task+" "+client+" "+ documentCategory;

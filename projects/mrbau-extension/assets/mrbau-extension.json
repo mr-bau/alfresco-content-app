@@ -9,6 +9,11 @@
 
   "appConfig": {
     "locale": "de",
+    "dateValues": {
+      "defaultDateFormat": "mediumDate",
+      "defaultDateTimeFormat": "DD-MM-YY, HH:mm",
+      "defaultLocale": "de-DE"
+     },
     "application": {
       "name": "M&R DMS",
       "logo": "assets/mrbau-extension/svg/logo_mr.svg",
@@ -16,7 +21,6 @@
       "copyright": "© 2022-2023 M&R Holding GmbH, © 2017-2023 Alfresco Software, Inc. Alle Rechte vorbehalten."
     }
   },
-
   "routes": [
   {
     "id": "mrbau.extension.route.main",
