@@ -119,7 +119,7 @@ export interface IMRBauTaskListEntry {
   createdDate: Date;
   dueDateValue: Date;
   icon:string;
-  status: EMRBauTaskStatus;
+  status: string;
 }
 
 export class MRBauTask {

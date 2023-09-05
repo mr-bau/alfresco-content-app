@@ -375,7 +375,8 @@ registerLocaleData(localeSv);
       provide: LOCALE_ID,
       useValue: 'de-AT' // 'de-DE' for Germany, 'fr-FR' for France ...
     },
-    DatePipe
+    DatePipe,
+    MRBauTaskStatusPipe
   ],
   bootstrap: [AppComponent]
 })

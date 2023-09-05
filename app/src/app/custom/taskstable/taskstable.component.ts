@@ -2,8 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsul
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DataTableAdapter, SearchService} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
-import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask
-} from '../mrbau-task-declarations';
+import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask, MRBauTaskStatusPipe } from '../mrbau-task-declarations';
 import { FormControl} from '@angular/forms';
 import { NodePaging, SearchRequest } from '@alfresco/js-api';
 import { ITaskChangedData } from '../tasks/tasks.component';
@@ -19,7 +18,6 @@ import { OnDestroy } from '@angular/core';
 })
 export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponent {
   @ViewChild('dataTable') adfDataTable : DataTableAdapter;
-
   @Input() taskCategories : IMRBauTasksCategory[] = null;
   @Output() taskSelectEvent = new EventEmitter<MRBauTask>();
 
@@ -42,7 +40,8 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
 
   constructor
     (private searchService: SearchService,
-    private store: Store<AppStore>) {
+    private store: Store<AppStore>,
+    private mrbauTaskStatusPipe: MRBauTaskStatusPipe) {
   }
   ngOnDestroy(): void {
     this.onDestroy$.next(true);
@@ -151,7 +150,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
             createdDate : nodeEntry.entry.createdAt,
             dueDateValue : nodeEntry.entry.properties["mrbt:dueDateValue"],
             icon : 'material-icons://'+currentTab.tabIcon,
-            status: task.status,
+            status: this.mrbauTaskStatusPipe.transform(task.status),
           }
           results.push(
             e
