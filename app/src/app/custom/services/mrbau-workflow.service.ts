@@ -365,6 +365,8 @@ export class MrbauWorkflowService {
     }
 
     let reviewDate = new Date(props['mrba:archivedDateValue']);
+    reviewDate = this.addDays(reviewDate, 1); // Prüffrist starts on next day
+
     if (data.taskDetailNewDocument.model['mrba:verifyDateValue'] == null)
     {
       const reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
