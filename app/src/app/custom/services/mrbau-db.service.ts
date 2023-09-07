@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { Observable, of  } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ICostCarrier, IVendor } from './mrbau-conventions.service';
+import { AppConfigService, AppConfigValues } from '@alfresco/adf-core';
 
 export const environment = {
   production: true,
 
   //serverUrl: 'http://localhost:5000'
-  //serverUrl: 'https://mrdev01.mrbau.at/mysql-db'
-  serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
+  serverUrl: 'https://mrdev01.mrbau.local/mysql-db'
+  //serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
 };
 
 export interface IMrbauDbService_mrba_vendor {
@@ -37,8 +38,18 @@ export interface IMrbauDbService_mrba_project {
 })
 export class MrbauDbService {
   constructor(private http: HttpClient,
+    private appConfig: AppConfigService,
   )
   {
+    const ecmhost = this.appConfig.get<string>(AppConfigValues.ECMHOST);
+/*
+    if (ecmhost.toLowerCase().indexOf('localhost') >= 0 || ecmhost.toLowerCase().indexOf('mrdev01') >= 0) {
+      environment.serverUrl = 'https://mrdev01.mrbau.local/mysql-db';
+      environment.production = false;
+    }*/
+    console.log('Mrbau ACA Environment ECM Host:');
+    console.log(ecmhost);
+    //console.log(environment);
   }
 
   private request(method: string, url: string, data?: any) : Observable<any>{
