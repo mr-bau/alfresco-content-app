@@ -7,6 +7,10 @@ COPY package.json package.json
 # 2. Build project
 FROM acosix/baseimage:20220603 as appBuilder
 
+# add mrbau ssl interception certificate
+COPY ./mrbau-ssl-interception/MFS-SSL-Interception.cer /usr/local/share/ca-certificates/MFS-SSL-Interception.crt
+RUN update-ca-certificates
+
 # nodejs 12 is too old
 ARG NODE_JS_VERSION=node_14.x
 
@@ -29,6 +33,7 @@ COPY app /srv/alfresco-content-app/app
 COPY projects /srv/alfresco-content-app/projects
 COPY .prettierrc .prettierignore .eslintrc.json alfresco.png angular.json cspell.json extension.schema.json karma.conf.js protractor.conf.js tsconfig.json tsconfig.adf.json /srv/alfresco-content-app/
 RUN cd /srv/alfresco-content-app \
+  && export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/MFS-SSL-Interception.crt \
   && npm run build:mrbau-extension \
   && npm run build.release
 
