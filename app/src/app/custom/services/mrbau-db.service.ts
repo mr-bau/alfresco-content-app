@@ -6,10 +6,9 @@ import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 import { AppConfigService, AppConfigValues } from '@alfresco/adf-core';
 
 export const environment = {
-  production: true,
-
-  //serverUrl: 'http://localhost:5000'
+  production: false,
   serverUrl: 'https://mrdev01.mrbau.local/mysql-db'
+  //serverUrl: 'http://localhost:5000'
   //serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
 };
 
@@ -42,14 +41,19 @@ export class MrbauDbService {
   )
   {
     const ecmhost = this.appConfig.get<string>(AppConfigValues.ECMHOST);
-/*
-    if (ecmhost.toLowerCase().indexOf('localhost') >= 0 || ecmhost.toLowerCase().indexOf('mrdev01') >= 0) {
+    //http://mrdev01.mrbau.local/ecm
+    if (ecmhost.toLowerCase().indexOf('localhost') >= 0 || ecmhost.toLowerCase().indexOf('mrdev01.mrbau.') >= 0) {
       environment.serverUrl = 'https://mrdev01.mrbau.local/mysql-db';
       environment.production = false;
-    }*/
-    console.log('Mrbau ACA Environment ECM Host:');
+    }
+    else
+    {
+      environment.serverUrl = 'https://mrdms01.mrbau.at/mysql-db';
+      environment.production = true;
+    }
+    console.log('Mrbau ACA Environment:');
     console.log(ecmhost);
-    //console.log(environment);
+    console.log(environment);
   }
 
   private request(method: string, url: string, data?: any) : Observable<any>{
