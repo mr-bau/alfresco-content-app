@@ -26,6 +26,7 @@ RUN install_clean nodejs \
 
 COPY package.json package-lock.json /srv/alfresco-content-app/
 RUN cd /srv/alfresco-content-app \
+  && export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/MFS-SSL-Interception.crt \
   && mkdir -p app/.tmp \
   && npm install
 
@@ -33,7 +34,6 @@ COPY app /srv/alfresco-content-app/app
 COPY projects /srv/alfresco-content-app/projects
 COPY .prettierrc .prettierignore .eslintrc.json alfresco.png angular.json cspell.json extension.schema.json karma.conf.js protractor.conf.js tsconfig.json tsconfig.adf.json /srv/alfresco-content-app/
 RUN cd /srv/alfresco-content-app \
-  && export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/MFS-SSL-Interception.crt \
   && npm run build:mrbau-extension \
   && npm run build.release
 
