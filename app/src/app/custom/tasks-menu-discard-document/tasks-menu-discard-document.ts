@@ -45,6 +45,7 @@ export class TasksMenuDiscardDocumentComponent {
         this.taskChangeEvent.emit({task : this.task, queryTasks : true});
       } else {
         // DELETE CANCEL
+        console.log(result);
       }
     })
     .catch(error => {

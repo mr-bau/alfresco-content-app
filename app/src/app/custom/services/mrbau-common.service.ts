@@ -354,16 +354,27 @@ export class MrbauCommonService {
           if (result)
           {
             this.addComment(nodeId, result.comment)
-            .then(() => {return this.discardDocument(nodeId)})
+            .then(() => {
+              return this.discardDocument(nodeId)
+            })
             .then((result) =>
             {
               result;
               return resolve(true);
             })
-            .catch((error) => reject(error));
+            .catch(
+              (error : Error) => {
+                const msg : string = error?.message;
+                if (msg && msg.indexOf('Discard date may not be changed') >= 0)
+                {
+                  // document is already discarded, return true
+                  return resolve(true);
+                }
+                return reject(error);
+              });
           }
           else {
-            resolve(false);
+            return resolve(false);
           }
         });
       }
