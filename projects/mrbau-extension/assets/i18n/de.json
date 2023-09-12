@@ -21,6 +21,12 @@
       "OUTBOUND_INVOICE":"Ausgangsrechnung",
       "INVOICE_REVIEW_SHEET":"Rechnungsprüfblatt",
       "MISCELLANEOUS_DOCUMENT":"Sonstiger Beleg",
+      "MONITION": "Mahnung",
+      "GUARANTEE":"Garantie",
+      "LIABILITYESCROW":"Haftrücklass",
+      "FINANCIALRETENTION":"Deckungsrücklass",
+      "CONTRACTGUARANTEE":"Erfüllungsgarantie",
+      "NOTEDOCUMENT":"Bescheid",
 
       "CONTRACT_DOCUMENT":"Vertragsdokument",
       "RENT_CONTRACT":"Mietvertrag",

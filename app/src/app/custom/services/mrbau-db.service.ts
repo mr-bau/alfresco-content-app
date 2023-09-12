@@ -53,7 +53,7 @@ export class MrbauDbService {
     }
     console.log('Mrbau ACA Environment:');
     console.log(ecmhost);
-    console.log(environment);
+    console.log(environment.serverUrl);
   }
 
   private request(method: string, url: string, data?: any) : Observable<any>{

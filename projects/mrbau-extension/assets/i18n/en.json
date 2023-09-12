@@ -20,6 +20,13 @@
       "OUTBOUND_INVOICE":"Ausgangsrechnung",
       "INVOICE_REVIEW_SHEET":"Rechnungsprüfblatt",
       "MISCELLANEOUS_DOCUMENT":"Sonstiger Beleg",
+      "MRBA_MONITION": "Mahnung",
+      "MRBA_GUARANTEE":"Garantie",
+      "MRBA_LIABILITYESCROW":"Haftrücklass",
+      "MRBA_FINANCIALRETENTION":"Deckungsrücklass",
+      "MRBA_CONTRACTGUARANTEE":"Erfüllungsgarantie",
+      "MRBA_NOTEDOCUMENT":"Bescheid",
+
       "CONTRACT_DOCUMENT":"Vertragsdokument",
       "RENT_CONTRACT":"Mietvertrag",
       "CONTRACT_CANCELLATION_WAIVER":"Kündigungsverzicht",

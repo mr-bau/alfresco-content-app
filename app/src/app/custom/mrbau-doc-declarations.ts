@@ -64,6 +64,12 @@ export class MRBauArchiveNodeTypeLabelPipe implements PipeTransform {
     "mrba:invoiceReviewSheet":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE_REVIEW_SHEET",
     "mrba:invoice":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE",
     "mrba:miscellaneousDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT",
+    "mrba:monition":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MONITION", // Mahnung
+    "mrba:guarantee":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.GUARANTEE", // Garantie
+    "mrba:liabilityEscrow":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.LIABILITYESCROW", //Haftrücklass
+    "mrba:financialRetention":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FINANCIALRETENTION", // Deckungsrücklass
+    "mrba:contractGuarantee":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACTGUARANTEE", //Erfüllungsgarantie
+    "mrba:noteDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.NOTEDOCUMENT", // Bescheid
 
     "mrba:contractDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_DOCUMENT",
     "mrba:rentContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.RENT_CONTRACT",
@@ -135,6 +141,12 @@ export const enum EMRBauDocumentCategory {
   PAYMENT_TERMS,//"mrba:frameworkContract",
   INVOICE_REVIEW_SHEET, //mrba:invoiceReviewSheet
   OTHER_BILL, //"mrba:miscellaneousDocument",
+  MONITION, // "mrba:monition"
+  GUARANTEE, // "mrba:guarantee"
+  LIABILITY_ESCROW, // "mrba:liabilityEscrow"
+  FINANCIAL_RETENTION, // "mrba:financialRetention"
+  CONTRACT_GUARANTEE, // "mrba:contractGuarantee"
+  NOTE_DOCUMENT, // "mrba:noteDocument"
 
   // CONTRACTS
   CONTRACT_DOCUMENT, //"mrba:contractDocument"
@@ -1339,7 +1351,412 @@ export class MrbauArchiveModel {
             ]
         }
       }
-    }
+    },
+    {
+      title: "Mahnung",
+      name : "mrba:monition",
+      //parent : "mrba:archiveDocument",
+      category: EMRBauDocumentCategory.MONITION,
+      folder: "08 Mahnungen",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+    {
+      title: "Haftrücklass",
+      name : "mrba:liabilityEscrow",
+      //parent : "mrba:guarantee",
+      category: EMRBauDocumentCategory.LIABILITY_ESCROW,
+      folder: "09 Garantien",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+    {
+      title: "Deckungsrücklass",
+      name : "mrba:financialRetention",
+      //parent : "mrba:guarantee",
+      category: EMRBauDocumentCategory.FINANCIAL_RETENTION,
+      folder: "09 Garantien",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+    {
+      title: "Erfüllungsgarantie",
+      name : "mrba:contractGuarantee",
+      //parent : "mrba:guarantee",
+      category: EMRBauDocumentCategory.CONTRACT_GUARANTEE,
+      folder: "09 Garantien",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+    {
+      title: "Bescheid",
+      name : "mrba:noteDocument",
+      //parent : "mrba:archiveDocument",
+      category: EMRBauDocumentCategory.NOTE_DOCUMENT,
+      folder: "10 Bescheide",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
   ];
 
   readonly CONTRACT_DEFAULT_WORKFLOW_DEFINITION = {
