@@ -1111,6 +1111,7 @@ export class MrbauArchiveModel {
             'mrba:grossAmountVerified',
             'mrba:verifyDateValue',
             'mrba:paymentDateNetValue',
+            'mrba:taxRate',
           ]
         },
         'STATUS_INVOICE_REVIEW' : {
