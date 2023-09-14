@@ -801,7 +801,7 @@ export class MrbauCommonService {
                         options: this.getPeopleObservable(),
                         valueProp: 'id',
                         labelProp: 'displayName',
-                        required: true,
+                        //required: true,
                       },
                     }
                   ]
@@ -820,7 +820,7 @@ export class MrbauCommonService {
                         options: this.getPeopleObservable(),
                         valueProp: 'id',
                         labelProp: 'displayName',
-                        required: true,
+                        //required: true,
                       },
                     }
                   ]
@@ -839,7 +839,7 @@ export class MrbauCommonService {
                         options: this.getPeopleObservable(),
                         valueProp: 'id',
                         labelProp: 'displayName',
-                        required: true,
+                        //required: true,
                       },
                     }
                   ]
@@ -976,7 +976,17 @@ export class MrbauCommonService {
                         labelProp: 'displayName',
                         required: false,
                       },
-                    }
+                    },
+                    {
+                      className: 'flex-1',
+                      key: 'ignore:mrbauResetAuditor1',
+                      type: 'mrbauFormlyButton',
+                      props: {
+                        text: 'Reset',
+                        btnType: 'default',
+                        onClick: (field) => {field.form.get('auditor1')?.setValue(null);},
+                      },
+                    },
                   ]
                 },
                 {
@@ -993,8 +1003,18 @@ export class MrbauCommonService {
                         valueProp: 'id',
                         labelProp: 'displayName',
                         required: false,
+                      }
+                    },
+                    {
+                      className: 'flex-1',
+                      key: 'ignore:mrbauResetAuditor2',
+                      type: 'mrbauFormlyButton',
+                      props: {
+                        text: 'Reset',
+                        btnType: 'default',
+                        onClick: (field) => {field.form.get('auditor2')?.setValue(null);},
                       },
-                    }
+                    },
                   ]
                 },
                 {
@@ -1012,7 +1032,17 @@ export class MrbauCommonService {
                         labelProp: 'displayName',
                         required: false,
                       },
-                    }
+                    },
+                    {
+                      className: 'flex-1',
+                      key: 'ignore:mrbauResetAccountant',
+                      type: 'mrbauFormlyButton',
+                      props: {
+                        text: 'Reset',
+                        btnType: 'default',
+                        onClick: (field) => {field.form.get('accountant')?.setValue(null);},
+                      },
+                    },
                   ]
                 },
               ]
