@@ -8,6 +8,10 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   flex-shrink: 0;
 }
 
+mat-radio-button {
+  padding-right: 25px;
+}
+
 .adf-toolbar {
   //color: var(--theme-text-color);
   color: rgba(0, 0, 0, 0.87);
@@ -52,6 +56,17 @@ $flex-container-width: min(calc(#{$flex-width-base}*6), 100vw - 90px);
   font-size: 120% ;
   font-style: italic;
   color: rgba(0, 0, 0, 0.54);
+}
+
+.form-group-title-large {
+  font-size: 160% ;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.form-group-title-wrapper {
+  margin-bottom: 1rem;
+  background-color: lightsteelblue;
+  padding: 20px;
 }
 
 .addMarginTop{

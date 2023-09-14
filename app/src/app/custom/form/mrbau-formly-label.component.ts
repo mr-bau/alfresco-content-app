@@ -10,7 +10,10 @@ import { Component } from '@angular/core';
  })
  export class MrbauFormlyLabelComponent extends FieldType<FieldTypeConfig> {
   getValue() : any {
-    return (this.formControl.value == null) ? this.props.placeholder : this.formControl.value;
+    if (this.props.disabled) {
+      return '-';
+    }
+    return (this.formControl.value == null || this.formControl.value === "") ? this.props.placeholder : this.formControl.value;
   }
 
  }

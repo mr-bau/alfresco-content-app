@@ -314,7 +314,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   private keyIsValid(key:string) : boolean
   {
-    if (this.model[key] || this.model[key] === 0 || this.model[key] === "")
+    if (this.model[key] || this.model[key] === 0 || this.model[key] === "" || this.model[key] === false)
     {
       if (!key.startsWith('ignore:'))// ignore fields where the key starts with ignore: e.g. calculated values
       {
@@ -336,7 +336,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       if (this.keyIsValid(key))
       {
         // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
-        const value = (this.model[key].value) ? (this.model[key].value) : this.model[key];
+        const value = (this.model[key]?.value) ? (this.model[key].value) : this.model[key];
         // only update node if some values have changed
         let nodeValue = this._taskNode.properties[key];
         // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
@@ -451,24 +451,35 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   updateFormValueRecursive(formlyFieldConfig: FormlyFieldConfig)
   {
-    let key = formlyFieldConfig.key as string;
-    if (key)
-    {
-      if (this._taskNode.properties[key] || this._taskNode.properties[key] === 0  || this._taskNode.properties[key] === false)
-      {
-        let value = this._taskNode.properties[key]
-        if (formlyFieldConfig.props.type == 'date')
-        {
-          value = this.mrbauCommonService.getFormDateValue(new Date(value));
-        }
-        this.model[key] = value;
+    let keys: string[] = [];
+    keys.push(formlyFieldConfig.key as string);
+    if (formlyFieldConfig?.props && formlyFieldConfig.props['additionalKeys'] && Array.isArray(formlyFieldConfig.props.additionalKeys)) {
+      const additionalKeys = formlyFieldConfig.props.additionalKeys as Array<string>;
+      for (let i=0; i<additionalKeys.length; i++) {
+        keys.push(additionalKeys[i] as string);
       }
-
-      if (formlyFieldConfig.type == 'mrbauFormlyDuplicatedDocument')
+    }
+    for (let i = 0; i<keys.length;i++)
+    {
+      const key = keys[i];
+      if (key)
       {
-       this.model['ignore:taskNode'] = this.taskNode;
-       this.model['ignore:duplicateNode'] = this.duplicateNode;
-       this.model['ignore:callback'] = this.mrbauFormlyDuplicatedDocumentCallback.bind(this);
+        if (this._taskNode.properties[key] || this._taskNode.properties[key] === 0  || this._taskNode.properties[key] === false)
+        {
+          let value = this._taskNode.properties[key]
+          if (formlyFieldConfig.props.type == 'date')
+          {
+            value = this.mrbauCommonService.getFormDateValue(new Date(value));
+          }
+          this.model[key] = value;
+        }
+
+        if (formlyFieldConfig.type == 'mrbauFormlyDuplicatedDocument')
+        {
+        this.model['ignore:taskNode'] = this.taskNode;
+        this.model['ignore:duplicateNode'] = this.duplicateNode;
+        this.model['ignore:callback'] = this.mrbauFormlyDuplicatedDocumentCallback.bind(this);
+        }
       }
     }
     if (formlyFieldConfig.fieldGroup)

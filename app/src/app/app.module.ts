@@ -107,6 +107,7 @@ import { FoerdermanagerComponent } from './custom/foerdermanager/foerdermanager.
 import { AngularSplitModule } from 'angular-split';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
+import { FormlyMatToggleModule } from '@ngx-formly/material/toggle';
 import { MatStepperModule } from '@angular/material/stepper';
 
 // custom imports Belege
@@ -281,6 +282,7 @@ registerLocaleData(localeSv);
         lazyRender: true
         }
       }),
+    FormlyMatToggleModule,
     FormlyMaterialModule
   ],
   declarations: [

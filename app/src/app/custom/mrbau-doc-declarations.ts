@@ -254,6 +254,24 @@ export const MRBauSigningStatusTypes = new Map<number, IMRBauSigningStatusTypeDa
   [EMRBauSigningStatusTypes.FINAL, {category: EMRBauSigningStatusTypes.FINAL, label: "Final", value:"Final"}],
 ]);
 
+export const enum EMRBauVerifiedInboundInvoiceType {
+  UEBERWEISUNG = 0,
+  ABBUCHER = 1,
+  INTERNE_RECHNUNG = 2,
+  GUTSCHRIFT = 3,
+}
+interface IMRBauVerifiedInboundInvoiceTypeData {
+  category: EMRBauVerifiedInboundInvoiceType,
+  label: string,
+  value: string,
+}
+export const MRBauVerifiedInboundInvoiceTypes = new Map<number, IMRBauVerifiedInboundInvoiceTypeData>([
+  [EMRBauVerifiedInboundInvoiceType.UEBERWEISUNG, {category: EMRBauVerifiedInboundInvoiceType.UEBERWEISUNG, label :"Überweisung", value : "Überweisung"}],
+  [EMRBauVerifiedInboundInvoiceType.ABBUCHER, {category: EMRBauVerifiedInboundInvoiceType.ABBUCHER, label :"Abbucher", value : "Abbucher"}],
+  [EMRBauVerifiedInboundInvoiceType.INTERNE_RECHNUNG, {category: EMRBauVerifiedInboundInvoiceType.INTERNE_RECHNUNG, label :"Interne Rechnung", value : "Interne Rechnung"}],
+  [EMRBauVerifiedInboundInvoiceType.GUTSCHRIFT, {category: EMRBauVerifiedInboundInvoiceType.GUTSCHRIFT, label :"Gutschrift", value : "Gutschrift"}],
+]);
+
 export interface IMRBauFormDefinition {
   formlyFieldConfigs : string[]; // name maps to this.mrbauFormLibraryService.name
   mandatoryRequiredProperties: string[];
@@ -1030,6 +1048,8 @@ export class MrbauArchiveModel {
             'aspect_mrba_documentIdentityDetails',
             'title_mrba_amountDetails_mrba_taxRate',
             'aspect_mrba_amountDetails_mrba_taxRate',
+            'title_mrba_verifiedInboundInvoiceType',
+            'element_mrba_verifiedInboundInvoiceType',
             'title_mrba_paymentConditionDetails',
             'aspect_mrba_paymentConditionDetails',
           ],
@@ -1040,8 +1060,6 @@ export class MrbauArchiveModel {
             'mrba:netAmount',
             'mrba:grossAmount',
             'mrba:taxRate',
-            'mrba:reviewDaysFinalInvoice',
-            'mrba:paymentTargetDays',
           ]
         },
         'STATUS_DUPLICATE' : {
@@ -1055,48 +1073,65 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [
             'workflow_formal_review',
             'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_mrba_verifiedInboundInvoiceType',
+            'label_group_netgrossPayment',
             'label_group_reviewDays',
-            'label_group_netPayment',
-            'label_group_grossPayment',
             'label_group_earlyPaymentDiscount1',
             'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
           ],
           mandatoryRequiredProperties: [
           ]
         },
         'STATUS_INVOICE_VERIFICATION' : {
           formlyFieldConfigs: [
-            'title_mrba_costCarrierDetails',
-            'aspect_mrba_costCarrierDetails',
+
             'title_mrba_verifyData',
             'aspect_mrba_verifyData',
+
             'title_mrba_verifyData2',
             'aspect_mrba_verifyData2',
 
-            'title_mrba_documentSummary',
-            'label_group_reviewDays',
-            'label_group_netPayment',
-            'label_group_grossPayment',
-            'label_group_earlyPaymentDiscount1',
-            'label_group_earlyPaymentDiscount2',
+            'title_mrba_documentSummary_large',
+            'label_group_invoiceType_archiveDate',
+            'label_group_netgrossPayment',
+            'title_mrba_costCarrierDetails',
+            'aspect_mrba_costCarrierDetails',
+            'title_mrba_taxRate',
+            'aspect_mrba_taxRate',
+            'title_mrba_verifiedInboundInvoiceType',
+            'element_mrba_verifiedInboundInvoiceType',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
           ],
           mandatoryRequiredProperties: [
             'mrba:costCarrierNumber', //d:int
             'mrba:projectName',
-            'mrba:netAmountVerified',
-            //'mrba:verifyDateValue',
-            //'mrba:paymentDateNetValue',
+            'mrba:grossAmountVerified',
+            'mrba:verifyDateValue',
+            'mrba:paymentDateNetValue',
           ]
         },
         'STATUS_INVOICE_REVIEW' : {
           formlyFieldConfigs: [
             'workflow_invoice_review',
+
             'title_mrba_verifyData',
-            'label_group_costCarrierDetails',
-            'label_group_paymentNetVerified',
-            'label_group_paymentGrossVerified',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
+            'label_group_paymentDateVerified',
+
+            'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
+            'label_group_reviewDays',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
             ],
             mandatoryRequiredProperties: [
             ]
@@ -1104,18 +1139,22 @@ export class MrbauArchiveModel {
         'STATUS_FINAL_APPROVAL' : {
           formlyFieldConfigs: [
             'workflow_invoice_approval',
-            'label_group_costCarrierDetails',
+
             'title_mrba_verifyData',
-            'label_group_paymentNetVerified',
-            'label_group_paymentGrossVerified',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
+            'label_group_paymentDateVerified',
+
             'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
             'label_group_reviewDays',
-            'label_group_netPayment',
-            'label_group_grossPayment',
             'label_group_earlyPaymentDiscount1',
             'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
           ],
           mandatoryRequiredProperties: [
           ]
@@ -1123,18 +1162,22 @@ export class MrbauArchiveModel {
         'STATUS_ACCOUNTING' : {
           formlyFieldConfigs: [
             'mrba_accountingId',
+
             'title_mrba_verifyData',
-            'label_group_costCarrierDetails',
-            'label_group_paymentNetVerified',
-            'label_group_paymentGrossVerified',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
+            'label_group_paymentDateVerified',
+
             'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
             'label_group_reviewDays',
-            'label_group_netPayment',
-            'label_group_grossPayment',
             'label_group_earlyPaymentDiscount1',
             'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
           ],
           mandatoryRequiredProperties: [
             'mrba:accountingId',

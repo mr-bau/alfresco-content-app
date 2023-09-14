@@ -327,10 +327,11 @@ export class MrbauWorkflowService {
       "mrba:grossAmount",
       "mrba:taxRate",
       "mrba:taxRateComment",
+      "mrba:taxRateMixedRate",
     ];
     for (const property of fieldList)
     {
-      if (data.taskDetailNewDocument.model[property] == null || data.taskDetailNewDocument.model[property] == "")
+      if (data.taskDetailNewDocument.model[property] === null || data.taskDetailNewDocument.model[property] === undefined || data.taskDetailNewDocument.model[property] === "")
       {
         if (association.properties[property] != null)
         {
