@@ -290,7 +290,7 @@
         "default": true,
         "filterWithContains": true,
         "aca:fields": ["cm:name", "cm:title", "cm:description", "TEXT", "TAG"],
-        "include": ["path", "allowableOperations", "properties"],
+        "include": ["path", "allowableOperations", "properties", "aspectNames"],
         "sorting": {
           "options": [
             {
