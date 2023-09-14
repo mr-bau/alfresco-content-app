@@ -470,9 +470,9 @@ export class MrbauWorkflowService {
     else if (node.nodeType == 'mrba:invoice')
     {
       query.filterQueries.push({ query: `
-      ((=TYPE:"mrba:order" OR =TYPE:"mrba:invoice" OR =TYPE:"mrba:orderNegotiationProtocol") AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}")
+      ((=TYPE:"mrba:order" OR =TYPE:"mrba:invoice" OR =TYPE:"mrba:orderNegotiationProtocol") AND (=mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" OR =mrba:costCarrierNumber:"0000"))
       OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])
-      OR (=TYPE:"mrba:deliveryNote" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" AND (!ASPECT:"mrba:referencedDeliveryNote" OR =mrba:deliveryNoteBeingReferencedCount:0))
+      OR (=TYPE:"mrba:deliveryNote" AND (=mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" OR =mrba:costCarrierNumber:"0000") AND (!ASPECT:"mrba:referencedDeliveryNote" OR =mrba:deliveryNoteBeingReferencedCount:0))
       `}); // date interval NOT SUPPORTED WITH TMDQ
     }
     else if (node.nodeType == 'mrba:invoiceReviewSheet')
