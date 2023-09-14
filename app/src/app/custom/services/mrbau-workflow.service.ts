@@ -38,8 +38,22 @@ export class MrbauWorkflowService {
     });
   }
 
-  getNewUser(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
-    return this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status);
+  getNewElevatedUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status)
+      .then((assignedUserName) => {
+        /*if (assignedUserName) {
+          resolve(assignedUserName);
+          return;
+        }*/
+        this.mrbauCommonService.progressWithElevatedAuditorsConfirmDialog(assignedUserName)
+        .then((name) => {
+          resolve(name);
+        })
+        .catch((error) => reject(error));
+      })
+      .catch((error) => reject(error));
+    });
   }
 
   createAssociationsForProposedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {

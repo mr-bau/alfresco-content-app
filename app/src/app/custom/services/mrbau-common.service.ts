@@ -106,6 +106,21 @@ export class MrbauCommonService {
     return this.contentService.getNode(nodeId, opts);
   }
 
+  getElevatedAuditorsObservable() : Observable<EcmUserModel[]> {
+    //const elevatedAuditors = ['egger', 'epluch', 'mosera', 'SchwabP', 'Wolfgang Moser'];
+    const elevatedAuditors = ['egger', 'epluch', 'SchwabP', 'Wolfgang Moser'];
+    return new Observable(observer => {
+      this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
+        data => {
+          const result = data.entries.filter(p => elevatedAuditors.includes(p.id));
+          observer.next(result)
+        },
+        err  => observer.error(err),
+        ()   => observer.complete(),
+      );
+    });
+  }
+
   getPeopleObservable() : Observable<EcmUserModel[]> {
     return new Observable(observer => {
       this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
@@ -256,7 +271,16 @@ export class MrbauCommonService {
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
-  progressWithNewUserConfirmDialog(assignedUserName : string) : Promise<string>
+  progressWithElevatedAuditorsConfirmDialog(assignedUserName : string) : Promise<string>
+  {
+    return this.doProgressWithNewUserConfirmDialog(assignedUserName, this.getElevatedAuditorsObservable());
+  }
+
+  progressWithNewUserConfirmDialog(assignedUserName : string) : Promise<string> {
+    return this.doProgressWithNewUserConfirmDialog(assignedUserName, this.getPeopleObservable());
+  }
+
+  doProgressWithNewUserConfirmDialog(assignedUserName : string, optionsList: Observable<any>) : Promise<string>
   {
     //this.model['mrbt:assignedUserName'] = task.assignedUserName;
     return new Promise((resolve, reject) =>
@@ -282,9 +306,10 @@ export class MrbauCommonService {
                         type: 'select',
                         props: {
                           label: 'Mitarbeiter',
-                          options: this.getPeopleObservable(),
+                          options: optionsList,
                           valueProp: 'id',
                           labelProp: 'displayName',
+                          required: true,
                         },
                       }
                     ]

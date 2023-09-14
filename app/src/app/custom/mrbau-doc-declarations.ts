@@ -996,7 +996,7 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_INVOICE_REVIEW,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
-            this.mrbauWorkflowService.getNewUser(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
+            this.mrbauWorkflowService.getNewElevatedUserWithDialog(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
             .then( (userName) => {resolve({state:EMRBauTaskStatus.STATUS_FINAL_APPROVAL, userName:userName}); })
             .catch( (error) => { reject(error)})
           }),
