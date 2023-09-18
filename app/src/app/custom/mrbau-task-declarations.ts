@@ -239,4 +239,5 @@ export interface IMRBauTasksCategory {
   tabName: string;
   tabBadge: number;
   searchRequest: QueryBody;
+  order: string;
 }

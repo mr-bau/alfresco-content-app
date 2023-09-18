@@ -21,6 +21,8 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
   @Input() taskCategories : IMRBauTasksCategory[] = null;
   @Output() taskSelectEvent = new EventEmitter<MRBauTask>();
 
+  SEVER_SIDE_SORTING = true;
+
   onDestroy$: Subject<boolean> = new Subject<boolean>();
 
   data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
@@ -119,7 +121,8 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
 
-    let searchRequest = currentTab.searchRequest;
+    let searchRequest : SearchRequest = JSON.parse(JSON.stringify(currentTab.searchRequest));
+    searchRequest.query.query += ' '+currentTab.order;
     searchRequest.paging = {
       skipCount: this.pagination.value.skipCount,
       maxItems:  this.pagination.value.maxItems
@@ -197,9 +200,17 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     this.taskSelectEvent.emit(task);
   }
 
+
   sortingChanged( event )
   {
-    //MR-TODO implement server side sorting
     event;
+    if (!this.SEVER_SIDE_SORTING)
+      return;
+
+    const sortingKey: string = event.detail.sortingKey;
+    const sortingDir: string = event.detail.direction;
+
+    this.taskCategories[this.selectedTab.value].order = 'ORDER BY B.'+sortingKey+' '+sortingDir.toUpperCase();
+    this.queryNewData();
   }
 }

@@ -25,14 +25,14 @@
         </data-column>
         <data-column
           key="desc"
-          sortingKey="desc"
+          sortingKey="mrbt:description"
           title="Aufgabe"
           [sortable]="true"
           class="adf-expand-cell-5 adf-ellipsis-cell">
         </data-column>
         <data-column
           key="dueDateValue"
-          sortingKey="dueDateValue"
+          sortingKey="mrbt:dueDateValue"
           title="Zu erledigen bis"
           type="date"
           format="shortDate"
@@ -42,28 +42,28 @@
         </data-column>
         <data-column
           key="status"
-          sortingKey="status"
+          sortingKey="mrbt:status"
           title="Status"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
         </data-column>
         <data-column *ngIf="this.isAdmin"
           key="createdUser"
-          sortingKey="createdUser"
+          sortingKey="cmis:createdBy"
           title="Created By"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
         </data-column>
         <data-column *ngIf="this.isAdmin"
           key="assignedUser"
-          sortingKey="assignedUser"
+          sortingKey="mrbt:assignedUserName"
           title="Assigned To"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
         >
         </data-column>
         <data-column
           key="createdDate"
-          sortingKey="createdDate"
+          sortingKey="cmis:creationDate"
           title="Datum"
           type="date"
           format="shortDate"
