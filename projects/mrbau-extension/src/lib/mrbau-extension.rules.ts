@@ -36,13 +36,26 @@ export function MrbauRuleIsMrbaArchiveDocument(context:RuleContext) : boolean {
   if (context && context.selection && !context.selection.isEmpty)
   {
     result = true;
-    context.selection.nodes.forEach( (node) => {
-      if (node.entry.aspectNames.indexOf('mrba:archiveDates') < 0)
+    for (let i = 0; i< context.selection.nodes.length; i++)
+    {
+      const node = context.selection.nodes[i];
+      if (node.entry.aspectNames)
       {
-        // not an archive document
-        result = false;
+        if (node.entry.aspectNames.indexOf('mrba:archiveDates') < 0)
+        {
+          // not an archive document
+          return false;
+        }
       }
-    });
+      else
+      {
+        if (!node.entry.properties['mrba:archivedDate'])
+        {
+          // not an archive document
+          return false;
+        }
+      }
+    }
   }
   return result;
 }
