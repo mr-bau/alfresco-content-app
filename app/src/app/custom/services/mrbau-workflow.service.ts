@@ -367,6 +367,10 @@ export class MrbauWorkflowService {
   }
 
   private addDays(date: Date, days: number) : Date {
+    if (days === undefined || days === null)
+    {
+      days = 0;
+    }
     let result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;

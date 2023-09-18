@@ -203,7 +203,7 @@ export class MrbauCommonService {
   }
 
   getFormDateValue(date: Date) : string {
-    if (date == null)
+    if (date == null || date == undefined)
     {
       return undefined;
     }
