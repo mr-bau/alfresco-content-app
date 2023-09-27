@@ -1486,32 +1486,47 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS),
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
+            .then( () =>
+            {
+              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
+            })
+            .catch( (error) => reject(error))
+            }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
+            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_FORMAL_REVIEW : EMRBauTaskStatus.STATUS_ALL_SET;
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:nextState});
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
+            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_FORMAL_REVIEW : EMRBauTaskStatus.STATUS_ALL_SET
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                // TODO
+                case EMRBauDuplicateResolveResult.IGNORE: newState = nextState; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = nextState;break;
               }
               resolve({state:newState});
             })
@@ -1519,9 +1534,48 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            .then( (userName) => {
+              resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,userName:userName}); })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_REVIEW})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW})),
+          onEnterAction : (data) => this.mrbauWorkflowService.invoiceVerificationPrefillValues(data)
+        },
+        {state : EMRBauTaskStatus.STATUS_INVOICE_REVIEW,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.getNewElevatedUserWithDialog(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
+            .then( (userName) => {resolve({state:EMRBauTaskStatus.STATUS_FINAL_APPROVAL, userName:userName}); })
+            .catch( (error) => { reject(error)})
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION})),
+        },
+        {state : EMRBauTaskStatus.STATUS_FINAL_APPROVAL,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_ACCOUNTING)
+            .then( (userName) => { resolve({state:EMRBauTaskStatus.STATUS_ACCOUNTING, userName: userName}); })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ACCOUNTING,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION})),
+        },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : (data) => new Promise<IMRBauTaskStatusAndUser>(resolve => {
+            let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
+            let prev = invoiceIsER ? EMRBauTaskStatus.STATUS_ACCOUNTING : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2
+            resolve({state:prev})
+            }
+            )},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -1531,15 +1585,35 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
           mandatoryRequiredProperties: [
             'mrba:companyId',
+            'mrba:organisationPosition',
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName'
           ]
+        },
+        'STATUS_LINK_DOCUMENTS' : {
+          formlyFieldConfigs: [],
+          mandatoryRequiredProperties: []
         },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
+            'title_mrba_invoiceType',
+            'element_mrba_invoiceType',
             'title_mrba_documentIdentityDetails',
             'aspect_mrba_documentIdentityDetails',
+            'title_mrba_amountDetails_mrba_taxRate',
+            'aspect_mrba_amountDetails_mrba_taxRate',
+            'title_mrba_verifiedInboundInvoiceType',
+            'element_mrba_verifiedInboundInvoiceType',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
           ],
           mandatoryRequiredProperties: [
+            'mrba:invoiceType',
+            'mrba:documentNumber',
             'mrba:documentDateValue',
+            'mrba:netAmount',
+            'mrba:grossAmount',
+            'mrba:taxRate',
           ]
         },
         'STATUS_DUPLICATE' : {
@@ -1547,6 +1621,121 @@ export class MrbauArchiveModel {
             'duplicated_document_form'
           ],
           mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_FORMAL_REVIEW' : {
+          formlyFieldConfigs: [
+            'workflow_formal_review',
+            'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_mrba_verifiedInboundInvoiceType',
+            'label_group_netgrossPayment',
+            'label_group_reviewDays',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_INVOICE_VERIFICATION' : {
+          formlyFieldConfigs: [
+
+            'title_mrba_verifyData',
+            'aspect_mrba_verifyData',
+
+            'title_mrba_verifyData2',
+            'aspect_mrba_verifyData2',
+
+            'title_mrba_documentSummary_large',
+            'label_group_invoiceType_archiveDate',
+            'label_group_netgrossPayment',
+            'title_mrba_costCarrierDetails',
+            'aspect_mrba_costCarrierDetails',
+            'title_mrba_taxRate',
+            'aspect_mrba_taxRate',
+            'title_mrba_verifiedInboundInvoiceType',
+            'element_mrba_verifiedInboundInvoiceType',
+            'title_mrba_paymentConditionDetails',
+            'aspect_mrba_paymentConditionDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:costCarrierNumber', //d:int
+            'mrba:projectName',
+            'mrba:grossAmountVerified',
+            'mrba:verifyDateValue',
+            'mrba:paymentDateNetValue',
+            'mrba:taxRate',
+          ]
+        },
+        'STATUS_INVOICE_REVIEW' : {
+          formlyFieldConfigs: [
+            'workflow_invoice_review',
+
+            'title_mrba_verifyData',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
+            'label_group_paymentDiscount1',
+            'label_group_paymentDiscount2',
+            'label_group_paymentDateVerified',
+
+            'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
+            'label_group_reviewDays',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        },
+        'STATUS_FINAL_APPROVAL' : {
+          formlyFieldConfigs: [
+            'workflow_invoice_approval',
+
+            'title_mrba_verifyData',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
+            'label_group_paymentDiscount1',
+            'label_group_paymentDiscount2',
+            'label_group_paymentDateVerified',
+
+            'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
+            'label_group_reviewDays',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ACCOUNTING' : {
+          formlyFieldConfigs: [
+            'mrba_accountingId',
+
+            'title_mrba_verifyData',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
+            'label_group_paymentDiscount1',
+            'label_group_paymentDiscount2',
+            'label_group_paymentDateVerified',
+
+            'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
+            'label_group_reviewDays',
+            'label_group_earlyPaymentDiscount1',
+            'label_group_earlyPaymentDiscount2',
+            'label_group_paymentTargetDays'
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:accountingId',
           ]
         },
         'STATUS_ALL_SET' : {
