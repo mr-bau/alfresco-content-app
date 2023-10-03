@@ -28,8 +28,22 @@
           sortingKey="mrbt:description"
           title="Aufgabe"
           [sortable]="true"
-          class="adf-expand-cell-5 adf-ellipsis-cell">
+          class="adf-expand-cell-3 adf-ellipsis-cell">
         </data-column>
+        <data-column  *ngIf="this.isTabDocs"
+          key="company"
+          sortingKey="mrba:companyName"
+          title="Firma"
+          [sortable]="true"
+          class="adf-expand-cell-3 adf-ellipsis-cell">
+        </data-column>
+        <data-column  *ngIf="this.isTabDocs"
+          key="kt"
+          sortingKey="mrba:costCarrierNumber"
+          title="KT/KS"
+          [sortable]="true"
+          class="adf-expand-cell-2 adf-ellipsis-cell">
+      </data-column>
         <data-column
           key="dueDateValue"
           sortingKey="mrbt:dueDateValue"

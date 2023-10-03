@@ -29,6 +29,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
   isLoading : boolean = false;
   errorMessage : string = null;
   isAdmin : boolean = false;
+  isTabDocs : boolean = false;
   selectedTab = new FormControl(0);
   selectedTask : MRBauTask = null;
 
@@ -120,7 +121,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     this.selectedTask = null;
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
-
+    this.isTabDocs = (this.selectedTab.value != 1 && this.selectedTab.value != 2);
     let searchRequest : SearchRequest = JSON.parse(JSON.stringify(currentTab.searchRequest));
     searchRequest.query.query += ' '+currentTab.order;
     searchRequest.paging = {
@@ -142,7 +143,6 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
         let results: IMRBauTaskListEntry[] = [];
 
         for (var nodeEntry of nodePaging.list.entries) {
-          //console.log(nodeEntry);
           let task = new MRBauTask();
           task.updateWithNodeData(nodeEntry.entry);
           let e : IMRBauTaskListEntry = {
@@ -152,6 +152,8 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
             assignedUser : nodeEntry.entry.properties["mrbt:assignedUserName"],
             createdDate : nodeEntry.entry.createdAt,
             dueDateValue : nodeEntry.entry.properties["mrbt:dueDateValue"],
+            company: nodeEntry.entry.properties["mrba:companyName"],
+            kt: nodeEntry.entry.properties["mrba:costCarrierNumber"],
             icon : 'material-icons://'+currentTab.tabIcon,
             status: this.mrbauTaskStatusPipe.transform(task.status),
           }
