@@ -436,7 +436,7 @@ export class MrbauWorkflowService {
         filterQueries: [
           //{ query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
           { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
-          { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+          // temporary ignore organisation unit { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
           { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
           { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
         ],
