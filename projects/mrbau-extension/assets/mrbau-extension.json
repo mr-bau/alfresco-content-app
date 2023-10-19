@@ -79,6 +79,15 @@
       ]
     },
     {
+      "id": "mrbau.extension.rule.can-modify-company",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" },
+        { "type": "rule", "value": "mrbau.extension.rule.is-mrba-archiveDocument" }
+      ]
+    },
+    {
       "id": "mrbau.extension.rule.create-can-new-task",
       "type": "core.every",
       "parameters": [
@@ -128,6 +137,11 @@
     {
       "id": "mrbau.extension.actions.start-ocr",
       "type": "MRBAU_START_OCR",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.modify-company",
+      "type": "MRBAU_MODIFY_COMPANY",
       "payload": "$(context.selection)"
     }
 
@@ -259,6 +273,18 @@
         },
         "rules": {
           "visible": "mrbau.extension.rule.can-start-ocr"
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.modify-company",
+        "title": "Firma ändern",
+        "order": 314,
+        "icon": "groups",
+        "actions": {
+          "click": "mrbau.extension.actions.modify-company"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.can-modify-company"
         }
       }
     ],

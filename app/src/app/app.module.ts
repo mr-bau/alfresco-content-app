@@ -172,6 +172,7 @@ import { MrbauFormlySelectSearchVendorComponent } from './custom/form/types/mrba
 import { MrbauFormlySelectSearchProjectComponent } from './custom/form/types/mrbau-formly-selectsearch-project.component';
 import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
 import { MrbauMaintenanceComponent } from './custom/mrbau-settings/mrbau-maintenance.component';
+import { MrbauShowModifyCompanyDialogComponent } from './custom/dialogs/mrbau-show-modify-company-dialog/mrbau-show-modify-company-dialog.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -356,6 +357,7 @@ registerLocaleData(localeSv);
     MrbauUsernameInitialsPipe,
     MRBauArchiveNodeTypeLabelPipe,
     MrbauShowDocTaskDialogComponent,
+    MrbauShowModifyCompanyDialogComponent,
     TaskSingleViewComponent,
     TasksMenuReopenComponent,
     DocInboxBookComponent,
