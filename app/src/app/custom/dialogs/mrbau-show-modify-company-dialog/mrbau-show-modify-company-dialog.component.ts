@@ -12,7 +12,7 @@ import { NodesApiService } from '@alfresco/adf-core';
   selector: 'aca-mrbau-show-doc-task-dialog',
   template: `
   <h2 mat-dialog-title>Neue Firma zuordnen</h2>
-  <p class="mat-dialog-text">Die ausgewählte Firma wird allen Dokumenten als neue Firma zugeordnet!</p>
+  <p class="mat-dialog-text">Die ausgewählte Firma wird allen gewählten Dokumenten als neue Firma zugeordnet!</p>
   <mat-dialog-content>
     <form [formGroup]="form">
       <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
