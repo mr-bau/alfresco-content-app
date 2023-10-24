@@ -11,7 +11,7 @@
     "locale": "de",
     "dateValues": {
       "defaultDateFormat": "mediumDate",
-      "defaultDateTimeFormat": "DD-MM-YY, HH:mm",
+      "defaultDateTimeFormat": "dd-MM-YY, HH:mm",
       "defaultLocale": "de-DE"
      },
     "application": {
