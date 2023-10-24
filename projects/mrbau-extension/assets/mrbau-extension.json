@@ -569,7 +569,7 @@
                 "allowUpdateOnChange": false,
                 "hideDefaultAction": true,
                 "field": "cm:created",
-                "dateFormat": "DD-MMM-YY",
+                "dateFormat": "dd-MMM-YY",
                 "maxDate": "today"
               }
             }

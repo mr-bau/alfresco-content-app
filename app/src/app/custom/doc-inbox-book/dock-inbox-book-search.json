@@ -80,7 +80,7 @@
           "allowUpdateOnChange": false,
           "hideDefaultAction": true,
           "field": "cm:created",
-          "dateFormat": "DD-MMM-YY",
+          "dateFormat": "dd-MMM-YY",
           "maxDate": "today"
         }
       }
@@ -93,7 +93,7 @@
           "allowUpdateOnChange": false,
           "hideDefaultAction": true,
           "field": "mrba:archivedDateValue",
-          "dateFormat": "DD-MMM-YY",
+          "dateFormat": "dd-MMM-YY",
           "maxDate": "today"
         }
       }
@@ -106,7 +106,7 @@
           "allowUpdateOnChange": false,
           "hideDefaultAction": true,
           "field": "mrba:documentDateValue",
-          "dateFormat": "DD-MMM-YY",
+          "dateFormat": "dd-MMM-YY",
           "maxDate": "today"
         }
       }
