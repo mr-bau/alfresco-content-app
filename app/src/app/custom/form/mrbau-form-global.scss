@@ -98,11 +98,14 @@ mat-radio-button {
   list-style-type: none;
 }
 
-.drag-and-drop-border {
+.linked-document-name {
   min-height: 36px;
   display:inline-block;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.drag-and-drop-border {
   border: 1px dashed;
   border-color: lightblue;
 }

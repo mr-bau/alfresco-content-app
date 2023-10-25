@@ -11,7 +11,7 @@ import { TranslationService } from '@alfresco/adf-core';
     <details>
       <summary>
         <button *ngIf="removeButtonVisible" mat-button (click)="onRemoveButtonClicked(node?.id)" matTooltip="Link Entfernen"><mat-icon>delete</mat-icon></button>
-        <div [adf-file-draggable]="true" class="drag-and-drop-border"
+        <div [adf-file-draggable]="uploadNewVersionButtonVisible" [class]="uploadNewVersionButtonVisible ? 'linked-document-name drag-and-drop-border' : 'linked-document-name'"
           (filesDropped)="onFilesDropped(node, $event)"
           (folderEntityDropped)="onFolderEntityDropped($event)"
           dropzone="" webkitdropzone="*" #dragAndDropArea>
