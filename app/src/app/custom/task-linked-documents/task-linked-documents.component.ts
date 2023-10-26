@@ -20,9 +20,16 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
       </li>
     </ul>-->
 
+
     <ul class="associationList">
       <li class="addMarginLeft" *ngFor="let d of associatedDocumentNodes; index as i">
-        <aca-linked-document-detail [node]="d" [removeButtonVisible]="true" (clickDocument)="onAssociationClicked(i)" (clickRemoveButton)="onRemoveAssociationClicked(i)"></aca-linked-document-detail>
+        <div *ngIf="checkType(d) === 'string'; else dataOK">
+          <button mat-button class="addMarginRight" (click)="onRemoveAssociationClicked(i)" matTooltip="Link Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
+          <a href="javascript: void(0);" (click)="onAssociationClicked(i)" matTooltip="Dokument Anzeigen">{{d}}</a>
+        </div>
+        <ng-template #dataOK>
+          <aca-linked-document-detail [node]="d" [removeButtonVisible]="true" (clickDocument)="onAssociationClicked(i)" (clickRemoveButton)="onRemoveAssociationClicked(i)"></aca-linked-document-detail>
+        </ng-template>
       </li>
     </ul>
 
@@ -42,6 +49,10 @@ export class TaskLinkedDocumentsComponent {
 
   associatedDocumentNodes: Node[] = [];
   private _associatedDocumentRefLength = 0;
+
+  checkType(x:any){
+    return typeof x;
+  }
 
   constructor(
     private mrbauCommonService : MrbauCommonService,
@@ -80,6 +91,17 @@ export class TaskLinkedDocumentsComponent {
       }
       catch(err) {
         console.log(err);
+        let errText;
+        if (err?.response?.text)
+        {
+          const errObj = JSON.parse(err?.response?.text);
+          errText = errObj?.error?.briefSummary;
+        }
+        if (!errText) {
+          errText = 'unknown';
+        }
+        const name = (this.associatedDocumentName.length > i) ? this.associatedDocumentName[i] + ' (ERROR: ' +errText+')' : '-unknown- (ERROR: ' + errText+')';
+        nodes.push(name);
       }
     }
     this.associatedDocumentNodes = nodes;
