@@ -94,8 +94,9 @@ export class MrbauCommonService {
     return this.contentService.getContentUrl(avatarId);
   }
 
-  isAdminUser() : boolean {
-    return (this.authenticationService.getEcmUsername() == 'admin')
+  isSuperUser() : boolean {
+    const userName = this.authenticationService.getEcmUsername().toLowerCase();
+    return (userName == 'admin' || userName == 'wolfgang moser');
   }
 
   //getTaskRootPath() : Promise<NodeEntry> {

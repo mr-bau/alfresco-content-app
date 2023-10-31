@@ -24,7 +24,7 @@ export class TasksMenuDeleteComponent {
     ) { }
 
   isDisabled() : boolean {
-    return !this.mrbauCommonService.isAdminUser();
+    return !this.mrbauCommonService.isSuperUser();
   }
 
   onDeleteTaskClicked()

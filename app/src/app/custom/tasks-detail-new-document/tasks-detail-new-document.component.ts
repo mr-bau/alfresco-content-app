@@ -406,7 +406,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   }
 
   isTaskAdditionalToolbarButtonsVisible() : boolean{
-    return this.mrbauCommonService.isAdminUser() || this.isTaskToolbarButtonsVisible();
+    return this.mrbauCommonService.isSuperUser() || this.isTaskToolbarButtonsVisible();
   }
 
   isTaskToolbarButtonsVisible() : boolean{

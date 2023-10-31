@@ -25,7 +25,7 @@ export class TasksMenuReopenComponent {
   isDisabled() : boolean {
     if (this.task)
     {
-      return !this.task?.isTaskInDoneState() || !this.mrbauCommonService.isAdminUser();
+      return !this.task?.isTaskInDoneState() || !this.mrbauCommonService.isSuperUser();
     }
     return false;
   }

@@ -189,7 +189,7 @@ export class TasksDetailCommonComponent implements OnInit {
   }
 
   isTaskAdditionalToolbarButtonsVisible() : boolean{
-    return this._mrbauCommonService.isAdminUser() || this.isTaskToolbarButtonsVisible();
+    return this._mrbauCommonService.isSuperUser() || this.isTaskToolbarButtonsVisible();
   }
 
   isTaskToolbarButtonsVisible() : boolean{

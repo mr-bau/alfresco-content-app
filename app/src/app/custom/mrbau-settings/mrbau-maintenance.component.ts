@@ -34,7 +34,7 @@ export class MrbauMaintenanceComponent {
     }
 
   isDisabled() : boolean {
-    return true || !this.mrbauCommonService.isAdminUser();
+    return true || !this.mrbauCommonService.isSuperUser();
   }
 
   buttonTest() {
