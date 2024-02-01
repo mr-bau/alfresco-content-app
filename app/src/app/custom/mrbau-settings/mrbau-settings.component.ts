@@ -21,6 +21,10 @@ import { MrbauConventionsService } from '../services/mrbau-conventions.service';
       </div>
 
       <div *ngIf="isUserAllowedMaintenance; else elseBlock">
+        <h3>Zuständige MA für alle Projekte Ändern</h3>
+        <div style="display:flex;gap:10px">
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMassReplaceUserProject()" matTooltip="Mitarbeiter ändern">Mitarbeiter ändern</button>
+        </div>
         <aca-maintenance-tasks></aca-maintenance-tasks>
       </div>
       <ng-template #elseBlock>Zugriff nicht erlaubt.</ng-template>
@@ -72,6 +76,10 @@ export class MrbauSettingsComponent implements OnInit {
 
   buttonEditProject() {
     this.mrbauConventionsService.editProject();
+  }
+
+  buttonMassReplaceUserProject() {
+    this.mrbauConventionsService.massReplaceUserProject();
   }
 
 }

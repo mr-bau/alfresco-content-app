@@ -26,11 +26,12 @@ export interface IMrbauDbService_mrba_vendor {
 export interface IMrbauDbService_mrba_project {
   mrba_projectId?: number,
   mrba_costCarrierNumber: string,
-  mrba_projectName : string,
+  mrba_projectName: string,
   auditor1?:string
   auditor2?:string,
   accountant?:string;
 }
+
 // SERVICE
 @Injectable({
   providedIn: 'root'
@@ -227,4 +228,27 @@ export class MrbauDbService {
       )
     );
   }
+
+
+  getProjects() : Observable<string | ICostCarrier[]>{
+    return this.request('GET', `${environment.serverUrl}/mrba_project`).pipe(
+      map((result) =>
+        { return (result.mrba_projects as IMrbauDbService_mrba_project[]).map(project =>
+          { return {
+            "mrba:projectId" : project.mrba_projectId,
+            "mrba:costCarrierNumber" : project.mrba_costCarrierNumber,
+            "mrba:projectName" : project.mrba_projectName,
+            "auditor1" : project.auditor1,
+            "auditor2" : project.auditor2,
+            "accountant":project.accountant
+            } as ICostCarrier
+          })
+        }
+      ),
+      catchError(val => {
+        return of(this.getErrorMessage(val))}
+      )
+    );
+  }
+
 }

@@ -1104,4 +1104,114 @@ export class MrbauCommonService {
     }
   )
   }
+
+  massReplaceUserProjectDialog() : Promise<string>
+  {
+    return new Promise((resolve, reject) =>
+    {
+      // dialog
+      const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+        data: {
+          dialogTitle: 'Mitarbeiter ersetzen',
+          dialogMsg: 'Mitarbeiter für alle Projekte ersetzen',
+          dialogButtonOK: 'MA ÄNDERN',
+          callQueryData: false,
+          fieldsMain: [
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                  className: 'flex-4',
+                  key: 'role',
+                  type: 'select',
+                  props: {
+                    label: 'Rolle',
+                    description: 'Rolle',
+                    options: [{value:'auditor1', label:'Bauleiter'}, {value:'auditor2', label:'Oberbauleiter'}, {value:'accountant', label:'Buchhaltung'}],
+                    required: true,
+                  }
+                }
+              ]
+            },
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                  className: 'flex-4',
+                  key: 'userOld',
+                  type: 'select',
+                  props: {
+                    label: 'Alter Mitarbeiter',
+                    description: 'Alter Mitarbeiter',
+                    options: this.getPeopleObservable(),
+                    valueProp: 'id',
+                    labelProp: 'displayName',
+                    required: true,
+                  }
+                }
+              ]
+            },
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                  className: 'flex-4',
+                  key: 'userNew',
+                  type: 'select',
+                  props: {
+                    label: 'Neuer Mitarbeiter',
+                    description: 'Neuer Mitarbeiter',
+                    options: this.getPeopleObservable(),
+                    valueProp: 'id',
+                    labelProp: 'displayName',
+                    required: true,
+                  }
+                }
+              ]
+            },
+          ],
+          payload: null
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+      if (result)
+      {
+        this.mrbauDbService.getProjects().toPromise()
+        .then(async (projects) => {
+          let counter = 0;
+          try {
+            for (let i = 0; i< projects.length; i++) {
+              const prj = projects[i] as ICostCarrier;
+              const role = result.role;
+              if (prj[role] == result.userOld) {
+                let val = {
+                  mrba_projectId : prj['mrba:projectId'],
+                  mrba_costCarrierNumber: prj['mrba:costCarrierNumber'],
+                  mrba_projectName: prj['mrba:projectName'],
+                  auditor1: prj['auditor1'],
+                  auditor2: prj['auditor2'],
+                  accountant: prj['accountant'],
+                }
+                val[role] = result.userNew;
+                await this.mrbauDbService.updateProject(val).toPromise();
+                counter++;
+              }
+            }
+            resolve('Successfully Updatet '+counter+ ' projects');
+          }
+          catch(error) {
+            reject(error);
+          }
+        })
+        .catch(error => {
+          reject(error);
+        })
+      }
+      else {
+        resolve(null);
+      }
+      });
+    })
+  }
 }

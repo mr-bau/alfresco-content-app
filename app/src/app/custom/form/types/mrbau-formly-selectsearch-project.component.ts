@@ -97,7 +97,7 @@ export class MrbauFormlySelectSearchProjectComponent  extends FieldType<FieldTyp
     const key = 'mrba:projectName';
     //field.model[key] = (data) ? data[key] : undefined;
     const control = this.field.form.get('mrba:projectName');
-    let projectData = data[key] || this.currentValue[key];
+    let projectData = data[key] || (this.currentValue ? this.currentValue[key] : '');
     if (control && data && projectData)
     {
       control.setValue(projectData);

@@ -193,6 +193,17 @@ export class MrbauConventionsService {
       this.mrbauCommonService.showError(error);
     });
   }
+
+  massReplaceUserProject() {
+    this.mrbauCommonService.massReplaceUserProjectDialog().then((result) => {
+      if (result) {
+        this.mrbauCommonService.showInfo(result);
+      }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
 /*
   private createKtString(v:ICostCarrier) : string {
     let result = v['mrba:costCarrierNumber'];
