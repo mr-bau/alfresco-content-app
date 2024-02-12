@@ -18,6 +18,10 @@ import { MrbauConventionsService } from '../services/mrbau-conventions.service';
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonNewProject()" matTooltip="Neues Projekt anlegen">Neues Projekt anlegen</button>
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonEditProject()" matTooltip="Projekt ändern">Projekt ändern</button>
         </div>
+        <h3>Aufgaben</h3>
+        <div style="display:flex;gap:10px">
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonExportOpenTaks()" matTooltip="Neues Projekt anlegen">Offene Aufgaben Exportieren</button>
+        </div>
       </div>
 
       <div *ngIf="isUserAllowedMaintenance; else elseBlock">
@@ -80,6 +84,10 @@ export class MrbauSettingsComponent implements OnInit {
 
   buttonMassReplaceUserProject() {
     this.mrbauConventionsService.massReplaceUserProject();
+  }
+
+  buttonExportOpenTaks() {
+    this.mrbauConventionsService.exportOpenDocumentTasks();
   }
 
 }

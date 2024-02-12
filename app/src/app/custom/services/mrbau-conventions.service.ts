@@ -204,6 +204,10 @@ export class MrbauConventionsService {
       this.mrbauCommonService.showError(error);
     });
   }
+
+  exportOpenDocumentTasks() {
+    this.mrbauCommonService.exportOpenDocumentTasks();
+  }
 /*
   private createKtString(v:ICostCarrier) : string {
     let result = v['mrba:costCarrierNumber'];

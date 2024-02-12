@@ -145,6 +145,8 @@ export class MRBauTask {
   createdDate?: Date;   // start date
   assignedUserName?: string; // currently assigned user Id
   dueDateValue?: Date;
+  companyName : string;
+  costCarrierNumber:string;
 
   constructor(obj?: any) {
     this.id = obj && obj.id || null;
@@ -158,6 +160,8 @@ export class MRBauTask {
     this.createdDate = obj && obj.createdDate;
     this.assignedUserName = obj && obj.assignedUserName;
     this.dueDateValue = obj && obj.dueDateValue;
+    this.companyName = obj && obj.companyName;
+    this.costCarrierNumber = obj && obj.costCarrierNumber;
   }
 
   public updateWithNodeData(node: MinimalNode){
@@ -172,6 +176,8 @@ export class MRBauTask {
     this.dueDateValue = node.properties["mrbt:dueDateValue"] ? node.properties["mrbt:dueDateValue"] : null;
     this.associatedDocumentRef = node.properties["mrbt:associatedDocumentRef"] ? node.properties["mrbt:associatedDocumentRef"] : [];
     this.associatedDocumentName = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
+    this.companyName = node.properties["mrba:companyName"] || undefined;
+    this.costCarrierNumber = node.properties["mrba:costCarrierNumber"] || undefined;
   }
 
   public isInNotifyState() : boolean {

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AuthenticationService, NodesApiService,  } from '@alfresco/adf-core';
-import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry } from '@alfresco/js-api';
+import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService, ContentService, NotificationService, AuthenticationService, NodesApiService, SearchService,  } from '@alfresco/adf-core';
+import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry, NodePaging } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
-import { EMRBauTaskStatus } from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
 import { CONST } from '../mrbau-global-declarations';
 import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData } from '@alfresco/adf-content-services';
@@ -13,6 +13,7 @@ import { ContentManagementService } from '../../services/content-management.serv
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 import { MrbauDbService } from './mrbau-db.service';
+import { MrbauExportService } from './mrbau-export.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,9 @@ export class MrbauCommonService {
     private notificationService : NotificationService,
     private authenticationService : AuthenticationService,
     private contentManagementService: ContentManagementService,
-    private mrbauDbService:MrbauDbService,
+    private mrbauDbService: MrbauDbService,
+    private searchService : SearchService,
+    private mrbauExportService : MrbauExportService,
     ) {
     }
 
@@ -1214,4 +1217,37 @@ export class MrbauCommonService {
       });
     })
   }
+
+  exportOpenDocumentTasks() {
+    const searchRequest : SearchRequest = {
+        query: {
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
+          `WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status <> ${EMRBauTaskStatus.STATUS_PAUSED} `+
+          `AND B.mrbt:category >= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category <= ${EMRBauTaskCategory.NewDocumentLast} ORDER BY B.cmis:creationDate DESC`,
+          language: 'cmis'
+        },
+        include: ['properties']
+      };
+      searchRequest.paging = {
+        skipCount: 0,
+        maxItems: 999,
+      }
+
+      this.searchService.searchByQueryBody(searchRequest).toPromise()
+      .then((nodePaging : NodePaging) => {
+        nodePaging;
+        const labels : string[] = ['AufgabeId','Aufgabe', 'StatusId', 'Status', 'Firma', 'KT/KS', 'Zugewiesen', 'DokumentId', 'DokumentName', 'erzeugt', 'zu erledigen bis'];
+        const data : any[] = [];
+        for (var nodeEntry of nodePaging.list.entries) {
+          let task = new MRBauTask();
+          task.updateWithNodeData(nodeEntry.entry);
+          const row = [task.id, task.desc, task.status, task.getStateLabel(), task.companyName, task.costCarrierNumber, task.assignedUserName, task.associatedDocumentRef[0], task.associatedDocumentName[0],this.datePipe.transform(new Date(task.createdDate),'yyyy-MM-dd'), this.datePipe.transform(new Date(task.dueDateValue),'yyyy-MM-dd')];
+          data.push(row);
+        };
+        this.mrbauExportService.downloadData(labels, data, 'Offene Dokumente');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
 }

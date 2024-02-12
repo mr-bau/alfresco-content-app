@@ -54,6 +54,7 @@
     "angular-split": "^14.1.0",
     "async-mutex": "^0.4.0",
     "echarts": "^5.4.0",
+    "file-saver": "^2.0.5",
     "minimatch-browser": "^1.0.0",
     "moment": "^2.29.4",
     "moment-es6": "1.0.0",
