@@ -1220,34 +1220,83 @@ export class MrbauCommonService {
 
   exportOpenDocumentTasks() {
     const searchRequest : SearchRequest = {
-        query: {
-          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
-          `WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status <> ${EMRBauTaskStatus.STATUS_PAUSED} `+
-          `AND B.mrbt:category >= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category <= ${EMRBauTaskCategory.NewDocumentLast} ORDER BY B.cmis:creationDate DESC`,
-          language: 'cmis'
-        },
-        include: ['properties']
-      };
-      searchRequest.paging = {
-        skipCount: 0,
-        maxItems: 999,
-      }
-
-      this.searchService.searchByQueryBody(searchRequest).toPromise()
-      .then((nodePaging : NodePaging) => {
-        nodePaging;
-        const labels : string[] = ['AufgabeId','Aufgabe', 'StatusId', 'Status', 'Firma', 'KT/KS', 'Zugewiesen', 'DokumentId', 'DokumentName', 'erzeugt', 'zu erledigen bis'];
-        const data : any[] = [];
-        for (var nodeEntry of nodePaging.list.entries) {
-          let task = new MRBauTask();
-          task.updateWithNodeData(nodeEntry.entry);
-          const row = [task.id, task.desc, task.status, task.getStateLabel(), task.companyName, task.costCarrierNumber, task.assignedUserName, task.associatedDocumentRef[0], task.associatedDocumentName[0],this.datePipe.transform(new Date(task.createdDate),'yyyy-MM-dd'), this.datePipe.transform(new Date(task.dueDateValue),'yyyy-MM-dd')];
-          data.push(row);
-        };
-        this.mrbauExportService.downloadData(labels, data, 'Offene Dokumente');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      query: {
+        query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
+        `WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status <> ${EMRBauTaskStatus.STATUS_PAUSED} `+
+        `AND B.mrbt:category >= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category <= ${EMRBauTaskCategory.NewDocumentLast} ORDER BY B.cmis:creationDate DESC`,
+        language: 'cmis'
+      },
+      include: ['properties']
+    };
+    searchRequest.paging = {
+      skipCount: 0,
+      maxItems: 999,
     }
+
+    this.searchService.searchByQueryBody(searchRequest).toPromise()
+    .then((nodePaging : NodePaging) => {
+      nodePaging;
+      const labels : string[] = ['AufgabeId','Aufgabe', 'StatusId', 'Status', 'Firma', 'KT/KS', 'Zugewiesen', 'DokumentId', 'DokumentName', 'erzeugt', 'zu erledigen bis'];
+      const data : any[] = [];
+      for (var nodeEntry of nodePaging.list.entries) {
+        let task = new MRBauTask();
+        task.updateWithNodeData(nodeEntry.entry);
+        const row = [task.id, task.desc, task.status, task.getStateLabel(), task.companyName, task.costCarrierNumber, task.assignedUserName, task.associatedDocumentRef[0], task.associatedDocumentName[0],this.datePipe.transform(new Date(task.createdDate),'yyyy-MM-dd'), this.datePipe.transform(new Date(task.dueDateValue),'yyyy-MM-dd')];
+        data.push(row);
+      };
+      this.mrbauExportService.downloadData(labels, data, 'Offene Dokumente');
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
+  replaceCompanyInfoByName(field: string, oldName : string, newName: string) {
+    let searchRequest : SearchRequest = {
+      query: {
+        query: 'TYPE:"cm:content"',
+        language: 'afts'
+      },
+      filterQueries: [
+        //{ query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
+        { query: `=${field}:"${oldName}"`},
+        // temporary ignore organisation unit { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+        { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
+      ],
+      fields: [
+        // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+        'id', 'name', 'nodeType', 'isFolder', 'isFile', 'modifiedAt', 'modifiedByUser', 'createdAt', 'createdByUser',
+      ],
+      include: ['properties', 'path', 'allowableOperations'],
+      sort: [
+        {
+          type: 'FIELD',
+          field: 'TYPE',
+          ascending: false
+        },
+        {
+          type: 'FIELD',
+          field: 'cm:name',
+          ascending: true
+        }
+      ]
+    };
+
+    this.searchService.searchByQueryBody(searchRequest).toPromise()
+    .then((nodePaging : NodePaging) => {
+      nodePaging;
+      console.log('found: '+nodePaging.list.entries.length);
+      for (var nodeEntry of nodePaging.list.entries) {
+        console.log(nodeEntry.entry.id+' '+nodeEntry.entry.properties[field]);
+        //console.log(nodeEntry.entry);
+        let nodeBodyUpdate : NodeBodyUpdate = {"properties": { }};
+        nodeBodyUpdate.properties[field] = newName;
+        this.contentService.nodesApi.updateNode(nodeEntry.entry.id, nodeBodyUpdate);
+      };
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
 }

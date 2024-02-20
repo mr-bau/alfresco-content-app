@@ -30,6 +30,11 @@ import { MrbauConventionsService } from '../services/mrbau-conventions.service';
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMassReplaceUserProject()" matTooltip="Mitarbeiter ändern">Mitarbeiter ändern</button>
         </div>
         <aca-maintenance-tasks></aca-maintenance-tasks>
+        <h3>Test</h3>
+        <div style="display:flex;gap:10px">
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="test()" matTooltip="ReplaceCompanyInfo">Test</button>
+          <!--<button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="replaceCompanyInfoMoserFranz()" matTooltip="ReplaceCompanyInfo">ReplaceCompanyInfo</button>-->
+        </div>
       </div>
       <ng-template #elseBlock>Zugriff nicht erlaubt.</ng-template>
     </div>
@@ -88,6 +93,14 @@ export class MrbauSettingsComponent implements OnInit {
 
   buttonExportOpenTaks() {
     this.mrbauConventionsService.exportOpenDocumentTasks();
+  }
+
+  test() {
+    alert('TODO');
+  }
+
+  replaceCompanyInfoMoserFranz() {
+    //this.mrbauConventionsService.replaceCompanyInfoByName('mrba:companyName', 'Moser Franz GmbH', 'Franz Moser GmbH');
   }
 
 }

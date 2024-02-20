@@ -208,6 +208,10 @@ export class MrbauConventionsService {
   exportOpenDocumentTasks() {
     this.mrbauCommonService.exportOpenDocumentTasks();
   }
+
+  replaceCompanyInfoByName(field : string, oldName : string, newName: string) {
+    this.mrbauCommonService.replaceCompanyInfoByName(field, oldName, newName);
+  }
 /*
   private createKtString(v:ICostCarrier) : string {
     let result = v['mrba:costCarrierNumber'];
