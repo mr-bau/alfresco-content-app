@@ -102,6 +102,18 @@ export class MrbauCommonService {
     return (userName == 'admin' || userName == 'wolfgang moser');
   }
 
+  isSettingsUser() : boolean {
+    const user = this.authenticationService.getEcmUsername().toLowerCase();
+    if (user == "admin" ||
+        user == "wolfgang moser" ||
+        user == "skofitsch" ||
+        user == "pichlkastner" )
+    {
+      return true;
+    }
+    return false;
+  }
+
   //getTaskRootPath() : Promise<NodeEntry> {
   //  return this.nodesApiService.nodesApi.getNode('-root-', { includeSource: true, include: ['path'], relativePath: MRBauTask.TASK_RELATIVE_ROOT_PATH });
   //}
@@ -112,7 +124,7 @@ export class MrbauCommonService {
 
   getElevatedAuditorsObservable() : Observable<EcmUserModel[]> {
     //const elevatedAuditors = ['egger', 'epluch', 'mosera', 'SchwabP', 'Wolfgang Moser'];
-    const elevatedAuditors = ['egger', 'epluch', 'SchwabP', 'Wolfgang Moser'];
+    const elevatedAuditors = ['egger', 'epluch', 'mosera', 'SchwabP', 'Wolfgang Moser', 'strohmayer', 'janesch', 'scharner', 'rauter'];
     return new Observable(observer => {
       this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
         data => {

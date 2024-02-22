@@ -1,6 +1,6 @@
-import { AuthenticationService } from '@alfresco/adf-core';
 import { Component, OnInit } from '@angular/core';
 import { MrbauConventionsService } from '../services/mrbau-conventions.service';
+import { MrbauCommonService } from '../services/mrbau-common.service';
 
 @Component({
   selector: 'aca-mrbau-settings',
@@ -46,28 +46,13 @@ export class MrbauSettingsComponent implements OnInit {
   isUserAllowedMaintenance = false;
 
   ngOnInit(): void {
-    this.isUserAllowed = false;
-    this.isUserAllowedMaintenance = false;
-
-    const user = this.authenticationService.getEcmUsername().toLowerCase();
-    if (user == "admin" ||
-        user == "wolfgang moser" ||
-        user == "skofitsch" ||
-        user == "pichlkastner" )
-    {
-      this.isUserAllowed = true;
-    }
-
-    if (user == "admin" ||
-        user == "wolfgang moser" )
-    {
-      this.isUserAllowedMaintenance = true;
-    }
+    this.isUserAllowed = this.mrbauCommonService.isSettingsUser();
+    this.isUserAllowedMaintenance = this.mrbauCommonService.isSuperUser();
   }
 
   constructor(
-    private authenticationService: AuthenticationService,
-    private mrbauConventionsService: MrbauConventionsService
+    private mrbauConventionsService: MrbauConventionsService,
+    private mrbauCommonService: MrbauCommonService
     ) {
   }
 
