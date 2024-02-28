@@ -5,6 +5,7 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
 import { Store } from '@ngrx/store';
 import { AppStore, NavigateToParentFolder } from '@alfresco/aca-shared/store';
 import { TranslationService } from '@alfresco/adf-core';
+
 @Component({
   selector: 'aca-linked-document-detail',
   template: `
@@ -16,7 +17,9 @@ import { TranslationService } from '@alfresco/adf-core';
           (folderEntityDropped)="onFolderEntityDropped($event)"
           dropzone="" webkitdropzone="*" #dragAndDropArea>
           <ng-content></ng-content>
-          {{prefix}}<a href="javascript: void(0);" (click)="onNodeClicked()" matTooltip="Dokument Anzeigen">{{node?.name}}</a>
+          {{prefix}}<a href="javascript: void(0);" (click)="onNodeClicked()"
+            [cdkContextMenuTriggerFor]="contextmenu"
+            matTooltip="Dokument Anzeigen">{{node?.name}}</a>
           <button *ngIf="uploadNewVersionButtonVisible" mat-button
             matTooltip="Neue Version hochladen"
             [disabled]="!isVersionUpdateAllowed()"
@@ -32,6 +35,11 @@ import { TranslationService } from '@alfresco/adf-core';
             >
           </button>
         </div>
+        <ng-template #contextmenu>
+          <div class="mrbau-context-menu" cdkMenu>
+            <button class="mrbau-context-menu-item" (click)="openInNewWindow()" cdkMenuItem>In neuem Fenster anzeigen</button>
+          </div>
+        </ng-template>
       </summary>
       <ul class="node-detail-list">
         <li class="status">Pfad: <a href="javascript: void(0);" (click)="goToLocation()" matTooltip="In Ordner Anzeigen">{{this.nodePath || ('APP.BROWSE.SEARCH.UNKNOWN_LOCATION' | translate)}}</a></li>
@@ -42,9 +50,43 @@ import { TranslationService } from '@alfresco/adf-core';
       </ul>
     </details>
   `,
-  styleUrls: [],
+  styles: [`
+    .mrbau-context-menu {
+      display: inline-flex;
+      flex-direction: column;
+      min-width: 180px;
+      max-width: 280px;
+      background-color: rgb(255, 255, 255);
+      padding: 6px 0;
+      border: 1px solid black;
+    }
+
+    .mrbau-context-menu-item {
+      background-color: transparent;
+      cursor: pointer;
+      border: none;
+
+      user-select: none;
+      min-width: 64px;
+      line-height: 36px;
+      padding: 0 16px;
+
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      flex: 1;
+    }
+
+    .mrbau-context-menu-item:hover {
+      background-color: rgb(208, 208, 208);
+    }
+
+    .mrbau-context-menu-item:active {
+      background-color: rgb(170, 170, 170);
+    }`
+  ],
 })
-export class LinkedDocumentDetailComponent  {
+export class LinkedDocumentDetailComponent {
   @Input() prefix : string = '';
   //@Input() node : Node = new Node();
   nodePath : String;
@@ -60,15 +102,20 @@ export class LinkedDocumentDetailComponent  {
   @Input() uploadNewVersionButtonVisible : boolean = false;
   @Output() clickDocument = new EventEmitter();
   @Output() clickRemoveButton = new EventEmitter<string>();
-
-
   constructor(
     private nodePermissionService: NodePermissionService,
     private mrbauCommonService : MrbauCommonService,
     private translationService: TranslationService,
     private store: Store<AppStore>,
   )
-  {}
+  {
+  }
+
+  openInNewWindow() {
+    const path = window.location.origin+'/#/search;q=ID:%22workspace:%2F%2FSpacesStore%2F'+this.node.id+'%22/(viewer:view/'+this.node.id+')';
+    console.log(path);
+    window.open(path, "_blank");
+  }
 
   goToLocation() {
     if (this.node && this.node.path) {

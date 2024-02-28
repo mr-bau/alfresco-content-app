@@ -174,6 +174,7 @@ import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.c
 import { MrbauMaintenanceComponent } from './custom/mrbau-settings/mrbau-maintenance.component';
 import { MrbauShowModifyCompanyDialogComponent } from './custom/dialogs/mrbau-show-modify-company-dialog/mrbau-show-modify-company-dialog.component';
 import { TaskMenuFinishnowComponent }  from './custom/task-menu-finishnow/task-menu-finishnow.component';
+import { CdkMenuModule } from '@angular/cdk/menu';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -230,6 +231,7 @@ registerLocaleData(localeSv);
 
     MatTableModule,
     MatSortModule,
+    CdkMenuModule,
     MatPaginatorModule,
     NgxEchartsModule.forRoot({
        // This will import all modules from echarts.
