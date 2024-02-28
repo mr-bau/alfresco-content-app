@@ -15,6 +15,11 @@ import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 import { MrbauDbService } from './mrbau-db.service';
 import { MrbauExportService } from './mrbau-export.service';
 
+export interface IMrbauReplaceCompanyInfoData {
+  key:string,
+  old: any,
+  new:any
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -1263,7 +1268,10 @@ export class MrbauCommonService {
     });
   }
 
-  replaceCompanyInfoByName(field: string, oldName : string, newName: string) {
+  replaceCompanyInfoByName(data : IMrbauReplaceCompanyInfoData[])
+  {
+    const field = data[0].key;
+    const oldName = data[0].old;
     let searchRequest : SearchRequest = {
       query: {
         query: 'TYPE:"cm:content"',
@@ -1295,15 +1303,17 @@ export class MrbauCommonService {
     };
 
     this.searchService.searchByQueryBody(searchRequest).toPromise()
-    .then((nodePaging : NodePaging) => {
+    .then(async (nodePaging : NodePaging) => {
       nodePaging;
       console.log('found: '+nodePaging.list.entries.length);
+      let nodeBodyUpdate : NodeBodyUpdate = {"properties": { }};
+      for (let i=0; i< data.length; i++) {
+        nodeBodyUpdate.properties[data[i].key] = data[i].new;
+      }
+      console.log(nodeBodyUpdate);
       for (var nodeEntry of nodePaging.list.entries) {
         console.log(nodeEntry.entry.id+' '+nodeEntry.entry.properties[field]);
-        //console.log(nodeEntry.entry);
-        let nodeBodyUpdate : NodeBodyUpdate = {"properties": { }};
-        nodeBodyUpdate.properties[field] = newName;
-        this.contentService.nodesApi.updateNode(nodeEntry.entry.id, nodeBodyUpdate);
+        await this.contentService.nodesApi.updateNode(nodeEntry.entry.id, nodeBodyUpdate);
       };
     })
     .catch((error) => {

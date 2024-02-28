@@ -32,8 +32,8 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
         <aca-maintenance-tasks></aca-maintenance-tasks>
         <h3>Test</h3>
         <div style="display:flex;gap:10px">
-          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="test()" matTooltip="ReplaceCompanyInfo">Test</button>
-          <!--<button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="replaceCompanyInfoMoserFranz()" matTooltip="ReplaceCompanyInfo">ReplaceCompanyInfo</button>-->
+
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="replaceCompanyInfo()" matTooltip="ReplaceCompanyInfo">ReplaceCompanyInfo</button>
         </div>
       </div>
       <ng-template #elseBlock>Zugriff nicht erlaubt.</ng-template>
@@ -80,12 +80,16 @@ export class MrbauSettingsComponent implements OnInit {
     this.mrbauConventionsService.exportOpenDocumentTasks();
   }
 
-  test() {
-    alert('TODO');
-  }
+  replaceCompanyInfo() {
+    alert('disabled');
+    /*
+    this.mrbauConventionsService.replaceCompanyInfoByName(
+      [
+        {key:'mrba:companyName', old:'Schilowsky Baumarkt und Baustoffe', new:'Schilowsky Baustoffhandel GmbH'},
+        {key:'mrba:companyVatID', old:'ATU45606606', new:'ATU79329825'},
+      ]
+    );*/
 
-  replaceCompanyInfoMoserFranz() {
-    //this.mrbauConventionsService.replaceCompanyInfoByName('mrba:companyName', 'Moser Franz GmbH', 'Franz Moser GmbH');
   }
 
 }

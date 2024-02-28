@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../mrbau-task-declarations';
-import { MrbauCommonService } from './mrbau-common.service';
+import { IMrbauReplaceCompanyInfoData, MrbauCommonService } from './mrbau-common.service';
 import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauDocumentCategory, MRBauSigningStatusTypes, MRBauVerifiedInboundInvoiceTypes, MRBauWorkflowStateCallbackData, OrganisationPositionTypes } from '../mrbau-doc-declarations';
 
 import jsonMrbauAppConfig from '../../../../../projects/mrbau-extension/assets/json/mrbau-app-config.json';
@@ -209,8 +209,8 @@ export class MrbauConventionsService {
     this.mrbauCommonService.exportOpenDocumentTasks();
   }
 
-  replaceCompanyInfoByName(field : string, oldName : string, newName: string) {
-    this.mrbauCommonService.replaceCompanyInfoByName(field, oldName, newName);
+  replaceCompanyInfoByName(data : IMrbauReplaceCompanyInfoData[]) {
+    this.mrbauCommonService.replaceCompanyInfoByName(data);
   }
 /*
   private createKtString(v:ICostCarrier) : string {
