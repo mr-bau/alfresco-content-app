@@ -173,7 +173,7 @@ import { MrbauFormlySelectSearchProjectComponent } from './custom/form/types/mrb
 import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
 import { MrbauMaintenanceComponent } from './custom/mrbau-settings/mrbau-maintenance.component';
 import { MrbauShowModifyCompanyDialogComponent } from './custom/dialogs/mrbau-show-modify-company-dialog/mrbau-show-modify-company-dialog.component';
-import { TaskMenuFinishnowComponent }  from './custom/task-menu-finishnow/task-menu-finishnow.component';
+import { TasksMenuFinishnowComponent }  from './custom/tasks-menu-finishnow/tasks-menu-finishnow.component';
 import { CdkMenuModule } from '@angular/cdk/menu';
 
 registerLocaleData(localeFr);
@@ -366,7 +366,7 @@ registerLocaleData(localeSv);
     DocInboxBookComponent,
     MrbauSearchFacetChipComponent,
     MrbauSearchFacetFieldComponent,
-    TaskMenuFinishnowComponent,
+    TasksMenuFinishnowComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

@@ -17,7 +17,7 @@ import { NodeBodyUpdate } from '@alfresco/js-api';
     </button>
   `,
 })
-export class TaskMenuFinishnowComponent {
+export class TasksMenuFinishnowComponent {
   @Input() task: MRBauTask;
   @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
 
@@ -29,7 +29,8 @@ export class TaskMenuFinishnowComponent {
     ) { }
 
   isVisible() : boolean {
-    return !this.task?.isTaskInDoneState() && this.task?.status == EMRBauTaskStatus.STATUS_INVOICE_REVIEW && this.mrbauCommonService.isSettingsUser();
+    return this.mrbauCommonService.isSettingsUser() &&
+    (this.task?.status == EMRBauTaskStatus.STATUS_INVOICE_REVIEW || this.task?.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW);
   }
 
   onFinishNowClicked()

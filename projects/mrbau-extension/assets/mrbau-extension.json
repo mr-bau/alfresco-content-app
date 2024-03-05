@@ -18,7 +18,7 @@
       "name": "M&R DMS",
       "logo": "assets/mrbau-extension/svg/logo_mr.svg",
       "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
-      "copyright": "© 2022-2023 M&R Holding GmbH, © 2017-2023 Alfresco Software, Inc. Alle Rechte vorbehalten."
+      "copyright": "© 2022-2024 M&R Holding GmbH, © 2017-2024 Alfresco Software, Inc. Alle Rechte vorbehalten."
     }
   },
   "routes": [
