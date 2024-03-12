@@ -112,7 +112,10 @@ export class MrbauCommonService {
     if (user == "admin" ||
         user == "wolfgang moser" ||
         user == "skofitsch" ||
-        user == "pichlkastner" )
+        user == "pichlkastner" ||
+        user == "vaschauner" ||
+        user == "daniel"
+        )
     {
       return true;
     }
