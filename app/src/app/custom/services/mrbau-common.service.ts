@@ -131,12 +131,11 @@ export class MrbauCommonService {
   }
 
   getElevatedAuditorsObservable() : Observable<EcmUserModel[]> {
-    //const elevatedAuditors = ['egger', 'epluch', 'mosera', 'SchwabP', 'Wolfgang Moser'];
-    const elevatedAuditors = ['egger', 'epluch', 'mosera', 'SchwabP', 'Wolfgang Moser', 'strohmayer', 'janesch', 'scharner', 'rauter'];
+    const elevatedAuditors = ['egger', 'epluch', 'mosera', 'schwabp', 'wolfgang moser', 'strohmayer', 'janesch', 'scharner', 'rauter', 'kogler', 'mosermoessler'];
     return new Observable(observer => {
       this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
         data => {
-          const result = data.entries.filter(p => elevatedAuditors.includes(p.id));
+          const result = data.entries.filter(p => elevatedAuditors.includes(p.id.toLocaleLowerCase()));
           observer.next(result)
         },
         err  => observer.error(err),
