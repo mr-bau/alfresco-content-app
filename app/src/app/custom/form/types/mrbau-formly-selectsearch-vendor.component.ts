@@ -101,6 +101,7 @@ export class MrbauFormlySelectSearchVendorComponent  extends FieldType<FieldType
     result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
     result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
     result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
+    result += ' ('+v['mrba:companyId']+')';
     return result;
   }
 
