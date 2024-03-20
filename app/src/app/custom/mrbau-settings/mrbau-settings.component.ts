@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MrbauConventionsService } from '../services/mrbau-conventions.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauDbService } from '../services/mrbau-db.service';
+import { NodeBodyUpdate, ResultSetPaging, SearchRequest } from '@alfresco/js-api';
 
 @Component({
   selector: 'aca-mrbau-settings',
@@ -37,6 +38,9 @@ import { MrbauDbService } from '../services/mrbau-db.service';
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="replaceCompanyInfo()" matTooltip="ReplaceCompanyInfo">ReplaceCompanyInfo</button>
 
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMassReplaceSpecific()" matTooltip="Mass Replace Specific">Mass Replace Specific</button>
+
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonFixDocumentNameByCompanyProperty()" matTooltip="Fix Document Name By Company Property">Fix Document Name By Company Property</button>
+
         </div>
 
       </div>
@@ -84,6 +88,69 @@ export class MrbauSettingsComponent implements OnInit {
 
   buttonExportOpenTaks() {
     this.mrbauConventionsService.exportOpenDocumentTasks();
+  }
+
+  private escapeName(val : string) : string {
+    return val.replace(/["/]/g,'_');
+  }
+
+  async buttonFixDocumentNameByCompanyProperty() {
+     let query : SearchRequest = {
+      query: {
+        query: 'TYPE:"cm:content"',
+        language: 'afts'
+      },
+      paging: {
+        maxItems:99,
+        skipCount:0
+      },
+      filterQueries: [
+        { query: '=SITE:belegsammlung'},
+      ],
+      fields: [
+        // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+        'id',
+        'name',
+        'nodeType',
+        'isFolder',
+        'isFile',
+        'modifiedAt',
+        'modifiedByUser',
+        'createdAt',
+        'createdByUser',
+      ],
+      include: ['properties', 'path', 'allowableOperations'],
+      sort: []
+    };
+    let count = 0;
+    try {
+      let result : ResultSetPaging = null;
+      while (result == null || result.list.pagination.hasMoreItems) {
+        result = await this.mrbauCommonService.queryNodes(query);
+        console.log('Pagination '+result.list.pagination.skipCount+' '+result.list.pagination.count);
+        for (let i=0; i< result.list.entries.length; i++) {
+          const item = result.list.entries[i];
+          const entry = item.entry;
+          if (entry.properties && entry.properties['mrba:companyName'] && entry.name.indexOf(this.escapeName(entry.properties['mrba:companyName'])) < 0) {
+            console.log(entry.id+' '+entry.name+' '+entry.properties['mrba:companyName']);
+            let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrba:companyName": entry.properties['mrba:companyName']+'_'}};
+            await this.mrbauCommonService.updateNode(entry.id, nodeBodyUpdate);
+            nodeBodyUpdate = {"properties": {"mrba:companyName": entry.properties['mrba:companyName']}};
+            await this.mrbauCommonService.updateNode(entry.id, nodeBodyUpdate);
+            count++;
+            if (count > 10) {
+              console.log('limit reached');
+              return;
+            }
+          }
+        }
+        query.paging.skipCount += result.list.pagination.count;
+      }
+    }
+    catch(error) {
+       console.log(error);
+    }
+    console.log('fin');
   }
 
   buttonMassReplaceSpecific() {

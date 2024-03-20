@@ -225,6 +225,11 @@ export class MrbauCommonService {
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
+  updateNode(nodeId: string, nodeBodyUpdate : NodeBodyUpdate) :  Promise<NodeEntry>
+  {
+    return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
+  }
+
   getFormDateValue(date: Date) : string {
     if (date == null || date == undefined)
     {
