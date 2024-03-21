@@ -60,7 +60,7 @@
       "component": {
           "selector": "check-list",
           "settings": {
-            "allowUpdateOnChange": false,
+            "allowUpdateOnChange": true,
             "hideDefaultAction": true,
             "field" : "",
             "options": [
@@ -77,10 +77,10 @@
       "component": {
         "selector": "date-range",
         "settings": {
-          "allowUpdateOnChange": false,
+          "allowUpdateOnChange": true,
           "hideDefaultAction": true,
           "field": "cm:created",
-          "dateFormat": "dd-MMM-YY",
+          "dateFormat": "DD-MMM-YY",
           "maxDate": "today"
         }
       }
@@ -90,10 +90,10 @@
       "component": {
         "selector": "date-range",
         "settings": {
-          "allowUpdateOnChange": false,
+          "allowUpdateOnChange": true,
           "hideDefaultAction": true,
           "field": "mrba:archivedDateValue",
-          "dateFormat": "dd-MMM-YY",
+          "dateFormat": "DD-MMM-YY",
           "maxDate": "today"
         }
       }
@@ -103,10 +103,10 @@
       "component": {
         "selector": "date-range",
         "settings": {
-          "allowUpdateOnChange": false,
+          "allowUpdateOnChange": true,
           "hideDefaultAction": true,
           "field": "mrba:documentDateValue",
-          "dateFormat": "dd-MMM-YY",
+          "dateFormat": "DD-MMM-YY",
           "maxDate": "today"
         }
       }

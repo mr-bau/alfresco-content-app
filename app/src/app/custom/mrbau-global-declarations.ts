@@ -1,6 +1,5 @@
 import { NodeEntry, RequestFields, RequestInclude, VersionEntry } from '@alfresco/js-api';
 
-export const MRBAU_DATE_FORMAT = 'dd-MM-yyyy';
 export class CONST {
 
 

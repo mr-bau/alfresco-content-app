@@ -11,7 +11,7 @@
     "locale": "de",
     "dateValues": {
       "defaultDateFormat": "mediumDate",
-      "defaultDateTimeFormat": "dd-MM-YY, HH:mm",
+      "defaultDateTimeFormat": "dd-MM-yyyy, HH:mm",
       "defaultLocale": "de-DE"
      },
     "application": {
@@ -569,7 +569,7 @@
                 "allowUpdateOnChange": false,
                 "hideDefaultAction": true,
                 "field": "cm:created",
-                "dateFormat": "dd-MMM-YY",
+                "dateFormat": "DD-MMM-YY",
                 "maxDate": "today"
               }
             }
