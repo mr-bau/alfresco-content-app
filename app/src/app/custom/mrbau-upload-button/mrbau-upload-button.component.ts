@@ -10,9 +10,10 @@ import { Node } from '@alfresco/js-api';
 @Component({
   selector: 'aca-mrbau-upload-button',
   template: `
-    <button mat-raised-button type="button" color="primary" (click)="uploadSingleFile.click()" [matTooltip]="tooltip" [disabled]="disabled">
+<!--
+    <button mat-raised-button type="button" color="primary" (click)="uploadSingleFile.click()" [disabled]="disabled">
       <mat-icon>file_upload</mat-icon>
-      {{this.staticTitle}}
+      Dokument Hochladen
       <input #uploadSingleFile
         id="upload-single-file"
         data-automation-id="upload-single-file"
@@ -20,21 +21,35 @@ import { Node } from '@alfresco/js-api';
         name="uploadFiles"
         accept="{{acceptedFilesType}}"
         [attr.disabled]="isButtonDisabled()"
-        [title]="tooltip"
+        title="Upload Dokument"
         (change)="onFilesAdded($event)"
         (click)="onClickUploadButton()">
     </button>
+-->
+    <button mat-button mat-raised-button color="primary" [matMenuTriggerFor]="uploadButtonMenu" [disabled]="disabled"><mat-icon>file_upload</mat-icon>Dokument Hochladen</button>
+    <mat-menu #uploadButtonMenu="matMenu">
+      <button mat-menu-item (click)="uploadFile('mrba:invoiceReviewSheet')" [disabled]="auditSheetDisabled">Prüfblatt Hochladen</button>
+      <button mat-menu-item (click)="uploadFile('mrba:miscellaneousDocument')">Sonstiges Dokument Hochladen</button>
+    </mat-menu>
+    <input #uploadSingleFile
+        id="upload-single-file"
+        data-automation-id="upload-single-file"
+        [type]="file ? 'button' : 'file'"
+        name="uploadFiles"
+        accept="{{acceptedFilesType}}"
+        [attr.disabled]="isButtonDisabled()"
+        (change)="onFilesAdded($event)"
+        (click)="onClickUploadButton()">
   `,
   styles: ['input{display :none;}']
 })
 export class MrbauUploadButtonComponent extends UploadBase implements OnInit, OnChanges, NodeAllowableOperationSubject  {
-  @Input() staticTitle : 'Prüfblatt Hochladen';
-  @Input() tooltip : 'Rechnungs-Prüfblatt hochladen'
-  @Input() file: File;
+  @Input() auditSheetDisabled : boolean = false;
+  file: File;
 
   /** Emitted when create permission is missing. */
-  @Output()
-  permissionEvent: EventEmitter<PermissionModel> = new EventEmitter<PermissionModel>();
+  @Output() permissionEvent: EventEmitter<PermissionModel> = new EventEmitter<PermissionModel>();
+  @Output() uploadNodeTypeEvent: EventEmitter<string> = new EventEmitter<string>();
 
   private hasAllowableOperations: boolean = false;
   protected permissionValue: Subject<boolean> = new Subject<boolean>();
@@ -52,7 +67,7 @@ export class MrbauUploadButtonComponent extends UploadBase implements OnInit, On
     this.permissionValue.subscribe((permission: boolean) => {
         this.hasAllowableOperations = permission;
     });
-}
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     const rootFolderId = changes['rootFolderId'];
@@ -61,16 +76,27 @@ export class MrbauUploadButtonComponent extends UploadBase implements OnInit, On
     }
   }
 
+  uploadFile(nodeType:string){
+    this.uploadNodeTypeEvent.emit(nodeType);
+    let element : HTMLElement = document.getElementById('upload-single-file') as HTMLElement;
+    if (element) {
+      element.click();
+    }
+  }
+
   isButtonDisabled(): boolean {
     return this.disabled ? true : undefined;
   }
 
   onFilesAdded($event: any): void {
+    console.log('onFilesAdded');
     const files: File[] = FileUtils.toFileArray($event.currentTarget.files);
-
+    console.log(files);
     if (this.hasAllowableOperations) {
+      console.log('1');
         this.uploadFiles(files);
     } else {
+      console.log('2');
         this.permissionEvent.emit(new PermissionModel({ type: 'content', action: 'upload', permission: 'create' }));
     }
     // reset the value of the input file
@@ -78,11 +104,13 @@ export class MrbauUploadButtonComponent extends UploadBase implements OnInit, On
   }
 
   onClickUploadButton(): void {
+      console.log('onClickUploadButton');
       if (this.file) {
           const files: File[] = [this.file];
-
+          console.log(files);
           if (this.hasAllowableOperations) {
-              this.uploadFiles(files);
+            console.log(files);
+            this.uploadFiles(files);
           } else {
               this.permissionEvent.emit(new PermissionModel({ type: 'content', action: 'upload', permission: 'create' }));
           }

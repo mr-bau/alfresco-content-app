@@ -509,9 +509,14 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     model;
   }
 
-  onUploadAuditSheetClicked(node: NodeEntry)
+  private uploadNodeType : string = '';
+  onUploadNodeTypeInfo(value : string) {
+    this.uploadNodeType = value;
+  }
+
+  async onUploadDocumentClicked(node: NodeEntry)
   {
-    const nodeType = "mrba:invoiceReviewSheet";
+    const nodeType = this.uploadNodeType;
     // auto assign properties
     let nodeBody : NodeBodyUpdate =  {
       nodeType: nodeType,
@@ -528,25 +533,26 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         'mrba:companyZipCode' : this._taskNode.properties['mrba:companyZipCode'],
         'mrba:companyCity' : this._taskNode.properties['mrba:companyCity'],
         'mrba:companyCountryCode' : this._taskNode.properties['mrba:companyCountryCode'],
-
         'mrba:costCarrierNumber' : this._taskNode.properties['mrba:costCarrierNumber'],
         'mrba:projectName' : this._taskNode.properties['mrba:projectName'],
-        'mrba:documentNumber' : this._taskNode.properties['mrba:documentNumber'],
       }
     };
-    // update properties
-    this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {})
-    .then((res) => {
-      res;
+    if (nodeType == 'mrba:miscellaneousDocument') {
+      nodeBody.properties['mrba:documentNumber'] = this._taskNode.properties['mrba:documentNumber']+ ' '+node.entry.name;
+    } else if (nodeType == 'mrba:invoiceReviewSheet') {
+      nodeBody.properties['mrba:documentNumber'] = this._taskNode.properties['mrba:documentNumber'];
+    }
+
+    try {
+      // update properties
+      await this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {});
       // add invoice association
-      return this.addAssociationsToNode(node.entry.id, [this._taskNode]);
-    })
-    // add Association
-    .then((res) => {
-      res;
-      return this.addAssociations([node.entry]);
-    })
-    .catch((error) => {this.setErrorMessage(error);})
+      await this.addAssociationsToNode(node.entry.id, [this._taskNode]);
+    }
+    catch(error) {
+      this.setErrorMessage(error);
+    }
+    return this.addAssociations([node.entry]);
   }
 
   onTaskNodeClicked()

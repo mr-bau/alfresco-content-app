@@ -46,34 +46,17 @@ interface ILinkedDocumentsCategories {
     <aca-mrbau-upload-button
       *ngIf="buttonAuditSheetVisible"
       class="addMarginTop addMarginLeft"
-      [disabled]="buttonAuditSheetDisabled()"
+      [disabled]="buttonUploadDisabled()"
+      [auditSheetDisabled]="buttonAuditSheetDisabled()"
       [rootFolderId]="'-my-'"
-      [acceptedFilesType]="'.pdf'"
+      acceptedFilesType=".pdf,.xls,.xlsx,.doc,.docx,.png,.jpg,.jpeg"
       [versioning]="false"
-      [staticTitle]="'Prüfblatt Hochladen'"
-      [tooltip]="'Rechnungs-Prüfblatt hochladen'"
       (success)="uploadAuditSheetSuccess($event)"
-      (permissionEvent)="onUploadPermissionFailed($event)">
+      (permissionEvent)="onUploadPermissionFailed($event)"
+      (uploadNodeTypeEvent)="onUploadNodeTypeEvent($event)"
+      >
     >
     </aca-mrbau-upload-button>
-<!--
-    <adf-upload-button
-      *ngIf="buttonsAuditSheetVisible"
-      style="display: inline-block;"
-      class="addMarginTop addMarginLeft"
-      [disabled]="buttonsDisabled"
-      [rootFolderId]="'-my-'"
-      [uploadFolders]="false"
-      [multipleFiles]="false"
-      [acceptedFilesType]="'.pdf'"
-      [versioning]="false"
-      [staticTitle]="'Prüfblatt Hochladen'"
-      [tooltip]="'Rechnungs-Prüfblatt hochladen'"
-      (success)="uploadAuditSheetSuccess($event)"
-      (permissionEvent)="onUploadPermissionFailed($event)">
-      >
-    </adf-upload-button>
--->
   </mat-expansion-panel>
   `,
   styles: []
@@ -87,7 +70,8 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
 
   @Output() onRemoveAssociation = new EventEmitter<string>();
   @Output() onAddAssociation = new EventEmitter();
-  @Output() onUploadAuditSheet = new EventEmitter<NodeEntry>();
+  @Output() onUploadDocument = new EventEmitter<NodeEntry>();
+  @Output() onUploadNodeType = new EventEmitter<string>();
   @Output() onAssociation = new EventEmitter<IFileSelectData>();
   @Output() onTaskNode = new EventEmitter();
 
@@ -111,7 +95,10 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
 
   onUploadPermissionFailed(event: any) {
     this.mrbauCommonService.showError(`Fehlende Berechtigung: ${event.permission} permission to ${event.action} the ${event.type} `);
+  }
 
+  onUploadNodeTypeEvent(event : string) {
+    this.onUploadNodeType.emit(event);
   }
 
   uploadAuditSheetSuccess(event: any) {
@@ -120,7 +107,7 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
       this.mrbauCommonService.showError(`Fehler: ${event.value}`);
       return;
     }
-    this.onUploadAuditSheet.emit(event.value);
+    this.onUploadDocument.emit(event.value);
   }
 
   onRemoveAssociationClicked(id:string)
@@ -141,6 +128,11 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
   buttonAddFilesClicked()
   {
     this.onAddAssociation.emit();
+  }
+
+  buttonUploadDisabled() : boolean
+  {
+    return this.buttonsDisabled ;
   }
 
   buttonAuditSheetDisabled() : boolean
