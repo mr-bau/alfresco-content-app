@@ -44,6 +44,7 @@ export class PdfpreviewComponent implements OnInit {
   isPDFFile = true;
 
   private onFileSelected() {
+    this.errorMessage = null;
     if (!this.fileSelectData) {
       this.sanitized_document_url = null;
       return;

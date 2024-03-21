@@ -1,4 +1,5 @@
-<div id="pdf-container" >
+<div id="pdf-container">
+  <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
   <div *ngIf='(sanitized_document_url==null || dragging); else elseBlock'>
     <div class="center">
       <img class="preview-icon" src="./assets/images/ft_ic_pdf.svg" alt="PDF Icon" width="500px">
