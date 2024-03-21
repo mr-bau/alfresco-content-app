@@ -397,7 +397,8 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   isUploadAuditSheetButtonVisible() : boolean
   {
-    return this._task?.status == EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
+    return true;
+    //return this._task?.status == EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
   }
 
   isProposeMatchingDocumentsVisible() : boolean
@@ -537,22 +538,29 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         'mrba:projectName' : this._taskNode.properties['mrba:projectName'],
       }
     };
-    if (nodeType == 'mrba:miscellaneousDocument') {
-      nodeBody.properties['mrba:documentNumber'] = this._taskNode.properties['mrba:documentNumber']+ ' '+node.entry.name;
-    } else if (nodeType == 'mrba:invoiceReviewSheet') {
-      nodeBody.properties['mrba:documentNumber'] = this._taskNode.properties['mrba:documentNumber'];
-    }
 
     try {
       // update properties
       await this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {});
       // add invoice association
       await this.addAssociationsToNode(node.entry.id, [this._taskNode]);
+      await this.addAssociations([node.entry]);
+
+      // set document number - this may cause a name conflict if a file with the same name already exists.
+      nodeBody.properties = {};
+      if (nodeType == 'mrba:miscellaneousDocument') {
+        const index = node.entry.name.lastIndexOf('.');
+        const name = index > 0 ? node.entry.name.substring(0, index) : node.entry.name;
+        nodeBody.properties['mrba:documentNumber'] = name;
+      } else if (nodeType == 'mrba:invoiceReviewSheet') {
+        nodeBody.properties['mrba:documentNumber'] = this._taskNode.properties['mrba:documentNumber'];
+      }
+      return this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {});
     }
     catch(error) {
       this.setErrorMessage(error);
     }
-    return this.addAssociations([node.entry]);
+    return null;
   }
 
   onTaskNodeClicked()

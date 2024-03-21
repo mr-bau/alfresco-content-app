@@ -26,7 +26,7 @@ import { Node } from '@alfresco/js-api';
         (click)="onClickUploadButton()">
     </button>
 -->
-    <button mat-button mat-raised-button color="primary" [matMenuTriggerFor]="uploadButtonMenu" [disabled]="disabled"><mat-icon>file_upload</mat-icon>Dokument Hochladen</button>
+    <button mat-button mat-raised-button color="primary" [matMenuTriggerFor]="uploadButtonMenu" [disabled]="disabled" matTooltip="Dokument hochladen und hinzufügen"><mat-icon>file_upload</mat-icon>Dokument Hochladen</button>
     <mat-menu #uploadButtonMenu="matMenu">
       <button mat-menu-item (click)="uploadFile('mrba:invoiceReviewSheet')" [disabled]="auditSheetDisabled">Prüfblatt Hochladen</button>
       <button mat-menu-item (click)="uploadFile('mrba:miscellaneousDocument')">Sonstiges Dokument Hochladen</button>
