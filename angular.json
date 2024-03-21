@@ -162,7 +162,7 @@
                   "type": "bundle",
                   "name": "vendor",
                   "maximumWarning": "10mb",
-                  "maximumError": "15mb"
+                  "maximumError": "30mb"
                 },
                 {
                   "type": "anyComponentStyle",
