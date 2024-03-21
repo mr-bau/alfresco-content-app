@@ -1,10 +1,5 @@
-import { ContentService, NotificationService } from '@alfresco/adf-core';
-import { NodeEntry, VersionEntry } from '@alfresco/js-api';
 import { Component, OnInit } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
-import { CONST } from '../mrbau-global-declarations';
 import { MRBauTask } from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
@@ -17,20 +12,15 @@ import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
 export class TaskSingleViewComponent implements OnInit {
 
   nodeId = '';
-  SHOW_TOOLBAR : string = "#toolbar=1";
-  document_url: SafeResourceUrl = null;
-  private _remember_document_url : SafeResourceUrl = null;
+  fileSelectData : IFileSelectData = null;
+  dragging =  false;
   selectedTask: MRBauTask = null;
   loaderVisible : boolean;
   errorMessage :string;
 
   constructor(
     private route: ActivatedRoute,
-    private sanitizer: DomSanitizer,
     private mrbauCommonService : MrbauCommonService,
-    private contentService : ContentService,
-    private contentApiService: ContentApiService,
-    private notificationService : NotificationService,
   ){
   }
 
@@ -55,20 +45,14 @@ export class TaskSingleViewComponent implements OnInit {
     .catch(error => { this.errorMessage = error });
   }
 
-  sanitizeUrl(url:string) : SafeResourceUrl {
-      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
-
   dragStartEvent(){
     // workaround: hide pdf viewer during split pane resize
-    this._remember_document_url = this.document_url;
-    this.document_url = null;
+    this.dragging = true;
   }
 
   dragEndEvent(){
     // workaround: restore pdf viewer after split pane resize
-    this.document_url = this._remember_document_url;
-    this._remember_document_url = null;
+    this.dragging = false;
   }
 
   taskSelected(task : MRBauTask) {
@@ -87,70 +71,7 @@ export class TaskSingleViewComponent implements OnInit {
   }
 
   fileSelected(fileSelectData : IFileSelectData) {
-    if (!fileSelectData) {
-      this.fileSelectedByUrl(null);
-      return;
-    }
-
-    if (fileSelectData.versionId)
-    {
-      this.contentApiService._versionsApi.getVersion(fileSelectData.nodeId, fileSelectData.versionId)
-      .then(
-        (versionEntry : VersionEntry) => {
-          if (CONST.isPdfDocument(versionEntry))
-          {
-            //console.log(versionEntry);
-            //versionEntry.entry.versionComment
-            this.fileSelectedByUrl(this.contentApiService.getVersionContentUrl(fileSelectData.nodeId, fileSelectData.versionId));
-          }
-          else
-          {
-            this.fileSelectedByUrl(null);
-            if (!fileSelectData.suppressNotification)
-            {
-              this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
-            }
-          }
-        }
-      )
-      .catch(
-        error => {
-          this.errorMessage = error;
-        }
-      );
-    }
-    else
-    {
-      this.contentService.getNode(fileSelectData.nodeId).subscribe(
-        (nodeEntry: NodeEntry) => {
-          if (CONST.isPdfDocument(nodeEntry))
-          {
-            this.fileSelectedByUrl(this.contentService.getContentUrl(fileSelectData.nodeId));
-          }
-          else
-          {
-            this.fileSelectedByUrl(null);
-            if (!fileSelectData.suppressNotification)
-            {
-              this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
-            }
-          }
-        },
-        error => {
-          this.errorMessage = error;
-        }
-      );
-    }
-  }
-
-  private fileSelectedByUrl(fileUrl : string)
-  {
-    if (fileUrl == null)
-    {
-      this.document_url = null;
-      return;
-    }
-    this.document_url = this.sanitizeUrl(fileUrl.concat(this.SHOW_TOOLBAR));
+    this.fileSelectData = fileSelectData;
   }
 
   taskChanged(taskChangedData : ITaskChangedData)

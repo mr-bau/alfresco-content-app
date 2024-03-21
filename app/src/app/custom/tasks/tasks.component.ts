@@ -1,9 +1,4 @@
-import { ContentService, NotificationService } from '@alfresco/adf-core';
-import { NodeEntry, VersionEntry } from '@alfresco/js-api';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
-import { CONST } from '../mrbau-global-declarations';
 import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus, EMRBauTaskCategory} from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { TasksTableComponent } from '../taskstable/taskstable.component';
@@ -27,9 +22,8 @@ export interface IFileSelectData {
 export class TasksComponent implements OnInit {
   @ViewChild('TASKS_TABLE') tasksTableComponent : TasksTableComponent;
 
-  SHOW_TOOLBAR : string = "#toolbar=1";
-  document_url: SafeResourceUrl = null;
-  private _remember_document_url : SafeResourceUrl = null;
+  fileSelectData: IFileSelectData = null;
+  dragging = false;
   selectedTask: MRBauTask = null;
 
   taskCategories : IMRBauTasksCategory[];
@@ -39,12 +33,9 @@ export class TasksComponent implements OnInit {
   errorMessage :string;
 
   constructor(
-    private sanitizer: DomSanitizer,
     //private alfrescoAuthenticationService: AuthenticationService,
     private mrbauCommonService : MrbauCommonService,
-    private contentService : ContentService,
-    private contentApiService: ContentApiService,
-    private notificationService : NotificationService) {
+  ) {
     //let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
     //console.log(ecmUserName);
   }
@@ -158,14 +149,12 @@ export class TasksComponent implements OnInit {
 
   dragStartEvent(){
     // workaround: hide pdf viewer during split pane resize
-    this._remember_document_url = this.document_url;
-    this.document_url = null;
+    this.dragging = true;
   }
 
   dragEndEvent(){
     // workaround: restore pdf viewer after split pane resize
-    this.document_url = this._remember_document_url;
-    this._remember_document_url = null;
+    this.dragging = false;
   }
 
   taskSelected(task : MRBauTask) {
@@ -184,70 +173,7 @@ export class TasksComponent implements OnInit {
   }
 
   fileSelected(fileSelectData : IFileSelectData) {
-    if (!fileSelectData) {
-      this.fileSelectedByUrl(null);
-      return;
-    }
-
-    if (fileSelectData.versionId)
-    {
-      this.contentApiService._versionsApi.getVersion(fileSelectData.nodeId, fileSelectData.versionId)
-      .then(
-        (versionEntry : VersionEntry) => {
-          if (CONST.isPdfDocument(versionEntry))
-          {
-            //console.log(versionEntry);
-            //versionEntry.entry.versionComment
-            this.fileSelectedByUrl(this.contentApiService.getVersionContentUrl(fileSelectData.nodeId, fileSelectData.versionId));
-          }
-          else
-          {
-            this.fileSelectedByUrl(null);
-            if (!fileSelectData.suppressNotification)
-            {
-              this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
-            }
-          }
-        }
-      )
-      .catch(
-        error => {
-          this.errorMessage = error;
-        }
-      );
-    }
-    else
-    {
-      this.contentService.getNode(fileSelectData.nodeId).subscribe(
-        (nodeEntry: NodeEntry) => {
-          if (CONST.isPdfDocument(nodeEntry))
-          {
-            this.fileSelectedByUrl(this.contentService.getContentUrl(fileSelectData.nodeId));
-          }
-          else
-          {
-            this.fileSelectedByUrl(null);
-            if (!fileSelectData.suppressNotification)
-            {
-              this.notificationService.showInfo('Nur PDF-Dokumente werden angezeigt!');
-            }
-          }
-        },
-        error => {
-          this.errorMessage = error;
-        }
-      );
-    }
-  }
-
-  private fileSelectedByUrl(fileUrl : string)
-  {
-    if (fileUrl == null)
-    {
-      this.document_url = null;
-      return;
-    }
-    this.document_url = this.sanitizeUrl(fileUrl.concat(this.SHOW_TOOLBAR));
+    this.fileSelectData = fileSelectData;
   }
 
   taskChanged(taskChangedData : ITaskChangedData)
@@ -258,9 +184,5 @@ export class TasksComponent implements OnInit {
       taskChangedData.queryTasks = true;
     }
     this.tasksTableComponent.taskUpdateEvent(taskChangedData);
-  }
-
-  sanitizeUrl(url:string) : SafeResourceUrl {
-      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

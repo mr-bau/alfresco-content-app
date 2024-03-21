@@ -1,7 +1,6 @@
-import { ContentService } from '@alfresco/adf-core';
 import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { IFileSelectData } from '../../tasks/tasks.component';
 
 export interface IMrbauCompareDocumentsData {
   name: string,
@@ -44,7 +43,7 @@ export interface IMrbauCompareDocumentsData {
             </details>
           </div>
           <div class="previewFlexContent">
-            <aca-pdfpreview [document_url]="document_url_right"></aca-pdfpreview>
+            <aca-pdfpreview [fileSelectData]="fileSelectDataLeft" [dragging]="dragging"></aca-pdfpreview>
           </div>
         </div>
         </as-split-area>
@@ -65,7 +64,7 @@ export interface IMrbauCompareDocumentsData {
             </details>
           </div>
           <div class="previewFlexContent">
-            <aca-pdfpreview [document_url]="document_url_left"></aca-pdfpreview>
+            <aca-pdfpreview [fileSelectData]="fileSelectDataRight" [dragging]="dragging"></aca-pdfpreview>
           </div>
         </div>
         </as-split-area>
@@ -81,36 +80,27 @@ export interface IMrbauCompareDocumentsData {
   encapsulation: ViewEncapsulation.None
 })
 export class MrbauCompareDocumentsComponent implements OnInit {
-  readonly SHOW_TOOLBAR : string = "#toolbar=1";
+  fileSelectDataLeft: IFileSelectData = null;
+  fileSelectDataRight: IFileSelectData = null;
 
-  document_url_right: SafeResourceUrl = null;
-  document_url_left : SafeResourceUrl = null;
-
-  private remember_document_url_right: SafeResourceUrl = null;
-  private remember_document_url_left : SafeResourceUrl = null;
+  dragging = false;
 
   left : IMrbauCompareDocumentsData;
   right : IMrbauCompareDocumentsData;
 
   constructor(
     private dialogRef: MatDialogRef<MrbauCompareDocumentsComponent>,
-    private contentService: ContentService,
-    private sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA) public data: {payload: any}
     ) {}
 
     ngOnInit(): void {
       this.left = this.data.payload.left;
       this.right = this.data.payload.right;
-      this.document_url_left = this.sanitizeUrl(this.contentService.getContentUrl(this.left.nodeId).concat(this.SHOW_TOOLBAR));
-      this.document_url_right = this.sanitizeUrl(this.contentService.getContentUrl(this.right.nodeId).concat(this.SHOW_TOOLBAR));
+      this.fileSelectDataLeft = {nodeId : this.left.nodeId};
+      this.fileSelectDataRight = {nodeId : this.right.nodeId};
       this.dialogRef.afterClosed().subscribe(result => {
         this.onDialogClose(result);
       });
-    }
-
-    sanitizeUrl(url:string) : SafeResourceUrl {
-      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
 
     onDialogClose(result : boolean)
@@ -123,20 +113,12 @@ export class MrbauCompareDocumentsComponent implements OnInit {
     dragStart(event)
     {
       event;
-      // workaround: hide pdf viewer during split pane resize
-      this.remember_document_url_right = this.document_url_right;
-      this.remember_document_url_left = this.document_url_left;
-      this.document_url_right = null;
-      this.document_url_left = null;
+      this.dragging = true;
     }
 
     dragEnd(event)
     {
       event;
-      // workaround: restore pdf viewer after split pane resize
-      this.document_url_right = this.remember_document_url_right;
-      this.document_url_left = this.remember_document_url_left;
-      this.remember_document_url_left = null;
-      this.remember_document_url_right = null;
+      this.dragging = false;
     }
 }

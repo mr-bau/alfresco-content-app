@@ -9,8 +9,8 @@
       <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" [task]="selectedTask"></aca-tasksdetail>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaUpperRight]">
-      <aca-pdfpreview [document_url]="document_url"></aca-pdfpreview>
-    </ng-container>
+      <aca-pdfpreview [fileSelectData]="fileSelectData" [dragging]="dragging"></aca-pdfpreview>
+    </ng-container>]
   </aca-splitpane>
 </div>
 
