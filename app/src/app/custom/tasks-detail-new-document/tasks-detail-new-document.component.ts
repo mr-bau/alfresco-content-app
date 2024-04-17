@@ -132,7 +132,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         this.updateFormDC();
         // execute onEnterAction
         const workflowState = this.mrbauArchiveModelService.mrbauArchiveModel.getWorkFlowStateFromNodeType({taskDetailNewDocument: this});
-        if (workflowState.onEnterAction)
+        if (workflowState?.onEnterAction)
         {
           workflowState.onEnterAction({taskDetailNewDocument:this}).finally( () =>
           {
