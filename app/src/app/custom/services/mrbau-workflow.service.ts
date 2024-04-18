@@ -378,9 +378,13 @@ export class MrbauWorkflowService {
 
   invoiceVerificationPrefillValues(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     const props = data.taskDetailNewDocument.taskNode.properties;
-    if (data.taskDetailNewDocument.model['mrba:netAmountVerified'] == null) // null or undefined
+    if (data.taskDetailNewDocument.model['mrba:netAmountVerified'] == null || data.taskDetailNewDocument.model['mrba:netAmountVerified'] == "") // null or undefined or ""
     {
       data.taskDetailNewDocument.model['mrba:netAmountVerified'] = props['mrba:netAmount'];
+    }
+    if (data.taskDetailNewDocument.model['mrba:grossAmountVerified'] == null || data.taskDetailNewDocument.model['mrba:grossAmountVerified'] == "") // null or undefined or ""
+    {
+      data.taskDetailNewDocument.model['mrba:grossAmountVerified'] = props['mrba:grossAmount'];
     }
 
     let reviewDate = new Date(props['mrba:archivedDateValue']);
