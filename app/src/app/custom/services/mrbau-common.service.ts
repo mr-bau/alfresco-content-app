@@ -114,7 +114,8 @@ export class MrbauCommonService {
         user == "skofitsch" ||
         user == "pichlkastner" ||
         user == "vaschauner" ||
-        user == "daniel"
+        user == "daniel" ||
+        user == "koestenbaumer"
         )
     {
       return true;
