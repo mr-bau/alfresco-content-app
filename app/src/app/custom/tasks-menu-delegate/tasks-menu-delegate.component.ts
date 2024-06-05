@@ -54,6 +54,11 @@ export class TasksMenuDelegateComponent {
       // change state to new
       nodeBodyUpdate.properties["mrbt:status"] = ""+EMRBauTaskStatus.STATUS_NEW;
     }
+    if (this.task.status == EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
+    {
+      // change state to verification
+      nodeBodyUpdate.properties["mrbt:status"] = ""+EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION;
+    }
 
     let commentNodeId = this.task.id;
     if (this.task.isNewDocumentTask() && this.task.associatedDocumentRef.length > 0 )
