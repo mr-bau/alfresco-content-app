@@ -22,28 +22,50 @@
           type="image"
           [sortable]="false"
           class="adf-desktop-only adf-expand-cell-1">
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              <mat-icon role="img" class="mat-icon notranslate material-icons mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font">{{entry.row.getValue('icon').replace('material-icons://','')}}</mat-icon>
+            </span>
+          </ng-template>
         </data-column>
         <data-column
           key="desc"
           sortingKey="mrbt:description"
           title="Aufgabe"
           [sortable]="true"
+          cssClass="mrbau-prio-high"
           class="adf-expand-cell-3 adf-ellipsis-cell">
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              {{entry.row.getValue('desc')}}
+            </span>
+          </ng-template>
         </data-column>
-        <data-column  *ngIf="this.isTabDocs"
+        <data-column *ngIf="this.isTabDocs"
           key="company"
           sortingKey="mrba:companyName"
           title="Firma"
           [sortable]="true"
           class="adf-expand-cell-3 adf-ellipsis-cell">
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              {{entry.row.getValue('company')}}
+            </span>
+          </ng-template>
         </data-column>
-        <data-column  *ngIf="this.isTabDocs"
+        <data-column *ngIf="this.isTabDocs"
           key="kt"
           sortingKey="mrba:costCarrierNumber"
           title="KT/KS"
           [sortable]="true"
-          class="adf-expand-cell-2 adf-ellipsis-cell">
-      </data-column>
+          class="adf-expand-cell-2 adf-ellipsis-cell"
+          >
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              {{entry.row.getValue('kt')}}
+            </span>
+          </ng-template>
+        </data-column>
         <data-column
           key="dueDateValue"
           sortingKey="mrbt:dueDateValue"
@@ -53,6 +75,26 @@
           [sortable]="true"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true,'adf-datatable-cell-value':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }"
+              title="{{ entry.row.getValue('dueDateValue') | adfLocalizedDate: 'medium' }}"
+            >
+              {{entry.row.getValue('dueDateValue') | adfLocalizedDate: 'shortDate'}}
+            </span>
+
+          </ng-template>
+        </data-column>
+        <data-column *ngIf="this.isTabDocs"
+          title="Prio"
+          key="prio"
+          sortingKey="mrbt:dueDateValue"
+          type="image"
+          class="adf-desktop-only adf-expand-cell-1"
+          [sortable]="true"
+          >
+            <ng-template let-entry="$implicit">
+              <aca-task-indicator [prio]="entry.data.getValue(entry.row, entry.col)"></aca-task-indicator>
+            </ng-template>
         </data-column>
         <data-column
           key="status"
@@ -60,6 +102,11 @@
           title="Status"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              {{entry.row.getValue('status')}}
+            </span>
+          </ng-template>
         </data-column>
         <data-column *ngIf="this.isAdmin"
           key="createdUser"
@@ -67,13 +114,23 @@
           title="Created By"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              {{entry.row.getValue('createdUser')}}
+            </span>
+          </ng-template>
         </data-column>
         <data-column *ngIf="this.isAdmin"
           key="assignedUser"
           sortingKey="mrbt:assignedUserName"
           title="Assigned To"
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
-        >
+          >
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+              {{entry.row.getValue('assignedUser')}}
+            </span>
+          </ng-template>
         </data-column>
         <data-column
           key="createdDate"
@@ -84,6 +141,13 @@
           [sortable]="true"
           class="adf-desktop-only adf-expand-cell-1 adf-ellipsis-cell"
           >
+          <ng-template let-entry="$implicit">
+            <span [ngClass]="{'adf-ellipsis-cell':true,'adf-datatable-cell-value':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }"
+              title="{{ entry.row.getValue('createdDate') | adfLocalizedDate: 'medium' }}"
+            >
+              {{entry.row.getValue('createdDate') | adfLocalizedDate: 'shortDate'}}
+            </span>
+          </ng-template>
         </data-column>
       </data-columns>
       <!-- ALL DONE TEMPLATE -->

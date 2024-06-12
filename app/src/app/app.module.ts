@@ -167,6 +167,7 @@ import { MrbauSearchFacetFieldComponent } from './custom/mrbau-search-table/mrba
 import { TasksMenuDiscardDocumentComponent } from './custom/tasks-menu-discard-document/tasks-menu-discard-document';
 import { MrbauFormlyButtonComponent } from './custom/form/mrbau-formly-button.component';
 import { MatSelectModule } from '@angular/material/select';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MrbauFormlySelectSearchVendorComponent } from './custom/form/types/mrbau-formly-selectsearch-vendor.component';
 import { MrbauFormlySelectSearchProjectComponent } from './custom/form/types/mrbau-formly-selectsearch-project.component';
@@ -175,6 +176,8 @@ import { MrbauMaintenanceComponent } from './custom/mrbau-settings/mrbau-mainten
 import { MrbauShowModifyCompanyDialogComponent } from './custom/dialogs/mrbau-show-modify-company-dialog/mrbau-show-modify-company-dialog.component';
 import { TasksMenuFinishnowComponent }  from './custom/tasks-menu-finishnow/tasks-menu-finishnow.component';
 import { CdkMenuModule } from '@angular/cdk/menu';
+import { PdftronComponent } from './custom/pdftron/pdftron.component';
+import { PdfbrowserComponent } from './custom/pdfbrowser/pdfbrowser.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -243,6 +246,7 @@ registerLocaleData(localeSv);
     MatStepperModule,
     AngularSplitModule,
     MatSelectModule,
+    MatButtonToggleModule,
     NgxMatSelectSearchModule,
     FormlyModule.forRoot({
       validationMessages: [
@@ -367,6 +371,8 @@ registerLocaleData(localeSv);
     MrbauSearchFacetChipComponent,
     MrbauSearchFacetFieldComponent,
     TasksMenuFinishnowComponent,
+    PdftronComponent,
+    PdfbrowserComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

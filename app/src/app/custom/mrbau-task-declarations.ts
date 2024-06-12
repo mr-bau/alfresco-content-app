@@ -122,6 +122,7 @@ export interface IMRBauTaskListEntry {
   status: string;
   company?: string;
   kt?:string;
+  prio?: number
 }
 
 export class MRBauTask {
@@ -178,6 +179,10 @@ export class MRBauTask {
     this.associatedDocumentName = node.properties["mrbt:associatedDocumentName"] ? node.properties["mrbt:associatedDocumentName"] : [];
     this.companyName = node.properties["mrba:companyName"] || undefined;
     this.costCarrierNumber = node.properties["mrba:costCarrierNumber"] || undefined;
+  }
+
+  public updateDueDate(date:Date) {
+    this.dueDateValue = date;
   }
 
   public isInNotifyState() : boolean {

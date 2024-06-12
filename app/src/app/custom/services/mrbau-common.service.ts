@@ -226,6 +226,12 @@ export class MrbauCommonService {
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
+  updateTaskDueDate(nodeId: string, dueDate : Date) :  Promise<NodeEntry>
+  {
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:dueDateValue": this.getFormDateValue(dueDate)}};
+    return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
+  }
+
   updateNode(nodeId: string, nodeBodyUpdate : NodeBodyUpdate) :  Promise<NodeEntry>
   {
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);

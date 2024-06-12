@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+/*import { Component, Input } from '@angular/core';
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 @Component({
   selector: 'aca-task-indicator',
@@ -27,5 +27,30 @@ export class TaskIndicatorComponent {
       case EMRBauTaskStatus.STATUS_CANCELED:
         return "firebrick";
     }
+  }
+}*/
+
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'aca-task-indicator',
+  template: '<svg width="20px" height="20px"><circle cx="10" cy="10" r="10" [style.fill]="color()"/></svg>',
+  styles: ['h1 { font-weight: normal; }']
+})
+export class TaskIndicatorComponent {
+  @Input() prio:number;
+
+  static readonly HIGH_PRIO_THRESHOLD = 3;
+  static readonly MED_PRIO_THRESHOLD = 7;
+
+  color(): string {
+    if (!this.prio && this.prio !== 0)
+      return "darkgrey";
+    else if (this.prio < TaskIndicatorComponent.HIGH_PRIO_THRESHOLD)
+      return "darkred";
+    else if (this.prio < TaskIndicatorComponent.MED_PRIO_THRESHOLD)
+      return "orange";
+    else
+      return "darkgreen";
   }
 }

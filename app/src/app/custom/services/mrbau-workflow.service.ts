@@ -3,7 +3,7 @@ import { Node, NodeAssociation, NodeAssociationEntry, NodePaging, SearchRequest 
 import { EMRBauTaskStatus } from '../mrbau-task-declarations';
 import { MrbauCommonService } from './mrbau-common.service';
 import { MrbauConventionsService } from './mrbau-conventions.service';
-import { MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
+import { DocumentInvoiceTypes, EMRBauInvoiceTypes, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 import { EMRBauDuplicateResolveOptions, EMRBauDuplicateResolveResult } from '../form/mrbau-formly-duplicated-document.component';
 import { MrbauActionService } from './mrbau-action.service';
 import { CONST } from '../mrbau-global-declarations';
@@ -35,6 +35,50 @@ export class MrbauWorkflowService {
         .catch((error) => reject(error));
       })
       .catch((error) => reject(error));
+    });
+  }
+
+  recalculateDueDate(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
+    data;
+    status;
+    return new Promise<string>((resolve, reject) => {
+      const properties = data.taskDetailNewDocument.taskNode.properties;
+      const invoiceType = properties['mrba:invoiceType']
+      const reviewDaysPartialInvoice = properties['mrba:reviewDaysPartialInvoice'] | 0;
+      const reviewDaysFinalInvoice = properties['mrba:reviewDaysFinalInvoice'] | 0;
+      const earlyPaymentDiscountDays = [properties['mrba:earlyPaymentDiscountDays1'] | 0, properties['mrba:earlyPaymentDiscountDays2'] | 0];
+      const archivedDate = new Date(properties['mrba:archivedDateValue']);
+      let paymentDays = properties['mrba:paymentTargetDays'] | 0;
+      for (let i=0; i<earlyPaymentDiscountDays.length; i++)
+      {
+        const epd = earlyPaymentDiscountDays[i];
+        if (epd > 0 && paymentDays > epd)
+        {
+          paymentDays = epd;
+        }
+      }
+      let reviewDays = (invoiceType == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.TEILRECHNUNG).value) ? reviewDaysPartialInvoice : reviewDaysFinalInvoice;
+      if (reviewDays == 0)
+      {
+        // Wenn Prüffrist 0 Prüffrist 9 Tage vor Skonto;
+        reviewDays = paymentDays - 9;
+      }
+      // min 3 days
+      reviewDays = Math.max(reviewDays, 3);
+
+      const dueDate = this.addDays(archivedDate, reviewDays);
+
+      // set database due date for task
+      this.mrbauCommonService.updateTaskDueDate(data.taskDetailNewDocument.task.id, dueDate)
+      .then((node) => {
+        node;
+        // update task variable
+        data.taskDetailNewDocument.task.updateDueDate(dueDate);
+        // emit task change event
+        data.taskDetailNewDocument.emitTaskChangeEvent({task : data.taskDetailNewDocument.task, queryTasks : false})
+        resolve('OK');
+      })
+      .catch(error => reject(error));
     });
   }
 

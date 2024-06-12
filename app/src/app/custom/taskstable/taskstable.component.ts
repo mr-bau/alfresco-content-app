@@ -10,6 +10,8 @@ import { Store } from '@ngrx/store';
 import { takeUntil } from 'rxjs/operators';
 import { isAdmin, AppStore } from '@alfresco/aca-shared/store';
 import { OnDestroy } from '@angular/core';
+import { TaskIndicatorComponent } from '../task-indicator/task-indicator.component';
+
 @Component({
   selector: 'aca-taskstable',
   templateUrl: './taskstable.component.html',
@@ -74,12 +76,23 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     else
     {
       // update task info in table
-      this.data.getRows().forEach(row => {
+      const rows = this.data.getRows();
+      for (let i=0; i<rows.length; i++) {
+        const row = rows[i];
         if (row.obj.task == taskChangedData.task)
         {
-          row.obj.status = taskChangedData.task.status;
+          row.obj.status = this.mrbauTaskStatusPipe.transform(taskChangedData.task.status);
+          row.obj.company = taskChangedData.task.companyName;
+          row.obj.kt = taskChangedData.task.costCarrierNumber;
+          const dueDate = new Date(taskChangedData.task.dueDateValue);
+          row.obj.dueDateValue = dueDate;
+          const today = new Date();
+          const difference_In_Time = dueDate.getTime() - today.getTime();
+          const difference_In_Days = Math.round(difference_In_Time / (1000 * 3600 * 24));
+          row.obj.prio = difference_In_Days;
+          break;
         }
-      });
+      }
     }
   }
 
@@ -128,7 +141,6 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
       skipCount: this.pagination.value.skipCount,
       maxItems:  this.pagination.value.maxItems
     }
-
     this.searchService.searchByQueryBody(searchRequest).subscribe(
       (nodePaging : NodePaging) => {
         // use queryRemainingBadgeCounts
@@ -141,7 +153,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
         });
 
         let results: IMRBauTaskListEntry[] = [];
-
+        const today = new Date();
         for (var nodeEntry of nodePaging.list.entries) {
           let task = new MRBauTask();
           task.updateWithNodeData(nodeEntry.entry);
@@ -156,6 +168,12 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
             kt: nodeEntry.entry.properties["mrba:costCarrierNumber"],
             icon : 'material-icons://'+currentTab.tabIcon,
             status: this.mrbauTaskStatusPipe.transform(task.status),
+          }
+          if (nodeEntry.entry.properties["mrbt:dueDateValue"]) {
+            const date1 = new Date(nodeEntry.entry.properties["mrbt:dueDateValue"]);
+            let difference_In_Time = date1.getTime() - today.getTime();
+            let difference_In_Days = Math.round(difference_In_Time / (1000 * 3600 * 24));
+            e.prio = difference_In_Days;
           }
           results.push(
             e
@@ -202,7 +220,6 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     this.taskSelectEvent.emit(task);
   }
 
-
   sortingChanged( event )
   {
     event;
@@ -211,8 +228,15 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
 
     const sortingKey: string = event.detail.sortingKey;
     const sortingDir: string = event.detail.direction;
-
     this.taskCategories[this.selectedTab.value].order = 'ORDER BY B.'+sortingKey+' '+sortingDir.toUpperCase();
     this.queryNewData();
+  }
+
+  isHighPrio(prio:number | undefined) {
+    return (prio != null && prio != undefined && prio < TaskIndicatorComponent.HIGH_PRIO_THRESHOLD)
+  }
+
+  isMedPrio(prio:number | undefined) {
+    return (prio && prio >= TaskIndicatorComponent.HIGH_PRIO_THRESHOLD && prio < TaskIndicatorComponent.MED_PRIO_THRESHOLD)
   }
 }

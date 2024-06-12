@@ -985,7 +985,11 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
-            this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            this.mrbauWorkflowService.recalculateDueDate(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            .then ( (result) => {
+              result;
+              return this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            })
             .then( (userName) => {
               resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,userName:userName}); })
             .catch( (error) => reject(error))
