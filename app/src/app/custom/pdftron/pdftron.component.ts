@@ -474,7 +474,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
     WebViewer({
       path: '../../wv-resources/lib',
-      licenseKey: 'demo:1712755081824:7f15e134030000000055b9b826f68203ea09c327fac3598037aca85361', // sign up to get a key at https://dev.apryse.com
+      licenseKey: 'MandR Bau Gmbh:PWS:MnR Bau GmbH::B+2:72345732CB60BB40A8EF77436A6D652FDFD30C99CE648EA6065726BD', // sign up to get a key at https://dev.apryse.com
       //initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf'
       //fullAPI: true
     }, this.viewer.nativeElement).then(instance => {
