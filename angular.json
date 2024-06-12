@@ -46,6 +46,7 @@
                 "output": "/"
               },
               "app/src/assets",
+              "app/src/wv-resources/lib",
               "app/src/favicon-96x96.png",
               {
                 "input": "app/.tmp",
@@ -127,7 +128,8 @@
             "scripts": [
               "node_modules/pdfjs-dist/build/pdf.js",
               "node_modules/pdfjs-dist/web/pdf_viewer.js",
-              "node_modules/moment/min/moment.min.js"
+              "node_modules/moment/min/moment.min.js",
+              "app/src/wv-resources/lib/webviewer.min.js"
             ],
             "vendorChunk": true,
             "extractLicenses": false,

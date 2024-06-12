@@ -1,25 +1,31 @@
 <div id="pdf-container">
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
-  <div *ngIf='(sanitized_document_url==null || dragging); else elseBlock'>
+  <div>
+    <mat-button-toggle-group name="favoriteColor" [value]="useViewer" aria-label="Favorite Color" (valueChange)="onViewerChanged($event)">
+      <mat-button-toggle value="pdfTron">Editor</mat-button-toggle>
+      <mat-button-toggle value="browser">Browser</mat-button-toggle>
+      <mat-button-toggle value="aca">ACA-Viewer</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <div *ngIf='(fileSelectData==null || dragging)'>
     <div class="center">
       <img class="preview-icon" src="./assets/images/ft_ic_pdf.svg" alt="PDF Icon" width="500px">
       <p class="preview-text">Document Preview</p>
     </div>
   </div>
-  <ng-template #elseBlock>
-    <!--<object id="pdf-frame" type="application/pdf" width="100%" height="100%" [data]="document_url"></object>-->
-    <embed *ngIf="!useIframe && isPDFFile" id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="sanitized_document_url"/>
-    <iframe *ngIf="useIframe && isPDFFile" id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="sanitized_document_url" ></iframe>
-
-    <adf-viewer *ngIf="!isPDFFile"
+  <div id="pdf-viewer">
+    <aca-pdfbrowser *ngIf="isPDFFile && useViewer=='browser'" [hidden]="(fileSelectData==null || dragging)" id="pdf-frame" [fileSelectData]="fileSelectData"></aca-pdfbrowser>
+    <aca-pdftron *ngIf="isPDFFile && useViewer=='pdfTron'" [hidden]="(fileSelectData==null || dragging)" [fileSelectData]="fileSelectData"></aca-pdftron>
+    <adf-viewer *ngIf="!isPDFFile || useViewer=='aca'"
       [overlayMode]="false"
       [allowLeftSidebar]="false"
       [allowFullScreen]="true"
       [allowRightSidebar]="false"
       [allowGoBack]="false"
       [showToolbar]="true"
-      [nodeId]="fileSelectData.nodeId"
-      [versionId]="fileSelectData.versionId"
+      [nodeId]="fileSelectData?.nodeId"
+      [versionId]="fileSelectData?.versionId"
+      [hidden]="(fileSelectData==null || dragging)"
     >
       <!--
       <adf-viewer-extension [supportedExtensions]="['pdf']" #extension>
@@ -30,5 +36,5 @@
       </adf-viewer-extension>
       -->
     </adf-viewer>
-  </ng-template>
+  </div>
 </div>
