@@ -476,7 +476,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       path: '../../wv-resources/lib',
       licenseKey: 'MandR Bau Gmbh:PWS:MnR Bau GmbH::B+2:72345732CB60BB40A8EF77436A6D652FDFD30C99CE648EA6065726BD', // sign up to get a key at https://dev.apryse.com
       //initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf'
-      //fullAPI: true
+      fullAPI: true
     }, this.viewer.nativeElement).then(instance => {
       this.wvInstance = instance;
 
@@ -620,6 +620,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.customizeDefaults();
 
     // Add header button that will get file data on click
+    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Flatten PDF', className:"row", onClick: async () => { this.flattenDocument(); }});
     this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, className:"row", onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData); }});
     this.wvInstance.UI.setHeaderItems(header => {
       header.get('leftPanelButton').insertBefore({ type: 'actionButton', title: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData); }});
@@ -675,9 +676,57 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     ]);
   }
 
+  async flattenDocument() {
+    const { documentViewer, PDFNet, annotationManager } = this.wvInstance.Core;
+
+    this.wvInstance.UI.closeElements([ 'menuOverlay' ]);
+
+    await PDFNet.initialize();
+    const doc = await documentViewer.getDocument().getPDFDoc();
+
+    // export annotations from the document
+    const annots = await annotationManager.exportAnnotations();
+
+    // Run PDFNet methods with memory management
+    await PDFNet.runWithCleanup(async () => {
+
+      // lock the document before a write operation
+      // runWithCleanup will auto unlock when complete
+      doc.lock();
+
+      // import annotations to PDFNet
+      const fdf_doc = await PDFNet.FDFDoc.createFromXFDF(annots);
+      await doc.fdfUpdate(fdf_doc);
+
+      // flatten all annotations in the document
+      await doc.flattenAnnotations();
+
+      // or optionally only flatten forms
+      // await doc.flattenAnnotations(true);
+
+      // clear the original annotations
+      annotationManager.deleteAnnotations(annotationManager.getAnnotationsList());
+
+      // optionally only clear widget annotations if forms were only flattened
+      // const widgetAnnots = annots.filter(a => a instanceof Annotations.WidgetAnnotation);
+      // annotationManager.deleteAnnotations(widgetAnnots);
+    });
+
+    // clear the cache (rendered) data with the newly updated document
+    documentViewer.refreshAll();
+
+    // Update viewer to render with the new document
+    documentViewer.updateView();
+
+    // Refresh searchable and selectable text data with the new document
+    documentViewer.getDocument().refreshTextData();
+  }
+
   async doUploadDocumentToDMS(fileSelectData : IFileSelectData) {
-    const { documentViewer, annotationManager, Annotations } = this.wvInstance.Core;
-    Annotations;
+    const { documentViewer, annotationManager } = this.wvInstance.Core;
+
+    this.wvInstance.UI.closeElements([ 'menuOverlay' ]);
+
     if (this.modified == false) {
       this.openModal(this.mrbauModalNoChange);
       return;
