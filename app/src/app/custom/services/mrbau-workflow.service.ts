@@ -38,6 +38,9 @@ export class MrbauWorkflowService {
     });
   }
 
+  // use review days as task due date
+  // min is 3 days
+  // if no review day is set use 9 days before earliest discount days
   recalculateDueDate(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
     data;
     status;
