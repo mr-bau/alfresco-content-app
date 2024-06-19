@@ -53,6 +53,8 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   historyPanelOpened:boolean=false;
 
   readonly taskBarButtonsNormal : TaskBarButton[]=[
+    //{ icon:"repeat", class:"mat-primary", tooltip:"Fristen Berechnen", text:"", disabled: () => {return false;} , onClick: (event?:any) => { this.onCalculateClicked(event); } },
+    //{ icon:"save", class:"mat-primary", tooltip:"Speichern", text:"", disabled: () => {return false;} , onClick: (event?:any) => { this.onSaveClicked(event); } },
     { icon:"navigate_before", class:"mat-primary", tooltip:"Zurück", text:"Zurück", disabled: () => {return !this.isPrevButtonEnabled();}, onClick: (event?:any) => { this.onPrevClicked(event); } },
     { icon:"navigate_next", class:"mat-primary", tooltip:"Weiter zum nächsten Schritt", text:"Weiter", disabled: () => {return !this.isNextButtonEnabled();}, onClick: (event?:any) => { this.onNextClicked(event); } },
   ];
@@ -207,6 +209,17 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.performStateChangeAction(this.mrbauArchiveModelService.mrbauArchiveModel.getPrevTaskStateFromNodeType.bind(this.mrbauArchiveModelService.mrbauArchiveModel), {taskDetailNewDocument: this});
   }
 
+  onSaveClicked(event?:any)
+  {
+    event;
+    console.log('save');
+  }
+  onCalculateClicked(event?:any)
+  {
+    event;
+    console.log('calculate');
+  }
+
   private doPerformStateChangePromise(newState:IMRBauTaskStatusAndUser, data:MRBauWorkflowStateCallbackData) : Promise<IMRBauTaskStatusAndUser> {
     this.log('doPerformStateChangePromise');
     const performAction = (this._task.status != newState.state);
@@ -255,22 +268,23 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     {
       return;
     }
+    const lastIndex = this.taskBarButtonsNormal.length - 1;
     if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET)
     {
-      this.taskBarButtonsNormal[1].text = "Erledigen";
-      this.taskBarButtonsNormal[1].icon = "done";
+      this.taskBarButtonsNormal[lastIndex].text = "Erledigen";
+      this.taskBarButtonsNormal[lastIndex].icon = "done";
     }
     else if (this.task.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW
           || this.task.status == EMRBauTaskStatus.STATUS_INVOICE_REVIEW
           || this.task.status == EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
     {
-      this.taskBarButtonsNormal[1].text = "Weiterleiten";
-      this.taskBarButtonsNormal[1].icon = "send";
+      this.taskBarButtonsNormal[lastIndex].text = "Weiterleiten";
+      this.taskBarButtonsNormal[lastIndex].icon = "send";
     }
     else
     {
-      this.taskBarButtonsNormal[1].text = "Weiter";
-      this.taskBarButtonsNormal[1].icon = "navigate_next";
+      this.taskBarButtonsNormal[lastIndex].text = "Weiter";
+      this.taskBarButtonsNormal[lastIndex].icon = "navigate_next";
     }
     this.submitButtonText = this.taskBarButtonsNormal[1].text
   }
