@@ -411,8 +411,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private onFileSelected() {
-    if (42>1) return;
-
     if (this.modified) {
       this.openModal(this.mrbauModalSaveYesNo);
       return;
