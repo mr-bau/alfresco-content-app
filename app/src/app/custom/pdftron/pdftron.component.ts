@@ -213,10 +213,16 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   svgStamps : ISVGData[] = [
+    /*
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchivDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchivDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
+    */
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchivDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchivDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
   ];
 
   async loadSVGStamps() {

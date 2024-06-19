@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg width="36mm" height="21mm" viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
-  <rect style="stroke-width: 5; paint-order: stroke; stroke: rgb(85, 111, 218); fill: rgb(255, 255, 255);" x="5" y="25" width="350" height="180" rx="25" ry="25"/>
-  <rect style="fill: rgb(255, 255, 255);" x="30" y="5" width="300" height="40" rx="5" ry="5"/>
-  <text style="fill: none; font-family: Arial, sans-serif; font-size: 45px; font-weight: 700; stroke: rgb(85, 111, 218); stroke-width: 2; white-space: pre;" x="32" y="42">EINGELANGT</text>
-  <text style="fill: rgb(85, 111, 218); font-family: Arial, sans-serif; font-size: 30px; white-space: pre;" x="22" y="188">erl.</text>
-  <text style="fill: rgb(246, 48, 48); font-family: Arial, sans-serif; font-size: 44px; font-weight: 700; white-space: pre; text-anchor: middle;" x="180" y="126">DATE</text>
-  <line style="fill: rgb(216, 216, 216); stroke: rgb(85, 111, 218); stroke-width: 2;" x1="72" y1="188" x2="326" y2="188"/>
-</svg>
