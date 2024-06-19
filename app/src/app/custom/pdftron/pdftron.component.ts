@@ -43,6 +43,9 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   // Syntax if using Angular 7 and below
   //@ViewChild('viewer') viewer: ElementRef;
 
+  customStamps : any[] = [];
+  readonly STAMP_FOLDER_PATH = 'Vorlagen/Stempel/';
+
   wvInstance: any;
   constructor(
     private sanitizer: DomSanitizer,
@@ -81,7 +84,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  async svgPatchArchivDate(svgData :string) : Promise<string> {
+  async svgPatchArchiveDate(svgData :string) : Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
       try {
         const node = await this.contentService.getNode(this.fileSelectData.nodeId).toPromise();
@@ -219,8 +222,8 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
     */
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchivDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchivDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchiveDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchiveDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
   ];
@@ -492,11 +495,11 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       // for the full list of APIs
 
       // or listen to events from the viewer element
-      //this.viewer.nativeElement.addEventListener('pageChanged', (e) => { const [ pageNumber ] = e.detail; console.log(`Current page is ${pageNumber}`); });
+      // this.viewer.nativeElement.addEventListener('pageChanged', (e) => { const [ pageNumber ] = e.detail; console.log(`Current page is ${pageNumber}`); });
 
       // or from the docViewer instance
       // instance.Core.documentViewer.addEventListener('annotationsLoaded', () => { console.log('annotations loaded'); });
-      //instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
+      // instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
 
       instance.Core.annotationManager.addEventListener('annotationChanged', this.documentModified);
       instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified);
@@ -639,6 +642,49 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.addModalYesNoDialog("Änderungen Speichern", "Sollen die Änderungen als neue Version gespeichert werden?",this.mrbauModalSaveYesNo)
     this.customizeUIStamps();
     this.customizeUIMRStamps();
+    this.customizeSignatureTool();
+  }
+
+  async customizeSignatureTool() {
+    this.customStamps = [];
+    const nodeUrls = []
+
+    const { documentViewer } = this.wvInstance.Core;
+    const signatureTool = documentViewer.getTool('AnnotationCreateSignature');
+
+    try {
+      const node = await this.contentApiService.getNodeChildren('-my-', {relativePath: this.STAMP_FOLDER_PATH}).toPromise();
+      for (let i = 0; i < node.list.entries.length; i++) {
+        const result = node.list.entries[i];
+        if (result.entry.isFile && result.entry.content.mimeType == "image/png") {
+          const nodeId = result.entry.id;
+          nodeUrls.push(this.contentApiService.getContentUrl(nodeId));
+        }
+      }
+    } catch(error) {
+      //console.log(error);
+    };
+
+    if (nodeUrls.length ==0)
+    {
+      return;
+    }
+
+    this.wvInstance.UI.setMaxSignaturesCount(nodeUrls.length + 1);
+    documentViewer.addEventListener('documentLoaded', () => {
+      signatureTool.importSignatures(this.customStamps);
+    });
+
+    for (let i=0; i< nodeUrls.length; i++) {
+      const res = await fetch(nodeUrls[i]);
+      const imageBlob = await res.blob();
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result;
+        this.customStamps.push(base64data);
+      }
+      reader.readAsDataURL(imageBlob);
+    }
   }
 
   customizeDefaults() {
