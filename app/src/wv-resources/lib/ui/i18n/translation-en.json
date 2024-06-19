@@ -286,6 +286,7 @@
     "signHere": "Sign here",
     "insertTextHere": "Insert text here",
     "imageSignatureAcceptedFileTypes": "Only {{acceptedFileTypes}} are accepted",
+	"signatureRequired": "A signature and initial is required to continue",
     "enterMeasurement": "Enter measurement between the two points",
     "errorEnterMeasurement": "The number you have entered is invalid, you can enter values like 7.5 or 7 1/2",
     "linkURLorPage": "Link URL or a Page",
@@ -313,7 +314,8 @@
     "viewBookmark": "View Bookmark on Page",
     "error": "Error",
     "errorPageNumber": "Invalid page number. Limit is ",
-    "errorLoadingDocument": "There was a problem reading this document and some pages may not be displayed. This indicates the document may be corrupted. The total page count is {{totalPageCount}} and the number pages being displayed is {{displayedPageCount}}."
+    "errorLoadingDocument": "There was a problem reading this document and some pages may not be displayed. This indicates the document may be corrupted. The total page count is {{totalPageCount}} and the number pages being displayed is {{displayedPageCount}}.",
+    "noRevisions": "This document has no revisions."
   },
   "option": {
     "type": {
@@ -620,7 +622,9 @@
       "rotatePageCounterClockwise": "Rotate Page Counterclockwise",
       "moreOptions": "More Options",
       "moreOptionsMenu": "More Thumbnails Options Menu",
-      "enterPageNumbers": "Enter page numbers to select"
+      "enterPageNumbers": "Enter page numbers to select",
+      "multiSelectPages": "Multi-Select Pages",
+      "multiSelectPagesExample": "e.g. 1, 3, 5-10"
     },
     "thumbnailsControlOverlay": {
       "move": "Move pages"
@@ -715,6 +719,7 @@
       "redoChange": "Redo an annotation change",
       "openFile": "Open the file picker",
       "openSearch": "Open the search overlay",
+      "zoomOptions": "Zoom Options",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out",
       "fitScreenWidth": "Fit the document to the screen width in a small screen(< 640px), otherwise fit it to its original size",
@@ -786,7 +791,7 @@
     },
     "multiDeleteAnnotation": {
       "title": "Delete Annotations?",
-      "message": "Deleteing will remove all comments, replies, and grouping and cannot be undone. \n\n Are you sure you want to delete these annotations?"
+      "message": "Deleting will remove all comments, replies, and grouping and cannot be undone. \n\n Are you sure you want to delete these annotations?"
     },
     "closeFile": {
       "title": "Close without downloading?",
@@ -959,6 +964,18 @@
       "listbox": "List box",
       "combobox": "Combo box"
     }
+  },
+  "alignmentPopup": {
+    "alignment": "Align",
+    "alignLeft": "Align Left",
+    "alignHorizontalCenter": "Align Horizontal Center",
+    "alignVerticalCenter": "Align Vertical Center",
+    "alignRight": "Align Right",
+    "alignTop": "Align Top",
+    "alignBottom": "Align Bottom",
+    "distribute": "Distribute",
+    "distributeHorizontal": "Distribute Horizontally",
+    "distributeVertical": "Distribute Vertically"
   },
   "digitalSignatureModal": {
     "certification": "certification",
@@ -1189,7 +1206,17 @@
     "deleteRow": "Delete Row",
     "deleteColumn": "Delete Column",
     "deleteTable": "Delete Table",
-    "notSupportedOnMobile": "Office editing is not supported on mobile devices."
+    "deleted": "Deleted: ",
+    "added": "Added: ",
+    "editing": "Editing",
+    "editingDescription": "Edit document",
+    "pageBreak": "Page Break",
+    "reviewing": "Reviewing",
+    "reviewingDescription": "Make suggestions",
+    "viewOnly": "View Only",
+    "viewOnlyDescription": "View without suggestions",
+    "notSupportedOnMobile": "Office editing is not supported on mobile devices.",
+    "previewAllChanges": "Preview all changes"
   },
   "insertPageModal": {
     "title": "Add New Page",
