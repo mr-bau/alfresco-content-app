@@ -620,7 +620,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.customizeDefaults();
 
     // Add header button that will get file data on click
-    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Flatten PDF', className:"row", onClick: async () => { this.flattenDocument(); }});
+    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Flatten PDF',  img: MrbauStamps.SVG_ICON_FLATTEN, className:"row", onClick: async () => { this.flattenDocument(); }});
     this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, className:"row", onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData); }});
     this.wvInstance.UI.setHeaderItems(header => {
       header.get('leftPanelButton').insertBefore({ type: 'actionButton', title: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData); }});
