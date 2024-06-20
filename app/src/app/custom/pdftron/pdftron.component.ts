@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, ElementRef, AfterViewInit, Input, OnChanges, SimpleChanges, SecurityContext } from '@angular/core';
+import { Component, ViewChild, OnInit, ElementRef, AfterViewInit, Input, OnChanges, SimpleChanges, SecurityContext, ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IFileSelectData } from '../tasks/tasks.component';
 import { ContentApiService } from '@alfresco/aca-shared';
@@ -40,6 +40,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   sanitized_document_url: SafeResourceUrl = null;
   isPDFFile = true;
   private modified = false;
+  loaderVisible = false;
   // Syntax if using Angular 7 and below
   //@ViewChild('viewer') viewer: ElementRef;
 
@@ -54,6 +55,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     private mrbauNodeService : MrbauNodeService,
     private mrbauCommonService : MrbauCommonService,
     private datePipe : DatePipe,
+    private changeDetectorRef: ChangeDetectorRef
   ){
     this.sanitizer;
     this.contentService;
@@ -451,9 +453,10 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
 
+    this.modified = false;
+
     if (!this.fileSelectData) {
       this.sanitized_document_url = null;
-      this.modified = false;
       return;
     }
 
@@ -491,6 +494,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       if (!info[i].isImporting) {
         if (this.modified == false) {
           this.modified = true;
+          console.log(info[i]);
         }
         return;
       }
@@ -520,7 +524,9 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
     const pdfSrc = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, url);
+    this.toggleSpinner(true);
     this.wvInstance.UI.loadDocument(pdfSrc, {extension:'pdf'});
+    this.toggleSpinner(false);
   }
 
   addModalDialog(headerText:string, bodyText:string, name: string) {
@@ -773,6 +779,11 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     documentViewer.getDocument().refreshTextData();
   }
 
+  toggleSpinner(val:boolean) {
+    this.loaderVisible = val;
+    this.changeDetectorRef.detectChanges();
+  }
+
   async doUploadDocumentToDMS(fileSelectData : IFileSelectData) {
     const { documentViewer, annotationManager } = this.wvInstance.Core;
 
@@ -787,7 +798,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       this.openModal(this.mrbauModalNoNodeId);
       return;
     }
-
+    this.toggleSpinner(true);
     const doc = documentViewer.getDocument();
     const xfdfString = await annotationManager.exportAnnotations();
     const data = await doc.getFileData({
@@ -798,15 +809,16 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
 
     // Add code for handling Blob here
-    blob;
     await this.mrbauNodeService.updateNodeContent(fileSelectData.nodeId, blob, false, 'PDF Annotation')
     .then(result => {
       result;
       //this.mrbauCommonService.showInfo("Dokument erfolgreich gespeichert.");
+      this.toggleSpinner(false);
       this.openModal(this.mrbauModalUploadOK);
       this.modified = false;
     })
     .catch(error => {
+      this.toggleSpinner(false);
       this.mrbauCommonService.showError(error);
       this.openModal(this.mrbauModalUploadError);
       console.log(error)
