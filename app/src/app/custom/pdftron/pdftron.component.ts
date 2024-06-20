@@ -60,6 +60,52 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     //SecurityContext;
   }
 
+  ngOnInit() {
+    this.documentModified = this.documentModified.bind(this);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.fileSelectData) {
+      this.previousFileSelectData = changes.fileSelectData.previousValue;
+      this.onFileSelected();
+    }
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    // The following code initiates a new instance of WebViewer.
+    await this.loadSVGStamps();
+
+    WebViewer({
+      path: '../..'+location.pathname+'wv-resources/lib',
+      licenseKey: 'MandR Bau Gmbh:PWS:MnR Bau GmbH::B+2:72345732CB60BB40A8EF77436A6D652FDFD30C99CE648EA6065726BD', // sign up to get a key at https://dev.apryse.com
+      //initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf'
+      fullAPI: true
+    }, this.viewer.nativeElement).then(instance => {
+      this.wvInstance = instance;
+
+      // now you can access APIs through this.webviewer.getInstance()
+      // instance.UI.openElement('notesPanel');
+      // see https://docs.apryse.com/documentation/web/guides/ui/apis/
+      // for the full list of APIs
+
+      // or listen to events from the viewer element
+      // this.viewer.nativeElement.addEventListener('pageChanged', (e) => { const [ pageNumber ] = e.detail; console.log(`Current page is ${pageNumber}`); });
+
+      // or from the docViewer instance
+      // instance.Core.documentViewer.addEventListener('annotationsLoaded', () => { console.log('annotations loaded'); });
+      // instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
+
+      instance.Core.annotationManager.addEventListener('annotationChanged', this.documentModified);
+      instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified);
+      instance.Core.documentViewer.addEventListener('layoutChanged', this.documentModified);
+      instance.Core.documentViewer.addEventListener('toolModeUpdated', this.toolUpdated.bind(this))
+
+      this.customizeUI();
+
+      this.onFileSelected();
+    })
+  }
+
   svgEscapeUmlaute(text:string) : string {
     text = text.replace(/Ä/g, '&#196;');
     text = text.replace(/ä/g, '&#228;');
@@ -399,17 +445,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.fileSelectData) {
-      this.previousFileSelectData = changes.fileSelectData.previousValue;
-      this.onFileSelected();
-    }
-  }
-
-  ngOnInit() {
-    this.documentModified = this.documentModified.bind(this);
-  }
-
   private onFileSelected() {
     if (this.modified) {
       this.openModal(this.mrbauModalSaveYesNo);
@@ -474,42 +509,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     {
       this.wvInstance.UI.enableElements(elements);
     }
-  }
-
-  async ngAfterViewInit(): Promise<void> {
-    // The following code initiates a new instance of WebViewer.
-
-    await this.loadSVGStamps();
-
-    WebViewer({
-      path: '../../wv-resources/lib',
-      licenseKey: 'MandR Bau Gmbh:PWS:MnR Bau GmbH::B+2:72345732CB60BB40A8EF77436A6D652FDFD30C99CE648EA6065726BD', // sign up to get a key at https://dev.apryse.com
-      //initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf'
-      fullAPI: true
-    }, this.viewer.nativeElement).then(instance => {
-      this.wvInstance = instance;
-
-      // now you can access APIs through this.webviewer.getInstance()
-      // instance.UI.openElement('notesPanel');
-      // see https://docs.apryse.com/documentation/web/guides/ui/apis/
-      // for the full list of APIs
-
-      // or listen to events from the viewer element
-      // this.viewer.nativeElement.addEventListener('pageChanged', (e) => { const [ pageNumber ] = e.detail; console.log(`Current page is ${pageNumber}`); });
-
-      // or from the docViewer instance
-      // instance.Core.documentViewer.addEventListener('annotationsLoaded', () => { console.log('annotations loaded'); });
-      // instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
-
-      instance.Core.annotationManager.addEventListener('annotationChanged', this.documentModified);
-      instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified);
-      instance.Core.documentViewer.addEventListener('layoutChanged', this.documentModified);
-      instance.Core.documentViewer.addEventListener('toolModeUpdated', this.toolUpdated.bind(this))
-
-      this.customizeUI();
-
-      this.onFileSelected();
-    })
   }
 
     loadPdf(url:SafeResourceUrl) {
