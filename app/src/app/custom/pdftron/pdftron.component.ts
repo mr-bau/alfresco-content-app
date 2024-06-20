@@ -161,10 +161,9 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         if (this.fileSelectData?.nodeId)
         {
           const node = await this.contentService.getNode(this.fileSelectData.nodeId).toPromise();
-          console.log(node.entry.properties);
           for (let i=0; i< propNames.length; i++) {
             const name = propNames[i];
-            const value = (node.entry.properties[name]) ? (node.entry.properties[name]) : '';
+            let value = (node.entry.properties[name]) ? (node.entry.properties[name]) : '';
             props.push({name:name, value:value});
           }
           let review_days = ''
@@ -250,6 +249,9 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         // patch svg
         for (let i=0; i<props.length;i++) {
           const prop = props[i];
+          if (typeof prop.value === 'string') {
+            prop.value = this.svgEscapeUmlaute(prop.value)
+          }
           svgData = svgData.replace(prop.name, prop.value);
         }
         resolve(svgData);
