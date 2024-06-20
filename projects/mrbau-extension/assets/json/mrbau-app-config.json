@@ -5,7 +5,9 @@
     {"id": 1, "label": "M&R Beteiligungs GmbH", "folder": "M&R Beteiligung"},
     {"id": 2, "label": "M&R Bau GmbH", "folder": "M&R Bau"},
     {"id": 3, "label": "M&R Globalbau GmbH", "folder": "M&R Globalbau"},
-    {"id": 4, "label": "Hermine Schwab GmbH", "folder": "Schwab"}
+    {"id": 4, "label": "Hermine Schwab GmbH", "folder": "Schwab"},
+    {"id": 5, "label": "Haselweg Alpha Projektentwicklung GmbH", "folder": "Haselweg"},
+    {"id": 6, "label": "SP Lindenweg 7 Projekt GmbH", "folder": "Lindenweg"}
   ],
   "organisationPositions" : [
     {"id": 0, "label": "Auftraggeber"},
