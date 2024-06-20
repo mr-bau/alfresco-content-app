@@ -161,7 +161,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         if (this.fileSelectData?.nodeId)
         {
           const node = await this.contentService.getNode(this.fileSelectData.nodeId).toPromise();
-          //console.log(node.entry.properties);
+          console.log(node.entry.properties);
           for (let i=0; i< propNames.length; i++) {
             const name = propNames[i];
             const value = (node.entry.properties[name]) ? (node.entry.properties[name]) : '';
@@ -272,8 +272,8 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     */
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchiveDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchiveDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-pruefung.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
   ];
 
   async loadSVGStamps() {
@@ -494,7 +494,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       if (!info[i].isImporting) {
         if (this.modified == false) {
           this.modified = true;
-          console.log(info[i]);
         }
         return;
       }
