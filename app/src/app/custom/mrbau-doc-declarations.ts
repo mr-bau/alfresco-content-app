@@ -985,7 +985,7 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
-            this.mrbauWorkflowService.recalculateDueDate(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            this.mrbauWorkflowService.recalculateDueDate(data, EMRBauTaskStatus.STATUS_FORMAL_REVIEW)
             .then ( (result) => {
               result;
               return this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
@@ -997,7 +997,14 @@ export class MrbauArchiveModel {
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_INVOICE_REVIEW})),
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.recalculateDueDate(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
+            .then ( (result) => {
+              result;
+              resolve({state:EMRBauTaskStatus.STATUS_INVOICE_REVIEW})
+            })
+            .catch( (error) => reject(error))
+          }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW})),
           onEnterAction : (data) => this.mrbauWorkflowService.invoiceVerificationPrefillValues(data)
         },
