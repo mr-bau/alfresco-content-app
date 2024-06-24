@@ -16,6 +16,7 @@ export class PdfpreviewComponent implements OnInit {
   errorMessage :string;
   isPDFFile = true;
   useViewer : string = 'pdfTron';
+  //useViewer : string = 'browser';
 
   constructor(
     private contentApiService : ContentApiService,

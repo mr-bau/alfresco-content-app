@@ -1,7 +1,7 @@
 <div id="pdf-container">
   <aca-mrbau-errormsgpane [errorMessage]="errorMessage"></aca-mrbau-errormsgpane>
   <div>
-    <mat-button-toggle-group name="favoriteColor" [value]="useViewer" aria-label="Favorite Color" (valueChange)="onViewerChanged($event)">
+    <mat-button-toggle-group [value]="useViewer" aria-label="Favorite Color" (valueChange)="onViewerChanged($event)">
       <mat-button-toggle value="pdfTron">Editor</mat-button-toggle>
       <mat-button-toggle value="browser">Browser</mat-button-toggle>
       <mat-button-toggle value="aca">ACA-Viewer</mat-button-toggle>
@@ -16,6 +16,7 @@
   <div id="pdf-viewer">
     <aca-pdfbrowser *ngIf="isPDFFile && useViewer=='browser'" [hidden]="(fileSelectData==null || dragging)" id="pdf-frame" [fileSelectData]="fileSelectData"></aca-pdfbrowser>
     <aca-pdftron *ngIf="isPDFFile && useViewer=='pdfTron'" [hidden]="(fileSelectData==null || dragging)" [fileSelectData]="fileSelectData"></aca-pdftron>
+    <!--<aca-pdftron *ngIf="isPDFFile && useViewer=='pdfTron' && fileSelectData!=null" [hidden]="(fileSelectData==null || dragging)" [fileSelectData]="fileSelectData"></aca-pdftron>-->
     <adf-viewer *ngIf="!isPDFFile || useViewer=='aca'"
       [overlayMode]="false"
       [allowLeftSidebar]="false"

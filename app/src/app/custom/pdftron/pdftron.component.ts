@@ -36,7 +36,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   // true or false depending on code
   @ViewChild('viewer', {static: true}) viewer: ElementRef;
   @Input() fileSelectData: IFileSelectData;
-  previousFileSelectData : IFileSelectData | undefined;
+  previousFileSelectData : IFileSelectData | null = null;
   sanitized_document_url: SafeResourceUrl = null;
   isPDFFile = true;
   private modified = false;
@@ -68,7 +68,9 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.fileSelectData) {
-      this.previousFileSelectData = changes.fileSelectData.previousValue;
+      if (this.previousFileSelectData == null) {
+        this.previousFileSelectData = changes.fileSelectData.previousValue;
+      }
       this.onFileSelected();
     }
   }
@@ -450,15 +452,19 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private onFileSelected() {
-    if (this.modified) {
-      this.openModal(this.mrbauModalSaveYesNo);
-      return;
+    if (this.modified && this.previousFileSelectData != null) {
+      this.previousFileSelectData = null;
+      //this.openModal(this.mrbauModalSaveYesNo);
+      //return;
     }
 
     this.modified = false;
 
     if (!this.fileSelectData) {
       this.sanitized_document_url = null;
+      if (this.wvInstance) {
+        this.wvInstance.UI.closeDocument();
+      }
       return;
     }
 
@@ -516,7 +522,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-    loadPdf(url:SafeResourceUrl) {
+  loadPdf(url:SafeResourceUrl) {
     if (!this.wvInstance) {
       return;
     }
@@ -590,6 +596,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
               e;
               this.modified = false;
               this.wvInstance.UI.closeElements([modalOptions.dataElement]);
+              this.previousFileSelectData = null;
               this.onFileSelected();
             }
           },
@@ -602,6 +609,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
               e;
               this.wvInstance.UI.closeElements([modalOptions.dataElement]);
               await this.doUploadDocumentToDMS(this.previousFileSelectData);
+              this.previousFileSelectData = null;
               this.onFileSelected();
             }
           },
