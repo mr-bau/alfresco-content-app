@@ -111,6 +111,13 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   svgEscapeUmlaute(text:string) : string {
+    // Caution: order direction matters
+    text = text.replace(/&/g, '&amp;');
+    text = text.replace(/#/g, '&#35;');
+    text = text.replace(/'/g, '&#39;');
+    text = text.replace(/"/g, '&#34;');
+    text = text.replace(/</g, '&#60;');
+    text = text.replace(/>/g, '&#62;');
     text = text.replace(/Ä/g, '&#196;');
     text = text.replace(/ä/g, '&#228;');
     text = text.replace(/Ö/g, '&#214;');
@@ -121,6 +128,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     text = text.replace(/§/g, '&#167;');
     text = text.replace(/®/g, '&#174;');
     text = text.replace(/©/g, '&#169;');
+
     return text;
   }
 
