@@ -269,7 +269,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       return;
     }
     const lastIndex = this.taskBarButtonsNormal.length - 1;
-    if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET)
+    if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET || this.task.status == EMRBauTaskStatus.STATUS_INTERNAL_INVOICE_VIEW)
     {
       this.taskBarButtonsNormal[lastIndex].text = "Erledigen";
       this.taskBarButtonsNormal[lastIndex].icon = "done";

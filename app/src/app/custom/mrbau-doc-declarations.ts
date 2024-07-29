@@ -985,13 +985,19 @@ export class MrbauArchiveModel {
         },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            let newNextState =EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
+            if (data.taskDetailNewDocument.taskNode.properties["mrba:verifiedInboundInvoiceType"] == "Interne Rechnung")
+            {
+              // Interne Rechnung has different workflow
+              newNextState =  EMRBauTaskStatus.STATUS_INTERNAL_INVOICE_VIEW;
+            }
             this.mrbauWorkflowService.recalculateDueDate(data, EMRBauTaskStatus.STATUS_FORMAL_REVIEW)
             .then ( (result) => {
               result;
               return this.mrbauWorkflowService.getNewUserWithDialog(data, EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION)
             })
             .then( (userName) => {
-              resolve({state:EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,userName:userName}); })
+              resolve({state:newNextState,userName:userName}); })
             .catch( (error) => reject(error))
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
@@ -1008,6 +1014,7 @@ export class MrbauArchiveModel {
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW})),
           onEnterAction : (data) => this.mrbauWorkflowService.invoiceVerificationPrefillValues(data)
         },
+
         {state : EMRBauTaskStatus.STATUS_INVOICE_REVIEW,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.getNewElevatedUserWithDialog(data, EMRBauTaskStatus.STATUS_FINAL_APPROVAL)
@@ -1035,7 +1042,11 @@ export class MrbauArchiveModel {
             let prev = invoiceIsER ? EMRBauTaskStatus.STATUS_ACCOUNTING : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2
             resolve({state:prev})
             }
-            )},
+        )},
+        {state : EMRBauTaskStatus.STATUS_INTERNAL_INVOICE_VIEW,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW})),
+        },
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -1196,6 +1207,20 @@ export class MrbauArchiveModel {
           ],
           mandatoryRequiredProperties: [
             'mrba:accountingId',
+          ]
+        },
+        'STATUS_INTERNAL_INVOICE_VIEW' : {
+          formlyFieldConfigs: [
+            'workflow_internal_invoice_view_form',
+            'title_mrba_verifyData',
+            'label_group_paymentNetGrossVerified',
+            'label_mrba_verifiedInboundInvoiceType',
+            'title_mrba_documentSummary',
+            'label_group_invoiceType_archiveDate',
+            'label_group_companyDetails',
+            'label_group_costCarrierDetails',
+          ],
+          mandatoryRequiredProperties: [
           ]
         },
         'STATUS_ALL_SET' : {

@@ -601,13 +601,22 @@ export class MrbauFormLibraryService {
       type: 'mrbauFormlyAllSet',
   };
 
+  readonly workflow_internal_invoice_view_form : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      title : 'INTERNE RECHNUNG ZUR INFO',
+      subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen. Eine Freigabe ist bei internen Rechnungen nicht erforderlich.'
+    }
+  };
+
   readonly workflow_formal_review : FormlyFieldConfig = {
     key: 'mrbauFormlyAllSet',
     type: 'mrbauFormlyAllSet',
     props: {
       icon : 'send',
       title : 'WEITERLEITEN ZUR SACHLICHEN RECHNUNGSPRÜFUNG',
-      subtitle : 'Formale Rechnungsprüfung abgeschlossen. Klicken Sie auf Weiterleiten um die Sachliche Rechnungsprüfung zu starten.'
+      subtitle : 'Formale Rechnungsprüfung abgeschlossen. Klicken Sie auf Weiterleiten um die Sachliche Rechnungsprüfung zu starten (interne Rechnungen werden nur zur Info übermitteln).'
     }
   };
 
