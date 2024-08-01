@@ -178,6 +178,7 @@ import { TasksMenuFinishnowComponent }  from './custom/tasks-menu-finishnow/task
 import { CdkMenuModule } from '@angular/cdk/menu';
 import { PdftronComponent } from './custom/pdftron/pdftron.component';
 import { PdfbrowserComponent } from './custom/pdfbrowser/pdfbrowser.component';
+import { TaskTagManagerComponent } from './custom/task-tag-manager/task-tag-manager.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -373,6 +374,7 @@ registerLocaleData(localeSv);
     TasksMenuFinishnowComponent,
     PdftronComponent,
     PdfbrowserComponent,
+    TaskTagManagerComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

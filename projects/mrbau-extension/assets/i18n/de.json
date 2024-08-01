@@ -3,11 +3,13 @@
     "SEARCH":{
       "SEARCH_TITLE": "Standard M&R",
       "ARCHIVE_DOCUMENT_TITLE" : "Dokument-Art",
+      "ARCHIVE_TAG_TITLE" : "Tags",
       "ARCHIVE_DOCUMENTS_AND_CONTRACTS" : "Belege und Verträge",
       "ARCHIVE_DOCUMENTS" : "Belege",
       "ARCHIVE_DOCUMENTS_DISCARDED" : "Belege (gelöscht)",
       "ARCHIVE_CONTRACTS" : "Verträge",
-      "ARCHIVE_CONTRACTS_DISCARDED" : "Verträge (gelöscht)"
+      "ARCHIVE_CONTRACTS_DISCARDED" : "Verträge (gelöscht)",
+      "ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT" : "Abfallwirtschaft"
     },
     "MRBA_ARCHIVE_MODEL":{
       "ARCHIVE_DOCUMENT": "Archiv Dokument / Beleg",

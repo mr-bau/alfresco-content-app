@@ -5,7 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
 import { DatePipe } from '@angular/common';
 import { CONST } from '../mrbau-global-declarations';
-import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData } from '@alfresco/adf-content-services';
+import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData, TagService } from '@alfresco/adf-content-services';
 import { MatDialog } from '@angular/material/dialog';
 import { ContentApiService } from '../../../../../projects/aca-shared/src/public-api';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
@@ -30,6 +30,7 @@ export class MrbauCommonService {
     private peopleContentService: PeopleContentService,
     private commentContentService: CommentContentService,
     private contentService: ContentService,
+    private tagService: TagService,
     private contentApiService: ContentApiService,
     private nodesApiService: NodesApiService,
     private datePipe : DatePipe,
@@ -1137,6 +1138,20 @@ export class MrbauCommonService {
       });
     }
   )
+  }
+
+  readonly DEFAULT_TAGS = ['Abfallwirtschaft'];
+  getAllTheTags() {
+    return this.tagService.getAllTheTags().toPromise();
+  }
+  getTagsByNodeId(nodeId: string) {
+    return this.tagService.getTagsByNodeId(nodeId).toPromise();
+  }
+  addTag(nodeId: string, tag :string) {
+    return this.tagService.addTag(nodeId, tag).toPromise();
+  }
+  removeTag(nodeId: string, tag :string) {
+    return this.tagService.removeTag(nodeId, tag).toPromise();
   }
 
   massReplaceUserProjectDialog() : Promise<string>

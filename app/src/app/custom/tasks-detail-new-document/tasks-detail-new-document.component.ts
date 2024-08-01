@@ -50,6 +50,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   duplicateNode : Node;
 
   commentPanelOpened:boolean=false;
+  tagPanelOpened:boolean=false;
   historyPanelOpened:boolean=false;
 
   readonly taskBarButtonsNormal : TaskBarButton[]=[

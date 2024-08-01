@@ -70,6 +70,17 @@
 (onUploadNodeType)="onUploadNodeTypeInfo($event)"
 ></aca-task-linked-documents-invoice-workflow>
 
+<!-- tag panel -->
+<mat-expansion-panel style="margin-top:1rem;" [expanded]="true" (opened)="tagPanelOpened=true" (closed)="tagPanelOpened=false">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>bookmark_border</mat-icon>
+      <span class="expansionTitleText">Tag Manager</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <aca-task-tag-manager [nodeId]="taskNode ? taskNode.id : null" [isVisible]="tagPanelOpened"></aca-task-tag-manager>
+</mat-expansion-panel>
+
 <!-- comments panel -->
 <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
   <mat-expansion-panel-header>

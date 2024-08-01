@@ -485,6 +485,8 @@
             { "query": "TYPE:'mrba:workContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.WORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
             { "query": "TYPE:'mrba:contractCancellation'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
             { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+
+            { "query": "TAG:'abfallwirtschaft'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
             {
               "label": "SEARCH.FACET_QUERIES.TODAY",
               "query": "cm:modified:[TODAY to TODAY]"
