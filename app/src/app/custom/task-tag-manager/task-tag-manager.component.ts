@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Node, Tag } from '@alfresco/js-api';
+import { Tag } from '@alfresco/js-api';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 
 interface IAddTagListData {
@@ -12,14 +12,14 @@ interface IAddTagListData {
   template: `
       <ul class="associationList" *ngIf="nodeTags.length > 0; else elseBlock">
         <li class="addMarginLeft" *ngFor="let d of nodeTags; index as i">
-          <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="buttonsDisabled"><mat-icon>delete</mat-icon></button>
+          <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="buttonsDisabled || !isSettingsUser"><mat-icon>delete</mat-icon></button>
           {{d.tag}}
         </li>
       </ul>
       <ng-template #elseBlock><p>(keine Tags vorhanden)</p></ng-template>
       <ng-container *ngFor="let item of tagListButtonsData; let i = index">
         <button mat-raised-button type="button" class="addMarginTop" color="primary"
-        (click)="onAddTagClicked(i)" matTooltip="Tag Hinzufügen" [disabled]="buttonsDisabled || item.disabled"><mat-icon>add</mat-icon>{{item.tag}}</button>
+        (click)="onAddTagClicked(i)" matTooltip="Tag Hinzufügen" [disabled]="buttonsDisabled || !isSettingsUser || item.disabled"><mat-icon>add</mat-icon>{{item.tag}}</button>
       </ng-container>
   `,
   styleUrls: []
@@ -41,10 +41,10 @@ export class TaskTagManagerComponent {
   }
 
   buttonsDisabled : boolean = false;
+  isSettingsUser : boolean  = false;
   private _isVisible : boolean = false;
   private _nodeId : string = null;
 
-  node:Node;
   nodeTags:Tag[] = [];
   tagListButtonsData:IAddTagListData[];
 
@@ -54,15 +54,13 @@ export class TaskTagManagerComponent {
     this.mrbauCommonService;
   }
 
-  firstLetterUppercase(tag : string) : string{
-    return tag.charAt(0).toUpperCase() + tag.slice(1);
-  }
-
   async queryData() {
     if (this._nodeId == null || this._isVisible == false)
     {
       return;
     }
+
+    this.isSettingsUser = this.mrbauCommonService.isSettingsUser();
 
     if (this.tagListButtonsData == null)
     {
@@ -102,6 +100,10 @@ export class TaskTagManagerComponent {
     this.buttonsDisabled = false
   }
 
+  firstLetterUppercase(tag : string) : string{
+    return tag.charAt(0).toUpperCase() + tag.slice(1);
+  }
+
   disableTagListData(tag : string) {
     for (let i=0; i<this.tagListButtonsData.length; i++) {
       if (this.tagListButtonsData[i].tag.toLowerCase() == tag.toLowerCase()) {
@@ -115,7 +117,6 @@ export class TaskTagManagerComponent {
   async onRemoveTagClicked(index) {
     this.buttonsDisabled = true;
     const tag =  this.nodeTags[index].id;
-    console.log(tag);
     await this.mrbauCommonService.removeTag(this.nodeId, tag);
     await this.queryData();
     this.buttonsDisabled = false;
