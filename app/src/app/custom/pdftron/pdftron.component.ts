@@ -78,6 +78,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   async ngAfterViewInit(): Promise<void> {
     // The following code initiates a new instance of WebViewer.
     await this.loadSVGStamps();
+    const user = await this.mrbauCommonService.getCurrentUser();
 
     WebViewer({
       path: '../..'+location.pathname+'wv-resources/lib',
@@ -86,6 +87,8 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       fullAPI: true
     }, this.viewer.nativeElement).then(instance => {
       this.wvInstance = instance;
+
+      instance.Core.annotationManager.setCurrentUser(user.entry.displayName);
 
       // now you can access APIs through this.webviewer.getInstance()
       // instance.UI.openElement('notesPanel');
@@ -638,16 +641,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   mrbauModalSaveYesNo = "mrbauModalSaveYesNo";
 
   customizeUI() {
-    const {annotationManager } = this.wvInstance.Core;
-
-    this.mrbauCommonService.getCurrentUser()
-    .then((user) => {
-      annotationManager.setCurrentUser(user.entry.displayName);
-    })
-    .catch(error => {
-      console.log(error);
-    });
-
     this.customizeDefaults();
 
     // Add header button that will get file data on click
