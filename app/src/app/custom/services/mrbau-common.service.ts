@@ -124,6 +124,14 @@ export class MrbauCommonService {
     return false;
   }
 
+  isFinishNowUser() : boolean {
+    const user = this.authenticationService.getEcmUsername().toLowerCase();
+    if (user == "klammer") {
+      return true;
+    }
+    return this.isSettingsUser();
+  }
+
   //getTaskRootPath() : Promise<NodeEntry> {
   //  return this.nodesApiService.nodesApi.getNode('-root-', { includeSource: true, include: ['path'], relativePath: MRBauTask.TASK_RELATIVE_ROOT_PATH });
   //}

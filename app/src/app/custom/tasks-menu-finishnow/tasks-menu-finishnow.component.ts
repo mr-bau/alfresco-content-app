@@ -29,7 +29,7 @@ export class TasksMenuFinishnowComponent {
     ) { }
 
   isVisible() : boolean {
-    return this.mrbauCommonService.isSettingsUser() &&
+    return this.mrbauCommonService.isFinishNowUser() &&
     (this.task?.status == EMRBauTaskStatus.STATUS_INVOICE_REVIEW || this.task?.status == EMRBauTaskStatus.STATUS_FORMAL_REVIEW);
   }
 
