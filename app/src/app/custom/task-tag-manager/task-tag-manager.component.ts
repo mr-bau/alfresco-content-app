@@ -18,7 +18,7 @@ interface IAddTagListData {
       </ul>
       <ng-template #elseBlock><p>(keine Tags vorhanden)</p></ng-template>
       <ng-container *ngFor="let item of tagListButtonsData; let i = index">
-        <button mat-raised-button type="button" class="addMarginTop" color="primary"
+        <button mat-raised-button type="button" class="addMarginTop addMarginRight" color="primary"
         (click)="onAddTagClicked(i)" matTooltip="Tag Hinzufügen" [disabled]="buttonsDisabled || !isSettingsUser || item.disabled"><mat-icon>add</mat-icon>{{item.tag}}</button>
       </ng-container>
   `,
@@ -69,8 +69,11 @@ export class TaskTagManagerComponent {
       const tags = await this.mrbauCommonService.getAllTheTags();
       tagList = Object.assign([], this.mrbauCommonService.DEFAULT_TAGS);
       for (let i=0; i<tags.list.entries.length;i++) {
-        const tag = tags.list.entries[i].entry.tag;
-        tagList.push(this.firstLetterUppercase(tag));
+        const tag = this.firstLetterUppercase(tags.list.entries[i].entry.tag);
+        if (this.mrbauCommonService.HIDDEN_TAGS.indexOf(tag) < 0)
+        {
+          tagList.push(tag);
+        }
       }
       // remove duplicates
       tagList = [...new Set(tagList)];

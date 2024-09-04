@@ -1149,6 +1149,7 @@ export class MrbauCommonService {
   }
 
   readonly DEFAULT_TAGS = ['Abfallwirtschaft'];
+  readonly HIDDEN_TAGS = ['Covid','Oemag','Ökofit'];
   getAllTheTags() {
     return this.tagService.getAllTheTags().toPromise();
   }
