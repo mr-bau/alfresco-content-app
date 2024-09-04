@@ -2,6 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { IMRBauTasksCategory, MRBauTask, EMRBauTaskStatus, EMRBauTaskCategory} from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { TasksTableComponent } from '../taskstable/taskstable.component';
+import { NodePaging } from '@alfresco/js-api';
+import { SearchService } from '@alfresco/adf-core';
 
 export interface ITaskChangedData {
   task : MRBauTask,
@@ -35,6 +37,7 @@ export class TasksComponent implements OnInit {
   constructor(
     //private alfrescoAuthenticationService: AuthenticationService,
     private mrbauCommonService : MrbauCommonService,
+    private searchService: SearchService,
   ) {
     //let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
     //console.log(ecmUserName);
@@ -57,8 +60,67 @@ export class TasksComponent implements OnInit {
     });
   }
 
+  performConsistencyChecks() {
+    this.testUser();
+  }
+
+  async testUser() {
+    const people = await this.mrbauCommonService.getPeopleObservable().toPromise()
+    let searchRequest = {
+      query: {
+        query:"SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < 8000 AND B.mrbt:status <> 211 ORDER BY B.mrbt:assignedUserName ASC",
+        language: 'cmis'
+      },
+      include: ['properties'],
+      paging : {
+        skipCount: 0,
+        maxItems:  99999
+      }
+    }
+    this.searchService.searchByQueryBody(searchRequest).subscribe(
+      (nodePaging : NodePaging) => {
+        let errorCount = 0;
+        for (let nodeEntry of nodePaging.list.entries) {
+          const assignedUser = nodeEntry.entry.properties["mrbt:assignedUserName"];
+          let found = false;
+          for (let i=0;i<people.length; i++) {
+            if (people[i].id == assignedUser) {
+              //console.log(assignedUser+' found '+people[i].displayName);
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            if (errorCount == 0) {
+              console.log(" *** CONSISTENCY CHECK TEST USER ***");
+            }
+            errorCount++;
+            console.log(assignedUser + ' not found ' + nodeEntry.entry.id);
+            for (let i=0;i<people.length; i++) {
+              if (people[i].id.toLowerCase() == assignedUser.toLowerCase()) {
+                console.log('lower match found: '+people[i].id+' - '+people[i].displayName);
+                break;
+              }
+            }
+          }
+        }
+        if (errorCount > 0) {
+          window.alert('Consistency Check testUser() failed! Found '+errorCount+' not matching users. See console log for details!');
+        }
+      },
+      error => {
+        this.errorMessage = "Error loading data. "+error;
+      }
+    );
+  }
+
   initTaskCategories()
   {
+    if (this.mrbauCommonService.isSuperUser())
+    {
+      this.performConsistencyChecks();
+    }
+
     this.taskCategories = [
     {
       tabIcon: 'description',
