@@ -2,6 +2,7 @@
   "MRBAU_EXTENSION":{
     "SEARCH":{
       "SEARCH_TITLE": "Standard M&R",
+      "SEARCH_TITLE_DISCARDED": "Standard M&R (inkl. gelöschte)",
       "ARCHIVE_DOCUMENT_TITLE" : "Dokument-Art",
       "ARCHIVE_TAG_TITLE" : "Tags",
       "ARCHIVE_DOCUMENTS_AND_CONTRACTS" : "Belege und Verträge",

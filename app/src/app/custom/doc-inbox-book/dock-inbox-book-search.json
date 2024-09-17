@@ -14,7 +14,8 @@
     { "query": "-TYPE:'dl:dataList' AND -TYPE:'dl:todoList' AND -TYPE:'dl:issue'" },
     { "query": "-TYPE:'fm:topic' AND -TYPE:'fm:post'" },
     { "query": "-TYPE:'lnk:link'" },
-    { "query": "-PNAME:'0/wiki'" }
+    { "query": "-PNAME:'0/wiki'" },
+    { "query": "-ASPECT:'mrba:discardedDocument'" }
   ],
   "facetFields": {
     "expanded": true,
@@ -65,9 +66,7 @@
             "field" : "",
             "options": [
               { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS"},
-              { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument' AND +ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS_DISCARDED"},
-              { "value": "TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"},
-              { "value": "TYPE:'mrba:contractDocument' AND +ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS_DISCARDED"}
+              { "value": "TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"}
             ]
           }
         }
