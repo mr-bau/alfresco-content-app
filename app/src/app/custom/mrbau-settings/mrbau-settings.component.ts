@@ -34,6 +34,7 @@ import { NodeBodyUpdate, ResultSetPaging, SearchRequest } from '@alfresco/js-api
         <aca-maintenance-tasks></aca-maintenance-tasks>
         <h3>Test</h3>
         <div style="display:flex;gap:10px">
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="massReplaceAuditor2()" matTooltip="massReplaceAuditor2">massReplaceAuditor2</button>
 
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="replaceCompanyInfo()" matTooltip="ReplaceCompanyInfo">ReplaceCompanyInfo</button>
 
@@ -249,7 +250,173 @@ export class MrbauSettingsComponent implements OnInit {
       }
     })
     .catch(error => console.log(error));
-    */
+   */
+  }
+
+  async massReplaceAuditor2() {
+    alert('disabled');
+    /*
+    const accountant = 'Pichlkastner';
+    const newProjects =
+    [
+        {"kt": "11-200-1"},
+        {"kt": "11-200-2"},
+        {"kt": "11-200-3"},
+        {"kt": "11-200-4"},
+        {"kt": "11-200-5"},
+        {"kt": "11-200-6"},
+        {"kt": "11-210-1"},
+        {"kt": "11-210-2"},
+        {"kt": "11-210-3"},
+        {"kt": "11-210-4"},
+        {"kt": "11-210-5"},
+        {"kt": "11-210-6"},
+        {"kt": "11-210-7"},
+        {"kt": "11-210-8"},
+        {"kt": "11-210-9"},
+        {"kt": "11-210-10"},
+        {"kt": "11-210-11"},
+        {"kt": "11-210-12"},
+        {"kt": "11-210-13"},
+        {"kt": "11-210-14"},
+        {"kt": "11-210-15"},
+        {"kt": "11-210-16"},
+        {"kt": "11-210-17"},
+        {"kt": "11-210-18"},
+        {"kt": "11-210-19"},
+        {"kt": "11-210-20"},
+        {"kt": "11-210-21"},
+        {"kt": "11-210-22"},
+        {"kt": "11-210-23"},
+        {"kt": "11-210-24"},
+        {"kt": "11-210-25"},
+        {"kt": "11-210-26"},
+        {"kt": "11-210-27"},
+        {"kt": "11-210-28"},
+        {"kt": "11-210-29"},
+        {"kt": "11-210-30"},
+        {"kt": "11-210-31"},
+        {"kt": "11-210-32"},
+        {"kt": "11-210-33"},
+        {"kt": "11-210-34"},
+        {"kt": "11-210-35"},
+        {"kt": "11-210-36"},
+        {"kt": "11-500-1"},
+        {"kt": "11-510-1"},
+        {"kt": "11-510-2"},
+        {"kt": "11-510-3"},
+        {"kt": "11-510-4"},
+        {"kt": "11-510-5"},
+        {"kt": "11-510-6"},
+        {"kt": "11-510-7"},
+        {"kt": "11-520-1"},
+        {"kt": "11-520-2"},
+        {"kt": "11-520-3"},
+        {"kt": "11-520-4"},
+        {"kt": "11-520-5"},
+        {"kt": "11-520-6"},
+        {"kt": "11-520-7"},
+        {"kt": "11-520-8"},
+        {"kt": "11-520-9"},
+        {"kt": "11-520-10"},
+        {"kt": "11-521"},
+        {"kt": "11-522"},
+        {"kt": "11-523"},
+        {"kt": "11-524"},
+        {"kt": "11-525"},
+        {"kt": "12-200-1"},
+        {"kt": "12-200-2"},
+        {"kt": "12-200-3"},
+        {"kt": "12-200-4"},
+        {"kt": "12-200-5"},
+        {"kt": "12-200-6"},
+        {"kt": "12-200-7"},
+        {"kt": "12-200-8"},
+        {"kt": "12-210-1"},
+        {"kt": "12-210-2"},
+        {"kt": "12-210-3"},
+        {"kt": "12-210-4"},
+        {"kt": "12-210-5"},
+        {"kt": "12-210-6"},
+        {"kt": "12-210-7"},
+        {"kt": "12-210-8"},
+        {"kt": "12-210-9"},
+        {"kt": "12-210-10"},
+        {"kt": "12-210-11"},
+        {"kt": "12-210-12"},
+        {"kt": "12-210-13"},
+        {"kt": "12-210-14"},
+        {"kt": "12-210-15"},
+        {"kt": "12-210-16"},
+        {"kt": "12-210-17"},
+        {"kt": "12-210-18"},
+        {"kt": "12-210-19"},
+        {"kt": "12-500-1"},
+        {"kt": "12-500-2"},
+        {"kt": "12-500-3"},
+        {"kt": "12-500-4"},
+        {"kt": "12-510-1"},
+        {"kt": "12-510-2"},
+        {"kt": "12-510-3"},
+        {"kt": "12-520-1"},
+        {"kt": "12-520-2"},
+        {"kt": "12-520-3"},
+        {"kt": "12-521"},
+        {"kt": "21-200-1"},
+        {"kt": "21-200-2"},
+        {"kt": "21-200-3"},
+        {"kt": "21-200-5"},
+        {"kt": "21-200-6"},
+        {"kt": "22-200-1"},
+        {"kt": "22-200-2"},
+        {"kt": "22-200-3"},
+        {"kt": "22-200-4"},
+        {"kt": "22-200-5"},
+        {"kt": "31-200-1"},
+        {"kt": "41-200-1"},
+        {"kt": "41-210-1"},
+        {"kt": "41-210-2"},
+        {"kt": "41-210-3"},
+        {"kt": "41-210-4"},
+        {"kt": "41-210-5"},
+        {"kt": "41-210-6"},
+        {"kt": "41-210-7"},
+        {"kt": "41-520-1"},
+        {"kt": "41-520-2"},
+        {"kt": "41-521"},
+        {"kt": "71-200-1"},
+        {"kt": "99-200-1"},
+        {"kt": "92-200-1"},
+        {"kt": "92-200-2"},
+        {"kt": "95-200-1"},
+        {"kt": "99-210-1"}
+    ];
+
+    try {
+      const projects = await this.mrbauDbService.getProjects().toPromise();
+      let counter = 0;
+      for (let i = 0; i< projects.length; i++) {
+        const prj = projects[i] as ICostCarrier;
+        const data = newProjects.filter(item => item.kt == prj['mrba:costCarrierNumber']);
+        if (data.length > 0 && prj.accountant != accountant) {
+          console.log(prj);
+          let val = {
+            mrba_projectId : prj['mrba:projectId'],
+            mrba_costCarrierNumber: prj['mrba:costCarrierNumber'],
+            mrba_projectName: prj['mrba:projectName'],
+            auditor1: prj['auditor1'],
+            auditor2: prj['auditor2'],
+            accountant: accountant,
+          }
+          console.log(val);
+          await this.mrbauDbService.updateProject(val).toPromise();
+          counter++;
+        }
+      }
+      console.log('replace count: '+counter);
+    } catch (error ) {
+      console.log(error);
+    }*/
   }
 
   replaceCompanyInfo() {

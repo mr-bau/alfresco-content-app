@@ -45,6 +45,7 @@ export class MrbauDbService {
     //http://mrdev01.mrbau.local/ecm
     if (ecmhost.toLowerCase().indexOf('localhost') >= 0 || ecmhost.toLowerCase().indexOf('mrdev01.mrbau.') >= 0) {
       environment.serverUrl = 'https://mrdev01.mrbau.local/mysql-db';
+      //environment.serverUrl = 'https://mrdms01.mrbau.at/mysql-db';
       environment.production = false;
     }
     else
