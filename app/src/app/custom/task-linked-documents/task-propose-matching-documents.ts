@@ -17,12 +17,12 @@ import { IFileSelectData } from '../tasks/tasks.component';
     <ng-template #elseBlock>
       <mat-selection-list #selectionList [(ngModel)]="selectedOptions">
         <mat-list-option checkboxPosition="before" [value]="n.id" *ngFor="let n of resultNodes as ResultNode">
-          <a href="javascript: void(0);" (click)="onDocumentClicked(n.id)" matTooltip="Dokument Anzeigen">{{n.name}}</a>
+          <span><a href="javascript: void(0);" (click)="onDocumentClicked(n.id)" matTooltip="Dokument Anzeigen">{{n.name}}</a>&nbsp;{{createInfoString(n)}}</span>
         </mat-list-option>
       </mat-selection-list>
       <mat-list>
         <mat-list-item checkboxPosition="before" *ngFor="let nodeAssociation of taskNodeAssociations; index as i">
-          <a href="javascript: void(0);" (click)="onDocumentClicked(nodeAssociation.entry.id)" matTooltip="Dokument Anzeigen">{{nodeAssociation.entry.name}}</a>
+          <span><a href="javascript: void(0);" (click)="onDocumentClicked(nodeAssociation.entry.id)" matTooltip="Dokument Anzeigen">{{nodeAssociation.entry.name}}</a>&nbsp;{{createInfoString(nodeAssociation.entry)}}</span>
         </mat-list-item>
       </mat-list>
     </ng-template>
@@ -92,6 +92,15 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     .catch((error) => {
         this.errorMessage = error;
     });
+  }
+
+  createInfoString(node: Node) : string {
+    if (node?.properties["mrba:orderType"] == "Auftrag") {
+      return ('(KT/KS: '+node?.properties["mrba:costCarrierNumber"] +' - Status: '+node?.properties["mrba:signingStatus"]+')')
+    }
+    else {
+      return "";
+    }
   }
 
   async queryAssociationsAndFilter()
