@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MrbauConventionsService } from '../services/mrbau-conventions.service';
+import { ICostCarrier, MrbauConventionsService } from '../services/mrbau-conventions.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauDbService } from '../services/mrbau-db.service';
 import { NodeBodyUpdate, ResultSetPaging, SearchRequest } from '@alfresco/js-api';
@@ -254,8 +254,137 @@ export class MrbauSettingsComponent implements OnInit {
   }
 
   async massReplaceAuditor2() {
-    alert('disabled');
+    let dummy : ICostCarrier;dummy;
+    alert("disabled");
     /*
+    const auditor1 = 'Klammer';
+    const newProjects =
+    [
+      { "kt": "11-100" },
+      { "kt": "11-200-" },
+      { "kt": "11-200-1" },
+      { "kt": "11-200-2" },
+      { "kt": "11-200-3" },
+      { "kt": "11-200-4" },
+      { "kt": "11-200-5" },
+      { "kt": "11-200-6" },
+      { "kt": "11-210-" },
+      { "kt": "11-210-1" },
+      { "kt": "11-210-2" },
+      { "kt": "11-210-3" },
+      { "kt": "11-210-4" },
+      { "kt": "11-210-5" },
+      { "kt": "11-210-6" },
+      { "kt": "11-210-7" },
+      { "kt": "11-210-8" },
+      { "kt": "11-210-9" },
+      { "kt": "11-210-10" },
+      { "kt": "11-210-11" },
+      { "kt": "11-210-12" },
+      { "kt": "11-210-13" },
+      { "kt": "11-210-14" },
+      { "kt": "11-210-15" },
+      { "kt": "11-210-16" },
+      { "kt": "11-210-17" },
+      { "kt": "11-210-18" },
+      { "kt": "11-210-19" },
+      { "kt": "11-210-20" },
+      { "kt": "11-210-21" },
+      { "kt": "11-210-22" },
+      { "kt": "11-210-23" },
+      { "kt": "11-210-24" },
+      { "kt": "11-210-25" },
+      { "kt": "11-210-26" },
+      { "kt": "11-210-27" },
+      { "kt": "11-210-28" },
+      { "kt": "11-210-29" },
+      { "kt": "11-210-30" },
+      { "kt": "11-210-31" },
+      { "kt": "11-210-32" },
+      { "kt": "11-210-33" },
+      { "kt": "11-210-34" },
+      { "kt": "11-210-35" },
+      { "kt": "11-210-36" },
+      { "kt": "11-300" },
+      { "kt": "11-400" },
+      { "kt": "11-500-" },
+      { "kt": "11-510-" },
+      { "kt": "11-510-1" },
+      { "kt": "11-510-2" },
+      { "kt": "11-510-3" },
+      { "kt": "11-510-4" },
+      { "kt": "11-510-5" },
+      { "kt": "11-510-6" },
+      { "kt": "11-510-7" },
+      { "kt": "11-520-" },
+      { "kt": "11-520-1" },
+      { "kt": "11-520-2" },
+      { "kt": "11-520-3" },
+      { "kt": "11-520-4" },
+      { "kt": "11-520-5" },
+      { "kt": "11-520-6" },
+      { "kt": "11-520-7" },
+      { "kt": "11-520-8" },
+      { "kt": "11-520-9" },
+      { "kt": "11-520-10" },
+      { "kt": "11-521" },
+      { "kt": "11-522" },
+      { "kt": "11-523" },
+      { "kt": "11-524" },
+      { "kt": "11-525" },
+      { "kt": "21-200-" },
+      { "kt": "21-200-1" },
+      { "kt": "21-200-2" },
+      { "kt": "21-200-3" },
+      { "kt": "11-200-7" },
+      { "kt": "21-200-5" },
+      { "kt": "21-200-6" },
+      { "kt": "21-210-" },
+      { "kt": "31-200-" },
+      { "kt": "31-200-1" },
+      { "kt": "71-200-" },
+      { "kt": "71-200-1" },
+      { "kt": "71-210-" },
+      { "kt": "99-200-" },
+      { "kt": "99-200-1" },
+      { "kt": "92-200-1" },
+      { "kt": "92-200-2" },
+      { "kt": "95-200-1" },
+      { "kt": "99-210-" },
+      { "kt": "99-210-1" }
+    ];
+
+
+    try {
+      const projects = await this.mrbauDbService.getProjects().toPromise();
+      let counter = 0;
+      for (let i = 0; i< projects.length; i++) {
+        const prj = projects[i] as ICostCarrier;
+        const data = newProjects.filter(item => item.kt == prj['mrba:costCarrierNumber']);
+        if (data.length > 0 && prj.auditor1 != auditor1) {
+          console.log(prj);
+          let val = {
+            mrba_projectId : prj['mrba:projectId'],
+            mrba_costCarrierNumber: prj['mrba:costCarrierNumber'],
+            mrba_projectName: prj['mrba:projectName'],
+            auditor1: auditor1,
+            auditor2: prj.auditor2,
+            accountant: prj.accountant,
+          }
+          //console.log(val);
+          await this.mrbauDbService.updateProject(val).toPromise();
+          counter++;
+        }
+      }
+      console.log('replace count: '+counter);
+    } catch (error ) {
+      console.log(error);
+    }*/
+  }
+/*
+  async massReplaceAuditor2() {
+    alert('disabled');
+
     const accountant = 'Pichlkastner';
     const newProjects =
     [
@@ -416,8 +545,8 @@ export class MrbauSettingsComponent implements OnInit {
       console.log('replace count: '+counter);
     } catch (error ) {
       console.log(error);
-    }*/
-  }
+    }
+  }*/
 
   replaceCompanyInfo() {
     alert('disabled');
