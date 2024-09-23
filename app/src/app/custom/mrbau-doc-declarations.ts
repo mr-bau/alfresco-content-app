@@ -1189,6 +1189,8 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [
             'mrba_accountingId',
 
+            'label_ignore_warning_rk',
+
             'title_mrba_verifyData',
             'label_group_paymentNetGrossVerified',
             'label_mrba_verifiedInboundInvoiceType',

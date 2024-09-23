@@ -1089,8 +1089,25 @@ export class MrbauFormLibraryService {
     ]
   };
 
-  // Labels
+  // Warning Labels
+  readonly label_ignore_warning_rk : FormlyFieldConfig = {
+    template: '<div class="form-group-warning-wrapper"><span class="form-group-warning-large">Achtung: Beilage Rechnungskorrektur beachten!</span></div>',
+    hooks: {
+      afterContentInit: (field) => {
+        //this.associatedDocuments?.filter(v => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0;
+        const assoc = field.model['ignore:taskNodeAssociations'];
+        console.log(assoc);
+        const exists = (assoc?.filter(v => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0)
+        console.log(' exists ' +exists);
+        console.log(field);
+        if (!exists) {
+          field.template = '';
+        }
+      },
+    },
+  };
 
+  // Labels
   readonly title_mrba_documentSummary_large : FormlyFieldConfig ={
     template: '<div class="form-group-title-wrapper"><span class="form-group-title-large">Rechnungsangaben Formelle Prüfung</span></div>',
   };

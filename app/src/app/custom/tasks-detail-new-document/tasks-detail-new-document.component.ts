@@ -467,6 +467,10 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   updateFormValueRecursive(formlyFieldConfig: FormlyFieldConfig)
   {
+    // add task node and associations for special use cases
+    this.model['ignore:taskNode'] = this.taskNode;
+    this.model['ignore:taskNodeAssociations'] = this.taskNodeAssociations;
+
     let keys: string[] = [];
     keys.push(formlyFieldConfig.key as string);
     if (formlyFieldConfig?.props && formlyFieldConfig.props['additionalKeys'] && Array.isArray(formlyFieldConfig.props.additionalKeys)) {
@@ -492,9 +496,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
         if (formlyFieldConfig.type == 'mrbauFormlyDuplicatedDocument')
         {
-        this.model['ignore:taskNode'] = this.taskNode;
-        this.model['ignore:duplicateNode'] = this.duplicateNode;
-        this.model['ignore:callback'] = this.mrbauFormlyDuplicatedDocumentCallback.bind(this);
+          this.model['ignore:taskNode'] = this.taskNode;
+          this.model['ignore:duplicateNode'] = this.duplicateNode;
+          this.model['ignore:callback'] = this.mrbauFormlyDuplicatedDocumentCallback.bind(this);
         }
       }
     }
