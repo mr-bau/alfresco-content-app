@@ -10,7 +10,9 @@
       "ARCHIVE_DOCUMENTS_DISCARDED" : "Belege (gelöscht)",
       "ARCHIVE_CONTRACTS" : "Verträge",
       "ARCHIVE_CONTRACTS_DISCARDED" : "Verträge (gelöscht)",
-      "ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT" : "Abfallwirtschaft"
+      "ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT" : "Abfallwirtschaft",
+      "ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_DONE" :  "Abfallwirtschaft (erledigt)",
+      "ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_TODO" :  "Abfallwirtschaft (offen)"
     },
     "MRBA_ARCHIVE_MODEL":{
       "ARCHIVE_DOCUMENT": "Archiv Dokument / Beleg",

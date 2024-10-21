@@ -12,14 +12,14 @@ interface IAddTagListData {
   template: `
       <ul class="associationList" *ngIf="nodeTags.length > 0; else elseBlock">
         <li class="addMarginLeft" *ngFor="let d of nodeTags; index as i">
-          <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="buttonsDisabled || !isSettingsUser"><mat-icon>delete</mat-icon></button>
+          <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="buttonsDisabled || !isTagManagerUser"><mat-icon>delete</mat-icon></button>
           {{d.tag}}
         </li>
       </ul>
       <ng-template #elseBlock><p>(keine Tags vorhanden)</p></ng-template>
       <ng-container *ngFor="let item of tagListButtonsData; let i = index">
         <button mat-raised-button type="button" class="addMarginTop addMarginRight" color="primary"
-        (click)="onAddTagClicked(i)" matTooltip="Tag Hinzufügen" [disabled]="buttonsDisabled || !isSettingsUser || item.disabled"><mat-icon>add</mat-icon>{{item.tag}}</button>
+        (click)="onAddTagClicked(i)" matTooltip="Tag Hinzufügen" [disabled]="buttonsDisabled || !isTagManagerUser || item.disabled"><mat-icon>add</mat-icon>{{item.tag}}</button>
       </ng-container>
   `,
   styleUrls: []
@@ -41,17 +41,18 @@ export class TaskTagManagerComponent {
   }
 
   buttonsDisabled : boolean = false;
-  isSettingsUser : boolean  = false;
+  isTagManagerUser : boolean = false;
   private _isVisible : boolean = false;
   private _nodeId : string = null;
 
   nodeTags:Tag[] = [];
   tagListButtonsData:IAddTagListData[];
 
+
+
   constructor(
     private mrbauCommonService : MrbauCommonService,
   ) {
-    this.mrbauCommonService;
   }
 
   async queryData() {
@@ -60,7 +61,7 @@ export class TaskTagManagerComponent {
       return;
     }
 
-    this.isSettingsUser = this.mrbauCommonService.isSettingsUser();
+    this.isTagManagerUser = this.mrbauCommonService.isSettingsUser();
 
     if (this.tagListButtonsData == null)
     {
@@ -100,7 +101,7 @@ export class TaskTagManagerComponent {
         this.disableTagListData(entry.tag);
       }
     }
-    this.buttonsDisabled = false
+    this.buttonsDisabled = !this.isTagManagerUser;
   }
 
   firstLetterUppercase(tag : string) : string{

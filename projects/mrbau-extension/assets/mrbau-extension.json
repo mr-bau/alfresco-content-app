@@ -488,6 +488,8 @@
             { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
 
             { "query": "TAG:'abfallwirtschaft'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
             {
               "label": "SEARCH.FACET_QUERIES.TODAY",
               "query": "cm:modified:[TODAY to TODAY]"

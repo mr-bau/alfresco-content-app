@@ -124,6 +124,10 @@ export class MrbauCommonService {
     return false;
   }
 
+  isTagManagerUser() : boolean {
+    return this.isFinishNowUser();
+  }
+
   isFinishNowUser() : boolean {
     const user = this.authenticationService.getEcmUsername().toLowerCase();
     if (user == "klammer") {
@@ -1148,7 +1152,7 @@ export class MrbauCommonService {
   )
   }
 
-  readonly DEFAULT_TAGS = ['Abfallwirtschaft'];
+  readonly DEFAULT_TAGS = ['Abfallwirtschaft', 'Erledigt'];
   readonly HIDDEN_TAGS = ['Covid','Oemag','Ökofit'];
   getAllTheTags() {
     return this.tagService.getAllTheTags().toPromise();
