@@ -61,7 +61,7 @@ export class TaskTagManagerComponent {
       return;
     }
 
-    this.isTagManagerUser = this.mrbauCommonService.isSettingsUser();
+    this.isTagManagerUser = this.mrbauCommonService.isTagManagerUser();
 
     if (this.tagListButtonsData == null)
     {
