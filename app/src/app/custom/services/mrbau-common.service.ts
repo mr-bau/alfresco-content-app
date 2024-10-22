@@ -110,9 +110,10 @@ export class MrbauCommonService {
 
   isSettingsUser() : boolean {
     const user = this.authenticationService.getEcmUsername().toLowerCase();
-    if (user == "admin" ||
-        user == "wolfgang moser" ||
-        user == "skofitsch" ||
+    if (this.isSuperUser()) {
+      return true;
+    }
+    if (user == "skofitsch" ||
         user == "pichlkastner" ||
         user == "vaschauner" ||
         user == "daniel" ||
