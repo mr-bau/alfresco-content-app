@@ -7,6 +7,8 @@ export const MRBAU_START_OCR = 'MRBAU_START_OCR';
 export const MRBAU_USE_AS_NEW_VERSION = 'MRBAU_USE_AS_NEW_VERSION';
 export const MRBAU_RESET_ARCHIVE_TYPE = 'MRBAU_RESET_ARCHIVE_TYPE';
 export const MRBAU_MODIFY_COMPANY = 'MRBAU_MODIFY_COMPANY';
+export const MRBAU_PRINT_LINKED_DOCS ='MRBAU_PRINT_LINKED_DOCS';
+export const MRBAU_TAG_DONE_LINKED_DOCS ='MRBAU_TAG_DONE_LINKED_DOCS';
 
 export class MrbauNewTaskDialogAction implements Action {
   readonly type = MRBAU_NEW_TASK_DIALOG;
@@ -34,6 +36,18 @@ export class MrbauStartOcrAction implements Action {
 
 export class MrbauModifyCompanyAction implements Action {
   readonly type = MRBAU_MODIFY_COMPANY;
+
+  constructor(public payload: any[] = []) {}
+}
+
+export class MrbauPrintLinkedDocsAction implements Action {
+  readonly type = MRBAU_PRINT_LINKED_DOCS;
+
+  constructor(public payload: any[] = []) {}
+}
+
+export class MrbauTagDoneLinkedDocsAction implements Action {
+  readonly type = MRBAU_TAG_DONE_LINKED_DOCS;
 
   constructor(public payload: any[] = []) {}
 }

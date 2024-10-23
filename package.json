@@ -81,6 +81,7 @@
     "@angular/compiler-cli": "14.1.2",
     "@angular/language-service": "14.1.2",
     "@types/event-emitter": "^0.3.3",
+    "@types/file-saver": "^2.0.7",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "^2.0.8",
     "@types/node": "^14.14.12",

@@ -104,6 +104,25 @@
       ]
     },
     {
+      "id": "mrbau.extension.rule.can-print-linked-docs",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" },
+        { "type": "rule", "value": "mrbau.extension.rule.is-mrba-archiveDocument" }
+      ]
+    },
+    {
+      "id": "mrbau.extension.rule.can-tag-done-linked-docs",
+      "type": "core.every",
+      "parameters": [
+        { "type": "rule", "value": "app.navigation.isNotTrashcan" },
+        { "type": "rule", "value": "mrbau.extension.rule.only-files-selected" },
+        { "type": "rule", "value": "mrbau.extension.rule.is-mrba-archiveDocument" }
+      ]
+    },
+
+    {
       "id": "mrbau.extension.rule.FALSE",
       "value" : false
     }
@@ -142,6 +161,16 @@
     {
       "id": "mrbau.extension.actions.modify-company",
       "type": "MRBAU_MODIFY_COMPANY",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.print-linked-docs",
+      "type": "MRBAU_PRINT_LINKED_DOCS",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.tag-done-linked-docs",
+      "type": "MRBAU_TAG_DONE_LINKED_DOCS",
       "payload": "$(context.selection)"
     }
 
@@ -285,6 +314,35 @@
         },
         "rules": {
           "visible": "mrbau.extension.rule.can-modify-company"
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.separator.1",
+        "type": "separator",
+        "order": 315
+      },
+      {
+        "id": "mrbau.extension.menu.print-linked-docs",
+        "title": "Dok. und Verkn. Drucken",
+        "order": 316,
+        "icon": "print",
+        "actions": {
+          "click": "mrbau.extension.actions.print-linked-docs"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.can-print-linked-docs"
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.tag-done-linked-docs",
+        "title": "Dok. und Verkn. Tag Erledigt",
+        "order": 317,
+        "icon": "label",
+        "actions": {
+          "click": "mrbau.extension.actions.tag-done-linked-docs"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.can-tag-done-linked-docs"
         }
       }
     ],

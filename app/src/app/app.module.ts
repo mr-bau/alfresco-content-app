@@ -179,6 +179,8 @@ import { CdkMenuModule } from '@angular/cdk/menu';
 import { PdftronComponent } from './custom/pdftron/pdftron.component';
 import { PdfbrowserComponent } from './custom/pdfbrowser/pdfbrowser.component';
 import { TaskTagManagerComponent } from './custom/task-tag-manager/task-tag-manager.component';
+import { MrbauPrintLinkedDocsDialogComponent } from './custom/dialogs/mrbau-print-linked-docs-dialog/mrbau-print-linked-docs-dialog.component';
+import { MrbauTagDoneLinkedDocsDialogComponent } from './custom/dialogs/mrbau-tag-done-docs-dialog/mrbau-tag-done-docs-dialog.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -366,6 +368,8 @@ registerLocaleData(localeSv);
     MRBauArchiveNodeTypeLabelPipe,
     MrbauShowDocTaskDialogComponent,
     MrbauShowModifyCompanyDialogComponent,
+    MrbauPrintLinkedDocsDialogComponent,
+    MrbauTagDoneLinkedDocsDialogComponent,
     TaskSingleViewComponent,
     TasksMenuReopenComponent,
     DocInboxBookComponent,

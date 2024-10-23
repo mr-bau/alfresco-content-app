@@ -3,12 +3,16 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { createEffect } from '@ngrx/effects';
 import { MatDialog } from '@angular/material/dialog';
-import { MRBAU_NEW_TASK_DIALOG, MRBAU_INBOX_ASSIGN_DIALOG, MRBAU_START_OCR, MrbauNewTaskDialogAction, MrbauInboxAssignDialogAction, MrbauStartOcrAction, MrbauUseAsNewVersion, MRBAU_USE_AS_NEW_VERSION, MrbauResetArchiveType, MRBAU_RESET_ARCHIVE_TYPE, MrbauShowDocTaskDialogAction, MRBAU_SHOW_DOC_TASK_DIALOG, MRBAU_MODIFY_COMPANY, MrbauModifyCompanyAction} from '../actions/mrbau.actions';
+import { MRBAU_NEW_TASK_DIALOG, MRBAU_INBOX_ASSIGN_DIALOG, MRBAU_START_OCR, MrbauNewTaskDialogAction, MrbauInboxAssignDialogAction, MrbauStartOcrAction, MrbauUseAsNewVersion,
+  MRBAU_USE_AS_NEW_VERSION, MrbauResetArchiveType, MRBAU_RESET_ARCHIVE_TYPE, MrbauShowDocTaskDialogAction, MRBAU_SHOW_DOC_TASK_DIALOG,
+  MRBAU_MODIFY_COMPANY, MrbauModifyCompanyAction, MRBAU_PRINT_LINKED_DOCS, MrbauPrintLinkedDocsAction, MRBAU_TAG_DONE_LINKED_DOCS, MrbauTagDoneLinkedDocsAction} from '../actions/mrbau.actions';
 import { MrbauNewTaskDialogComponent } from '../../custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauInboxAssignDialogComponent } from '../../custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 import { MrbauActionService } from '../../custom/services/mrbau-action.service';
 import { MrbauShowDocTaskDialogComponent } from '../../custom/dialogs/mrbau-show-doc-task-dialog/mrbau-show-doc-task-dialog.component';
 import { MrbauShowModifyCompanyDialogComponent } from '../../custom/dialogs/mrbau-show-modify-company-dialog/mrbau-show-modify-company-dialog.component';
+import { MrbauPrintLinkedDocsDialogComponent } from '../../custom/dialogs/mrbau-print-linked-docs-dialog/mrbau-print-linked-docs-dialog.component';
+import { MrbauTagDoneLinkedDocsDialogComponent } from '../../custom/dialogs/mrbau-tag-done-docs-dialog/mrbau-tag-done-docs-dialog.component';
 
 @Injectable()
 export class MrbauEffects {
@@ -69,6 +73,30 @@ export class MrbauEffects {
       ofType<MrbauModifyCompanyAction>(MRBAU_MODIFY_COMPANY),
       map((action) => {
         this.dialog.open(MrbauShowModifyCompanyDialogComponent, {
+          data: { payload: action.payload }
+        });
+      })
+    ),
+    { dispatch: false }
+  );
+
+  mrbauPrintLinkedDocs$ = createEffect(
+    () => this.actions$.pipe(
+      ofType<MrbauPrintLinkedDocsAction>(MRBAU_PRINT_LINKED_DOCS),
+      map((action) => {
+        this.dialog.open(MrbauPrintLinkedDocsDialogComponent, {
+          data: { payload: action.payload }
+        });
+      })
+    ),
+    { dispatch: false }
+  );
+
+  mrbauTagDoneLinkedDocs$ = createEffect(
+    () => this.actions$.pipe(
+      ofType<MrbauTagDoneLinkedDocsAction>(MRBAU_TAG_DONE_LINKED_DOCS),
+      map((action) => {
+        this.dialog.open(MrbauTagDoneLinkedDocsDialogComponent, {
           data: { payload: action.payload }
         });
       })
