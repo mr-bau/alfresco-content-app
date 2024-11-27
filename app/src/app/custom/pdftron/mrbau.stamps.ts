@@ -9,6 +9,14 @@ export const SVG_ICON_TRIANGLE =
     '<path fill="none" d="M0 0h24v24H0V0z"/>'+
   '</svg>';
 
+export const SVG_ICON_SUM =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="currentColor">'+
+    '<g>'+
+      '<path d="M15,36H33a2,2,0,0,0,2-2V30H31.1v2H19.7l6.4-6.6a2.1,2.1,0,0,0,0-2.8L19.7,16H31.1v2H35V14a2,2,0,0,0-2-2H15a2,2,0,0,0-1.4,3.4L22,24l-8.4,8.6A2,2,0,0,0,15,36Z"/>'+
+      '<path d="M41,4H7A2.9,2.9,0,0,0,4,7V41a2.9,2.9,0,0,0,3,3H41a2.9,2.9,0,0,0,3-3V7A2.9,2.9,0,0,0,41,4ZM40,40H8V8H40Z"/>'+
+    '</g>'+
+  '</svg>';
+
 export const SVG_ICON_MR_S1 =
   '<svg width="24" height="24" viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">'+
   '<rect style="stroke-width: 10; paint-order: stroke; stroke: rgb(85, 111, 218); fill: rgb(255, 255, 255);" x="5" y="25" width="350" height="180" rx="25" ry="25"/>'+

@@ -481,7 +481,7 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES});
             })
             .catch( (error) => reject(error))
           }),
@@ -496,10 +496,10 @@ export class MrbauArchiveModel {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES;break;
               }
               resolve({state:newState});
             })
@@ -507,9 +507,14 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_DEDUCTION_RATES,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -543,6 +548,20 @@ export class MrbauArchiveModel {
           ],
           mandatoryRequiredProperties: [
           ]
+        },
+        'STATUS_DEDUCTION_RATES' :{
+          formlyFieldConfigs: [
+            'title_mrba_deductions1',
+            'element_mrba_deductionDetails1',
+            'title_mrba_deductions2',
+            'element_mrba_deductionDetails2',
+            'title_mrba_deductions3',
+            'element_mrba_deductionDetails3',
+            'title_mrba_retentions',
+            'element_mrba_retentionDetails',
+            ],
+            mandatoryRequiredProperties: [
+            ]
         },
         'STATUS_ALL_SET' : {
           formlyFieldConfigs: [
@@ -591,7 +610,7 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_SIGNING});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES});
             })
             .catch( (error) => reject(error))
           }),
@@ -606,10 +625,10 @@ export class MrbauArchiveModel {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_SIGNING; break;
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_SIGNING;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES;break;
               }
               resolve({state:newState});
             })
@@ -617,9 +636,14 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_DEDUCTION_RATES,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
         {state : EMRBauTaskStatus.STATUS_SIGNING,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES}))},
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING}))},
@@ -673,6 +697,20 @@ export class MrbauArchiveModel {
           mandatoryRequiredProperties: [
           ]
         },
+        'STATUS_DEDUCTION_RATES' :{
+          formlyFieldConfigs: [
+            'title_mrba_deductions1',
+            'element_mrba_deductionDetails1',
+            'title_mrba_deductions2',
+            'element_mrba_deductionDetails2',
+            'title_mrba_deductions3',
+            'element_mrba_deductionDetails3',
+            'title_mrba_retentions',
+            'element_mrba_retentionDetails',
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        },
         'STATUS_SIGNING' : {
           formlyFieldConfigs: [
             'title_mrba_signingStatus',
@@ -724,7 +762,7 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_SIGNING});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES});
             })
             .catch( (error) => reject(error))
           }),
@@ -739,10 +777,10 @@ export class MrbauArchiveModel {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_SIGNING; break;
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_SIGNING;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES;break;
               }
               resolve({state:newState});
             })
@@ -750,9 +788,14 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_DEDUCTION_RATES,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
         {state : EMRBauTaskStatus.STATUS_SIGNING,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES}))},
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING}))},
@@ -795,6 +838,20 @@ export class MrbauArchiveModel {
           ],
           mandatoryRequiredProperties: [
           ]
+        },
+        'STATUS_DEDUCTION_RATES' :{
+          formlyFieldConfigs: [
+            'title_mrba_deductions1',
+            'element_mrba_deductionDetails1',
+            'title_mrba_deductions2',
+            'element_mrba_deductionDetails2',
+            'title_mrba_deductions3',
+            'element_mrba_deductionDetails3',
+            'title_mrba_retentions',
+            'element_mrba_retentionDetails',
+            ],
+            mandatoryRequiredProperties: [
+            ]
         },
         'STATUS_SIGNING' : {
           formlyFieldConfigs: [
@@ -950,7 +1007,7 @@ export class MrbauArchiveModel {
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
-            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_FORMAL_REVIEW : EMRBauTaskStatus.STATUS_ALL_SET;
+            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_DEDUCTION_RATES : EMRBauTaskStatus.STATUS_ALL_SET;
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
@@ -964,7 +1021,7 @@ export class MrbauArchiveModel {
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             let invoiceIsER = this.isAuftraggeber(data.taskDetailNewDocument.taskNode.properties['mrba:organisationPosition']);
-            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_FORMAL_REVIEW : EMRBauTaskStatus.STATUS_ALL_SET
+            let nextState = invoiceIsER ? EMRBauTaskStatus.STATUS_DEDUCTION_RATES : EMRBauTaskStatus.STATUS_ALL_SET
             this.mrbauWorkflowService.resolveDuplicateIssue(data)
             .then( (result) =>
             {
@@ -983,6 +1040,11 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_DEDUCTION_RATES,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FORMAL_REVIEW})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
         {state : EMRBauTaskStatus.STATUS_FORMAL_REVIEW,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             let newNextState =EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
@@ -1000,7 +1062,7 @@ export class MrbauArchiveModel {
               resolve({state:newNextState,userName:userName}); })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES})),
         },
         {state : EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
@@ -1094,6 +1156,20 @@ export class MrbauArchiveModel {
           mandatoryRequiredProperties: [
           ]
         },
+        'STATUS_DEDUCTION_RATES' :{
+          formlyFieldConfigs: [
+            'title_mrba_deductions1',
+            'element_mrba_deductionDetails1',
+            'title_mrba_deductions2',
+            'element_mrba_deductionDetails2',
+            'title_mrba_deductions3',
+            'element_mrba_deductionDetails3',
+            'title_mrba_retentions',
+            'element_mrba_retentionDetails',
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        },
         'STATUS_FORMAL_REVIEW' : {
           formlyFieldConfigs: [
             'workflow_formal_review',
@@ -1111,7 +1187,8 @@ export class MrbauArchiveModel {
         },
         'STATUS_INVOICE_VERIFICATION' : {
           formlyFieldConfigs: [
-
+            //'title_mrba_calc_deductions',
+            //'element_calc_deduction',
             'title_mrba_verifyData',
             'aspect_mrba_verifyData',
 
@@ -1273,7 +1350,7 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.performDuplicateCheck(data)
             .then( (duplicatedData) =>
             {
-              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES});
             })
             .catch( (error) => reject(error))
           }),
@@ -1288,10 +1365,10 @@ export class MrbauArchiveModel {
               let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
               switch (result)
               {
-                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES; break;
                 case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
                 case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
-                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_DEDUCTION_RATES;break;
               }
               resolve({state:newState});
             })
@@ -1299,9 +1376,14 @@ export class MrbauArchiveModel {
           }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
+        {state : EMRBauTaskStatus.STATUS_DEDUCTION_RATES,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
+        },
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES}))},
         {state : EMRBauTaskStatus.STATUS_FINISHED,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
@@ -1341,6 +1423,20 @@ export class MrbauArchiveModel {
           ],
           mandatoryRequiredProperties: [
           ]
+        },
+        'STATUS_DEDUCTION_RATES' :{
+          formlyFieldConfigs: [
+            'title_mrba_deductions1',
+            'element_mrba_deductionDetails1',
+            'title_mrba_deductions2',
+            'element_mrba_deductionDetails2',
+            'title_mrba_deductions3',
+            'element_mrba_deductionDetails3',
+            'title_mrba_retentions',
+            'element_mrba_retentionDetails',
+            ],
+            mandatoryRequiredProperties: [
+            ]
         },
         'STATUS_ALL_SET' : {
           formlyFieldConfigs: [

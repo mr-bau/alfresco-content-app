@@ -1,0 +1,37 @@
+$flex-width-basex: 10rem;
+$flex-width-gapx: 10px;
+$flex-container-widthx: min(calc(#{$flex-width-basex}*6), 100vw - 90px);
+
+.alignBottom {
+  align-items:bottom;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.flex-container-calc {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content:space-around;
+  align-items:stretch;
+  gap: 0 #{$flex-width-gapx};
+  width: #{$flex-container-widthx};
+
+  formly-field {
+    formly-template {
+      div {
+        margin-bottom: $flex-width-gapx;
+      }
+    }
+    formly-wrapper-mat-form-field {
+      mat-form-field {
+        margin-bottom:5px;
+        div.mat-form-field-wrapper  {
+          padding:0;
+        }
+      }
+    }
+  }
+}
+

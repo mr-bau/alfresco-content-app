@@ -9,6 +9,13 @@ import * as MrbauStamps from './mrbau.stamps';
 import { DatePipe } from '@angular/common';
 import { ContentService } from '@alfresco/adf-core';
 import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } from '../mrbau-doc-declarations';
+import { AspectDeductionDetails, AspectRetentionDetails, IAspectDetailItem } from '../mrbau-mrba-aspects';
+import { NodeEntry } from '@alfresco/js-api';
+import { MrbauCalcService, ICalculationParameter } from '../services/mrbau-calc.service';
+
+interface ICalculationParameterExtend extends ICalculationParameter {
+  dyMultiplier : number
+}
 
 declare const WebViewer: any;
 
@@ -16,6 +23,7 @@ interface ISVGData {
   path: string,
   icon: string,
   tooltip: string,
+  toolgroup: string,
   svg?: string,
   width?: number,
   height?: number
@@ -54,6 +62,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     private contentService : ContentService,
     private mrbauNodeService : MrbauNodeService,
     private mrbauCommonService : MrbauCommonService,
+    private mrbauCalcService : MrbauCalcService,
     private datePipe : DatePipe,
     private changeDetectorRef: ChangeDetectorRef
   ){
@@ -131,7 +140,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     text = text.replace(/§/g, '&#167;');
     text = text.replace(/®/g, '&#174;');
     text = text.replace(/©/g, '&#169;');
-
+    text = text.replace(/€/g, '&#8364;');
     return text;
   }
 
@@ -153,6 +162,124 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         let dateAsString = this.datePipe.transform(date, 'dd. MMM yyyy');
         dateAsString = this.svgEscapeUmlaute(dateAsString);
         svgData = svgData.replace('DATE', dateAsString);
+        resolve(svgData);
+        return;
+      }
+      catch (error) {
+        reject(error)
+      }
+    });
+  }
+
+  getCalculationParameter(item : IAspectDetailItem, node:NodeEntry, dyMultiplier:number, isPercent : boolean = true) : ICalculationParameterExtend {
+    const val = this.mrbauCalcService.getNumberFromString(node.entry.properties[item.key]);
+    return {label : item.label_short, isPercent : isPercent, value: val, dyMultiplier: dyMultiplier}
+  }
+
+  getLabelValueFromCalculationParameter(p : ICalculationParameterExtend, attributes:string='') : string {
+    return this.getLabelStringFromCalculationParameter(p.label+(p.isPercent ? ' '+this.mrbauCalcService.numberToString(p.value)+'%' : ''), p.dyMultiplier, attributes);
+  }
+
+  getLabelStringFromCalculationParameter(value:string, multiplier : number, attributes:string='') : string {
+    const dy=1.1;
+    return '<tspan '+attributes+' x="6" dy="'+dy*multiplier+'em">'+this.svgEscapeUmlaute(value)+'</tspan>';
+  }
+
+  getValueStringFromCalculationParameter(value:string, multiplier : number, attributes:string='') : string {
+    const dy=1.1;
+    return '<tspan '+attributes+' x="180" dy="'+dy*multiplier+'em">'+this.svgEscapeUmlaute(value)+'</tspan>';
+  }
+
+  async svgPatchDeductions(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        const node : NodeEntry = await this.contentService.getNode(this.fileSelectData.nodeId).toPromise();
+        const taxRate = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:taxRate']);
+        const invoiceType = node.entry.properties['mrba:invoiceType'];
+        const skonto1 = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:earlyPaymentDiscountPercent1']);
+        const skonto2 = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:earlyPaymentDiscountPercent2']);
+        const skonto = (skonto1 > skonto2) ? skonto1 : skonto2;
+        const pStart = this.getCalculationParameter(AspectDeductionDetails.netAmountPreDeduction, node, 1, false)
+        let deductionParameters :  ICalculationParameterExtend[] = [];
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageUnassignedPercent, node, 2));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageAssignedNetAmount, node, 1, false));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialNetAmount, node, 1, false));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWastePercent, node, 2));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionCleaningPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionToiletsPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWaterPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionElectricityPercent, node, 1));
+
+        const rl = (invoiceType=='Teilrechnung') ? this.getCalculationParameter(AspectRetentionDetails.retentionDRLPercent, node, 2) :  this.getCalculationParameter(AspectRetentionDetails.retentionHRLPercent, node, 2)
+        this.mrbauCalcService.calcRetentionValue(invoiceType, rl, pStart.value);
+        const netResult = this.mrbauCalcService.calcValues(deductionParameters, pStart.value);
+
+        let labels = '';
+        labels += this.getLabelValueFromCalculationParameter(pStart);
+        for (let i=0; i< deductionParameters.length; i++) {
+          const p : ICalculationParameterExtend = deductionParameters[i];
+          labels += this.getLabelValueFromCalculationParameter(p);
+        }
+        labels += this.getLabelStringFromCalculationParameter('Gepr. Summe Netto', 2);
+        if (taxRate > 0) {
+          labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
+          labels += this.getLabelStringFromCalculationParameter('Gepr. Summe Brutto', 1);
+        }
+        let rlLabel = rl.label+' '+this.mrbauCalcService.numberToString(rl.value)+'%';
+        if (this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)) {
+          rlLabel += ' (>'+this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)+')';
+        }
+        labels += this.getLabelStringFromCalculationParameter(rlLabel, rl.dyMultiplier);
+        if (skonto > 0) {
+          labels += this.getLabelStringFromCalculationParameter('Skonto '+this.mrbauCalcService.numberToString(skonto)+'%' , 1);
+        }
+        labels += this.getLabelStringFromCalculationParameter('Summe Netto (kumuliert)', 2);
+        if (taxRate > 0) {
+          labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
+          labels += this.getLabelStringFromCalculationParameter('Summe Brutto (kumuliert)', 1);
+        }
+
+        let values = '';
+        values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(pStart.value), 1);
+        for (let i=0; i< deductionParameters.length; i++) {
+          const p : ICalculationParameterExtend = deductionParameters[i];
+          values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(p.calculatedValue), p.dyMultiplier);
+        }
+        values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult), 2);
+        if (taxRate > 0) {
+          const mwst : number = this.mrbauCalcService.calcPercentValue(taxRate, netResult);
+          const grossResult : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult);
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst), 1);
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult), 1);
+        }
+        values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(rl.calculatedValue), 2);
+        let skontoValue = 0;
+        if (skonto > 0) {
+          skontoValue = this.mrbauCalcService.calcPercentValue(skonto, pStart.value);
+          values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(skontoValue), 1);
+        }
+        const netResult2 = netResult-rl.calculatedValue-skontoValue;
+        values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult2), 2);
+        if (taxRate > 0) {
+          const grossResult2 : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult2);
+          const mwst2 : number = this.mrbauCalcService.calcPercentValue(taxRate, netResult2);
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst2), 1);
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult2), 1);
+        }
+
+        let lines= '';
+        let dy = 8.8;
+        let y = 45 + dy*11;
+        lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+        y += dy * ((taxRate > 0) ? 4 : 2);
+        lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+        y += dy * ((skonto > 0) ? 3 : 2);
+        lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+
+        svgData = svgData.replace('mrba:calclabels', labels);
+        svgData = svgData.replace('mrba:calcvalues', values);
+        svgData = svgData.replace('mrba:lines', lines);
         resolve(svgData);
         return;
       }
@@ -285,10 +412,11 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
     */
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchiveDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchiveDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-pruefung.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-abzuege.svg', patchFunction : this.svgPatchDeductions.bind(this), icon: MrbauStamps.SVG_ICON_SUM, tooltip: 'M&R Abzüge', toolgroup: 'mrbauStampToolGroup2'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchiveDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchiveDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-pruefung.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2', toolgroup: 'mrbauStampToolGroup'},
   ];
 
   async loadSVGStamps() {
@@ -436,7 +564,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         toolName: mrbauStampToolName,
         toolObject: mrbauCustomStampTool,
         buttonImage: this.svgStamps[i].icon,
-        buttonGroup: 'mrbauStampToolGroup',
+        buttonGroup: this.svgStamps[i].toolgroup,
         //buttonName: 'mrbauCustomStampToolButton',
         tooltip: this.svgStamps[i].tooltip,
         showColor: 'never',
@@ -454,10 +582,21 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       img: MrbauStamps.SVG_ICON_MR,
     };
 
+    const mrbauToolGroupButton2 = {
+      type: 'toolGroupButton',
+      //toolGroup: 'rubberStampTools',
+      toolGroup: 'mrbauStampToolGroup2',
+      //dataElement: 'mrbauStampToolGroupButton',
+      title: 'M&R Abzüge',
+      img: MrbauStamps.SVG_ICON_SUM,
+    };
+
+
     this.wvInstance.UI.setHeaderItems(header => {
       const item = header
         .getHeader('toolbarGroup-Insert')
         .get('rubberStampToolGroupButton');
+        item.insertBefore(mrbauToolGroupButton2);
         item.insertBefore(mrbauToolGroupButton);
     });
   }

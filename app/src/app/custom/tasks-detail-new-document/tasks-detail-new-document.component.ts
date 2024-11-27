@@ -171,7 +171,13 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   }
   updateFormDC() {
     this.updateForm();
+    this.resetFormTouchedAttribute();
     this.changeDetectorRef.detectChanges();
+  }
+
+  resetFormTouchedAttribute() {
+    // reset touched attribute for each FormlyFieldConfig control to avoid validation message on dialog open
+    this.fields.forEach((val) => {val.fieldGroup?.forEach((x)=> x.formControl?.markAsUntouched())});
   }
 
   onButtonSubmitClicked()

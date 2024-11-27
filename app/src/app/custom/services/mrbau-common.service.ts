@@ -14,6 +14,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 import { MrbauDbService } from './mrbau-db.service';
 import { MrbauExportService } from './mrbau-export.service';
+import { MrbauCalcDeductionDialogComponent, ResultDetails } from '../dialogs/mrbau-calc-deduction-dialog/mrbau-calc-deduction-dialog.component';
 
 export interface IMrbauReplaceCompanyInfoData {
   key:string,
@@ -949,6 +950,22 @@ export class MrbauCommonService {
       });
     }
   )
+  }
+
+  calcDeductionWithDialog(data:FormlyFieldConfig) {
+    const dialogRef = this.dialog.open(MrbauCalcDeductionDialogComponent, {
+      data: {
+        payload : data,
+    }});
+
+    dialogRef.afterClosed().subscribe((result) => {
+      // update properties in form
+      if (result && typeof result === "object") {
+        data.model['ignore:taskNode'] = result;
+        data.form.controls[ResultDetails.netAmountVerified.key].setValue(result.properties[ResultDetails.netAmountVerified.key]);
+        data.form.controls[ResultDetails.grossAmountVerified.key].setValue(result.properties[ResultDetails.grossAmountVerified.key]);
+      }
+    })
   }
 
   editProjectWithConfirmDialog() : Promise<ICostCarrier>

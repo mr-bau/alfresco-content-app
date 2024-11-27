@@ -76,9 +76,13 @@ export function autocompleteValueFromListValidator(control: FormControl, field: 
 }
 
 export function germanParseFloat(value : string) : number {
-  if (value == null)
+  if (value == null) {
     return undefined;
-    value = value.replace( /[. ]/gi,'').replace(',','.');
+  }
+  if (typeof value == "number") {
+    return value;
+  }
+  value = value.replace( /[. ]/gi,'').replace(',','.');
   const valueFloat = parseFloat(value);
   if (isNaN(value as any) || isNaN(valueFloat))
   {

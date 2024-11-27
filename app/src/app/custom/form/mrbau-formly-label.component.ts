@@ -1,14 +1,29 @@
 import { FieldTypeConfig } from '@ngx-formly/core';
 import { FieldType } from '@ngx-formly/core';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'aca-mrbau-formly-label',
   template: `
-  <p>{{getValue()}}</p>
+  <p>{{value}}</p>
   `,
  })
- export class MrbauFormlyLabelComponent extends FieldType<FieldTypeConfig> {
+ export class MrbauFormlyLabelComponent extends FieldType<FieldTypeConfig> implements OnInit {
+  value : any;
+
+  constructor(private cdr: ChangeDetectorRef) {
+    super();
+  }
+
+  ngOnInit(): void {
+    super.formControl.registerOnChange(() => {
+      this.value = this.getValue();
+      this.cdr.detectChanges();
+    })
+    this.value = this.getValue();
+  }
+
+
   getValue() : any {
     if (this.props.disabled) {
       return '-';

@@ -97,6 +97,8 @@ mat-radio-button {
   margin-bottom: 1rem;
 }
 
+
+
 .duplicate-radio-group {
   display: flex;
   flex-direction: column;
@@ -196,3 +198,37 @@ mat-radio-button {
 textarea.mat-input-element.cdk-textarea-autosize {
   resize: vertical;
 }
+
+.textAlignRight {
+  text-align: right;
+}
+
+.calcFormField {
+  margin: 0;
+  padding: 0;
+}
+
+.calcButton {
+  button {
+    margin-bottom: 1.4375em;
+    height: 3rem;
+    color: white;
+    background-color:#0055b8;
+  }
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  //background-color: lightcyan;
+  background-color: rgb(237, 242, 250);
+  border-radius: 5px;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  //background-color: lightcyan;
+  background-color: rgb(237, 242, 250);
+  border-radius: 5px;
+}
+/*
+.mat-form-field-appearance-outline.mat-form-field-invalid.mat-form-field-invalid .mat-form-field-outline-thick {
+  background-color: lightpink;
+}*/

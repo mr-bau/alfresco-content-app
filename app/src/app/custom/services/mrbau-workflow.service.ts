@@ -10,6 +10,7 @@ import { CONST } from '../mrbau-global-declarations';
 import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
 import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { AspectDeductionDetails, AspectRetentionDetails } from '../mrbau-mrba-aspects';
 
 @Injectable({
   providedIn: 'root'
@@ -389,6 +390,18 @@ export class MrbauWorkflowService {
       "mrba:taxRate",
       "mrba:taxRateComment",
       "mrba:taxRateMixedRate",
+      AspectDeductionDetails.netAmountPreDeduction.key,
+      AspectDeductionDetails.deductionDamageUnassignedPercent.key,
+      AspectDeductionDetails.deductionDamageAssignedNetAmount.key,
+      AspectDeductionDetails.deductionSpecialNetAmount.key,
+      AspectDeductionDetails.deductionSpecialPercent.key,
+      AspectDeductionDetails.deductionWastePercent.key,
+      AspectDeductionDetails.deductionCleaningPercent.key,
+      AspectDeductionDetails.deductionToiletsPercent.key,
+      AspectDeductionDetails.deductionWaterPercent.key,
+      AspectDeductionDetails.deductionElectricityPercent.key,
+      AspectRetentionDetails.retentionDRLPercent.key,
+      AspectRetentionDetails.retentionHRLPercent.key,
     ];
     for (const property of fieldList)
     {

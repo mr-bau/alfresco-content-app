@@ -19,6 +19,7 @@ export const enum EMRBauTaskStatus {
   STATUS_SIGNING              = 210,
   STATUS_PAUSED               = 211,
   STATUS_INTERNAL_INVOICE_VIEW= 212,
+  STATUS_DEDUCTION_RATES      = 213,
 
   // -- numbers above STATUS_NOTIFY_DONE do not show modifications UI except done/reject
   STATUS_NOTIFY_DONE      = 8000,
@@ -59,6 +60,7 @@ export const MRBauTaskStatusDefinition = new Map<number, MRBauTaskStatusData>([
   [EMRBauTaskStatus.STATUS_ACCOUNTING, {state: EMRBauTaskStatus.STATUS_ACCOUNTING, stateAsString: "STATUS_ACCOUNTING", label: 'Buchen'}],
   [EMRBauTaskStatus.STATUS_ALL_SET, {state: EMRBauTaskStatus.STATUS_ALL_SET, stateAsString: "STATUS_ALL_SET", label: 'Workflow abschließen'}],
   [EMRBauTaskStatus.STATUS_INTERNAL_INVOICE_VIEW, {state: EMRBauTaskStatus.STATUS_INTERNAL_INVOICE_VIEW, stateAsString: "STATUS_INTERNAL_INVOICE_VIEW", label: 'Interne Rechnung zur Info'}],
+  [EMRBauTaskStatus.STATUS_DEDUCTION_RATES, {state: EMRBauTaskStatus.STATUS_DEDUCTION_RATES, stateAsString: "STATUS_DEDUCTION_RATES", label: 'Abzüge'}],
 
 
   [EMRBauTaskStatus.STATUS_NOTIFY_DONE, {state: EMRBauTaskStatus.STATUS_NOTIFY_DONE, stateAsString: "STATUS_NOTIFY_DONE", label: 'Erledigt'}],
