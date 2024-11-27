@@ -1,0 +1,5 @@
+// Fix issue with ADF PDF Viewer container is to large - can not read bottom content of pdf
+.adf-pdf-viewer__container {
+  display: flex;
+  height: calc(100vh - 64px - 48px) !important;
+}
