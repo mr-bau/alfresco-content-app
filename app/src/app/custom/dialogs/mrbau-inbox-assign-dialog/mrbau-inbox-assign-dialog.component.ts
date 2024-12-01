@@ -105,6 +105,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
   categorizeNode(node:Node) {
     const docCategory : EMRBauDocumentCategory = this.model.archiveModelTypes;
     const nodeType = this.mrbauArchiveModelService.getArchiveModelNodeTye(docCategory);
+    const taskCategory = MRBauTask.getCategoryForArchiveDocument(docCategory);
     //console.log(nodeType);
     if (!nodeType)
     {
@@ -114,7 +115,7 @@ export class MrbauInboxAssignDialogComponent extends MrbauBaseDialogComponent im
 
     // execute sequentially !
     this.changeDocumentType(node, nodeType) // adapt document type and set receive time stamp and fiscal year
-    .then(() => {return this.doCreateTask(node, EMRBauTaskCategory.NewDocumentValidateAndArchive, docCategory, EMRBauTaskStatus.STATUS_NEW);}) // create and assign a new task
+    .then(() => {return this.doCreateTask(node, taskCategory, docCategory, EMRBauTaskStatus.STATUS_NEW);}) // create and assign a new task
     .then(() => this.doNotify())
     .catch((error) => {
       //console.log(error);

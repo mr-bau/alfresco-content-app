@@ -131,7 +131,23 @@ export class TasksComponent implements OnInit {
         query: {
           query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
           `WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status <> ${EMRBauTaskStatus.STATUS_PAUSED} `+
-          `AND B.mrbt:category >= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category <= ${EMRBauTaskCategory.NewDocumentLast} `+
+          `AND B.mrbt:category >= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category <= ${EMRBauTaskCategory.NewDocumentLast} AND B.mrbt:category <> ${EMRBauTaskCategory.NewDocumentValidateORDER} `+
+          ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `),
+          language: 'cmis'
+        },
+        include: ['properties']
+      }
+    },
+    {
+      tabIcon: 'description',
+      tabName: 'Aufträge',
+      tabBadge: 0,
+      order: 'ORDER BY B.cmis:creationDate DESC',
+      searchRequest: {
+        query: {
+          query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
+          `WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status <> ${EMRBauTaskStatus.STATUS_PAUSED} `+
+          `AND B.mrbt:category = ${EMRBauTaskCategory.NewDocumentValidateORDER} `+
           ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `),
           language: 'cmis'
         },

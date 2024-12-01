@@ -72,7 +72,7 @@ export class MrbauConventionsService {
     let taskCategory = data?.taskDetailNewDocument?.task?.category;
     let kt = data?.taskDetailNewDocument?.taskNode?.properties['mrba:costCarrierNumber'];
     return new Promise((resolve, reject) => {
-      if (taskCategory == EMRBauTaskCategory.NewDocumentValidateAndArchive && kt)
+      if ( MRBauTask.isNewDocumentTask(taskCategory) && kt)
       {
         this.mrbauDbService.getProject(kt).subscribe(
           result => {

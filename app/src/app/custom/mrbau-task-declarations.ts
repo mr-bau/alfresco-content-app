@@ -1,5 +1,6 @@
 import {  MinimalNode, QueryBody, UserInfo } from '@alfresco/js-api';
 import { Pipe, PipeTransform } from '@angular/core';
+import { EMRBauDocumentCategory } from './mrbau-doc-declarations';
 
 export const enum EMRBauTaskStatus {
   STATUS_NEW         = 0,
@@ -96,8 +97,34 @@ export const enum EMRBauTaskCategory {
   CommonTaskLast    = 1999,
 
   NewDocumentStart  = 2000,
-  NewDocumentValidateAndArchive  = 2001,
+  NewDocumentValidateAndArchive = 2001, // Allgemeins Dokument archivieren
+  NewDocumentValidateOFFER = 2002, // Auftrag archivieren
+  NewDocumentValidateORDER = 2003,
+  NewDocumentValidateORDER_NEGOTIATION_PROTOCOL = 2004,
+  NewDocumentValidateDELIVERY_NOTE = 2005,
+  NewDocumentValidateINVOICE = 2006,
+  NewDocumentValidatePAYMENT_TERMS = 2007,
+  NewDocumentValidateINVOICE_REVIEW_SHEET = 2008,
+  NewDocumentValidateOTHER_BILL = 2009,
+  NewDocumentValidateMONITION = 2010,
+  NewDocumentValidateGUARANTEE = 2011,
+  NewDocumentValidateLIABILITY_ESCROW = 2012,
+  NewDocumentValidateFINANCIAL_RETENTION = 2013,
+  NewDocumentValidateCONTRACT_GUARANTEE = 2014,
+  NewDocumentValidateNOTE_DOCUMENT = 2015,
+
+  NewDocumentValidateRENT_CONTRACT = 2102,
+  NewDocumentValidateCONTRACT_CANCELLATION_WAIVER = 2103,
+  NewDocumentValidateMAINTENANCE_CONTRACT = 2104,
+  NewDocumentValidateALL_IN_CONTRACT = 2105,
+  NewDocumentValidateLICENSE_CONTRACT = 2106,
+  NewDocumentValidateFINANCING_CONTRACT = 2107,
+  NewDocumentValidateWORK_CONTRACT = 2108,
+  NewDocumentValidateCONTRACT_CANCELLATION = 2109,
+  NewDocumentValidateOTHER_CONTRACT = 2110,
+
   //...
+
   NewDocumentLast   = 2999,
 }
 
@@ -111,6 +138,9 @@ export const MRBauTaskCategoryNames = {
 @Pipe({name: 'mrbauTaskCategory'})
 export class MRBauTaskCategoryPipe implements PipeTransform {
   transform(value: EMRBauTaskCategory): string {
+    if (MRBauTask.isNewDocumentTask(value)) {
+      return MRBauTaskCategoryNames[2001] +' '+ value.toString();
+    }
     return MRBauTaskCategoryNames[value] ? MRBauTaskCategoryNames[value] : value.toString();
   }
 }
@@ -214,7 +244,7 @@ export class MRBauTask {
   }
 
   public isNewDocumentTask() :boolean {
-    return this.category == EMRBauTaskCategory.NewDocumentValidateAndArchive;
+    return this.category > EMRBauTaskCategory.NewDocumentStart && this.category < EMRBauTaskCategory.NewDocumentLast;
   }
 
   public getStateLabel() : string {
@@ -239,10 +269,45 @@ export class MRBauTask {
     return MRBauTask.getStateAsString(this.status);
   }
 
+  public static isNewDocumentTask(category : EMRBauTaskCategory) :boolean {
+    return category > EMRBauTaskCategory.NewDocumentStart && category < EMRBauTaskCategory.NewDocumentLast;
+  }
+
   public static getStateAsString(state:EMRBauTaskStatus) : string
   {
     const val = MRBauTaskStatusDefinition.get(state);
     return (val) ? val.stateAsString : state.toString();
+  }
+
+  public static getCategoryForArchiveDocument(documentCategory : EMRBauDocumentCategory) : EMRBauTaskCategory {
+    switch (documentCategory) {
+      // documents
+      case EMRBauDocumentCategory.OFFER : return EMRBauTaskCategory.NewDocumentValidateOFFER;
+      case EMRBauDocumentCategory.ORDER : return EMRBauTaskCategory.NewDocumentValidateORDER;
+      case EMRBauDocumentCategory.ORDER_NEGOTIATION_PROTOCOL : return EMRBauTaskCategory.NewDocumentValidateORDER_NEGOTIATION_PROTOCOL;
+      case EMRBauDocumentCategory.DELIVERY_NOTE : return EMRBauTaskCategory.NewDocumentValidateDELIVERY_NOTE;
+      case EMRBauDocumentCategory.INVOICE : return EMRBauTaskCategory.NewDocumentValidateINVOICE;
+      case EMRBauDocumentCategory.PAYMENT_TERMS : return EMRBauTaskCategory.NewDocumentValidatePAYMENT_TERMS;
+      case EMRBauDocumentCategory.INVOICE_REVIEW_SHEET : return EMRBauTaskCategory.NewDocumentValidateINVOICE_REVIEW_SHEET;
+      case EMRBauDocumentCategory.OTHER_BILL : return EMRBauTaskCategory.NewDocumentValidateOTHER_BILL;
+      case EMRBauDocumentCategory.MONITION : return EMRBauTaskCategory.NewDocumentValidateMONITION;
+      case EMRBauDocumentCategory.GUARANTEE : return EMRBauTaskCategory.NewDocumentValidateGUARANTEE;
+      case EMRBauDocumentCategory.LIABILITY_ESCROW : return EMRBauTaskCategory.NewDocumentValidateLIABILITY_ESCROW;
+      case EMRBauDocumentCategory.FINANCIAL_RETENTION : return EMRBauTaskCategory.NewDocumentValidateFINANCIAL_RETENTION;
+      case EMRBauDocumentCategory.CONTRACT_GUARANTEE : return EMRBauTaskCategory.NewDocumentValidateCONTRACT_GUARANTEE;
+      case EMRBauDocumentCategory.NOTE_DOCUMENT : return EMRBauTaskCategory.NewDocumentValidateNOTE_DOCUMENT;
+      // contracts
+      case EMRBauDocumentCategory.RENT_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateRENT_CONTRACT;
+      case EMRBauDocumentCategory.CONTRACT_CANCELLATION_WAIVER : return EMRBauTaskCategory.NewDocumentValidateCONTRACT_CANCELLATION_WAIVER;
+      case EMRBauDocumentCategory.MAINTENANCE_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateMAINTENANCE_CONTRACT;
+      case EMRBauDocumentCategory.ALL_IN_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateALL_IN_CONTRACT;
+      case EMRBauDocumentCategory.LICENSE_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateLICENSE_CONTRACT;
+      case EMRBauDocumentCategory.FINANCING_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateFINANCING_CONTRACT;
+      case EMRBauDocumentCategory.WORK_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateWORK_CONTRACT;
+      case EMRBauDocumentCategory.CONTRACT_CANCELLATION : return EMRBauTaskCategory.NewDocumentValidateCONTRACT_CANCELLATION;
+      case EMRBauDocumentCategory.OTHER_CONTRACT : return EMRBauTaskCategory.NewDocumentValidateOTHER_CONTRACT;
+    }
+    return EMRBauTaskCategory.NewDocumentValidateAndArchive;
   }
 }
 

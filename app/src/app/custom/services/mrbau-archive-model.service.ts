@@ -52,7 +52,7 @@ export class MrbauArchiveModelService {
 
   getTaskDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string
   {
-    if (task == EMRBauTaskCategory.NewDocumentValidateAndArchive)
+    if (task > EMRBauTaskCategory.NewDocumentStart && task < EMRBauTaskCategory.NewDocumentLast)
     {
       return MRBauTaskCategoryNames['2001'] + (documentCategory ? " - "+this.getArchiveModelNodeTitle(documentCategory) : "");
     }
