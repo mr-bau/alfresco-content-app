@@ -81,7 +81,10 @@ export class MrbauConventionsService {
               reject(result);
               return;
             }
-            let project = result as ICostCarrier;
+            const project = result as ICostCarrier;
+            if (project == null) {
+              resolve(null);
+            }
             switch (status)
             {
               case EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION:

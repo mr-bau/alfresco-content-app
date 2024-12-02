@@ -1459,6 +1459,8 @@ export class MrbauFormLibraryService {
         console.log(field);
         if (!exists) {
           field.template = '';
+        } else {
+          field.template = '<div class="form-group-warning-wrapper"><span class="form-group-warning-large">Achtung: Beilage Rechnungskorrektur beachten!</span></div>';
         }
       },
     },
