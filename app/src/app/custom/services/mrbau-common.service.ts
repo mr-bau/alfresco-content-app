@@ -235,6 +235,12 @@ export class MrbauCommonService {
     return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
+  updateTaskDescriptionAndCategory(nodeId: string, description : string, taskCategory : EMRBauTaskCategory) :  Promise<NodeEntry>
+  {
+    let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:description": description, "mrbt:category": ''+taskCategory}};
+    return this.contentService.nodesApi.updateNode(nodeId, nodeBodyUpdate);
+  }
+
   updateTaskDescription(nodeId: string, description : string) :  Promise<NodeEntry>
   {
     let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:description": description}};

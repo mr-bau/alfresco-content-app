@@ -44,7 +44,8 @@ export class TasksMenuNewarchivetypeComponent {
       }
       const documentCategory = this.mrbauArchiveModelService.mrbauArchiveModel.getDocumentCategoryFromName(result);
       const desc = this.mrbauArchiveModelService.getTaskDescription(this.task.category, documentCategory);
-      return this.mrbauCommonService.updateTaskDescription(this.task.id, desc);
+      const taskCategory = MRBauTask.getCategoryForArchiveDocument(documentCategory);
+      return this.mrbauCommonService.updateTaskDescriptionAndCategory(this.task.id, desc, taskCategory);
     })
     .then((result) => {
       if (result != null)
