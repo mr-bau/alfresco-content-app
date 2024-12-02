@@ -2,7 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ICostCarrier, MrbauConventionsService } from '../services/mrbau-conventions.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauDbService } from '../services/mrbau-db.service';
-import { NodeBodyUpdate, ResultSetPaging, SearchRequest } from '@alfresco/js-api';
+import { NodeBodyUpdate, NodePaging, ResultSetPaging, SearchRequest } from '@alfresco/js-api';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
+import { SearchService } from '@alfresco/adf-core';
+import { CONST } from '../mrbau-global-declarations';
+import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 
 @Component({
   selector: 'aca-mrbau-settings',
@@ -42,6 +46,8 @@ import { NodeBodyUpdate, ResultSetPaging, SearchRequest } from '@alfresco/js-api
 
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonFixDocumentNameByCompanyProperty()" matTooltip="Fix Document Name By Company Property">Fix Document Name By Company Property</button>
 
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="patchTaskCategories()" matTooltip="Patch Task Categories">Patch Task Categories</button>
+
         </div>
 
       </div>
@@ -61,8 +67,10 @@ export class MrbauSettingsComponent implements OnInit {
 
   constructor(
     private mrbauConventionsService: MrbauConventionsService,
+    private mrbauArchiveModelService: MrbauArchiveModelService,
     private mrbauCommonService: MrbauCommonService,
     private mrbauDbService: MrbauDbService,
+    private searchService: SearchService,
     ) {
       this.mrbauDbService;
   }
@@ -93,6 +101,59 @@ export class MrbauSettingsComponent implements OnInit {
 
   private escapeName(val : string) : string {
     return val.replace(/["/]/g,'_');
+  }
+
+  async patchTaskCategories() {
+    EMRBauTaskStatus.STATUS_NOTIFY_DONE;
+    const searchRequest = {
+      query: {
+        query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
+        `WHERE B.mrbt:status >= 0 `+//AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} `+
+        `AND B.mrbt:category = ${EMRBauTaskCategory.NewDocumentValidateAndArchive} `,
+        //`AND B.mrbt:category = ${EMRBauTaskCategory.NewDocumentValidateORDER} `,
+        language: 'cmis'
+      },
+      include: ['properties'],
+      paging : {
+        skipCount: 0,
+        maxItems:  1000,
+      }
+    };
+
+    this.searchService.searchByQueryBody(searchRequest).subscribe(
+      async (nodePaging : NodePaging) => {
+        this.mrbauArchiveModelService;
+        MRBauTask;CONST;
+        const length = nodePaging.list.entries.length;
+        console.log(length);
+        for (var nodeEntry of nodePaging.list.entries) {
+          let task = new MRBauTask();
+          task.updateWithNodeData(nodeEntry.entry);
+          console.log(task);
+          const docNodeEntry = await this.mrbauCommonService.getNode(task.associatedDocumentRef[0], {include: CONST.GET_NODE_DEFAULT_INCLUDE}).toPromise();
+          const taskNode = docNodeEntry.entry;
+          if (task.category == EMRBauTaskCategory.NewDocumentValidateAndArchive) {
+            const documentCategory  = this.mrbauArchiveModelService.mrbauArchiveModel.getDocumentCategoryFromName(taskNode.nodeType);
+            if (documentCategory == null) {
+              console.log("ERROR Document Category not found!", docNodeEntry);
+              return;
+            }
+            const taskCategory = MRBauTask.getCategoryForArchiveDocument(documentCategory);
+            let nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:category": ''+taskCategory}};
+            console.log(taskNode.nodeType, documentCategory, taskCategory, nodeBodyUpdate);
+            const result = await this.mrbauCommonService.updateNode(nodeEntry.entry.id, nodeBodyUpdate);
+            console.log(result);
+          }
+        }
+        console.log('finished');
+        if (length > 0) {
+          this.patchTaskCategories();
+        }
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   async buttonFixDocumentNameByCompanyProperty() {
