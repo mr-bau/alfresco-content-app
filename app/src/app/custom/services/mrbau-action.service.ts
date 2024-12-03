@@ -31,6 +31,13 @@ export class MrbauActionService {
       return this._webscriptApi;
   }
 
+  getClassDefinition(nsp : string) : Promise<any> {
+    //https://mrdms01.mrbau.at/alfresco/service/api/defclasses/mrba/archiveDocument
+    //https://mrdms01.mrbau.at/alfresco/service/api/defclasses/mrba/invoice
+    //https://mrdms01.mrbau.at/alfresco/service/api/defclasses?nsp=mrbt
+    return this.webscriptApi.executeWebScript('GET', 'api/defclasses?nsp='+nsp, null, null, null, {});
+  }
+
   startOcrTransform(data : any) {
     if (!data || !data.payload)
     {

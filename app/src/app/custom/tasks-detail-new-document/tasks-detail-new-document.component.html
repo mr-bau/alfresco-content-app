@@ -21,7 +21,7 @@
     <mat-menu #menu="matMenu">
       <aca-tasks-menu-ocr [task]="task"></aca-tasks-menu-ocr>
       <aca-tasks-menu-newarchivetype [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-newarchivetype>
-      <aca-tasks-menu-discard-document [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-discard-document>
+      <aca-tasks-menu-discard-document [task]="task" [taskNode]="taskNode" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-discard-document>
       <mat-divider></mat-divider>
       <aca-tasks-menu-delegate [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-delegate>
       <mat-divider></mat-divider>

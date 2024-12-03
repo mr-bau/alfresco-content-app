@@ -77,6 +77,9 @@ export class TaskSingleViewComponent implements OnInit {
   taskChanged(taskChangedData : ITaskChangedData)
   {
     taskChangedData;
+    if (taskChangedData?.queryTasks) {
+      this.queryTask();
+    }
   }
 
 }
