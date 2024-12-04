@@ -134,7 +134,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     this.selectedTask = null;
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
-    this.isTabDocs = (this.selectedTab.value != 1 && this.selectedTab.value != 2);
+    this.isTabDocs = (this.selectedTab.value != 2 && this.selectedTab.value != 3);
     let searchRequest : SearchRequest = JSON.parse(JSON.stringify(currentTab.searchRequest));
     searchRequest.query.query += ' '+currentTab.order;
     searchRequest.paging = {
