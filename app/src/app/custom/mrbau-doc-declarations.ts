@@ -605,6 +605,10 @@ export class MrbauArchiveModel {
             .catch( (error) => reject(error))
             }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
+        /*{state : EMRBauTaskStatus.STATUS_MR_SIGNING,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
+        },*/
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
@@ -668,6 +672,12 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [],
           mandatoryRequiredProperties: []
         },
+        /*'STATUS_MR_SIGNING' : {
+          formlyFieldConfigs: [
+            'workflow_internal_signing'
+          ],
+          mandatoryRequiredProperties: []
+        },*/
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
             'title_mrba_orderType',
@@ -734,7 +744,6 @@ export class MrbauArchiveModel {
             'workflow_all_set_form'
             ],
             mandatoryRequiredProperties: [
-              'mrba:signingStatus'
             ]
         }
       }

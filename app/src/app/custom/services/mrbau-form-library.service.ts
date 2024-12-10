@@ -632,6 +632,18 @@ export class MrbauFormLibraryService {
       type: 'mrbauFormlyAllSet',
   };
 
+  readonly workflow_internal_signing : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      appearance:"outline",
+      icon : 'fingerprint',
+      title : 'PARAPHIEREN UND SIGNIEREN',
+      subtitle : 'Prüfen, Paraphieren und Signieren Sie den Auftrag. Anschließend deligieren sie den Auftrag an die technische Assistenz zum Versand an den Auftragnehmer.',
+      additionalText : ['1) Prüfen und Paraphieren (Bauleiter)', '2) Signieren (Unternehmensbereichsleiter)', '3) Signieren (Geschäftsführer)','4) Deligieren an technische Assistenz für den Versand']
+    }
+};
+
   readonly workflow_internal_invoice_view_form : FormlyFieldConfig = {
     key: 'mrbauFormlyAllSet',
     type: 'mrbauFormlyAllSet',
