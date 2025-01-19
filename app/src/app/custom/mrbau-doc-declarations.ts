@@ -600,15 +600,15 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
             .then( () =>
             {
-              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
+              resolve({state:EMRBauTaskStatus.STATUS_MR_SIGNING});
             })
             .catch( (error) => reject(error))
             }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
-        /*{state : EMRBauTaskStatus.STATUS_MR_SIGNING,
+        {state : EMRBauTaskStatus.STATUS_MR_SIGNING,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
-        },*/
+        },
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
@@ -618,7 +618,7 @@ export class MrbauArchiveModel {
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_MR_SIGNING})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
@@ -672,12 +672,12 @@ export class MrbauArchiveModel {
           formlyFieldConfigs: [],
           mandatoryRequiredProperties: []
         },
-        /*'STATUS_MR_SIGNING' : {
+        'STATUS_MR_SIGNING' : {
           formlyFieldConfigs: [
             'workflow_internal_signing'
           ],
           mandatoryRequiredProperties: []
-        },*/
+        },
         'STATUS_METADATA_EXTRACT_2' : {
           formlyFieldConfigs: [
             'title_mrba_orderType',

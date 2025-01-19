@@ -441,10 +441,22 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   }
 
   isPrevButtonEnabled() : boolean {
-    return this.task && this.task.status > EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
+    if (this.task) {
+      if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isOrderPostUser()) {
+        return false;
+      }
+      return this.task.status > EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
+    }
+    return false;
   }
 
   isNextButtonEnabled() : boolean {
+    if (this.task) {
+      if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isOrderPostUser()) {
+        return false;
+      }
+    }
+
     return this.isFormValid();
   }
 
