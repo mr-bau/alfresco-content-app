@@ -47,7 +47,9 @@ import { MrbauArchiveModelService } from '../services/mrbau-archive-model.servic
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonFixDocumentNameByCompanyProperty()" matTooltip="Fix Document Name By Company Property">Fix Document Name By Company Property</button>
 
           <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="patchTaskCategories()" matTooltip="Patch Task Categories">Patch Task Categories</button>
-
+<!--
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMovePausedDocuments()" matTooltip="Move Paused Documents">Move Paused Documents</button>
+-->
         </div>
 
       </div>
@@ -213,6 +215,35 @@ export class MrbauSettingsComponent implements OnInit {
        console.log(error);
     }
     console.log('fin');
+  }
+
+  async buttonMovePausedDocuments() {
+    let oldUser = 'Koestenbaumer';
+    let newUser = 'koberer';
+    let query : SearchRequest = {
+      query: {
+        query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status = ${EMRBauTaskStatus.STATUS_PAUSED} AND B.mrbt:assignedUserName = '${oldUser}' `,
+        language: 'cmis'
+      },
+      include: ['properties', 'path', 'allowableOperations']
+    };
+    let count = 0;
+    try {
+      let result : ResultSetPaging = null;
+      result = await this.mrbauCommonService.queryNodes(query);
+      for (let i=0; i< result.list.entries.length; i++) {
+        const item = result.list.entries[i];
+        const entry = item.entry;
+        console.log(entry);
+        await this.mrbauCommonService.updateTaskAssignNewUser(entry.id, newUser)
+        count++;
+      }
+      console.log(count);
+    }
+    catch(error) {
+      console.log(error);
+   }
+   console.log('fin');
   }
 
   buttonMassReplaceSpecific() {
