@@ -600,15 +600,12 @@ export class MrbauArchiveModel {
             this.mrbauWorkflowService.createAssociationsForProposedDocuments(data)
             .then( () =>
             {
-              resolve({state:EMRBauTaskStatus.STATUS_MR_SIGNING});
+              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
             })
             .catch( (error) => reject(error))
             }),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),},
-        {state : EMRBauTaskStatus.STATUS_MR_SIGNING,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
-        },
+
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data)
@@ -618,7 +615,7 @@ export class MrbauArchiveModel {
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_MR_SIGNING})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
@@ -641,13 +638,17 @@ export class MrbauArchiveModel {
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
         },
         {state : EMRBauTaskStatus.STATUS_DEDUCTION_RATES,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING})),
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_MR_SIGNING})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data)
         },
+        {state : EMRBauTaskStatus.STATUS_MR_SIGNING,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES})),
+        },
         {state : EMRBauTaskStatus.STATUS_SIGNING,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET})),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_DEDUCTION_RATES}))},
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_MR_SIGNING}))},
         {state : EMRBauTaskStatus.STATUS_ALL_SET,
           nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_SIGNING}))},

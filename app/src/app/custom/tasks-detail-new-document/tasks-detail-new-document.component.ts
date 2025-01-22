@@ -442,7 +442,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   isPrevButtonEnabled() : boolean {
     if (this.task) {
-      if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isOrderPostUser()) {
+      if ((    this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING
+            || this.task.status == EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
+          ) && !this.mrbauCommonService.isOrderPostUser()) {
         return false;
       }
       return this.task.status > EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
