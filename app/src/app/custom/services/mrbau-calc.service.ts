@@ -62,7 +62,7 @@ export class MrbauCalcService {
       result -= this.calcValue(p, base);
 
     }
-    console.log(params)
+    //console.log(params)
     return result;
   }
 }

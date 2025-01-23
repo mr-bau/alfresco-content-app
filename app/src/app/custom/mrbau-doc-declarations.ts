@@ -1252,13 +1252,14 @@ export class MrbauArchiveModel {
         'STATUS_FINAL_APPROVAL' : {
           formlyFieldConfigs: [
             'workflow_invoice_approval',
-
             'title_mrba_verifyData',
             'label_group_paymentNetGrossVerified',
             'label_mrba_verifiedInboundInvoiceType',
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
             'label_group_paymentDateVerified',
+
+            'button_recalc_deduction',
 
             'title_mrba_documentSummary',
             'label_group_invoiceType_archiveDate',
@@ -1267,7 +1268,8 @@ export class MrbauArchiveModel {
             'label_group_reviewDays',
             'label_group_earlyPaymentDiscount1',
             'label_group_earlyPaymentDiscount2',
-            'label_group_paymentTargetDays'
+            'label_group_paymentTargetDays',
+
           ],
           mandatoryRequiredProperties: [
           ]
@@ -1275,7 +1277,6 @@ export class MrbauArchiveModel {
         'STATUS_ACCOUNTING' : {
           formlyFieldConfigs: [
             'mrba_accountingId',
-
             'label_ignore_warning_rk',
 
             'title_mrba_verifyData',
@@ -1284,6 +1285,8 @@ export class MrbauArchiveModel {
             'label_group_paymentDiscount1',
             'label_group_paymentDiscount2',
             'label_group_paymentDateVerified',
+
+            'button_recalc_deduction',
 
             'title_mrba_documentSummary',
             'label_group_invoiceType_archiveDate',

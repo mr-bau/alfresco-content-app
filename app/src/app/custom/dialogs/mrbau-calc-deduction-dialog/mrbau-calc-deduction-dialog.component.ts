@@ -296,6 +296,8 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
       this.setPropertyDeductionPercent('deductionToiletsPercent');
       this.setPropertyDeductionPercent('deductionWaterPercent');
       this.setPropertyDeductionPercent('deductionElectricityPercent');
+      this.setLabel('Abzüglich Geleistete Zahlungen')
+      this.setPropertyDeductionAmount('deductionPreviousPaymentsNetAmount');
       this.setLabel('Geprüfte Summe')
       this.setResultLabelAmount('netAmountVerified');
       if (this.taxRate > 0) {
@@ -328,6 +330,8 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
     deductions.push(this.calcPercent(netAmountPreDeduction, AspectDeductionDetails.deductionToiletsPercent.key));
     deductions.push(this.calcPercent(netAmountPreDeduction, AspectDeductionDetails.deductionWaterPercent.key));
     deductions.push(this.calcPercent(netAmountPreDeduction, AspectDeductionDetails.deductionElectricityPercent.key));
+
+    deductions.push(this.ensurePositiveNumber(AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key));
 
     let value = netAmountPreDeduction;
     for (let i=0; i<deductions.length; i++) {

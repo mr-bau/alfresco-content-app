@@ -20,6 +20,8 @@ export const AspectDeductionDetails : { [key:string]: IAspectDetailItem } = {
   //deductionWaterPercentNumericValue            : {key:"mrba:deductionWaterPercentNumericValue", label:"Umlage Wasser"},
   deductionElectricityPercent                  : {key:"mrba:deductionElectricityPercent", label:"Umlage Strom [%]", label_short: "Umlage Strom"},
   //deductionElectricityPercentNumericValue      : {key:"mrba:deductionElectricityPercentNumericValue", label:"Umlage Strom"},
+  deductionPreviousPaymentsNetAmount             : {key:"mrba:deductionPreviousPaymentsNetAmount", label:"Geleistete Zahlungen Netto [€]", label_short: "Geleistete Zahlungen" },
+  //deductionPreviousPaymentsNetAmountCents        : {key:"mrba:deductionPreviousPaymentsNetAmountCents", label:"Geleistete Zahlungen Netto [€]", label_short: "Geleistete Zahlungen" },
 }
 export const AspectRetentionDetails : { [key:string]: IAspectDetailItem } = {
   retentionDRLPercent             : {key:"mrba:retentionDRLPercent", label:"Deckungsrücklass [%]", label_short: "Deckungsrücklass"},

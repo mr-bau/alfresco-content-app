@@ -211,6 +211,8 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWaterPercent, node, 1));
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionElectricityPercent, node, 1));
 
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionPreviousPaymentsNetAmount, node, 2, false));
+
         const rl = (invoiceType=='Teilrechnung') ? this.getCalculationParameter(AspectRetentionDetails.retentionDRLPercent, node, 2) :  this.getCalculationParameter(AspectRetentionDetails.retentionHRLPercent, node, 2)
         this.mrbauCalcService.calcRetentionValue(invoiceType, rl, pStart.value);
         const netResult = this.mrbauCalcService.calcValues(deductionParameters, pStart.value);
@@ -234,10 +236,10 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         if (skonto > 0) {
           labels += this.getLabelStringFromCalculationParameter('Skonto '+this.mrbauCalcService.numberToString(skonto)+'%' , 1);
         }
-        labels += this.getLabelStringFromCalculationParameter('Summe Netto (kumuliert)', 2);
+        labels += this.getLabelStringFromCalculationParameter('Summe Netto', 2);
         if (taxRate > 0) {
           labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
-          labels += this.getLabelStringFromCalculationParameter('Summe Brutto (kumuliert)', 1);
+          labels += this.getLabelStringFromCalculationParameter('Summe Brutto', 1);
         }
 
         let values = '';
@@ -270,7 +272,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
         let lines= '';
         let dy = 8.8;
-        let y = 45 + dy*11;
+        let y = 45 + dy*13;
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
         y += dy * ((taxRate > 0) ? 4 : 2);
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
@@ -452,6 +454,19 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       }
     }
   }
+
+  customizeAnnotationPermissions() {
+    const { annotationManager } = this.wvInstance.Core;
+    annotationManager.setPermissionCheckCallback((author, annotation) => {
+      author;
+      // the default permission check that is used
+      // you can combine this with your own custom checks
+      const defaultPermission = annotation.Author === annotationManager.getCurrentUser() || annotationManager.isUserAdmin();
+      const customPermission = true;
+      return defaultPermission || customPermission;
+     });
+  }
+
 
   // see also https://groups.google.com/g/pdfnet-webviewer/c/tM--7GW5MP8
   customizeUIMRStamps() {
@@ -797,6 +812,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.customizeUIStamps();
     this.customizeUIMRStamps();
     this.customizeSignatureTool();
+    this.customizeAnnotationPermissions();
   }
 
   async customizeSignatureTool() {

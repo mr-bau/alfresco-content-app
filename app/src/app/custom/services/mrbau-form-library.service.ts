@@ -927,6 +927,22 @@ export class MrbauFormLibraryService {
     },
   }
 
+  readonly button_recalc_deduction : FormlyFieldConfig =
+  {
+    className: 'flex-1 calcButton',
+    key: 'ignore:mrbauCalcDeductionButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      appearance:"outline",
+      label: 'Abzüge festlegen und neu berechnen',
+      text: 'Abzüge Korrigieren',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauCommonService.calcDeductionWithDialog(this.button_recalc_deduction);
+      },
+    },
+  }
+
   readonly button_calc_deduction : FormlyFieldConfig =
   {
     className: 'flex-1 calcButton',
