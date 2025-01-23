@@ -28,6 +28,7 @@ interface ISVGData {
   width?: number,
   height?: number
   patchFunction? : IPatchFunction,
+  showPanel: boolean,
 };
 
 interface IPatchFunction {
@@ -51,7 +52,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   loaderVisible = false;
   // Syntax if using Angular 7 and below
   //@ViewChild('viewer') viewer: ElementRef;
-
+  stampDate : Date = new Date();
   customStamps : any[] = [];
   readonly STAMP_FOLDER_PATH = 'Vorlagen/Stempel/';
 
@@ -142,6 +143,16 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     text = text.replace(/©/g, '&#169;');
     text = text.replace(/€/g, '&#8364;');
     return text;
+  }
+
+  async svgPatchStampDate(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve) => {
+      let dateAsString = this.datePipe.transform(this.stampDate, 'dd. MMM yyyy');
+      dateAsString = this.svgEscapeUmlaute(dateAsString);
+      svgData = svgData.replace('DATE', dateAsString);
+      resolve(svgData);
+      return;
+    });
   }
 
   async svgPatchCurrentDate(svgData :string) : Promise<string> {
@@ -414,11 +425,11 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
     */
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-abzuege.svg', patchFunction : this.svgPatchDeductions.bind(this), icon: MrbauStamps.SVG_ICON_SUM, tooltip: 'M&R Abzüge', toolgroup: 'mrbauStampToolGroup2'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchiveDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt', toolgroup: 'mrbauStampToolGroup'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchiveDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang', toolgroup: 'mrbauStampToolGroup'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1', toolgroup: 'mrbauStampToolGroup'},
-    {path : 'assets/mrbau-extension/svg/mrbau-stamp-pruefung.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-abzuege.svg', patchFunction : this.svgPatchDeductions.bind(this), showPanel : false, icon: MrbauStamps.SVG_ICON_SUM, tooltip: 'M&R Abzüge', toolgroup: 'mrbauStampToolGroup2'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchStampDate.bind(this), showPanel : true, icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchStampDate.bind(this), showPanel : true, icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), showPanel : false, icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-pruefung.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), showPanel : false, icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2', toolgroup: 'mrbauStampToolGroup'},
   ];
 
   async loadSVGStamps() {
@@ -467,14 +478,14 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
      });
   }
 
-
   // see also https://groups.google.com/g/pdfnet-webviewer/c/tM--7GW5MP8
   customizeUIMRStamps() {
     const { Annotations, annotationManager, Tools, documentViewer } = this.wvInstance.Core;
 
     const XFDF_NAME='stamp';  //const XFDF_NAME='mrbau_stamp_annotation'
     interface IMRBauStampParamater {
-      svgStamp : ISVGData
+      svgStamp : ISVGData,
+      pdftronComponent : PdftronComponent
     }
     class MRBauCustomStampAnnotation extends Annotations.StampAnnotation  {
       mrbau_parameter : IMRBauStampParamater | undefined;
@@ -520,8 +531,10 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     class MRBauCustomStampAnnotationCreateTool extends Tools.GenericAnnotationCreateTool {
+      mrbau_parameter : IMRBauStampParamater | undefined;
       constructor(documentViewer, param: IMRBauStampParamater) {
         super(documentViewer, MRBauCustomStampAnnotation, param);
+        this.mrbau_parameter = param;
       }
       mouseLeftDown(e) {
         e;
@@ -531,6 +544,18 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         e;
         Tools.AnnotationSelectTool.prototype.mouseMove.apply(this, arguments);
       };
+      switchIn(oldTool) {
+        //The event triggered when this tool is selected.
+        oldTool;
+        if (this.mrbau_parameter.svgStamp.showPanel) {
+          this.mrbau_parameter.pdftronComponent.wvInstance.UI.openElements(['mrStampPropertiesPanel']);
+        }
+      }
+      switchOut(oldTool) {
+        //The event triggered when this tool is selected.
+        oldTool;
+        this.mrbau_parameter.pdftronComponent.wvInstance.UI.closeElements(['mrStampPropertiesPanel']);
+      }
       async mouseLeftUp(e) {
         let annotationReference;
         Tools.GenericAnnotationCreateTool.prototype.mouseLeftDown.call(this, e);
@@ -574,7 +599,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     // Register tool
     for (let i=0; i<this.svgStamps.length; i++) {
       const mrbauStampToolName = 'MRBauAnnotationCustomStamp'+i;
-      const mrbauCustomStampTool = new MRBauCustomStampAnnotationCreateTool(documentViewer, {svgStamp: this.svgStamps[i]});
+      const mrbauCustomStampTool = new MRBauCustomStampAnnotationCreateTool(documentViewer, {svgStamp: this.svgStamps[i], pdftronComponent: this});
       const myTool = {
         toolName: mrbauStampToolName,
         toolObject: mrbauCustomStampTool,
@@ -813,6 +838,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.customizeUIMRStamps();
     this.customizeSignatureTool();
     this.customizeAnnotationPermissions();
+    this.customizeMRPanel();
   }
 
   async customizeSignatureTool() {
@@ -896,6 +922,41 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       'SHAccepted',
       'SBRejected',
     ]);
+  }
+
+  customizeMRPanel() {
+    // Adding a panel built with JS and DOM elements
+    this.wvInstance.UI.addPanel({
+      dataElement: 'mrStampPropertiesPanel',
+      location: 'right',
+      //icon: '/path/to/icon.svg',
+      icon: MrbauStamps.SVG_ICON_MR,
+      render: () => {
+        const panelDiv = document.createElement('div');
+        const paragraph = document.createElement('p');
+        paragraph.textContent = 'Stempel Datum';
+        const date = document.createElement("INPUT");
+        date.setAttribute("type", "date");
+        date.addEventListener("change", (e) => {
+          this.stampDate = new Date((e.target as HTMLInputElement).value);
+        })
+        const stampDate = this.stampDate;
+        const nowString = stampDate.getFullYear().toString() + '-' + (stampDate.getMonth() + 1).toString().padStart(2, '0') + '-' + stampDate.getDate().toString().padStart(2, '0');
+        date.setAttribute("value", nowString);
+        const button = document.createElement('button');
+        button.textContent = 'X';
+        const self = this;
+        button.addEventListener('click', function() {
+          self.wvInstance.UI.closeElements(['mrStampPropertiesPanel']);
+        });
+        button.style.cssFloat = 'right';
+        button.style.backgroundColor = "darkgray";
+        panelDiv.appendChild(button);
+        panelDiv.appendChild(paragraph);
+        panelDiv.appendChild(date);
+        return panelDiv;
+      }
+    });
   }
 
   async flattenDocument() {
