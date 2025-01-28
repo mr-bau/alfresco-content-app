@@ -1196,7 +1196,9 @@ export class MrbauCommonService {
 
   readonly DEFAULT_TAG_ERLEDIGT = 'Erledigt';
   readonly DEFAULT_TAG_ABFALLWIRTSCHAFT = 'Abfallwirtschaft';
-  readonly DEFAULT_TAGS = [this.DEFAULT_TAG_ABFALLWIRTSCHAFT, this.DEFAULT_TAG_ERLEDIGT];
+  readonly DEFAULT_TAG_BAUHOF = 'Bauhof';
+
+  readonly DEFAULT_TAGS = [this.DEFAULT_TAG_ABFALLWIRTSCHAFT, this.DEFAULT_TAG_BAUHOF, this.DEFAULT_TAG_ERLEDIGT];
   readonly HIDDEN_TAGS = ['Covid','Oemag','Ökofit'];
   getAllTheTags() {
     return this.tagService.getAllTheTags().toPromise();
