@@ -42,7 +42,7 @@ export class TasksMenuDiscardDocumentComponent {
   }
 
   isDisabled() : boolean {
-    return !this.task || this.task.associatedDocumentRef.length == 0;
+    return !this.task || this.task.associatedDocumentRef.length == 0 || !this.mrbauCommonService.isSettingsUser();
   }
 
   async undeleteDocument() {
