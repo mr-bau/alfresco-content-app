@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg width="65mm" height="89mm" viewBox="0 0 187 255" xmlns="http://www.w3.org/2000/svg">
+<svg width="65mm" height="94mm" viewBox="0 0 187 271" xmlns="http://www.w3.org/2000/svg">
     <style>
       .cls-1 {
         fill: #ffffff;
@@ -22,7 +22,7 @@
         font-size: 10px;
       }
     </style>
-    <rect class="cls-1" x=".6" y=".5" width="186" height="254.5"/>
+    <rect class="cls-1" x=".6" y=".5" width="186" height="270"/>
     <text class="cls-3" x="6" y="18">Abz&#252;ge und Umlagen</text>
 
     <text  text-anchor="start" class="cls-5" x="0" y="30">

@@ -222,10 +222,15 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWaterPercent, node, 1));
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionElectricityPercent, node, 1));
 
-        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionPreviousPaymentsNetAmount, node, 2, false));
-
         const rl = (invoiceType=='Teilrechnung') ? this.getCalculationParameter(AspectRetentionDetails.retentionDRLPercent, node, 2) :  this.getCalculationParameter(AspectRetentionDetails.retentionHRLPercent, node, 2)
         this.mrbauCalcService.calcRetentionValue(invoiceType, rl, pStart.value);
+        if (this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)) {
+          rl.label += ' (>'+this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)+')';
+        }
+        deductionParameters.push(rl);
+
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionPreviousPaymentsNetAmount, node, 2, false));
+
         const netResult = this.mrbauCalcService.calcValues(deductionParameters, pStart.value);
 
         let labels = '';
@@ -239,13 +244,15 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
           labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
           labels += this.getLabelStringFromCalculationParameter('Gepr. Summe Brutto', 1);
         }
+        /*
         let rlLabel = rl.label+' '+this.mrbauCalcService.numberToString(rl.value)+'%';
         if (this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)) {
           rlLabel += ' (>'+this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)+')';
         }
         labels += this.getLabelStringFromCalculationParameter(rlLabel, rl.dyMultiplier);
+        */
         if (skonto > 0) {
-          labels += this.getLabelStringFromCalculationParameter('Skonto '+this.mrbauCalcService.numberToString(skonto)+'%' , 1);
+          labels += this.getLabelStringFromCalculationParameter('Skonto '+this.mrbauCalcService.numberToString(skonto)+'%' , 2);
         }
         labels += this.getLabelStringFromCalculationParameter('Summe Netto', 2);
         if (taxRate > 0) {
@@ -266,13 +273,13 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
           values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst), 1);
           values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult), 1);
         }
-        values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(rl.calculatedValue), 2);
+        //values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(rl.calculatedValue), 2);
         let skontoValue = 0;
         if (skonto > 0) {
           skontoValue = this.mrbauCalcService.calcPercentValue(skonto, pStart.value);
-          values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(skontoValue), 1);
+          values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(skontoValue), 2);
         }
-        const netResult2 = netResult-rl.calculatedValue-skontoValue;
+        const netResult2 = netResult-skontoValue;
         values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult2), 2);
         if (taxRate > 0) {
           const grossResult2 : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult2);
@@ -283,11 +290,11 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
         let lines= '';
         let dy = 8.8;
-        let y = 45 + dy*13;
+        let y = 45 + dy*15;
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
         y += dy * ((taxRate > 0) ? 4 : 2);
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
-        y += dy * ((skonto > 0) ? 3 : 2);
+        y += dy * ((skonto > 0) ? 2 : 1);
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
 
         svgData = svgData.replace('mrba:calclabels', labels);

@@ -296,6 +296,8 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
       this.setPropertyDeductionPercent('deductionToiletsPercent');
       this.setPropertyDeductionPercent('deductionWaterPercent');
       this.setPropertyDeductionPercent('deductionElectricityPercent');
+      this.setLabel('Rücklass')
+      this.setPropertyRetentionPercent(this.getRetention(), { labelBetrag: this.getRetentionLabelBetrag()});
       this.setLabel('Abzüglich Geleistete Zahlungen')
       this.setPropertyDeductionAmount('deductionPreviousPaymentsNetAmount');
       this.setLabel('Geprüfte Summe')
@@ -303,8 +305,7 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
       if (this.taxRate > 0) {
         this.setResultLabelAmount('grossAmountVerified');
       }
-      this.setLabel('Rücklass')
-      this.setPropertyRetentionPercent(this.getRetention(), { labelBetrag: this.getRetentionLabelBetrag()});
+
     } catch (error) {
       this.errorMessage=''+error;
     }
@@ -315,7 +316,7 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
     this.autoCalc = true;
     let key : string;
     const deductions : number[] = [];
-    const retentions : number[] = [];
+    //const retentions : number[] = [];
     key = AspectDeductionDetails.netAmountPreDeduction.key;
     const netAmountPreDeduction : number = this.getNumberFromModel(key);
     this.form.controls[key].setValue(netAmountPreDeduction.toLocaleString('de-De'));
@@ -333,6 +334,8 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
 
     deductions.push(this.ensurePositiveNumber(AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key));
 
+    deductions.push(this.calcPercent(netAmountPreDeduction, AspectRetentionDetails[this.getRetention()].key, this.mrbauCalcService.getRetentionMinimumThreshold(this.invoiceType)));
+
     let value = netAmountPreDeduction;
     for (let i=0; i<deductions.length; i++) {
       value -= deductions[i];
@@ -343,7 +346,7 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
       const gross : number = Math.round(value * (100+this.taxRate) + Number.EPSILON)/100;
       this.form.controls[ResultDetails.grossAmountVerified.key].setValue(gross.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     }
-    retentions.push(this.calcPercent(netAmountPreDeduction, AspectRetentionDetails[this.getRetention()].key, this.mrbauCalcService.getRetentionMinimumThreshold(this.invoiceType)));
+
     this.calculationInProgress = false;
   }
 
