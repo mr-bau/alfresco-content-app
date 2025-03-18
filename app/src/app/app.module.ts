@@ -182,6 +182,7 @@ import { TaskTagManagerComponent } from './custom/task-tag-manager/task-tag-mana
 import { MrbauPrintLinkedDocsDialogComponent } from './custom/dialogs/mrbau-print-linked-docs-dialog/mrbau-print-linked-docs-dialog.component';
 import { MrbauTagDoneLinkedDocsDialogComponent } from './custom/dialogs/mrbau-tag-done-docs-dialog/mrbau-tag-done-docs-dialog.component';
 import { MrbauCalcDeductionDialogComponent } from './custom/dialogs/mrbau-calc-deduction-dialog/mrbau-calc-deduction-dialog.component';
+import { PdfpreviewwrapperComponent } from './custom/pdfpreviewwrapper/pdfpreviewwrapper.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -381,6 +382,7 @@ registerLocaleData(localeSv);
     PdfbrowserComponent,
     TaskTagManagerComponent,
     MrbauCalcDeductionDialogComponent,
+    PdfpreviewwrapperComponent,
   ],
   providers: [
     { provide: AppConfigService, useClass: DebugAppConfigService },

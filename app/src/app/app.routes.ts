@@ -46,6 +46,7 @@ import { TasksComponent } from './custom/tasks/tasks.component';
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
 import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
+import { PdfpreviewwrapperComponent } from './custom/pdfpreviewwrapper/pdfpreviewwrapper.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -62,6 +63,20 @@ export const APP_ROUTES: Routes = [
   {
     path: 'preview/s/:id',
     loadChildren: () => import('./components/shared-link-view/shared-link-view.module').then((m) => m.AppSharedLinkViewModule)
+  },
+  {
+    path: 'mrbaupdfview/:nodeId',
+    component: PdfpreviewwrapperComponent,
+    data: {
+      title: 'PDF Viewer',
+    }
+  },
+  {
+    path: 'mrbaupdfview/:nodeId/:versionId',
+    component: PdfpreviewwrapperComponent,
+    data: {
+      title: 'PDF Viewer',
+    }
   },
   {
     path: 'view',

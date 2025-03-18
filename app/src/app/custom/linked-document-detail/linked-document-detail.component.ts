@@ -38,13 +38,14 @@ import { TranslationService } from '@alfresco/adf-core';
         <ng-template #contextmenu>
           <div class="mrbau-context-menu" cdkMenu>
             <button class="mrbau-context-menu-item" (click)="openInNewWindow()" cdkMenuItem>In neuem Fenster anzeigen</button>
+            <button class="mrbau-context-menu-item" (click)="editInNewWindow()" cdkMenuItem>In neuem Fenster bearbeiten</button>
           </div>
         </ng-template>
       </summary>
       <ul class="node-detail-list">
         <li class="status">Pfad: <a href="javascript: void(0);" (click)="goToLocation()" matTooltip="In Ordner Anzeigen">{{this.nodePath || ('APP.BROWSE.SEARCH.UNKNOWN_LOCATION' | translate)}}</a></li>
         <li class="status">ID {{node?.id || 'unbekannt'}} -
-          erzeugt am {{node?.createdAt | date:'medium' || 'unbekannt'}}
+          erzeugt am {{node?.createdAt | date:'medium'}}
           von {{node?.createdByUser?.displayName || 'unbekannt'}}
           - {{node?.content?.sizeInBytes || '?'}} Bytes</li>
       </ul>
@@ -115,7 +116,14 @@ export class LinkedDocumentDetailComponent {
     const path = window.location.origin+'/#/search;q=ID:%22workspace:%2F%2FSpacesStore%2F'+this.node.id+'%22/(viewer:view/'+this.node.id+')';
     //console.log(path);
     //window.open(path, "_blank");
-    window.open(path, 'newwindow', 'width=800,height=600');
+    window.open(path, '_blank', 'width=800,height=600');
+  }
+
+  editInNewWindow() {
+    const path = window.location.origin+'/#/mrbaupdfview/'+this.node.id;
+    //console.log(path);
+    //window.open(path, "_blank");
+    window.open(path, '_blank', 'width=800,height=600');
   }
 
   goToLocation() {
