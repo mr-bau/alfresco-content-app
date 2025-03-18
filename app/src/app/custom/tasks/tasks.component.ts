@@ -126,7 +126,8 @@ export class TasksComponent implements OnInit {
       tabIcon: 'description',
       tabName: 'Dokumente',
       tabBadge: 0,
-      order: 'ORDER BY B.cmis:creationDate DESC',
+      //order: 'ORDER BY B.cmis:creationDate DESC',
+      order: 'ORDER BY B.mrbt:dueDateValue ASC',
       searchRequest: {
         query: {
           query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
@@ -142,7 +143,8 @@ export class TasksComponent implements OnInit {
       tabIcon: 'description',
       tabName: 'Aufträge',
       tabBadge: 0,
-      order: 'ORDER BY B.cmis:creationDate DESC',
+      //order: 'ORDER BY B.cmis:creationDate DESC',
+      order: 'ORDER BY B.mrbt:dueDateValue ASC',
       searchRequest: {
         query: {
           query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
@@ -158,7 +160,7 @@ export class TasksComponent implements OnInit {
       tabIcon: 'assignment',
       tabName: 'Aufgaben',
       tabBadge: 0,
-      order: 'ORDER BY B.cmis:creationDate DESC',
+      order: 'ORDER BY B.cmis:creationDate ASC',
       searchRequest: {
         // https://docs.alfresco.com/content-services/latest/develop/rest-api-guide/searching/
         // https://api-explorer.alfresco.com/api-explorer/?urls.primaryName=Search%20API#/search/search
@@ -179,7 +181,7 @@ export class TasksComponent implements OnInit {
       tabName: 'Benachrichtigungen',
       // InvoiceAuditStart - InvoiceAuditLast
       tabBadge: 0,
-      order: 'ORDER BY B.cmis:creationDate DESC',
+      order: 'ORDER BY B.cmis:creationDate ASC',
       searchRequest: {
         query: {
           //query: `+TYPE:"mrbt:task" and mrbt:status:[0 TO 8999] and mrbt:assignedUserName:"${ecmUserName=="admin" ? "*" : ecmUserName}"`,
@@ -200,7 +202,7 @@ export class TasksComponent implements OnInit {
       tabName: 'Pausiert',
       // CommonTaskStart - CommonTaskLast
       tabBadge: 0,
-      order: 'ORDER BY B.cmis:creationDate DESC',
+      order: 'ORDER BY B.cmis:creationDate ASC',
       searchRequest: {
         query: {
           query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status = ${EMRBauTaskStatus.STATUS_PAUSED} `+ ((this.currentUser=="admin") ? '' : `AND B.mrbt:assignedUserName = '${this.currentUser}' `),
