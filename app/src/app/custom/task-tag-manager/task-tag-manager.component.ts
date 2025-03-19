@@ -10,6 +10,11 @@ interface IAddTagListData {
 @Component({
   selector: 'aca-task-tag-manager',
   template: `
+    <div *ngIf="errorMessage; then thenBlock1 else elseBlock1"></div>
+    <ng-template #thenBlock1>
+      {{errorMessage}}
+    </ng-template>
+    <ng-template #elseBlock1>
       <ul class="associationList" *ngIf="nodeTags.length > 0; else elseBlock">
         <li class="addMarginLeft" *ngFor="let d of nodeTags; index as i">
           <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="buttonsDisabled || !isTagManagerUser"><mat-icon>delete</mat-icon></button>
@@ -21,6 +26,7 @@ interface IAddTagListData {
         <button mat-raised-button type="button" class="addMarginTop addMarginRight" color="primary"
         (click)="onAddTagClicked(i)" matTooltip="Tag Hinzufügen" [disabled]="buttonsDisabled || !isTagManagerUser || item.disabled"><mat-icon>add</mat-icon>{{item.tag}}</button>
       </ng-container>
+    </ng-template>
   `,
   styleUrls: []
 })
@@ -40,6 +46,7 @@ export class TaskTagManagerComponent {
     this.queryData();
   }
 
+  errorMessage : string;
   buttonsDisabled : boolean = false;
   isTagManagerUser : boolean = false;
   private _isVisible : boolean = false;
@@ -48,60 +55,64 @@ export class TaskTagManagerComponent {
   nodeTags:Tag[] = [];
   tagListButtonsData:IAddTagListData[];
 
-
-
   constructor(
     private mrbauCommonService : MrbauCommonService,
   ) {
   }
 
   async queryData() {
+    this.errorMessage="loading...";
     if (this._nodeId == null || this._isVisible == false)
     {
       return;
     }
 
-    this.isTagManagerUser = this.mrbauCommonService.isTagManagerUser();
+    try {
+      this.isTagManagerUser = this.mrbauCommonService.isTagManagerUser();
 
-    if (this.tagListButtonsData == null)
-    {
-      // load all tags
-      let tagList : string[] = [];
-      const tags = await this.mrbauCommonService.getAllTheTags();
-      tagList = Object.assign([], this.mrbauCommonService.DEFAULT_TAGS);
-      for (let i=0; i<tags.list.entries.length;i++) {
-        const tag = this.firstLetterUppercase(tags.list.entries[i].entry.tag);
-        if (this.mrbauCommonService.HIDDEN_TAGS.indexOf(tag) < 0)
-        {
-          tagList.push(tag);
+      if (this.tagListButtonsData == null)
+      {
+        // load all tags
+        let tagList : string[] = [];
+        const tags = await this.mrbauCommonService.getAllTheTags();
+        tagList = Object.assign([], this.mrbauCommonService.DEFAULT_TAGS);
+        for (let i=0; i<tags.list.entries.length;i++) {
+          const tag = this.firstLetterUppercase(tags.list.entries[i].entry.tag);
+          if (this.mrbauCommonService.HIDDEN_TAGS.indexOf(tag) < 0)
+          {
+            tagList.push(tag);
+          }
+        }
+        // remove duplicates
+        tagList = [...new Set(tagList)];
+        // create tagListButtonsData
+        this.tagListButtonsData = [];
+        for (let i = 0; i< tagList.length;i++) {
+          this.tagListButtonsData.push({tag: tagList[i], disabled : false});
         }
       }
-      // remove duplicates
-      tagList = [...new Set(tagList)];
-      // create tagListButtonsData
-      this.tagListButtonsData = [];
-      for (let i = 0; i< tagList.length;i++) {
-        this.tagListButtonsData.push({tag: tagList[i], disabled : false});
+      else
+      {
+        for (let i = 0; i<this.tagListButtonsData.length;i++) {
+          this.tagListButtonsData[i].disabled = false;
+        }
       }
-    }
-    else
-    {
-      for (let i = 0; i<this.tagListButtonsData.length;i++) {
-        this.tagListButtonsData[i].disabled = false;
-      }
-    }
 
-    const tags = await this.mrbauCommonService.getTagsByNodeId(this.nodeId);
-    this.nodeTags = [];
-    if (tags.list.entries.length > 0) {
-      for (let i=0; i<tags.list.entries.length;i++) {
-        const entry = tags.list.entries[i].entry;
-        entry.tag = this.firstLetterUppercase(entry.tag)
-        this.nodeTags.push(entry);
-        this.disableTagListData(entry.tag);
+      const tags = await this.mrbauCommonService.getTagsByNodeId(this.nodeId);
+      this.nodeTags = [];
+      if (tags.list.entries.length > 0) {
+        for (let i=0; i<tags.list.entries.length;i++) {
+          const entry = tags.list.entries[i].entry;
+          entry.tag = this.firstLetterUppercase(entry.tag)
+          this.nodeTags.push(entry);
+          this.disableTagListData(entry.tag);
+        }
       }
-    }
-    this.buttonsDisabled = !this.isTagManagerUser;
+      this.buttonsDisabled = !this.isTagManagerUser;
+      this.errorMessage = undefined;
+    } catch(err) {
+      this.errorMessage = err;
+    };
   }
 
   firstLetterUppercase(tag : string) : string{
