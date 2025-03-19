@@ -146,7 +146,10 @@ export class MrbauCommonService {
   }
 
   isTagManagerUser() : boolean {
-    return this.isFinishNowUser();
+    const user = this.authenticationService.getEcmUsername().toLowerCase();
+    if (this.TAG_USER[user])
+      return true;
+    return this.isSuperUser();
   }
 
   isFinishNowUser() : boolean {
@@ -166,7 +169,7 @@ export class MrbauCommonService {
   }
 
   getElevatedAuditorsObservable() : Observable<EcmUserModel[]> {
-    const elevatedAuditors = ['egger', 'epluch', 'mosera', 'schwabp', 'wolfgang moser', 'strohmayer', 'janesch', 'scharner', 'rauter', 'kogler', 'mosermoessler'];
+    const elevatedAuditors = ['egger', 'mosera', 'schwabp', 'wolfgang moser', 'strohmayer', 'janesch', 'scharner', 'rauter', 'kogler', 'mosermoessler'];
     return new Observable(observer => {
       this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
         data => {
@@ -1198,9 +1201,44 @@ export class MrbauCommonService {
   readonly DEFAULT_TAG_ERLEDIGT = 'Erledigt';
   readonly DEFAULT_TAG_ABFALLWIRTSCHAFT = 'Abfallwirtschaft';
   readonly DEFAULT_TAG_BAUHOF = 'Bauhof';
-
-  readonly DEFAULT_TAGS = [this.DEFAULT_TAG_ABFALLWIRTSCHAFT, this.DEFAULT_TAG_BAUHOF, this.DEFAULT_TAG_ERLEDIGT];
+  readonly DEFAULT_TAG_WEITERVERRECHNUNG = 'Weiterverrechnung';
+  readonly DEFAULT_TAG_WEITERVERRECHNUNG_DONE = 'Weiterverrechnung Erledigt';
+  readonly DEFAULT_TAGS = [this.DEFAULT_TAG_ABFALLWIRTSCHAFT, this.DEFAULT_TAG_BAUHOF, this.DEFAULT_TAG_ERLEDIGT, this.DEFAULT_TAG_WEITERVERRECHNUNG, this.DEFAULT_TAG_WEITERVERRECHNUNG_DONE];
   readonly HIDDEN_TAGS = ['Covid','Oemag','Ökofit'];
+  private readonly TAG_GROUP_BAUHOF = [this.DEFAULT_TAG_ERLEDIGT, this.DEFAULT_TAG_BAUHOF, this.DEFAULT_TAG_ABFALLWIRTSCHAFT];
+  private readonly TAG_GROUP_WEITERVERRECHNUNG = [this.DEFAULT_TAG_WEITERVERRECHNUNG, this.DEFAULT_TAG_WEITERVERRECHNUNG_DONE];
+  private readonly TAG_USER = {
+    'admin' : this.DEFAULT_TAGS,
+    'wolfgang moser' : this.DEFAULT_TAGS,
+    'skofitsch' : this.DEFAULT_TAGS,
+
+    //'koberer' : this.TAG_GROUP_BAUHOF,
+
+    'klammer' : this.TAG_GROUP_BAUHOF,
+    'pichlkastner' : this.TAG_GROUP_BAUHOF,
+    'vaschauner' : this.TAG_GROUP_BAUHOF,
+    'daniel' : this.TAG_GROUP_BAUHOF,
+    'koestenbaumer' : this.TAG_GROUP_BAUHOF,
+
+    'egger' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'strohmayer' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'janesch' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'scharner' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'elf' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'erlacher' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'grillenberger' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'prokshi' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'salek' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'candir' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'altschach' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'zima' : this.TAG_GROUP_WEITERVERRECHNUNG,
+
+  }
+
+  getMyTags() : string[] {
+    const user = this.authenticationService.getEcmUsername().toLowerCase();
+    return this.TAG_USER[user];
+  }
   getAllTheTags() {
     return this.tagService.getAllTheTags().toPromise();
   }

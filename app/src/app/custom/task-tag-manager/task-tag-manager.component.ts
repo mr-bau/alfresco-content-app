@@ -7,6 +7,11 @@ interface IAddTagListData {
   disabled : boolean,
 }
 
+interface INodeTagListData {
+  tag : Tag,
+  disabled : boolean,
+}
+
 @Component({
   selector: 'aca-task-tag-manager',
   template: `
@@ -17,8 +22,8 @@ interface IAddTagListData {
     <ng-template #elseBlock1>
       <ul class="associationList" *ngIf="nodeTags.length > 0; else elseBlock">
         <li class="addMarginLeft" *ngFor="let d of nodeTags; index as i">
-          <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="buttonsDisabled || !isTagManagerUser"><mat-icon>delete</mat-icon></button>
-          {{d.tag}}
+          <button mat-button class="addMarginRight" (click)="onRemoveTagClicked(i)" matTooltip="Tag Entfernen" [disabled]="d.disabled || buttonsDisabled || !isTagManagerUser"><mat-icon>delete</mat-icon></button>
+          {{d.tag.tag}}
         </li>
       </ul>
       <ng-template #elseBlock><p>(keine Tags vorhanden)</p></ng-template>
@@ -52,8 +57,11 @@ export class TaskTagManagerComponent {
   private _isVisible : boolean = false;
   private _nodeId : string = null;
 
-  nodeTags:Tag[] = [];
+  nodeTags:INodeTagListData[] = [];
   tagListButtonsData:IAddTagListData[];
+
+  private readonly WAIT_TEXT = 'Änderungen werden durchgeführt ...';
+  private readonly LOADING_TEXT = 'Loading...';
 
   constructor(
     private mrbauCommonService : MrbauCommonService,
@@ -61,7 +69,7 @@ export class TaskTagManagerComponent {
   }
 
   async queryData() {
-    this.errorMessage="loading...";
+    this.errorMessage = this.LOADING_TEXT;
     if (this._nodeId == null || this._isVisible == false)
     {
       return;
@@ -69,20 +77,20 @@ export class TaskTagManagerComponent {
 
     try {
       this.isTagManagerUser = this.mrbauCommonService.isTagManagerUser();
-
+      const myTags = this.mrbauCommonService.getMyTags() || [];
       if (this.tagListButtonsData == null)
       {
         // load all tags
         let tagList : string[] = [];
-        const tags = await this.mrbauCommonService.getAllTheTags();
-        tagList = Object.assign([], this.mrbauCommonService.DEFAULT_TAGS);
+        tagList = Object.assign([], myTags);
+        /*const tags = await this.mrbauCommonService.getAllTheTags();
         for (let i=0; i<tags.list.entries.length;i++) {
           const tag = this.firstLetterUppercase(tags.list.entries[i].entry.tag);
           if (this.mrbauCommonService.HIDDEN_TAGS.indexOf(tag) < 0)
           {
             tagList.push(tag);
           }
-        }
+        }*/
         // remove duplicates
         tagList = [...new Set(tagList)];
         // create tagListButtonsData
@@ -103,8 +111,9 @@ export class TaskTagManagerComponent {
       if (tags.list.entries.length > 0) {
         for (let i=0; i<tags.list.entries.length;i++) {
           const entry = tags.list.entries[i].entry;
-          entry.tag = this.firstLetterUppercase(entry.tag)
-          this.nodeTags.push(entry);
+          entry.tag = this.eachWordFirstLetterUppercase(entry.tag)
+          const disabled = myTags.indexOf(entry.tag) < 0;
+          this.nodeTags.push({tag:entry, disabled:disabled});
           this.disableTagListData(entry.tag);
         }
       }
@@ -115,8 +124,12 @@ export class TaskTagManagerComponent {
     };
   }
 
-  firstLetterUppercase(tag : string) : string{
-    return tag.charAt(0).toUpperCase() + tag.slice(1);
+  eachWordFirstLetterUppercase(tag : string) : string{
+    let words = tag.split(' ');
+    for (let i = 0; i< words.length; i++) {
+      words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
+    }
+    return words.join(' ');
   }
 
   disableTagListData(tag : string) {
@@ -131,7 +144,8 @@ export class TaskTagManagerComponent {
 
   async onRemoveTagClicked(index) {
     this.buttonsDisabled = true;
-    const tag =  this.nodeTags[index].id;
+    this.errorMessage = this.WAIT_TEXT;
+    const tag =  this.nodeTags[index].tag.id;
     await this.mrbauCommonService.removeTag(this.nodeId, tag);
     await this.queryData();
     this.buttonsDisabled = false;
@@ -139,6 +153,7 @@ export class TaskTagManagerComponent {
 
   async onAddTagClicked(index) {
     this.buttonsDisabled = true;
+    this.errorMessage = this.WAIT_TEXT;
     await this.mrbauCommonService.addTag(this.nodeId, this.tagListButtonsData[index].tag.toLowerCase());
     await this.queryData();
     this.buttonsDisabled = false;

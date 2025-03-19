@@ -16,7 +16,10 @@
       "ARCHIVE_DOCUMENT_TAG_BAUHOF" : "Bauhof",
       "ARCHIVE_DOCUMENT_TAG_BAUHOF_DONE" :  "Bauhof (erledigt)",
       "ARCHIVE_DOCUMENT_TAG_BAUHOF_TODO" :  "Bauhof (offen)",
-      "ARCHIVE_DOCUMENT_TAG_BAUHOF_KT" :  "Bauhof (ohne Tag)"
+      "ARCHIVE_DOCUMENT_TAG_BAUHOF_KT" :  "Bauhof (ohne Tag)",
+      "ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG" : "Weiterverrechnung",
+      "ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_TODO" : "Weiterverrechnung (offen)",
+      "ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_DONE" :  "Weiterverrechnung (erledigt)"
     },
     "MRBA_ARCHIVE_MODEL":{
       "ARCHIVE_DOCUMENT": "Archiv Dokument / Beleg",
