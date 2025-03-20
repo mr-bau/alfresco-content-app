@@ -648,7 +648,19 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  private onFileSelected() {
+  private async getFilename(fileSelectData : IFileSelectData) : Promise<string> {
+
+    if (fileSelectData.versionId) {
+      const node = await this.contentApiService.versionsApi.getVersion(this.fileSelectData.nodeId, this.fileSelectData.versionId);
+        return node.entry.name;
+    }
+    else {
+      const node = await this.contentService.getNode(this.fileSelectData.nodeId).toPromise();
+      return node.entry.name;
+    }
+  }
+
+  private async onFileSelected() {
     if (this.modified && this.previousFileSelectData != null) {
       this.previousFileSelectData = null;
       //this.openModal(this.mrbauModalSaveYesNo);
@@ -665,17 +677,19 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
 
+    const fileName = await this.getFilename(this.fileSelectData);
+
     if (this.fileSelectData.versionId)
     {
-      this.loadUrl(this.contentApiService.getVersionContentUrl(this.fileSelectData.nodeId, this.fileSelectData.versionId));
+      this.loadUrl(this.contentApiService.getVersionContentUrl(this.fileSelectData.nodeId, this.fileSelectData.versionId), fileName);
     }
     else
     {
-      this.loadUrl(this.contentApiService.getContentUrl(this.fileSelectData.nodeId));
+      this.loadUrl(this.contentApiService.getContentUrl(this.fileSelectData.nodeId), fileName);
     }
   }
 
-  private loadUrl(fileUrl : string)
+  private loadUrl(fileUrl : string, fileName : string)
   {
     this.modified = false;
     if (fileUrl == null)
@@ -685,7 +699,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     else {
       this.sanitized_document_url = this.sanitizeUrl(fileUrl);
     }
-    this.loadPdf(this.sanitized_document_url);
+    this.loadPdf(this.sanitized_document_url, fileName);
   }
 
   private sanitizeUrl(url:string) : SafeResourceUrl {
@@ -719,7 +733,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  loadPdf(url:SafeResourceUrl) {
+  loadPdf(url:SafeResourceUrl, fileName : string) {
     if (!this.wvInstance) {
       return;
     }
@@ -729,7 +743,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     }
     const pdfSrc = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, url);
     this.toggleSpinner(true);
-    this.wvInstance.UI.loadDocument(pdfSrc, {extension:'pdf'});
+    this.wvInstance.UI.loadDocument(pdfSrc, {extension:'pdf', filename: fileName});
     this.toggleSpinner(false);
   }
 
