@@ -848,11 +848,22 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.customizeMRPanel();
   }
 
+  getBase64Data(imageBlob) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result;
+        return resolve(base64data);
+      }
+      reader.readAsDataURL(imageBlob);
+    });
+  }
+
   async customizeSignatureTool() {
     this.customStamps = [];
     const nodeUrls = []
 
-    const { documentViewer } = this.wvInstance.Core;
+    const { documentViewer, annotationManager, Annotations } = this.wvInstance.Core;
     const signatureTool = documentViewer.getTool('AnnotationCreateSignature');
 
     try {
@@ -874,20 +885,39 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     this.wvInstance.UI.setMaxSignaturesCount(nodeUrls.length + 1);
-    documentViewer.addEventListener('documentLoaded', () => {
-      signatureTool.importSignatures(this.customStamps);
-    });
-
     for (let i=0; i< nodeUrls.length; i++) {
       const res = await fetch(nodeUrls[i]);
       const imageBlob = await res.blob();
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64data = reader.result;
-        this.customStamps.push(base64data);
-      }
-      reader.readAsDataURL(imageBlob);
+      const base64data = await this.getBase64Data(imageBlob);
+      const bmp = await createImageBitmap(imageBlob);
+      this.customStamps.push({data : base64data, width: bmp.width, height: bmp.height});
+      bmp.close(); // free memory
     }
+
+    documentViewer.addEventListener('documentLoaded', () => {
+      signatureTool.importSignatures(this.customStamps.map(x => x.data));
+    });
+
+    annotationManager.addEventListener('annotationChanged', (annotations, action) => {
+      if (action === 'add') {
+        annotations.forEach(annotation => {
+          if (annotation instanceof Annotations.StampAnnotation && (annotation.Subject === 'Unterschrift' || annotation.Subject === 'Signature'))
+          {
+            for (let i=0; i<this.customStamps.length; i++) {
+              if (this.customStamps[i].data == annotation.image.src) {
+                const pixel2SizeFor150dpi=2.0669;
+                annotation.X += annotation.Width/2;
+                annotation.Y += annotation.Height/2;
+                annotation.Width = this.customStamps[i].width/pixel2SizeFor150dpi;
+                annotation.Height = this.customStamps[i].height/pixel2SizeFor150dpi;
+                annotation.X -= annotation.Width/2;
+                annotation.Y -= annotation.Height/2;
+              }
+            }
+          }
+        });
+      }
+    });
   }
 
   customizeDefaults() {
@@ -908,12 +938,12 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
     // Custom stamps
     const tool = documentViewer.getTool('AnnotationCreateRubberStamp');
-    const customStamps = [
+    const customUIStamps = [
       //{ title: "Eingang", subtitle: "[$currentUser] DD.MM.YYYY, hh:mm", color: new Annotations.Color('#5656D6'), textColor: new Annotations.Color(255,255,255, 1.0), font: "robo" },
       { title: "Geprüft", subtitle: "[$currentUser] DD.MM.YYYY, hh:mm", color: new Annotations.Color('#5656D6'), font: "robo" },
       { title: "Gebucht", subtitle: "[$currentUser] DD.MM.YYYY, hh:mm", color: new Annotations.Color('#D65656'), font: "robo"},
     ]
-    tool.setCustomStamps(customStamps)
+    tool.setCustomStamps(customUIStamps)
 
     // Standard stamps
     //const pathToLogo = 'assets/icons/stamp-eingelangt.svg';
