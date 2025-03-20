@@ -824,7 +824,15 @@
             { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
 
             { "query": "TAG:'abfallwirtschaft'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
             { "query": "TAG:'bauhof'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "(mrba:costCarrierNumber:11-100 OR mrba:costCarrierNumber:12-100 OR mrba:costCarrierNumber:41-100) AND !TAG:'bauhof'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_KT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung erledigt' AND !TAG:'weiterverrechnung erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
             {
               "label": "SEARCH.FACET_QUERIES.TODAY",
               "query": "cm:modified:[TODAY to TODAY]"
