@@ -248,10 +248,23 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
     return this.mrbauCalcService.getNumberFromString(this.model[key]);
   }
 
-  private calcPercent(base: number, key: string, minimumThreshold?:number) : number {
+  private calcPercent(base: number, key: string) : number {
     const keyVal : number = this.getNumberFromModel(key);
     const key1Val : number = base;
     let key2Val : number = Math.round(keyVal*key1Val + Number.EPSILON)/100;
+    this.form.controls[key].setValue(keyVal.toLocaleString('de-De'));
+    this.form.controls[key+'1'].setValue(key1Val.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+    this.form.controls[key+'2'].setValue(key2Val.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+    return key2Val;
+  }
+
+  private calcRetention(base: number, key: string, minimumThreshold?:number) : number {
+    const keyVal : number = this.getNumberFromModel(key);
+    const key1Val : number = base;
+    let key2Val : number = Math.round(keyVal*key1Val + Number.EPSILON)/100;
+    if (minimumThreshold) {
+      key2Val = Math.round(key2Val);
+    }
     if (minimumThreshold && key2Val <= minimumThreshold) {
       key2Val = 0;
     }
@@ -334,7 +347,7 @@ export class MrbauCalcDeductionDialogComponent extends MrbauBaseDialogComponent 
 
     deductions.push(this.ensurePositiveNumber(AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key));
 
-    deductions.push(this.calcPercent(netAmountPreDeduction, AspectRetentionDetails[this.getRetention()].key, this.mrbauCalcService.getRetentionMinimumThreshold(this.invoiceType)));
+    deductions.push(this.calcRetention(netAmountPreDeduction, AspectRetentionDetails[this.getRetention()].key, this.mrbauCalcService.getRetentionMinimumThreshold(this.invoiceType)));
 
     let value = netAmountPreDeduction;
     for (let i=0; i<deductions.length; i++) {

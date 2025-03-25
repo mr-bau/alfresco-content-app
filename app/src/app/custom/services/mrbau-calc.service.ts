@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { germanParseFloat } from '../form/mrbau-formly-validators';
 
+export type TCalculationParameterType = 'Number' | 'Percent' | 'Retention';
+
 export interface ICalculationParameter {
   label? : string,
-  isPercent : boolean,
+  //isPercent : boolean,
+  type : TCalculationParameterType,
   value : number,
   calculatedValue? : number,
 }
@@ -24,11 +27,13 @@ export class MrbauCalcService {
   }
 
   calcRetentionValue(invoiceType : string, p : ICalculationParameter, base: number) : number {
-    let result = this.calcValue(p, base);
+    let result = this.calcPercentValue(p.value, base);
     const minimumThreshold = this.getRetentionMinimumThreshold(invoiceType);
+    if (minimumThreshold) {
+      result = Math.round(result);
+    }
     if (minimumThreshold && result <= minimumThreshold) {
       result = 0;
-      p.calculatedValue = result;
     }
     return result;
   }
@@ -39,9 +44,11 @@ export class MrbauCalcService {
 
   calcValue(p : ICalculationParameter, base: number) : number {
     let result = p.value;
-    if (p.isPercent)
+    if (p.type === 'Percent')
     {
       result = this.calcPercentValue(p.value, base);
+    } else if (p.type === 'Retention') {
+      result = this.calcRetentionValue('', p, base);
     }
     p.calculatedValue = result;
     return result;
@@ -60,7 +67,6 @@ export class MrbauCalcService {
     for (let i=0;i<params.length; i++) {
       const p = params[i];
       result -= this.calcValue(p, base);
-
     }
     //console.log(params)
     return result;

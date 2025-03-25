@@ -11,7 +11,7 @@ import { ContentService } from '@alfresco/adf-core';
 import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } from '../mrbau-doc-declarations';
 import { AspectDeductionDetails, AspectRetentionDetails, IAspectDetailItem } from '../mrbau-mrba-aspects';
 import { NodeEntry } from '@alfresco/js-api';
-import { MrbauCalcService, ICalculationParameter } from '../services/mrbau-calc.service';
+import { MrbauCalcService, ICalculationParameter, TCalculationParameterType } from '../services/mrbau-calc.service';
 
 interface ICalculationParameterExtend extends ICalculationParameter {
   dyMultiplier : number
@@ -182,13 +182,13 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  getCalculationParameter(item : IAspectDetailItem, node:NodeEntry, dyMultiplier:number, isPercent : boolean = true) : ICalculationParameterExtend {
+  getCalculationParameter(item : IAspectDetailItem, node:NodeEntry, dyMultiplier:number, type : TCalculationParameterType = 'Percent') : ICalculationParameterExtend {
     const val = this.mrbauCalcService.getNumberFromString(node.entry.properties[item.key]);
-    return {label : item.label_short, isPercent : isPercent, value: val, dyMultiplier: dyMultiplier}
+    return {label : item.label_short, type : type, value: val, dyMultiplier: dyMultiplier};
   }
 
   getLabelValueFromCalculationParameter(p : ICalculationParameterExtend, attributes:string='') : string {
-    return this.getLabelStringFromCalculationParameter(p.label+(p.isPercent ? ' '+this.mrbauCalcService.numberToString(p.value)+'%' : ''), p.dyMultiplier, attributes);
+    return this.getLabelStringFromCalculationParameter(p.label+(p.type != 'Number' ? ' '+this.mrbauCalcService.numberToString(p.value)+'%' : ''), p.dyMultiplier, attributes);
   }
 
   getLabelStringFromCalculationParameter(value:string, multiplier : number, attributes:string='') : string {
@@ -210,11 +210,11 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         const skonto1 = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:earlyPaymentDiscountPercent1']);
         const skonto2 = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:earlyPaymentDiscountPercent2']);
         const skonto = (skonto1 > skonto2) ? skonto1 : skonto2;
-        const pStart = this.getCalculationParameter(AspectDeductionDetails.netAmountPreDeduction, node, 1, false)
+        const pStart = this.getCalculationParameter(AspectDeductionDetails.netAmountPreDeduction, node, 1, 'Number')
         let deductionParameters :  ICalculationParameterExtend[] = [];
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageUnassignedPercent, node, 2));
-        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageAssignedNetAmount, node, 1, false));
-        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialNetAmount, node, 1, false));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageAssignedNetAmount, node, 1, 'Number'));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialNetAmount, node, 1, 'Number'));
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialPercent, node, 1));
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWastePercent, node, 2));
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionCleaningPercent, node, 1));
@@ -222,14 +222,13 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWaterPercent, node, 1));
         deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionElectricityPercent, node, 1));
 
-        const rl = (invoiceType=='Teilrechnung') ? this.getCalculationParameter(AspectRetentionDetails.retentionDRLPercent, node, 2) :  this.getCalculationParameter(AspectRetentionDetails.retentionHRLPercent, node, 2)
-        this.mrbauCalcService.calcRetentionValue(invoiceType, rl, pStart.value);
+        const rl = (invoiceType=='Teilrechnung') ? this.getCalculationParameter(AspectRetentionDetails.retentionDRLPercent, node, 2) :  this.getCalculationParameter(AspectRetentionDetails.retentionHRLPercent, node, 2, 'Retention')
         if (this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)) {
           rl.label += ' (>'+this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)+')';
         }
         deductionParameters.push(rl);
 
-        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionPreviousPaymentsNetAmount, node, 2, false));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionPreviousPaymentsNetAmount, node, 2, 'Number'));
 
         const netResult = this.mrbauCalcService.calcValues(deductionParameters, pStart.value);
 
@@ -251,13 +250,15 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         }
         labels += this.getLabelStringFromCalculationParameter(rlLabel, rl.dyMultiplier);
         */
-        if (skonto > 0) {
+
+        if (skonto >= 0) {
           labels += this.getLabelStringFromCalculationParameter('Skonto '+this.mrbauCalcService.numberToString(skonto)+'%' , 2);
-        }
-        labels += this.getLabelStringFromCalculationParameter('Summe Netto', 2);
-        if (taxRate > 0) {
-          labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
-          labels += this.getLabelStringFromCalculationParameter('Summe Brutto', 1);
+
+          labels += this.getLabelStringFromCalculationParameter('Anzuweisender Betrag Netto', 2);
+          if (taxRate > 0) {
+            labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
+            labels += this.getLabelStringFromCalculationParameter('Anzuweisender Betrag Brutto', 1);
+          }
         }
 
         let values = '';
@@ -275,17 +276,18 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         }
         //values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(rl.calculatedValue), 2);
         let skontoValue = 0;
-        if (skonto > 0) {
+        if (skonto >= 0) {
           skontoValue = this.mrbauCalcService.calcPercentValue(skonto, pStart.value);
           values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(skontoValue), 2);
-        }
-        const netResult2 = netResult-skontoValue;
-        values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult2), 2);
-        if (taxRate > 0) {
-          const grossResult2 : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult2);
-          const mwst2 : number = this.mrbauCalcService.calcPercentValue(taxRate, netResult2);
-          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst2), 1);
-          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult2), 1);
+
+          const netResult2 = netResult-skontoValue;
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult2), 2);
+          if (taxRate > 0) {
+            const grossResult2 : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult2);
+            const mwst2 : number = this.mrbauCalcService.calcPercentValue(taxRate, netResult2);
+            values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst2), 1);
+            values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult2), 1);
+          }
         }
 
         let lines= '';
@@ -294,12 +296,16 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
         y += dy * ((taxRate > 0) ? 4 : 2);
         lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
-        y += dy * ((skonto > 0) ? 2 : 1);
-        lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+
+        if (skonto >= 0) {
+          y += dy * (2);
+          lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+        }
 
         svgData = svgData.replace('mrba:calclabels', labels);
         svgData = svgData.replace('mrba:calcvalues', values);
         svgData = svgData.replace('mrba:lines', lines);
+
         resolve(svgData);
         return;
       }
