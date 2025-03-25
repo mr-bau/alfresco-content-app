@@ -457,6 +457,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isOrderPostUser()) {
         return false;
       }
+      if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET && !this.mrbauCommonService.isOrderPostUser()) {
+        return false;
+      }
     }
 
     return this.isFormValid();

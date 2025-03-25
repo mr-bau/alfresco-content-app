@@ -1481,10 +1481,10 @@ export class MrbauFormLibraryService {
       afterContentInit: (field) => {
         //this.associatedDocuments?.filter(v => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0;
         const assoc = field.model['ignore:taskNodeAssociations'];
-        console.log(assoc);
+        //console.log(assoc);
         const exists = (assoc?.filter(v => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0)
-        console.log(' exists ' +exists);
-        console.log(field);
+        //console.log(' exists ' +exists);
+        //console.log(field);
         if (!exists) {
           field.template = '';
         } else {
