@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 import { germanParseFloat, REGEX_mrba_currencyIgnoreCharacters, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_mrba_taxRateIgnoreCharacters, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
 import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } from '../mrbau-doc-declarations';
 import { AspectDeductionDetails, AspectRetentionDetails } from '../mrbau-mrba-aspects';
+import { MrbauWorkflowService } from './mrbau-workflow.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,8 @@ export class MrbauFormLibraryService {
   constructor(
     private mrbauConventionsService:MrbauConventionsService,
     private mrbauCommonService : MrbauCommonService,
-    private mrbauArchiveModelService : MrbauArchiveModelService
+    private mrbauArchiveModelService : MrbauArchiveModelService,
+    private mrbauWorkflowService : MrbauWorkflowService
     ) { }
 
   filterDefaultValues(name: string, values: string[]) : string[] {
@@ -955,6 +957,22 @@ export class MrbauFormLibraryService {
       btnType: 'default',
       onClick: () => {
         this.mrbauCommonService.calcDeductionWithDialog(this.button_calc_deduction);
+      },
+    },
+  }
+
+  readonly button_recalc_paymentdays : FormlyFieldConfig =
+  {
+    className: 'flex-1 calcButton',
+    key: 'ignore:mrbauRecalcPaymentDaysButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      appearance:"outline",
+      label: 'Zahlungsdatum Neu Berechnen',
+      text: 'Neu Berechnen',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauWorkflowService.invoiceVerificationRecalcPaymentDays(this.button_recalc_paymentdays);
       },
     },
   }
@@ -2219,6 +2237,7 @@ export class MrbauFormLibraryService {
   readonly aspect_mrba_verifyData2 : FormlyFieldConfig = {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
+      this.button_recalc_paymentdays,
       this.mrba_verifyDateValue,
       this.mrba_paymentDateNetValue,
       this.mrba_paymentDateDiscount1Value,

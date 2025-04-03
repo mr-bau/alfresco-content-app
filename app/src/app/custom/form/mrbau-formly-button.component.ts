@@ -5,7 +5,7 @@ import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
   selector: 'aca-mrbau-formly-button',
   template: `
     <div>
-      <button class=" mat-flat-button mat-button-base mat-stroked-button" [type]="props.type" [title]="props.label" [ngClass]="'btn btn-' + props.btnType" (click)="onClick()">
+      <button class="mat-flat-button mat-button-base mat-stroked-button" [type]="props.type" [title]="props.label" [ngClass]="'btn btn-' + props.btnType" (click)="onClick()">
         {{ props.text }}
       </button>
     </div>

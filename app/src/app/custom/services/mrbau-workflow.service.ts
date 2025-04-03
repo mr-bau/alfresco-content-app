@@ -11,6 +11,7 @@ import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-d
 import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AspectDeductionDetails, AspectRetentionDetails } from '../mrbau-mrba-aspects';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 
 @Injectable({
   providedIn: 'root'
@@ -436,50 +437,88 @@ export class MrbauWorkflowService {
     return result;
   };
 
+  invoiceVerificationRecalcPaymentDays(data:FormlyFieldConfig) {
+    const keys = ['mrba:verifyDateValue', 'mrba:paymentDateNetValue', 'mrba:paymentDateDiscount1Value', 'mrba:paymentDateDiscount2Value'];
+    const taskNode = data.model['ignore:taskNode'];
+    const model = data.model;
+    for (let i=0; i<keys.length; i++) {
+      data.form.controls[keys[i]].setValue(null);
+    }
+    this.doInvoiceVerificationPrefillValuesDates(taskNode, model);
+    for (let i=0; i<keys.length; i++) {
+      data.form.controls[keys[i]].setValue(model[keys[i]]);
+    }
+  }
+
   invoiceVerificationPrefillValues(data:MRBauWorkflowStateCallbackData) : Promise<any> {
-    const props = data.taskDetailNewDocument.taskNode.properties;
-    if (data.taskDetailNewDocument.model['mrba:netAmountVerified'] == null || data.taskDetailNewDocument.model['mrba:netAmountVerified'] == "") // null or undefined or ""
-    {
-      data.taskDetailNewDocument.model['mrba:netAmountVerified'] = props['mrba:netAmount'];
-    }
-    if (data.taskDetailNewDocument.model['mrba:grossAmountVerified'] == null || data.taskDetailNewDocument.model['mrba:grossAmountVerified'] == "") // null or undefined or ""
-    {
-      data.taskDetailNewDocument.model['mrba:grossAmountVerified'] = props['mrba:grossAmount'];
-    }
-
-    let reviewDate = new Date(props['mrba:archivedDateValue']);
-    reviewDate = this.addDays(reviewDate, 1); // Prüffrist starts on next day
-
-    if (data.taskDetailNewDocument.model['mrba:verifyDateValue'] == null)
-    {
-      const reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? props['mrba:reviewDaysPartialInvoice'] : props['mrba:reviewDaysFinalInvoice'];
-      reviewDate = this.addDays(reviewDate, reviewDays);
-      this.correctWeekend(reviewDate);
-      data.taskDetailNewDocument.model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
-    }
-
-    if (data.taskDetailNewDocument.model['mrba:paymentDateNetValue'] == null && props['mrba:paymentTargetDays'])
-    {
-      let date = this.addDays(reviewDate, props['mrba:paymentTargetDays'])
-      this.correctWeekend(date);
-      data.taskDetailNewDocument.model['mrba:paymentDateNetValue'] = this.mrbauCommonService.getFormDateValue(date);
-    }
-
-    if (data.taskDetailNewDocument.model['mrba:paymentDateDiscount1Value'] == null && props['mrba:earlyPaymentDiscountDays1'])
-    {
-      let date = this.addDays(reviewDate, props['mrba:earlyPaymentDiscountDays1'])
-      this.correctWeekend(date);
-      data.taskDetailNewDocument.model['mrba:paymentDateDiscount1Value'] = this.mrbauCommonService.getFormDateValue(date);
-    }
-
-    if (data.taskDetailNewDocument.model['mrba:paymentDateDiscount2Value'] == null && props['mrba:earlyPaymentDiscountDays2'])
-    {
-      let date = this.addDays(reviewDate, props['mrba:earlyPaymentDiscountDays2'])
-      this.correctWeekend(date);
-      data.taskDetailNewDocument.model['mrba:paymentDateDiscount2Value'] = this.mrbauCommonService.getFormDateValue(date);
-    }
-
+    const taskNode = data.taskDetailNewDocument.taskNode;
+    const model = data.taskDetailNewDocument.model;
+    this.doInvoiceVerificationPrefillValuesAmount(taskNode, model);
+    this.doInvoiceVerificationPrefillValuesDates(taskNode, model);
     return new Promise((resolve) => resolve(null));
+  }
+
+  private getValueAsNumberPreferModel(key : string, model : any[], props: any[]) : number {
+    return (model[key]) ? Number(model[key]) : Number(props[key]);
+  }
+
+  doInvoiceVerificationPrefillValuesAmount(taskNode : Node, model : any) {
+    const props = taskNode.properties;
+    if (model['mrba:netAmountVerified'] == null || model['mrba:netAmountVerified'] == "") // null or undefined or ""
+    {
+      model['mrba:netAmountVerified'] = props['mrba:netAmount'];
+    }
+    if (model['mrba:grossAmountVerified'] == null || model['mrba:grossAmountVerified'] == "") // null or undefined or ""
+    {
+      model['mrba:grossAmountVerified'] = props['mrba:grossAmount'];
+    }
+  }
+
+  doInvoiceVerificationPrefillValuesDates(taskNode : Node, model : any) {
+    const props = taskNode.properties;
+    let reviewDate = new Date(props['mrba:archivedDateValue']);
+    let reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? this.getValueAsNumberPreferModel('mrba:reviewDaysPartialInvoice', model, props) : this.getValueAsNumberPreferModel('mrba:reviewDaysFinalInvoice', model, props);
+    if (reviewDays > 0) {
+      reviewDays += 1;// x Tage NACH Rechnungseingang
+    }
+    reviewDate = this.addDays(reviewDate, reviewDays);
+    this.correctWeekend(reviewDate);
+    if (model['mrba:verifyDateValue'] == null)
+    {
+      model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
+    }
+
+    const paymentTargetDays = this.getValueAsNumberPreferModel('mrba:paymentTargetDays', model, props)
+    if (paymentTargetDays)
+    {
+      let date = this.addDays(reviewDate, paymentTargetDays + 1)
+      this.correctWeekend(date);
+      if (model['mrba:paymentDateNetValue'] == null)
+      {
+        model['mrba:paymentDateNetValue'] = this.mrbauCommonService.getFormDateValue(date);
+      }
+    }
+
+    const earlyPaymentDiscountDays1 = this.getValueAsNumberPreferModel('mrba:earlyPaymentDiscountDays1', model, props)
+    if (earlyPaymentDiscountDays1)
+    {
+      let date = this.addDays(reviewDate, earlyPaymentDiscountDays1 + 1)
+      this.correctWeekend(date);
+      if (model['mrba:paymentDateDiscount1Value'] == null) {
+        model['mrba:paymentDateDiscount1Value'] = this.mrbauCommonService.getFormDateValue(date);
+      }
+    }
+
+    const earlyPaymentDiscountDays2 = this.getValueAsNumberPreferModel('mrba:earlyPaymentDiscountDays2', model, props)
+    if (earlyPaymentDiscountDays2)
+    {
+      let date = this.addDays(reviewDate, earlyPaymentDiscountDays2 + 1)
+      this.correctWeekend(date);
+      if (model['mrba:paymentDateDiscount2Value'] == null)
+      {
+        model['mrba:paymentDateDiscount2Value'] = this.mrbauCommonService.getFormDateValue(date);
+      }
+    }
   }
 
   queryProposedDocuments(node: Node) : Promise<NodePaging>
