@@ -453,13 +453,18 @@ export class MrbauWorkflowService {
   invoiceVerificationPrefillValues(data:MRBauWorkflowStateCallbackData) : Promise<any> {
     const taskNode = data.taskDetailNewDocument.taskNode;
     const model = data.taskDetailNewDocument.model;
+
     this.doInvoiceVerificationPrefillValuesAmount(taskNode, model);
     this.doInvoiceVerificationPrefillValuesDates(taskNode, model);
     return new Promise((resolve) => resolve(null));
   }
 
-  private getValueAsNumberPreferModel(key : string, model : any[], props: any[]) : number {
-    return (model[key]) ? Number(model[key]) : Number(props[key]);
+  private getValueAsNumberPreferModel(key : string, model : any[], props: any[]) : number | null {
+    let result = (model[key]) ? Number(model[key]) : Number(props[key]);
+    if (typeof result !== 'number' || Number.isNaN(result)) {
+      result = null;
+    }
+    return result;
   }
 
   doInvoiceVerificationPrefillValuesAmount(taskNode : Node, model : any) {
@@ -477,7 +482,13 @@ export class MrbauWorkflowService {
   doInvoiceVerificationPrefillValuesDates(taskNode : Node, model : any) {
     const props = taskNode.properties;
     let reviewDate = new Date(props['mrba:archivedDateValue']);
+
     let reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? this.getValueAsNumberPreferModel('mrba:reviewDaysPartialInvoice', model, props) : this.getValueAsNumberPreferModel('mrba:reviewDaysFinalInvoice', model, props);
+
+    if (reviewDays == null) {
+      reviewDays = 0;
+    }
+
     if (reviewDays > 0) {
       reviewDays += 1;// x Tage NACH Rechnungseingang
     }
