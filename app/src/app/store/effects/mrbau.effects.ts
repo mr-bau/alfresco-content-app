@@ -4,8 +4,9 @@ import { map } from 'rxjs/operators';
 import { createEffect } from '@ngrx/effects';
 import { MatDialog } from '@angular/material/dialog';
 import { MRBAU_NEW_TASK_DIALOG, MRBAU_INBOX_ASSIGN_DIALOG, MRBAU_START_OCR, MrbauNewTaskDialogAction, MrbauInboxAssignDialogAction, MrbauStartOcrAction, MrbauUseAsNewVersion,
-  MRBAU_USE_AS_NEW_VERSION, MrbauResetArchiveType, MRBAU_RESET_ARCHIVE_TYPE, MrbauShowDocTaskDialogAction, MRBAU_SHOW_DOC_TASK_DIALOG,
-  MRBAU_MODIFY_COMPANY, MrbauModifyCompanyAction, MRBAU_PRINT_LINKED_DOCS, MrbauPrintLinkedDocsAction, MRBAU_TAG_DONE_LINKED_DOCS, MrbauTagDoneLinkedDocsAction} from '../actions/mrbau.actions';
+  MRBAU_USE_AS_NEW_VERSION, MrbauResetArchiveType, MRBAU_RESET_ARCHIVE_TYPE, MrbauShowDocTaskDialogAction, MRBAU_SHOW_DOC_TASK_DIALOG, MRBAU_SHOW_DOC_TASK_DIALOG_WINDOW,
+  MRBAU_MODIFY_COMPANY, MrbauModifyCompanyAction, MRBAU_PRINT_LINKED_DOCS, MrbauPrintLinkedDocsAction, MRBAU_TAG_DONE_LINKED_DOCS, MrbauTagDoneLinkedDocsAction,
+  MrbauShowDocTaskDialogWindowAction} from '../actions/mrbau.actions';
 import { MrbauNewTaskDialogComponent } from '../../custom/dialogs/mrbau-new-task-dialog/mrbau-new-task-dialog.component';
 import { MrbauInboxAssignDialogComponent } from '../../custom/dialogs/mrbau-inbox-assign-dialog/mrbau-inbox-assign-dialog.component';
 import { MrbauActionService } from '../../custom/services/mrbau-action.service';
@@ -57,6 +58,20 @@ export class MrbauEffects {
     ),
     { dispatch: false }
   );
+
+  mrbauShowDocTaskDialogWindow$ = createEffect(
+    () => this.actions$.pipe(
+      ofType<MrbauShowDocTaskDialogWindowAction>(MRBAU_SHOW_DOC_TASK_DIALOG_WINDOW),
+      map((action) => {
+        this.dialog.open(MrbauShowDocTaskDialogComponent, {
+          data: { payload: action.payload, openInNewWindow: true }
+        });
+      })
+    ),
+    { dispatch: false }
+  );
+
+
 
   mrbauStartOCR$ = createEffect(
     () => this.actions$.pipe(

@@ -154,6 +154,11 @@
       "payload": "$(context.selection)"
     },
     {
+      "id": "mrbau.extension.actions.show-doc-task-dialog-window",
+      "type": "MRBAU_SHOW_DOC_TASK_DIALOG_WINDOW",
+      "payload": "$(context.selection)"
+    },
+    {
       "id": "mrbau.extension.actions.start-ocr",
       "type": "MRBAU_START_OCR",
       "payload": "$(context.selection)"
@@ -281,9 +286,21 @@
         }
       },
       {
+        "id": "mrbau.extension.menu.show-doc-task",
+        "title": "Aufgabe anzeigen (Tab)",
+        "order": 313,
+        "icon": "inbox",
+        "actions": {
+          "click": "mrbau.extension.actions.show-doc-task-dialog-window"
+        },
+        "rules": {
+          "visible": "mrbau.extension.rule.show-doc-task-visible"
+        }
+      },
+      {
         "id": "mrbau.extension.menu.new-task",
         "title": "Aufgabe erstellen",
-        "order": 312,
+        "order": 314,
         "icon": "build",
         "actions": {
           "click": "mrbau.extension.actions.new-task-dialog"
@@ -295,7 +312,7 @@
       {
         "id": "mrbau.extension.menu.start-ocr",
         "title": "OCR starten",
-        "order": 313,
+        "order": 315,
         "icon": "mrbau:ocr",
         "actions": {
           "click": "mrbau.extension.actions.start-ocr"
@@ -307,7 +324,7 @@
       {
         "id": "mrbau.extension.menu.modify-company",
         "title": "Firma ändern",
-        "order": 314,
+        "order": 316,
         "icon": "groups",
         "actions": {
           "click": "mrbau.extension.actions.modify-company"
@@ -319,12 +336,12 @@
       {
         "id": "mrbau.extension.menu.separator.1",
         "type": "separator",
-        "order": 315
+        "order": 317
       },
       {
         "id": "mrbau.extension.menu.print-linked-docs",
         "title": "Dok. und Verkn. Drucken",
-        "order": 316,
+        "order": 318,
         "icon": "print",
         "actions": {
           "click": "mrbau.extension.actions.print-linked-docs"
@@ -336,7 +353,7 @@
       {
         "id": "mrbau.extension.menu.tag-done-linked-docs",
         "title": "Dok. und Verkn. Tag Erledigt",
-        "order": 317,
+        "order": 319,
         "icon": "label",
         "actions": {
           "click": "mrbau.extension.actions.tag-done-linked-docs"

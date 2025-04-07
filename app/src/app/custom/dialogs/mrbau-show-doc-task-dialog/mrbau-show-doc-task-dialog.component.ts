@@ -30,6 +30,7 @@ import { MrbauNewTaskDialogComponent } from '../mrbau-new-task-dialog/mrbau-new-
 })
 export class MrbauShowDocTaskDialogComponent extends MrbauBaseDialogComponent implements OnInit {
   node:Node;
+  openInNewWindow = false;
 
     fields : FormlyFieldConfig[] = [
       {
@@ -54,7 +55,7 @@ export class MrbauShowDocTaskDialogComponent extends MrbauBaseDialogComponent im
                 private router : Router,
                 private mrbauFormLibraryService: MrbauFormLibraryService,
                 private mrbauCommonService : MrbauCommonService,
-                private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any}
+                private dialogRef: MatDialogRef<MrbauNewTaskDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {payload: any, openInNewWindow?:boolean}
     ) {
       super();
       this.router;
@@ -63,6 +64,9 @@ export class MrbauShowDocTaskDialogComponent extends MrbauBaseDialogComponent im
       if (data && data.payload)
       {
         const selection = data.payload as SelectionState;
+        if (data.openInNewWindow === true) {
+          this.openInNewWindow = true;
+        }
         selection.nodes.forEach(nodeEntry => {
           this.node = nodeEntry.entry;
           this.searchCMIS().then(rs => {
@@ -134,7 +138,14 @@ export class MrbauShowDocTaskDialogComponent extends MrbauBaseDialogComponent im
 
     routeTo(id:string)
     {
-      this.router.navigate(['/tasks', id]);
+      if (this.openInNewWindow) {
+        const path = window.location.origin+'/#/tasks/'+id;
+        //window.open(path, '_blank', 'width=800,height=600');
+        window.open(path);
+      }
+      else {
+        this.router.navigate(['/tasks', id]);
+      }
     }
 
     modelChangeEvent()
