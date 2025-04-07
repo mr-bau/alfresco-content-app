@@ -7,7 +7,7 @@ import { ITaskChangedData } from '../tasks/tasks.component';
 @Component({
   selector: 'aca-tasks-menu-delete',
   template: `
-    <button *ngIf="!isDisabled()" mat-menu-item (click)="onDeleteTaskClicked()" disabled> <!-- [disabled]="isDisabled()">-->
+    <button *ngIf="!isDisabled()" mat-menu-item (click)="onDeleteTaskClicked()" [disabled]="isDisabled()">
       <mat-icon>delete</mat-icon>
         <span>Aufgabe Löschen</span>
     </button>
