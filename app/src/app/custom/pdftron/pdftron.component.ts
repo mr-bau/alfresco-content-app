@@ -438,7 +438,9 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
     {path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
     */
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-nopay.svg', patchFunction : this.svgPatchStampDate.bind(this), showPanel : false, icon: MrbauStamps.SVG_ICON_NOPAY, tooltip: 'M&R Buchen nicht Zahlen', toolgroup: 'mrbauStampToolGroup2'},
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-abzuege.svg', patchFunction : this.svgPatchDeductions.bind(this), showPanel : false, icon: MrbauStamps.SVG_ICON_SUM, tooltip: 'M&R Abzüge', toolgroup: 'mrbauStampToolGroup2'},
+
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchStampDate.bind(this), showPanel : true, icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt', toolgroup: 'mrbauStampToolGroup'},
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchStampDate.bind(this), showPanel : true, icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang', toolgroup: 'mrbauStampToolGroup'},
     {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), showPanel : false, icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1', toolgroup: 'mrbauStampToolGroup'},
