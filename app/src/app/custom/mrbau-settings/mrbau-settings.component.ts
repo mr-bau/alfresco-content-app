@@ -31,9 +31,10 @@ import { MrbauArchiveModelService } from '../services/mrbau-archive-model.servic
       </div>
 
       <div *ngIf="isUserAllowedMaintenance; else elseBlock">
-        <h3>Zuständige MA für alle Projekte Ändern</h3>
+        <h3>Zuständige Mitarbeiter Ändern</h3>
         <div style="display:flex;gap:10px">
-          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMassReplaceUserProject()" matTooltip="Mitarbeiter ändern">Mitarbeiter ändern</button>
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMassReplaceUserProject()" matTooltip="Mitarbeiter für alle Projekte ändern">Für Projekte ändern</button>
+          <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary" color="primary" (click)="buttonMassReplaceUserTasks()" matTooltip="Mitarbeiter für alle Aufgaben ändern (requires Admin)">Für Aufgaben ändern (ADMIN)</button>
         </div>
         <aca-maintenance-tasks></aca-maintenance-tasks>
         <h3>Test</h3>
@@ -95,6 +96,10 @@ export class MrbauSettingsComponent implements OnInit {
 
   buttonMassReplaceUserProject() {
     this.mrbauConventionsService.massReplaceUserProject();
+  }
+
+  buttonMassReplaceUserTasks() {
+    this.mrbauConventionsService.massReplaceUserTask();
   }
 
   buttonExportOpenTaks() {

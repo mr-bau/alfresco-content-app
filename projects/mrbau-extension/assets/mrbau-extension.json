@@ -286,7 +286,7 @@
         }
       },
       {
-        "id": "mrbau.extension.menu.show-doc-task",
+        "id": "mrbau.extension.menu.show-doc-task-window",
         "title": "Aufgabe anzeigen (Tab)",
         "order": 313,
         "icon": "inbox",

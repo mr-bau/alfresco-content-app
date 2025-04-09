@@ -210,6 +210,17 @@ export class MrbauConventionsService {
     });
   }
 
+  massReplaceUserTask(){
+    this.mrbauCommonService.massReplaceUserTaskDialog().then((result) => {
+      if (result) {
+        this.mrbauCommonService.showInfo(result);
+      }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
   exportOpenDocumentTasks() {
     this.mrbauCommonService.exportOpenDocumentTasks();
   }

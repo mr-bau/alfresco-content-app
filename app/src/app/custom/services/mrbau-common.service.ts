@@ -1252,6 +1252,96 @@ export class MrbauCommonService {
     return this.tagService.removeTag(nodeId, tag).toPromise();
   }
 
+  massReplaceUserTaskDialog() : Promise<string>
+  {
+    return new Promise((resolve, reject) =>
+    {
+      // dialog
+      const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+        data: {
+          dialogTitle: 'Mitarbeiter ersetzen',
+          dialogMsg: 'Mitarbeiter für alle Aufgaben ersetzen',
+          dialogButtonOK: 'MA ÄNDERN',
+          callQueryData: false,
+          fieldsMain: [
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                  className: 'flex-4',
+                  key: 'userOld',
+                  type: 'select',
+                  props: {
+                    label: 'Alter Mitarbeiter',
+                    description: 'Alter Mitarbeiter',
+                    options: this.getPeopleObservable(),
+                    valueProp: 'id',
+                    labelProp: 'displayName',
+                    required: true,
+                  }
+                }
+              ]
+            },
+            {
+              fieldGroupClassName: 'flex-container-min-width',
+              fieldGroup: [
+                {
+                  className: 'flex-4',
+                  key: 'userNew',
+                  type: 'select',
+                  props: {
+                    label: 'Neuer Mitarbeiter',
+                    description: 'Neuer Mitarbeiter',
+                    options: this.getPeopleObservable(),
+                    valueProp: 'id',
+                    labelProp: 'displayName',
+                    required: true,
+                  }
+                }
+              ]
+            },
+          ],
+          payload: null
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result)
+        {
+          try {
+            const searchRequest : SearchRequest =  {
+            query: {
+              query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
+              `WHERE B.mrbt:status >= 0 AND B.mrbt:status < ${EMRBauTaskStatus.STATUS_NOTIFY_DONE} AND B.mrbt:status <> ${EMRBauTaskStatus.STATUS_PAUSED} `+
+              `AND B.mrbt:category >= ${EMRBauTaskCategory.NewDocumentStart} AND B.mrbt:category <= ${EMRBauTaskCategory.NewDocumentLast} `+
+              (`AND B.mrbt:assignedUserName = '${result.userOld}' `),
+              language: 'cmis'
+              },
+              include: ['properties'],
+              paging : {
+                skipCount: 0,
+                maxItems:  999
+              }
+            };
+            const resultSetPaging = await this.searchService.searchByQueryBody(searchRequest).toPromise();
+            for (let i=0; i<resultSetPaging.list.entries.length; i++) {
+              const entry = resultSetPaging.list.entries[i].entry;
+              console.log(entry);
+              const nodeBodyUpdate : NodeBodyUpdate = {"properties": {"mrbt:assignedUserName": result.userNew}};
+              await this.contentService.nodesApi.updateNode(entry.id, nodeBodyUpdate);
+            }
+            resolve('Successfully Updatet '+resultSetPaging.list.entries.length+ ' tasks');
+          } catch(error) {
+            reject(error);
+          }
+        }
+        else {
+          resolve(null);
+        }
+      });
+    })
+  }
+
   massReplaceUserProjectDialog() : Promise<string>
   {
     return new Promise((resolve, reject) =>
