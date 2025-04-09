@@ -32,6 +32,17 @@
   </div>
 </adf-toolbar>
 
+<!-- comments panel -->
+<mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false" [expanded]="commentPanelOpened">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>question_answer</mat-icon>
+      <span class="expansionTitleText">Kommentare</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <aca-task-commentlist-invoice-workflow #commentlist [nodeId]="taskNode ? taskNode.id : null" [isVisible]="commentPanelOpened"></aca-task-commentlist-invoice-workflow>
+</mat-expansion-panel>
+
 <div *ngIf="isTaskModificationUiVisible()">
   <mat-expansion-panel style="margin-top:1rem;" [expanded]="true" [hidden]="true">
     <mat-expansion-panel-header>
@@ -81,16 +92,7 @@
   <aca-task-tag-manager [nodeId]="taskNode ? taskNode.id : null" [isVisible]="tagPanelOpened"></aca-task-tag-manager>
 </mat-expansion-panel>
 
-<!-- comments panel -->
-<mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-      <mat-icon>question_answer</mat-icon>
-      <span class="expansionTitleText">Kommentare</span>
-    </mat-panel-title>
-  </mat-expansion-panel-header>
-  <aca-task-commentlist-invoice-workflow #commentlist [nodeId]="taskNode ? taskNode.id : null" [isVisible]="commentPanelOpened"></aca-task-commentlist-invoice-workflow>
-</mat-expansion-panel>
+
 
 <!-- history panel -->
 <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">

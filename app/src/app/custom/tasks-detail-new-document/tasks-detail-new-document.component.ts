@@ -110,6 +110,18 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.queryData();
   }
 
+  autoOpenCommentsList(){
+    this.mrbauCommonService.getNodeComments(this._taskNode.id).toPromise()
+    .then((comments) => {
+      if (comments && comments instanceof Array && comments.length > 0) {
+        this.commentPanelOpened = true;
+      }
+      else{
+        this.commentPanelOpened = false;
+      }
+    });
+  }
+
   queryData()
   {
     this.fields = [];
@@ -125,6 +137,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     .then((nodeEntry) => {
         nodeEntry;
         this._taskNode = nodeEntry.entry;
+        this.autoOpenCommentsList();
         return this.nodesApiService.nodesApi.listTargetAssociations(nodeEntry.entry.id, {skipCount:0, maxItems: 999, include: CONST.GET_NODE_DEFAULT_INCLUDE});
       }
     )
