@@ -68,7 +68,7 @@ export class TasksComponent implements OnInit {
     const people = await this.mrbauCommonService.getPeopleObservable().toPromise()
     let searchRequest = {
       query: {
-        query:"SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < 8000 AND B.mrbt:status <> 211 ORDER BY B.mrbt:assignedUserName ASC",
+        query:"SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId WHERE B.mrbt:status >= 0 AND B.mrbt:status < 9000 ORDER BY B.mrbt:assignedUserName ASC",
         language: 'cmis'
       },
       include: ['properties'],
@@ -83,11 +83,13 @@ export class TasksComponent implements OnInit {
         for (let nodeEntry of nodePaging.list.entries) {
           const assignedUser = nodeEntry.entry.properties["mrbt:assignedUserName"];
           let found = false;
-          for (let i=0;i<people.length; i++) {
-            if (people[i].id == assignedUser) {
-              //console.log(assignedUser+' found '+people[i].displayName);
-              found = true;
-              break;
+          if (assignedUser != null) {
+            for (let i=0;i<people.length; i++) {
+              if (people[i].id == assignedUser) {
+                //console.log(assignedUser+' found '+people[i].displayName);
+                found = true;
+                break;
+              }
             }
           }
           if (!found) {
@@ -96,10 +98,12 @@ export class TasksComponent implements OnInit {
             }
             errorCount++;
             console.log(assignedUser + ' not found ' + nodeEntry.entry.id);
-            for (let i=0;i<people.length; i++) {
-              if (people[i].id.toLowerCase() == assignedUser.toLowerCase()) {
-                console.log('lower match found: '+people[i].id+' - '+people[i].displayName);
-                break;
+            if (assignedUser != null) {
+              for (let i=0;i<people.length; i++) {
+                if (people[i].id.toLowerCase() == assignedUser.toLowerCase()) {
+                  console.log('lower match found: '+people[i].id+' - '+people[i].displayName);
+                  break;
+                }
               }
             }
           }
