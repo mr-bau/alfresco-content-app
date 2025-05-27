@@ -154,7 +154,7 @@ export class MrbauCommonService {
 
   isFinishNowUser() : boolean {
     const user = this.authenticationService.getEcmUsername().toLowerCase();
-    if (user == "klammer") {
+    if (user == "freithofer") {
       return true;
     }
     return this.isSettingsUser();
@@ -1214,7 +1214,7 @@ export class MrbauCommonService {
 
     //'koberer' : this.TAG_GROUP_BAUHOF,
 
-    'klammer' : this.TAG_GROUP_BAUHOF,
+    'freithofer' : this.TAG_GROUP_BAUHOF,
     'pichlkastner' : this.TAG_GROUP_BAUHOF,
     'vaschauner' : this.TAG_GROUP_BAUHOF,
     'daniel' : this.TAG_GROUP_BAUHOF,
