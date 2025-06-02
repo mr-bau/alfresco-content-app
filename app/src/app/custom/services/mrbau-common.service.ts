@@ -109,6 +109,17 @@ export class MrbauCommonService {
     return (userName == 'admin' || userName == 'wolfgang moser');
   }
 
+  isMRSigningUser() : boolean {
+    const user = this.authenticationService.getEcmUsername().toLowerCase();
+    if (this.isSuperUser()) {
+      return true;
+    }
+    if (user == "koberer") {
+      return true;
+    }
+    return false;
+  }
+
   isOrderPostUser() : boolean {
     const user = this.authenticationService.getEcmUsername().toLowerCase();
     if (this.isSuperUser()) {

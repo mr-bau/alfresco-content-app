@@ -8,7 +8,7 @@ import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { DocumentAssociations,  EMRBauDocumentAssociations, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../mrbau-doc-declarations';
 //import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauInvoiceTypes, EMRBauOfferTypes, EMRBauOrderTypes  } from '../mrbau-doc-declarations';
 import { CONST } from '../mrbau-global-declarations';
-import { EMRBauTaskStatus, IMRBauTaskStatusAndUser, MRBauTask } from '../mrbau-task-declarations';
+import { EMRBauTaskCategory, EMRBauTaskStatus, IMRBauTaskStatusAndUser, MRBauTask } from '../mrbau-task-declarations';
 import { MrbauArchiveModelService } from '../services/mrbau-archive-model.service';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../services/mrbau-form-library.service';
@@ -455,9 +455,10 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   isPrevButtonEnabled() : boolean {
     if (this.task) {
-      if ((    this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING
-            || this.task.status == EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION
-          ) && !this.mrbauCommonService.isOrderPostUser()) {
+      if (this.task.status == EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION && !this.mrbauCommonService.isOrderPostUser()) {
+        return false;
+      }
+      if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isMRSigningUser()) {
         return false;
       }
       return this.task.status > EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
@@ -467,7 +468,10 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   isNextButtonEnabled() : boolean {
     if (this.task) {
-      if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isOrderPostUser()) {
+      if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isMRSigningUser()) {
+        return false;
+      }
+      if (this.task.category == EMRBauTaskCategory.NewDocumentValidateORDER && this.task.status == EMRBauTaskStatus.STATUS_ALL_SET && !this.mrbauCommonService.isMRSigningUser()) {
         return false;
       }
       if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET && !this.mrbauCommonService.isOrderPostUser()) {

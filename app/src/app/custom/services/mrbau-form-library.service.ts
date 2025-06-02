@@ -641,7 +641,7 @@ export class MrbauFormLibraryService {
       appearance:"outline",
       icon : 'fingerprint',
       title : 'PARAPHIEREN UND SIGNIEREN',
-      subtitle : 'Prüfen, Paraphieren und Signieren Sie den Auftrag. Anschließend deligieren sie den Auftrag an die technische Assistenz zum Versand an den Auftragnehmer.',
+      subtitle : 'Prüfen, Paraphieren und Signieren Sie den Auftrag. Anschließend deligieren Sie den Auftrag an die technische Assistenz zum Versand an den Auftragnehmer.',
       additionalText : ['1) Prüfen und Paraphieren (Bauleiter)', '2) Signieren (Unternehmensbereichsleiter)', '3) Signieren (Geschäftsführer)','4) Deligieren an technische Assistenz für den Versand']
     }
 };
