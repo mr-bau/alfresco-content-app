@@ -28,6 +28,7 @@
       <aca-tasks-menu-finishnow [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-finishnow>
       <aca-tasks-menu-delete [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></aca-tasks-menu-delete>
       <aca-tasks-menu-reopen [task]="task" (reopenClickedEvent)="reopenClickedEvent($event)"></aca-tasks-menu-reopen>
+      <aca-tasks-menu-test [tasksDetailNewDocumentComponent]="this"></aca-tasks-menu-test>
     </mat-menu>
   </div>
 </adf-toolbar>

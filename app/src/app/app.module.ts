@@ -160,6 +160,7 @@ import { MrbauFormlyMarginWrapperComponent } from './custom/form/mrbau-formly-ma
 import { MrbauShowDocTaskDialogComponent } from './custom/dialogs/mrbau-show-doc-task-dialog/mrbau-show-doc-task-dialog.component';
 import { TaskSingleViewComponent } from './custom/task-single-view/task-single-view.component';
 import { TasksMenuReopenComponent } from './custom/tasks-menu-reopen/tasks-menu-reopen.component';
+import { TasksMenuTestComponent } from './custom/tasks-menu-test/tasks-menu-test.component';
 import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
 import { MrbauSearchWidgetChipComponent }  from './custom/mrbau-search-table/mrbau-search-widget-chip/mrbau-search-widget-chip.component';
 import { MrbauSearchFacetChipComponent } from './custom/mrbau-search-table/mrbau-search-facet-chip/mrbau-search-facet-chip.component';
@@ -374,6 +375,7 @@ registerLocaleData(localeSv);
     MrbauTagDoneLinkedDocsDialogComponent,
     TaskSingleViewComponent,
     TasksMenuReopenComponent,
+    TasksMenuTestComponent,
     DocInboxBookComponent,
     MrbauSearchFacetChipComponent,
     MrbauSearchFacetFieldComponent,
