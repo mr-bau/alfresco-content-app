@@ -68,7 +68,7 @@ import { DetailsComponent } from './components/details/details.component';
 import { ContentUrlService } from './services/content-url.service';
 import { HomeComponent } from './components/home/home.component';
 
-import { registerLocaleData } from '@angular/common';
+import { DecimalPipe, registerLocaleData } from '@angular/common';
 
 import localeFr from '@angular/common/locales/fr';
 import localeDe from '@angular/common/locales/de';
@@ -402,6 +402,7 @@ registerLocaleData(localeSv);
       useValue: 'de-AT' // 'de-DE' for Germany, 'fr-FR' for France ...
     },
     DatePipe,
+    DecimalPipe,
     MRBauTaskStatusPipe
   ],
   bootstrap: [AppComponent]

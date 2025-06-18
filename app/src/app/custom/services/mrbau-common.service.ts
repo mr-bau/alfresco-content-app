@@ -3,7 +3,7 @@ import { CommentContentService, CommentModel, EcmUserModel, PeopleContentService
 import { MinimalNodeEntity, NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry, NodePaging } from '@alfresco/js-api';
 import { Observable, Subject } from 'rxjs';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../mrbau-task-declarations';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { CONST } from '../mrbau-global-declarations';
 import { ContentNodeSelectorComponent, ContentNodeSelectorComponentData, TagService } from '@alfresco/adf-content-services';
 import { MatDialog } from '@angular/material/dialog';
@@ -41,6 +41,7 @@ export class MrbauCommonService {
     private mrbauDbService: MrbauDbService,
     private searchService : SearchService,
     private mrbauExportService : MrbauExportService,
+    private decimalPipe : DecimalPipe,
     ) {
     }
 
@@ -1463,7 +1464,7 @@ export class MrbauCommonService {
     })
   }
 
-  exportOpenDocumentTasks() {
+  async exportOpenDocumentTasks(includeDocData = true) {
     const searchRequest : SearchRequest = {
       query: {
         query:`SELECT * FROM mrbt:task A JOIN mrbt:taskCoreDetails B ON A.cmis:objectId = B.cmis:objectId `+
@@ -1478,22 +1479,44 @@ export class MrbauCommonService {
       maxItems: 999,
     }
 
-    this.searchService.searchByQueryBody(searchRequest).toPromise()
-    .then((nodePaging : NodePaging) => {
-      nodePaging;
+    try {
+      const nodePaging = await this.searchService.searchByQueryBody(searchRequest).toPromise();
+      const entries = nodePaging.list.entries;
       const labels : string[] = ['AufgabeId','Aufgabe', 'StatusId', 'Status', 'Firma', 'KT/KS', 'Zugewiesen', 'DokumentId', 'DokumentName', 'erzeugt', 'zu erledigen bis'];
       const data : any[] = [];
-      for (var nodeEntry of nodePaging.list.entries) {
+      for (let i=0; i< entries.length; i++)
+      {
+        const nodeEntry = entries[i];
         let task = new MRBauTask();
-        task.updateWithNodeData(nodeEntry.entry);
+        task.updateWithNodeData(nodeEntry.entry as Node);
         const row = [task.id, task.desc, task.status, task.getStateLabel(), task.companyName, task.costCarrierNumber, task.assignedUserName, task.associatedDocumentRef[0], task.associatedDocumentName[0],this.datePipe.transform(new Date(task.createdDate),'yyyy-MM-dd'), this.datePipe.transform(new Date(task.dueDateValue),'yyyy-MM-dd')];
         data.push(row);
       };
+
+      if (includeDocData === true)
+      {
+        labels.push('Brutto');
+        labels.push('Brutto gpr.');
+        for (let i=0; i<data.length; i++) {
+          const row = data[i];
+          if (row[1] == 'Dokument - Rechnung') {
+            const node = await this.getNode(row[7], {include: CONST.GET_NODE_DEFAULT_INCLUDE}).toPromise();
+            //console.log(node.entry.properties);
+            row.push(this.decimalPipe.transform((node.entry.properties['mrba:grossAmountCents'] || 0) / 100, '1.2-2' , 'de').replace('.',''));
+            row.push(this.decimalPipe.transform((node.entry.properties['mrba:grossAmountVerifiedCents'] || 0) / 100, '1.2-2' , 'de').replace('.',''));
+          }
+          else {
+            row.push('-');
+            row.push('-');
+          }
+        }
+      }
+
       this.mrbauExportService.downloadData(labels, data, 'Offene Dokumente');
-    })
-    .catch((error) => {
+    }
+    catch(error) {
       console.log(error);
-    });
+    }
   }
 
   replaceCompanyInfoByName(data : IMrbauReplaceCompanyInfoData[])
