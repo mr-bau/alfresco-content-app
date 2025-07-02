@@ -12,6 +12,10 @@ import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } fr
 import { AspectDeductionDetails, AspectRetentionDetails, IAspectDetailItem } from '../mrbau-mrba-aspects';
 import { NodeEntry } from '@alfresco/js-api';
 import { MrbauCalcService, ICalculationParameter, TCalculationParameterType } from '../services/mrbau-calc.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CanComponentDeactivate } from './pending-changes.interface';
+import { Observable } from 'rxjs';
+import { MrbauConfirmDialogComponent } from '../dialogs/mrbau-confirm-dialog/mrbau-confirm-dialog.component';
 
 interface ICalculationParameterExtend extends ICalculationParameter {
   dyMultiplier : number
@@ -40,7 +44,7 @@ interface IPatchFunction {
   templateUrl: './pdftron.component.html',
   styleUrls: ['./pdftron.component.scss']
 })
-export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
+export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanComponentDeactivate {
   // Syntax if using Angular 8+
   // true or false depending on code
   @ViewChild('viewer', {static: true}) viewer: ElementRef;
@@ -55,6 +59,14 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
   stampDate : Date = new Date();
   customStamps : any[] = [];
   readonly STAMP_FOLDER_PATH = 'Vorlagen/Stempel/';
+  readonly SAVE_YES_NO_DIALOG_DATA = {
+              dialogTitle: 'Änderungen Speichern?',
+              dialogMsg: 'Es gab Änderungen im PDF Dokument. Neue Version hochladen und Änderungen speichern?',
+              dialogButtonOK: 'SPEICHERN',
+              dialogButtonCancel: 'VERWERFEN',
+              fieldsMain: [],
+              payload: null
+            };
 
   wvInstance: any;
   constructor(
@@ -65,22 +77,51 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     private mrbauCommonService : MrbauCommonService,
     private mrbauCalcService : MrbauCalcService,
     private datePipe : DatePipe,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private dialog: MatDialog,
   ){
     this.sanitizer;
     this.contentService;
     //SecurityContext;
   }
 
+
+  canDeactivate() : Observable<boolean> | Promise<boolean> | boolean {
+    if (this.modified && this.previousFileSelectData != null) {
+      return new Promise<boolean>((resolve) => {
+          const dialogRef = this.dialog.open(MrbauConfirmDialogComponent, {
+            disableClose: true,
+            data: this.SAVE_YES_NO_DIALOG_DATA
+          },
+        );
+
+        dialogRef.afterClosed().subscribe(async (result) => {
+          if (result) {
+            await this.doUploadDocumentToDMS(this.previousFileSelectData, false);
+          }
+          this.modified = false;
+          this.previousFileSelectData = null;
+          resolve(true);
+        });
+        }
+      );
+    }
+    return true;
+  }
+
   ngOnInit() {
-    this.documentModified = this.documentModified.bind(this);
+    this.modified = false;
+    window.onbeforeunload = (event) => {
+    if (this.modified) {
+      event.preventDefault(); // Verhindert das sofortige Verlassen
+      event.returnValue = ''; // Zeigt die Standard-Browser-Warnung an
+      // An dieser Stelle können Sie auch Ihren eigenen Dialog triggern.
+    }
+  };
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.fileSelectData) {
-      if (this.previousFileSelectData == null) {
-        this.previousFileSelectData = changes.fileSelectData.previousValue;
-      }
       this.onFileSelected();
     }
   }
@@ -112,9 +153,10 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       // instance.Core.documentViewer.addEventListener('annotationsLoaded', () => { console.log('annotations loaded'); });
       // instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
 
-      instance.Core.annotationManager.addEventListener('annotationChanged', this.documentModified);
-      instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified);
-      instance.Core.documentViewer.addEventListener('layoutChanged', this.documentModified);
+      instance.Core.annotationManager.addEventListener('annotationChanged', this.documentModified.bind(this));
+      instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified.bind(this));
+      instance.Core.documentViewer.addEventListener('documentChanged', this.documentModified.bind(this));
+      instance.Core.documentViewer.addEventListener('layoutChanged', this.documentModified.bind(this));
       instance.Core.documentViewer.addEventListener('toolModeUpdated', this.toolUpdated.bind(this))
 
       this.customizeUI();
@@ -670,12 +712,15 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
   private async onFileSelected() {
     if (this.modified && this.previousFileSelectData != null) {
-      this.previousFileSelectData = null;
+      //this.previousFileSelectData = null;
       //this.openModal(this.mrbauModalSaveYesNo);
-      //return;
+      console.log('open Modal',this.previousFileSelectData.nodeId, ' - ', this.fileSelectData.nodeId);
+      this.openSaveYesNoDialog();
+      return;
     }
 
     this.modified = false;
+    this.previousFileSelectData = null;
 
     if (!this.fileSelectData) {
       this.sanitized_document_url = null;
@@ -699,7 +744,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
   private loadUrl(fileUrl : string, fileName : string)
   {
-    this.modified = false;
     if (fileUrl == null)
     {
       this.sanitized_document_url = null;
@@ -718,9 +762,10 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     // see https://www.pdftron.com/api/web/WebViewerInstance.html for the full list of low-level APIs
     // https://community.apryse.com/t/detect-any-pdf-modifications/5347/3
     for(let i=0; i<info?.length; i++) {
-      if (!info[i].isImporting) {
+      if (!info[i].isImporting && !info?.imported) {
         if (this.modified == false) {
           this.modified = true;
+          this.previousFileSelectData = Object.assign({}, this.fileSelectData);
         }
         return;
       }
@@ -789,6 +834,15 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.wvInstance.UI.addCustomModal(modalOptions);
   }
 
+  async openSaveYesNoDialog()
+  {
+    await this.canDeactivate();
+    this.modified = false;
+    this.previousFileSelectData = null;
+    this.onFileSelected();
+  }
+
+  /*
   addModalYesNoDialog(headerText:string, bodyText:string, name: string) {
     const modalOptions = {
       dataElement: name,
@@ -836,7 +890,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       }
     }
     this.wvInstance.UI.addCustomModal(modalOptions);
-  }
+  }*/
 
   openModal(name:string, ) {
     this.wvInstance.UI.openElements([name]);
@@ -853,16 +907,16 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
 
     // Add header button that will get file data on click
     this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Flatten PDF',  img: MrbauStamps.SVG_ICON_FLATTEN, className:"row", onClick: async () => { this.flattenDocument(); }});
-    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, className:"row", onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData); }});
+    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, className:"row", onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData, true); }});
     this.wvInstance.UI.setHeaderItems(header => {
-      header.get('leftPanelButton').insertBefore({ type: 'actionButton', title: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData); }});
+      header.get('leftPanelButton').insertBefore({ type: 'actionButton', title: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData, true); }});
     });
 
     this.addModalDialog("Upload abgebrochen", "Es wurden keine Änderungen durchgeführt", this.mrbauModalNoChange);
     this.addModalDialog("Upload abgebrochen", "Node Id fehlt.", this.mrbauModalNoNodeId);
     this.addModalDialog("Upload erfolgreich", "Dokument als neue Version gespeichert.", this.mrbauModalUploadOK);
     this.addModalDialog("Upload Fehler", "Upload Fehler!", this.mrbauModalUploadError);
-    this.addModalYesNoDialog("Änderungen Speichern", "Sollen die Änderungen als neue Version gespeichert werden?",this.mrbauModalSaveYesNo)
+    //this.addModalYesNoDialog("Änderungen Speichern", "Sollen die Änderungen als neue Version gespeichert werden?",this.mrbauModalSaveYesNo)
     this.customizeUIStamps();
     this.customizeUIMRStamps();
     this.customizeSignatureTool();
@@ -1069,7 +1123,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
     this.changeDetectorRef.detectChanges();
   }
 
-  async doUploadDocumentToDMS(fileSelectData : IFileSelectData) {
+  async doUploadDocumentToDMS(fileSelectData : IFileSelectData, showConfirmDialog : boolean) {
     const { documentViewer, annotationManager } = this.wvInstance.Core;
 
     this.wvInstance.UI.closeElements([ 'menuOverlay' ]);
@@ -1099,13 +1153,17 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges {
       result;
       //this.mrbauCommonService.showInfo("Dokument erfolgreich gespeichert.");
       this.toggleSpinner(false);
-      this.openModal(this.mrbauModalUploadOK);
+      if (showConfirmDialog) {
+        this.openModal(this.mrbauModalUploadOK);
+      }
       this.modified = false;
     })
     .catch(error => {
       this.toggleSpinner(false);
       this.mrbauCommonService.showError(error);
-      this.openModal(this.mrbauModalUploadError);
+      if (showConfirmDialog) {
+        this.openModal(this.mrbauModalUploadError);
+      }
       console.log(error)
     })
   }

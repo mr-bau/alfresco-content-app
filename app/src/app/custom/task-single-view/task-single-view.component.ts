@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { MRBauTask } from '../mrbau-task-declarations';
 import { MrbauCommonService } from '../services/mrbau-common.service';
 import { IFileSelectData, ITaskChangedData } from '../tasks/tasks.component';
+import { CanComponentDeactivate } from '../pdftron/pending-changes.interface';
+import { PdfpreviewwrapperComponent } from '../pdfpreviewwrapper/pdfpreviewwrapper.component';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'aca-task-single-view',
   templateUrl: './task-single-view.component.html',
   styleUrls: ['./task-single-view.component.scss']
 })
-export class TaskSingleViewComponent implements OnInit {
-
+export class TaskSingleViewComponent implements OnInit, CanComponentDeactivate {
+  @ViewChild('PDF_PREVIEW_WRAPPER') pdfpreviewwrapperComponent : PdfpreviewwrapperComponent;
   nodeId = '';
   fileSelectData : IFileSelectData = null;
   dragging =  false;
@@ -22,6 +25,13 @@ export class TaskSingleViewComponent implements OnInit {
     private route: ActivatedRoute,
     private mrbauCommonService : MrbauCommonService,
   ){
+  }
+
+  canDeactivate() : Observable<boolean> | Promise<boolean> | boolean {
+    if (this.pdfpreviewwrapperComponent) {
+      return this.pdfpreviewwrapperComponent.canDeactivate();
+    }
+    return true;
   }
 
   ngOnInit(): void {

@@ -4,6 +4,9 @@ import { MrbauCommonService } from '../services/mrbau-common.service';
 import { TasksTableComponent } from '../taskstable/taskstable.component';
 import { NodePaging } from '@alfresco/js-api';
 import { SearchService } from '@alfresco/adf-core';
+import { CanComponentDeactivate } from '../pdftron/pending-changes.interface';
+import { Observable } from 'rxjs';
+import { PdfpreviewwrapperComponent } from '../pdfpreviewwrapper/pdfpreviewwrapper.component';
 
 export interface ITaskChangedData {
   task : MRBauTask,
@@ -21,8 +24,9 @@ export interface IFileSelectData {
   styleUrls: ['./tasks.component.scss'],
 
 })
-export class TasksComponent implements OnInit {
+export class TasksComponent implements OnInit, CanComponentDeactivate {
   @ViewChild('TASKS_TABLE') tasksTableComponent : TasksTableComponent;
+  @ViewChild('PDF_PREVIEW_WRAPPER') pdfpreviewwrapperComponent : PdfpreviewwrapperComponent;
 
   fileSelectData: IFileSelectData = null;
   dragging = false;
@@ -41,6 +45,13 @@ export class TasksComponent implements OnInit {
   ) {
     //let ecmUserName = this.alfrescoAuthenticationService.getEcmUsername();
     //console.log(ecmUserName);
+  }
+
+  canDeactivate() : Observable<boolean> | Promise<boolean> | boolean {
+    if (this.pdfpreviewwrapperComponent) {
+      return this.pdfpreviewwrapperComponent.canDeactivate();
+    }
+    return true;
   }
 
   ngOnInit(): void {

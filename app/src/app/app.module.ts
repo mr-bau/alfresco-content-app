@@ -184,6 +184,7 @@ import { MrbauPrintLinkedDocsDialogComponent } from './custom/dialogs/mrbau-prin
 import { MrbauTagDoneLinkedDocsDialogComponent } from './custom/dialogs/mrbau-tag-done-docs-dialog/mrbau-tag-done-docs-dialog.component';
 import { MrbauCalcDeductionDialogComponent } from './custom/dialogs/mrbau-calc-deduction-dialog/mrbau-calc-deduction-dialog.component';
 import { PdfpreviewwrapperComponent } from './custom/pdfpreviewwrapper/pdfpreviewwrapper.component';
+import { MrbauConfirmDialogComponent } from './custom/dialogs/mrbau-confirm-dialog/mrbau-confirm-dialog.component';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeDe);
@@ -343,6 +344,7 @@ registerLocaleData(localeSv);
     TaskVersionlistComponent,
     TaskVersionlistInvoiceWorkflowComponent,
     MrbauConfirmTaskDialogComponent,
+    MrbauConfirmDialogComponent,
     TaskLinkedDocumentsComponent,
     TaskLinkedDocumentsInvoiceWorkflowComponent,
     TaskProposeMatchingDocuments,

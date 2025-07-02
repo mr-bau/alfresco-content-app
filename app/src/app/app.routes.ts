@@ -47,6 +47,7 @@ import { TaskSingleViewComponent } from './custom/task-single-view/task-single-v
 import { DocInboxBookComponent } from './custom/doc-inbox-book/doc-inbox-book.component';
 import { MrbauSettingsComponent } from './custom/mrbau-settings/mrbau-settings.component';
 import { PdfpreviewwrapperComponent } from './custom/pdfpreviewwrapper/pdfpreviewwrapper.component';
+import { PendingChangesGuard } from './custom/pdftron/pending-changes.guard';
 
 export const APP_ROUTES: Routes = [
   {
@@ -67,6 +68,7 @@ export const APP_ROUTES: Routes = [
   {
     path: 'mrbaupdfview/:nodeId',
     component: PdfpreviewwrapperComponent,
+    canDeactivate: [PendingChangesGuard],
     data: {
       title: 'PDF Viewer',
     }
@@ -74,6 +76,7 @@ export const APP_ROUTES: Routes = [
   {
     path: 'mrbaupdfview/:nodeId/:versionId',
     component: PdfpreviewwrapperComponent,
+    canDeactivate: [PendingChangesGuard],
     data: {
       title: 'PDF Viewer',
     }
@@ -162,6 +165,7 @@ export const APP_ROUTES: Routes = [
           {
             path: '',
             component: TasksComponent,
+            canDeactivate: [PendingChangesGuard],
             data: {
               title: 'Aufgaben',
             }
@@ -169,6 +173,7 @@ export const APP_ROUTES: Routes = [
           {
             path: ':nodeId',
             component: TaskSingleViewComponent,
+            canDeactivate: [PendingChangesGuard],
             data: {
               title: 'Aufgabe',
             }

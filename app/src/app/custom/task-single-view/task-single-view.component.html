@@ -6,7 +6,7 @@
       <aca-tasksdetail (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" [task]="selectedTask"></aca-tasksdetail>
     </ng-container>
     <ng-container ngProjectAs="[splitAreaRight]">
-      <aca-pdfpreview [fileSelectData]="fileSelectData" [dragging]="dragging"></aca-pdfpreview>
+      <aca-pdfpreview #PDF_PREVIEW_WRAPPER [fileSelectData]="fileSelectData" [dragging]="dragging"></aca-pdfpreview>
     </ng-container>
   </aca-splitpane-two-col>
 </div>

@@ -7,26 +7,26 @@
       <mat-button-toggle value="aca">ACA-Viewer</mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-  <div *ngIf='(fileSelectData==null || dragging)'>
+  <div *ngIf='(fileSelectDataOut==null || dragging)'>
     <div class="center">
       <img class="preview-icon" src="./assets/images/ft_ic_pdf.svg" alt="PDF Icon" width="500px">
       <p class="preview-text">Document Preview</p>
     </div>
   </div>
   <div id="pdf-viewer">
-    <aca-pdfbrowser *ngIf="isPDFFile && useViewer=='browser'" [hidden]="(fileSelectData==null || dragging)" id="pdf-frame" [fileSelectData]="fileSelectData"></aca-pdfbrowser>
-    <aca-pdftron *ngIf="isPDFFile && useViewer=='pdfTron'" [hidden]="(fileSelectData==null || dragging)" [fileSelectData]="fileSelectData"></aca-pdftron>
-    <!--<aca-pdftron *ngIf="isPDFFile && useViewer=='pdfTron' && fileSelectData!=null" [hidden]="(fileSelectData==null || dragging)" [fileSelectData]="fileSelectData"></aca-pdftron>-->
-    <adf-viewer *ngIf="!isPDFFile || useViewer=='aca'"
+    <aca-pdfbrowser *ngIf="isPDFFile && useViewer==PDF_BROWSER" [hidden]="(fileSelectDataOut==null || dragging)" id="pdf-frame" [fileSelectData]="fileSelectDataOut"></aca-pdfbrowser>
+    <aca-pdftron #pdfTron *ngIf="isPDFFile && useViewer==PDF_TRON" [hidden]="(fileSelectDataOut==null || dragging)" [fileSelectData]="fileSelectDataOut"></aca-pdftron>
+    <!--<aca-pdftron *ngIf="isPDFFile && useViewer=='pdfTron' && fileSelectData!=null" [hidden]="(fileSelectData==null || dragging)" [fileSelectData]="fileSelectDataOut"></aca-pdftron>-->
+    <adf-viewer *ngIf="!isPDFFile || useViewer==PDF_ACA"
       [overlayMode]="false"
       [allowLeftSidebar]="false"
       [allowFullScreen]="true"
       [allowRightSidebar]="false"
       [allowGoBack]="false"
       [showToolbar]="true"
-      [nodeId]="fileSelectData?.nodeId"
-      [versionId]="fileSelectData?.versionId"
-      [hidden]="(fileSelectData==null || dragging)"
+      [nodeId]="fileSelectDataOut?.nodeId"
+      [versionId]="fileSelectDataOut?.versionId"
+      [hidden]="(fileSelectDataOut==null || dragging)"
     >
       <!--
       <adf-viewer-extension [supportedExtensions]="['pdf']" #extension>
