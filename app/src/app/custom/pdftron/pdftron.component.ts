@@ -714,7 +714,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
     if (this.modified && this.previousFileSelectData != null) {
       //this.previousFileSelectData = null;
       //this.openModal(this.mrbauModalSaveYesNo);
-      console.log('open Modal',this.previousFileSelectData.nodeId, ' - ', this.fileSelectData.nodeId);
+      //console.log('open Modal',this.previousFileSelectData.nodeId, ' - ', this.fileSelectData.nodeId);
       this.openSaveYesNoDialog();
       return;
     }
