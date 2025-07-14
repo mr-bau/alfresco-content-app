@@ -153,11 +153,18 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
       // instance.Core.documentViewer.addEventListener('annotationsLoaded', () => { console.log('annotations loaded'); });
       // instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
 
-      instance.Core.annotationManager.addEventListener('annotationChanged', this.documentModified.bind(this));
       instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified.bind(this));
       instance.Core.documentViewer.addEventListener('documentChanged', this.documentModified.bind(this));
       instance.Core.documentViewer.addEventListener('layoutChanged', this.documentModified.bind(this));
-      instance.Core.documentViewer.addEventListener('toolModeUpdated', this.toolUpdated.bind(this))
+      instance.Core.annotationManager.addEventListener('annotationChanged', (annotations, action, { imported }) =>
+      {
+        if (!imported)
+        {
+          annotations;action;
+          this.modified = true;
+          this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+        }
+      });
 
       this.customizeUI();
 
@@ -763,7 +770,10 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
     // https://community.apryse.com/t/detect-any-pdf-modifications/5347/3
     for(let i=0; i<info?.length; i++) {
       if (!info[i].isImporting && !info?.imported) {
-        if (this.modified == false) {
+        //if (this.modified == false)
+        {
+          console.log('YYYY')
+          console.log(info);
           this.modified = true;
           this.previousFileSelectData = Object.assign({}, this.fileSelectData);
         }
