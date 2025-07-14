@@ -27,7 +27,9 @@
     </style>
   <rect class="cls-1" x=".6" y=".5" width="186" height="80"/>
   <text class="cls-3" x="6" y="20">gepr&#252;ft: <tspan class="cls-4">mrba:verifyDate</tspan> <tspan class="cls-4">AUTHOR</tspan></text>
+  <!--
   <text class="cls-3" x="6" y="35">Betrag: <tspan class="cls-4">mrba:grossAmountVerified</tspan> </text>
+  -->
   <text class="cls-3" x="6" y="50">&#220;berweisung am:</text>
   <text class="cls-4" x="90" y="50">
     <tspan x="90" dy="0">PAYMENT_1</tspan>
