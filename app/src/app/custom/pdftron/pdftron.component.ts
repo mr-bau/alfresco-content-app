@@ -143,19 +143,19 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
 
       // now you can access APIs through this.webviewer.getInstance()
       // instance.UI.openElement('notesPanel');
-      // see https://docs.apryse.com/documentation/web/guides/ui/apis/
-      // for the full list of APIs
+      // see https://www.pdftron.com/api/web/WebViewerInstance.html for the full list of low-level APIs
+      // https://community.apryse.com/t/detect-any-pdf-modifications/5347/3
 
-      // or listen to events from the viewer element
-      // this.viewer.nativeElement.addEventListener('pageChanged', (e) => { const [ pageNumber ] = e.detail; console.log(`Current page is ${pageNumber}`); });
-
-      // or from the docViewer instance
-      // instance.Core.documentViewer.addEventListener('annotationsLoaded', () => { console.log('annotations loaded'); });
-      // instance.Core.documentViewer.addEventListener('documentLoaded', this.wvDocumentLoadedHandler)
-
-      instance.Core.annotationManager.addEventListener('fieldChanged', this.documentModified.bind(this));
-      instance.Core.documentViewer.addEventListener('documentChanged', this.documentModified.bind(this));
-      instance.Core.documentViewer.addEventListener('layoutChanged', this.documentModified.bind(this));
+      instance.Core.annotationManager.addEventListener('fieldChanged', (value) => {
+        value; // formular change
+        this.modified = true;
+        this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+      });
+      instance.Core.documentViewer.addEventListener('pagesUpdated', (value) => {
+        value; // add/remove/rotate page
+        this.modified = true;
+        this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+      });
       instance.Core.annotationManager.addEventListener('annotationChanged', (annotations, action, { imported }) =>
       {
         if (!imported)
@@ -252,6 +252,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
 
   async svgPatchDeductions(svgData :string) : Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
+      svgData = await this.svgPatchDocumentProperties(svgData);
       try {
         const node : NodeEntry = await this.contentService.getNode(this.fileSelectData.nodeId).toPromise();
         const taxRate = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:taxRate']);
@@ -765,26 +766,8 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  documentModified(info:any): void {
-    // see https://www.pdftron.com/api/web/WebViewerInstance.html for the full list of low-level APIs
-    // https://community.apryse.com/t/detect-any-pdf-modifications/5347/3
-    for(let i=0; i<info?.length; i++) {
-      if (!info[i].isImporting && !info?.imported) {
-        //if (this.modified == false)
-        {
-          console.log('YYYY')
-          console.log(info);
-          this.modified = true;
-          this.previousFileSelectData = Object.assign({}, this.fileSelectData);
-        }
-        return;
-      }
-    }
-  }
-
   toolUpdated(info:any): void {
     const elements = [ 'colorPalette', 'opacitySlider', 'strokeThicknessSlider'];
-
     if (this.wvInstance && info && info.name && info.name.startsWith('MRBauAnnotationCustomStamp'))
     {
       this.wvInstance.UI.disableElements(elements);

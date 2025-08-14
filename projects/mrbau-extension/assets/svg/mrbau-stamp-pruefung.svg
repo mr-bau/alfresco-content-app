@@ -6,7 +6,7 @@
         stroke: #ba182c;
       }
       .cls-2, .cls-3, .cls-4 {
-        font-family: Arial, sans-serif; 
+        font-family: Arial, sans-serif;
       }
 
       .cls-2, .cls-3 {
@@ -27,16 +27,14 @@
     </style>
   <rect class="cls-1" x=".6" y=".5" width="186" height="80"/>
   <text class="cls-3" x="6" y="20">gepr&#252;ft: <tspan class="cls-4">mrba:verifyDate</tspan> <tspan class="cls-4">AUTHOR</tspan></text>
-  <!--
   <text class="cls-3" x="6" y="35">Betrag: <tspan class="cls-4">mrba:grossAmountVerified</tspan> </text>
-  -->
   <text class="cls-3" x="6" y="50">&#220;berweisung am:</text>
   <text class="cls-4" x="90" y="50">
     <tspan x="90" dy="0">PAYMENT_1</tspan>
     <tspan x="90" dy="1.2em">PAYMENT_2</tspan>
     <tspan x="90" dy="1.2em">PAYMENT_3</tspan>
   </text>
-  
+
   <g transform="translate(160 0) scale(0.5 0.5)" style="fill: #ba182c;">
     <rect x="6" y="25.1" width="41.9" height="0.6"/>
     <g>
