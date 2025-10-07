@@ -386,11 +386,17 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
           if (node.entry.properties["mrba:reviewDaysPartialInvoice"]) {
             review_days = node.entry.properties["mrba:reviewDaysPartialInvoice"]+'T TR';
           }
+
           if (node.entry.properties["mrba:reviewDaysFinalInvoice"]) {
-            if (review_days.length == 0)
+            if (review_days.length == 0) {
               review_days = node.entry.properties["mrba:reviewDaysFinalInvoice"]+'T';
-            else
+              if (node.entry.properties["mrba:invoiceTypes"] == "Teilrechnung" || node.entry.properties["mrba:invoiceTypes"] == "Schlussrechnung")
+              {
+                review_days = '0T TR / '+review_days+' SR';
+              }
+            } else {
               review_days += ' / '+node.entry.properties["mrba:reviewDaysFinalInvoice"]+'T SR';
+            }
           }
           props.push({name:'REVIEW_DAYS', value:review_days});
 
