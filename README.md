@@ -5,6 +5,16 @@
  
  "@alfresco/adf-core": "npm:@mrbau/adf-core@^8.1.1-mrbau.0",
 
+  package.json
+  "@mrbau/adf-core": "^8.1.1-mrbau.0",
+  
+  tsconfigbase.json
+  "@alfresco/adf-core": ["node_modules/@mrbau/adf-core"],
+
+  npx nx reset
+  rm -rf .nx/cache
+  rm -rf node_modules/.cache/nx
+
 ```
 
 Please refer to the public [documentation](https://alfresco-content-app.netlify.app/) for more details
