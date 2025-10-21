@@ -1,0 +1,111 @@
+<mrbau-loaderoverlay *ngIf="isLoading"></mrbau-loaderoverlay>
+
+<adf-toolbar [title]="this.task.desc">
+  <div *ngIf="isTaskToolbarButtonsVisible()" class="toolbar-buttons-container">
+    <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
+      <button mat-flat-button
+        *ngIf="b.visible ? b.visible() : true"
+        class="disable-flex-shrink toolbar-button-spacing {{b.class}}"
+        [matTooltip]="b.tooltip"
+        (click)="b.onClick($event)"
+        [style.display]="true"
+        [disabled]="b.disabled ? b.disabled() : false">
+        <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
+      </button>
+    </ng-container>
+  </div>
+  <div *ngIf="isTaskAdditionalToolbarButtonsVisible()">
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <mrbau-tasks-menu-ocr [task]="task"/>
+      <mrbau-tasks-menu-newarchivetype [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"/>
+      <mrbau-tasks-menu-discard-document [task]="task" [taskNode]="taskNode" (taskChangeEvent)="emitTaskChangeEvent($event)"/>
+      <mat-divider></mat-divider>
+      <mrbau-tasks-menu-delegate [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></mrbau-tasks-menu-delegate>
+      <mat-divider></mat-divider>
+      <mrbau-tasks-menu-finishnow [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"/>
+      <mrbau-tasks-menu-delete [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></mrbau-tasks-menu-delete>
+      <mrbau-tasks-menu-reopen [task]="task" (reopenClickedEvent)="reopenClickedEvent($event)"/>
+      <mrbau-tasks-menu-test [tasksDetailNewDocumentComponent]="this"/>
+    </mat-menu>
+  </div>
+</adf-toolbar>
+
+<!-- comments panel -->
+<mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false" [expanded]="commentPanelOpened">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>question_answer</mat-icon>
+      <span class="expansionTitleText">Kommentare</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <mrbau-task-commentlist-invoice-workflow #commentlist [nodeId]="taskNode ? taskNode.id : null" [isVisible]="commentPanelOpened"></mrbau-task-commentlist-invoice-workflow>
+</mat-expansion-panel>
+
+<div *ngIf="isTaskModificationUiVisible()">
+  <mat-expansion-panel style="margin-top:1rem;" [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>build</mat-icon>
+        <span class="expansionTitleText">{{taskTitle}}</span>
+      </mat-panel-title>
+      <mat-panel-description>
+        {{taskDescription}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <form [formGroup]="form">
+      <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="onModelChangeEvent($event)"></formly-form>
+      <mrbau-task-propose-matching-documents #taskProposeMatchingDocuments
+        [taskNodeAssociations]="taskNodeAssociations"
+        [node]="taskNode"
+        (onAssociation)="onAssociationClicked($event)"
+        *ngIf="isProposeMatchingDocumentsVisible()"/>
+      <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="onButtonSubmitClicked()" matTooltip="Weiter" [disabled]="!isNextButtonEnabled()">{{submitButtonText}}</button>
+      <button *ngIf="isButtonPauseVisible()" mat-raised-button type="button" class="mat-flat-button toolbar-button-spacing mat-button-base mat-primary addMarginTop" color="primary" (click)="onButtonPauseClicked()" matTooltip="Pause"> <mat-icon>pause</mat-icon></button>
+    </form>
+  </mat-expansion-panel>
+</div>
+
+<!-- linked documents -->
+<mrbau-task-linked-documents-invoice-workflow
+[associatedDocuments]="taskNodeAssociations"
+[taskNode]="taskNode"
+[buttonAuditSheetVisible]="isUploadAuditSheetButtonVisible()"
+(onAddAssociation)="onButtonAddFilesClicked()"
+(onRemoveAssociation)="onRemoveAssociationClicked($event)"
+(onAssociation)="onAssociationClicked($event)"
+(onTaskNode)="onTaskNodeClicked()"
+(onUploadDocument)="onUploadDocumentClicked($event)"
+(onUploadNodeType)="onUploadNodeTypeInfo($event)"
+/>
+
+<!-- tag panel -->
+<mat-expansion-panel style="margin-top:1rem;" (opened)="tagPanelOpened=true" (closed)="tagPanelOpened=false">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>label_outline</mat-icon>
+      <span class="expansionTitleText">Tag Manager</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <mrbau-task-tag-manager [nodeId]="taskNode ? taskNode.id : null" [isVisible]="tagPanelOpened"/>
+</mat-expansion-panel>
+
+
+
+<!-- history panel -->
+<mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon>history</mat-icon>
+      <span class="expansionTitleText">Verlauf</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <mrbau-task-versionlist-invoice-workflow
+    [taskId]="task ? task.id : null"
+    [nodeId]="taskNode ? taskNode.id : null"
+    [isVisible]="historyPanelOpened"
+    (onAssociation)="onAssociationClicked($event)"
+  />
+</mat-expansion-panel>

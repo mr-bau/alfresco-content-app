@@ -1,0 +1,623 @@
+import { Injectable } from '@angular/core';
+import { Node, NodeAssociation, NodeAssociationEntry, NodePaging, SearchRequest } from '@alfresco/js-api';
+import { EMRBauTaskStatus } from '../declaration/mrbau-task-declarations';
+import { MrbauCommonService } from './mrbau-common.service';
+import { MrbauConventionsService } from './mrbau-conventions.service';
+import { DocumentInvoiceTypes, EMRBauInvoiceTypes, MRBauWorkflowStateCallbackData } from '../declaration/mrbau-doc-declarations';
+//import { EMRBauDuplicateResolveOptions, EMRBauDuplicateResolveResult } from '../form/mrbau-formly-duplicated-document.component';
+import { MrbauActionService } from './mrbau-action.service';
+import { CONST } from '../declaration/mrbau-global-declarations';
+//import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { AspectDeductionDetails, AspectRetentionDetails } from '../declaration/mrbau-mrba-aspects';
+import { FormlyFieldConfig } from '@ngx-formly/core';
+import { MrbauConfirmTaskDialogComponent } from '../dialogs/mrbau-confirm-task-dialog/mrbau-confirm-task-dialog.component';
+import { EMRBauDuplicateResolveOptions, EMRBauDuplicateResolveResult } from '../form/mrbau-formly-duplicated-document.component';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MrbauWorkflowService {
+
+  constructor(
+    private mrbauActionService: MrbauActionService,
+    private mrbauCommonService: MrbauCommonService,
+    private mrbauConventionsService: MrbauConventionsService,
+    private dialog: MatDialog,
+    ) {
+      CONST;
+      this.dialog;
+     }
+
+  getNewUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
+    data;
+    return new Promise<string>((resolve, reject) => {
+      this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status)
+      .then((assignedUserName) => {
+        if (!assignedUserName) {
+          reject("assignedUserName is null");
+          return;
+        }
+        this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
+        .then((name) => {
+          resolve(name);
+        })
+        .catch((error) => reject(error));
+      })
+      .catch((error) => reject(error));
+    });
+  }
+
+  // use review days as task due date
+  // min is 3 days
+  // if no review day is set use 9 days before earliest discount days
+  recalculateDueDate(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
+    data;
+    status;
+    return new Promise<string>((resolve, reject) => {
+      const properties = data.taskDetailNewDocument.taskNode!.properties;
+      const invoiceType = properties['mrba:invoiceType']
+      const reviewDaysPartialInvoice = properties['mrba:reviewDaysPartialInvoice'] | 0;
+      const reviewDaysFinalInvoice = properties['mrba:reviewDaysFinalInvoice'] | 0;
+      const earlyPaymentDiscountDays = [properties['mrba:earlyPaymentDiscountDays1'] | 0, properties['mrba:earlyPaymentDiscountDays2'] | 0];
+      const archivedDate = new Date(properties['mrba:archivedDateValue']);
+      let paymentDays = properties['mrba:paymentTargetDays'] | 0;
+      for (let i=0; i<earlyPaymentDiscountDays.length; i++)
+      {
+        const epd = earlyPaymentDiscountDays[i];
+        if (epd > 0 && paymentDays > epd)
+        {
+          paymentDays = epd;
+        }
+      }
+      let reviewDays = (invoiceType == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.TEILRECHNUNG)?.value) ? reviewDaysPartialInvoice : reviewDaysFinalInvoice;
+      if (reviewDays == 0)
+      {
+        // Wenn Prüffrist 0 Prüffrist 9 Tage vor Skonto;
+        reviewDays = paymentDays - 9;
+      }
+      // min 3 days
+      reviewDays = Math.max(reviewDays, 3);
+
+      const dueDate = this.addDays(archivedDate, reviewDays);
+
+      // set database due date for task
+      this.mrbauCommonService.updateTaskDueDate(data.taskDetailNewDocument.task!.id, dueDate)
+      .then((node) => {
+        node;
+        // update task variable
+        data.taskDetailNewDocument.task!.updateDueDate(dueDate);
+        // emit task change event
+        data.taskDetailNewDocument.emitTaskChangeEvent({task : data.taskDetailNewDocument.task!, queryTasks : false})
+        resolve('OK');
+      })
+      .catch(error => reject(error));
+    });
+  }
+
+  getNewElevatedUserWithDialog(data:MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status)
+      .then((assignedUserName) => {
+        if (!assignedUserName) {
+          reject("assignedUserName is null");
+          return;
+        }
+        this.mrbauCommonService.progressWithElevatedAuditorsConfirmDialog(assignedUserName)
+        .then((name) => {
+          resolve(name);
+        })
+        .catch((error) => reject(error));
+      })
+      .catch((error) => reject(error));
+    });
+  }
+
+  createAssociationsForProposedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {
+    if (data && data.taskDetailNewDocument)
+    {
+      return data.taskDetailNewDocument.addProposedMatchingDocuments();
+    }
+    else
+    {
+      return new Promise((resolve) => resolve(null));
+    }
+  }
+
+  performDuplicateCheck(data:MRBauWorkflowStateCallbackData) : Promise<any> {
+    const nodeTypesForDuplicateCheck : string[] = [
+      "mrba:offer",
+      "mrba:order",
+      "mrba:frameworkContract",
+      "mrba:deliveryNote",
+      "mrba:invoice",
+      "mrba:orderNegotiationProtocol",
+      "mrba:miscellaneousDocument",
+
+      "mrba:rentContract",
+      "mrba:contractCancellationWaiver",
+      "mrba:maintenanceContract",
+      "mrba:allInContract",
+      "mrba:licenseContract",
+      "mrba:financingContract",
+      "mrba:workContract",
+      "mrba:contractCancellation",
+      "mrba:miscellaneousContractDocument",
+    ];
+    const node = data.taskDetailNewDocument.taskNode;
+    if (nodeTypesForDuplicateCheck.indexOf(node!.nodeType) < 0)
+    {
+      return new Promise((resolve) => resolve(null));
+    }
+    let query : SearchRequest = {
+      query: {
+        query: '*',
+        language: 'afts'
+      },
+      filterQueries: [
+        { query: `=TYPE:"${node!.nodeType}"`},
+        { query: `=mrba:organisationUnit:"${node!.properties['mrba:organisationUnit']}"`},
+        { query: `=mrba:companyId:"${node!.properties['mrba:companyId']}"`},
+        { query: `=mrba:documentNumber:"${node!.properties['mrba:documentNumber']}"`},
+        { query: `=mrba:organisationPosition:"${node!.properties['mrba:organisationPosition']}"`},
+        { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
+        //{ query: '!EXISTS:"mrba:discardDate"'}, // ignore discarded documents - NOT SUPPORTED WITH TMDQ
+        //{ query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
+        // { query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
+      ],
+      fields: [
+        // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+        'id',
+        'name',
+        'nodeType',
+        'isFolder',
+        'isFile',
+        'modifiedAt',
+        'modifiedByUser',
+        'createdAt',
+        'createdByUser',
+      ],
+      include: ['properties', 'path', 'allowableOperations']
+    };
+    return new Promise((resolve, reject) => {
+      this.mrbauCommonService.queryNodes(query)
+      .then((result) => {
+        const filteredResult = result?.list?.entries?.filter(data => data.entry.id != node!.id); // exclude the current document
+        if (filteredResult && filteredResult.length > 0)
+        {
+          data.taskDetailNewDocument.duplicateNode = filteredResult[0].entry as Node;
+          resolve(filteredResult[0].entry);
+        }
+        else
+        {
+          data.taskDetailNewDocument.duplicateNode = undefined;
+          resolve(null);
+        }
+      })
+      .catch((error) => reject(error));
+    });
+  }
+
+  resolveDuplicateIssue(data:MRBauWorkflowStateCallbackData) : Promise<any>
+  {
+    const resolveSelection = data.taskDetailNewDocument.model['ignore:mrbauFormlyDuplicatedDocument'];
+    if (resolveSelection!=null)
+    {
+      const nodeId = data.taskDetailNewDocument.taskNode!.id;
+      if (data.taskDetailNewDocument.taskNode!.properties['mrba:discardDate'])
+      {
+        // already discarded
+        console.log("Document already discarded: "+data.taskDetailNewDocument.taskNode!.properties['mrba:discardDate']);
+        return Promise.resolve(EMRBauTaskStatus.STATUS_FINISHED);
+      }
+      switch (resolveSelection)
+      {
+        default:
+        case EMRBauDuplicateResolveOptions.IGNORE:
+          return Promise.resolve(EMRBauDuplicateResolveResult.IGNORE);
+        case EMRBauDuplicateResolveOptions.DELETE:
+          return new Promise((resolve, reject) =>
+            {
+              this.mrbauCommonService.discardDocumentWithConfirmDialog(nodeId)
+              .then(
+              (result) => {
+                  // successfully deleted or canceled
+                  const stat = (result === true) ? EMRBauDuplicateResolveResult.DELETE_SUCCESS : EMRBauDuplicateResolveResult.DELETE_CANCEL
+                  return resolve(stat);
+              })
+              .catch((error) => reject(error));
+            }
+          );
+        case EMRBauDuplicateResolveOptions.NEW_VERSION:
+          const duplicateNode = data.taskDetailNewDocument.duplicateNode;
+          if (!duplicateNode)
+          {
+            return Promise.reject('Error: duplicate node not set');
+          }
+          return new Promise((resolve, reject) =>
+          {
+            //this.mrbauActionService.mrbauUseAsNewVersionActionApi(nodeId, duplicateNode.id, 'Neue Dokument Version von Dublettenprüfung (Node ID '+duplicateNode.id+', Task ID '+data.taskDetailNewDocument.task.id+')')
+            this.mrbauActionService.mrbauUseAsNewVersionWebScript(nodeId, duplicateNode.id, 'Neue Dokument Version von Dublettenprüfung (Node ID '+duplicateNode.id+', Task ID '+data.taskDetailNewDocument.task!.id+')')
+            .then(() => {
+              // Notification Message
+              this.mrbauCommonService.showInfo("Dokument als neue Version hinzugefügt.");
+              // add new document to task
+              console.log('add new document to task');
+              return this.mrbauCommonService.addAssociatedDocumentFromTask(data.taskDetailNewDocument.task!.id, [duplicateNode.id])
+            })
+            .then(() => {
+              data.taskDetailNewDocument.reloadTaskRequiredFlag = true;
+              return resolve(EMRBauDuplicateResolveResult.NEW_VERSION);
+            })
+            .catch((error) => {return reject(error)});
+          });
+      }
+    }
+    return Promise.reject('Unknown Resolve Selection');
+  }
+
+  private getResetArchiveTypeFormlyOptions(): Observable<any[]> {
+    return new Observable((observer) => {
+      this.mrbauActionService.mrbauResetArchiveTypeGetFormDefinition()
+      .then(result => {
+        const fields = result.data.definition.fields.filter((val : any) => val.name=="newType");
+        if (fields?.length > 0 && fields[0].constraints[0].parameters.allowedValues)
+        {
+          const results = fields[0].constraints[0].parameters.allowedValues.map((val : any) => {const split=val.split('|'); return {id:split[0], name:split[1]}});
+          observer.next(results);
+          observer.complete();
+        }
+        else
+        {
+          observer.next([]);
+          observer.complete();
+        }
+      })
+      .catch(error => observer.error(error))
+    });
+
+  }
+
+  resetArchiveTypeWithConfirmDialog(nodeId : string) : Promise<string | null>
+  {
+    return new Promise((resolve, reject) =>
+      {
+        // dialog
+        const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
+          data: {
+            dialogTitle: 'Neuen Dokumenttyp zuweisen',
+            dialogMsg: 'Neuen Dokumenttyp zuweisen?',
+            dialogButtonOK: 'ZUWEISEN',
+            callQueryData: false,
+            fieldsMain: [
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                  {
+                    className: 'flex-2',
+                    key: 'comment',
+                    type: 'textarea',
+                    props: {
+                      label: 'Optionaler Kommentar',
+                      description: 'Kommentar',
+                      maxLength: CONST.MAX_LENGTH_COMMENT,
+                      required: false,
+                    },
+                  }
+                ]
+              },
+              {
+                fieldGroupClassName: 'flex-container-min-width',
+                fieldGroup: [
+                  {
+                    className: 'flex-2',
+                    key: 'newArchiveType',
+                    type: 'select',
+                    props: {
+                      label: 'Neuer Dokument Typ',
+                      description: 'Neuer Dokument Typ',
+                      required: true,
+                      options: this.getResetArchiveTypeFormlyOptions(),
+                      valueProp: 'id',
+                      labelProp: 'name',
+                    },
+                  },
+                ]
+              }
+            ],
+            payload: null
+          }
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result)
+          {
+            const newArchiveType = result.newArchiveType
+            this.mrbauCommonService.addComment(nodeId, result.comment)
+            .then( () => {return this.mrbauActionService.mrbauResetArchiveTypeWebscript(nodeId, newArchiveType);})
+            .then(() =>
+            {
+              //Notification Message
+              this.mrbauCommonService.showInfo("Dokument-Type erfolgreich geändert.");
+              return resolve(newArchiveType);
+            })
+            .catch((error) => reject(error));
+          }
+          else
+          {
+            return resolve(null);
+          }
+        });
+      }
+    )
+  }
+
+  cloneMetadataFromLinkedDocuments(data:MRBauWorkflowStateCallbackData) : Promise<any> {
+    if (data == null || data.taskDetailNewDocument == null || data.taskDetailNewDocument.taskNode == null || data.taskDetailNewDocument.taskNodeAssociations == null)
+    {
+      return Promise.resolve(null);
+    }
+    const associations = data.taskDetailNewDocument.taskNodeAssociations;
+    let filteredAssociations : NodeAssociationEntry[] = [];
+    const nodeTypePriorityList : string[] = [
+      "mrba:orderNegotiationProtocol",
+      "mrba:order",
+      "mrba:frameworkContract",
+      "mrba:offer",
+    ];
+    let documentCount = 0;
+    let propertyCount = 0;
+    for (const priority of nodeTypePriorityList)
+    {
+      filteredAssociations = associations.filter((entry : any) => (entry.entry.nodeType == priority));
+      if (filteredAssociations.length > 0)
+      {
+        propertyCount += this.clonePaymentMetaData(data, filteredAssociations[0].entry);
+        documentCount++;
+      }
+    }
+    if (propertyCount > 0)
+    {
+      this.mrbauCommonService.showInfo(propertyCount+" Eigenschaften von "+documentCount+" Dokumenten übertragen");
+    }
+    return Promise.resolve(null);
+  }
+
+  private clonePaymentMetaData(data:MRBauWorkflowStateCallbackData, association: NodeAssociation) : number
+  {
+    let numPropertiesCopied = 0;
+    const fieldList = [
+      "mrba:paymentTargetDays",
+      "mrba:reviewDaysFinalInvoice",
+      "mrba:reviewDaysPartialInvoice",
+      "mrba:earlyPaymentDiscountPercent1",
+      "mrba:earlyPaymentDiscountDays1",
+      "mrba:earlyPaymentDiscountPercent2",
+      "mrba:earlyPaymentDiscountDays2",
+      "mrba:netAmount",
+      "mrba:grossAmount",
+      "mrba:taxRate",
+      "mrba:taxRateComment",
+      "mrba:taxRateMixedRate",
+      AspectDeductionDetails.netAmountPreDeduction.key,
+      AspectDeductionDetails.deductionDamageUnassignedPercent.key,
+      AspectDeductionDetails.deductionDamageAssignedNetAmount.key,
+      AspectDeductionDetails.deductionSpecialNetAmount.key,
+      AspectDeductionDetails.deductionSpecialPercent.key,
+      AspectDeductionDetails.deductionWastePercent.key,
+      AspectDeductionDetails.deductionCleaningPercent.key,
+      AspectDeductionDetails.deductionToiletsPercent.key,
+      AspectDeductionDetails.deductionWaterPercent.key,
+      AspectDeductionDetails.deductionElectricityPercent.key,
+      AspectRetentionDetails.retentionDRLPercent.key,
+      AspectRetentionDetails.retentionHRLPercent.key,
+    ];
+    for (const property of fieldList)
+    {
+      if (data.taskDetailNewDocument.model[property] === null || data.taskDetailNewDocument.model[property] === undefined || data.taskDetailNewDocument.model[property] === "")
+      {
+        if (association.properties[property] != null)
+        {
+          data.taskDetailNewDocument.model[property] = String(association.properties[property]);
+          numPropertiesCopied++;
+        }
+      }
+    }
+    return numPropertiesCopied;
+  }
+
+  private correctWeekend(date : Date) {
+    let weekendOffset = 0;
+    if (date.getDay() == 6) weekendOffset = 2;
+    if (date.getDay() == 0) weekendOffset = 1;
+    if (weekendOffset > 0) {
+      date.setDate(date.getDate() + weekendOffset);
+    }
+  }
+
+  private addDays(date: Date, days: number) : Date {
+    if (days === undefined || days === null)
+    {
+      days = 0;
+    }
+    let result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  invoiceVerificationRecalcPaymentDays(data:FormlyFieldConfig) {
+    const keys = ['mrba:verifyDateValue', 'mrba:paymentDateNetValue', 'mrba:paymentDateDiscount1Value', 'mrba:paymentDateDiscount2Value'];
+    const taskNode = data.model['ignore:taskNode'];
+    const model = data.model;
+    for (let i=0; i<keys.length; i++) {
+      let cntr : any = data.form?.controls;
+      cntr[keys[i]].setValue(null);
+    }
+    this.doInvoiceVerificationPrefillValuesDates(taskNode, model);
+    for (let i=0; i<keys.length; i++) {
+      let cntr : any = data.form?.controls;
+      cntr[keys[i]].setValue(model[keys[i]]);
+    }
+  }
+
+  invoiceVerificationPrefillValues(data:MRBauWorkflowStateCallbackData) : Promise<any> {
+    const taskNode = data.taskDetailNewDocument.taskNode;
+    const model = data.taskDetailNewDocument.model;
+
+    this.doInvoiceVerificationPrefillValuesAmount(taskNode!, model);
+    this.doInvoiceVerificationPrefillValuesDates(taskNode!, model);
+    return new Promise((resolve) => resolve(null));
+  }
+
+  private getValueAsNumberPreferModel(key : string, model : any[], props: any[]) : number | null {
+    const value : any = model[key as keyof typeof model];
+    let result = (value) ? Number(value) : Number(props[key as keyof typeof props]);
+    if (typeof result !== 'number' || Number.isNaN(result)) {
+      return null;
+    }
+    return result;
+  }
+
+  doInvoiceVerificationPrefillValuesAmount(taskNode : Node, model : any) {
+    const props = taskNode.properties;
+    if (model['mrba:netAmountVerified'] == null || model['mrba:netAmountVerified'] == "") // null or undefined or ""
+    {
+      model['mrba:netAmountVerified'] = props['mrba:netAmount'];
+    }
+    if (model['mrba:grossAmountVerified'] == null || model['mrba:grossAmountVerified'] == "") // null or undefined or ""
+    {
+      model['mrba:grossAmountVerified'] = props['mrba:grossAmount'];
+    }
+  }
+
+  doInvoiceVerificationPrefillValuesDates(taskNode : Node, model : any) {
+    const props = taskNode.properties;
+    let reviewDate = new Date(props['mrba:archivedDateValue']);
+
+    let reviewDays = props['mrba:invoiceType'] == 'Teilrechnung' ? this.getValueAsNumberPreferModel('mrba:reviewDaysPartialInvoice', model, props) : this.getValueAsNumberPreferModel('mrba:reviewDaysFinalInvoice', model, props);
+
+    if (reviewDays == null) {
+      reviewDays = 0;
+    }
+
+    if (reviewDays > 0) {
+      reviewDays += 1;// x Tage NACH Rechnungseingang
+    }
+    reviewDate = this.addDays(reviewDate, reviewDays);
+    this.correctWeekend(reviewDate);
+    if (model['mrba:verifyDateValue'] == null)
+    {
+      model['mrba:verifyDateValue'] = this.mrbauCommonService.getFormDateValue(reviewDate);
+    }
+
+    const paymentTargetDays = this.getValueAsNumberPreferModel('mrba:paymentTargetDays', model, props)
+    if (paymentTargetDays)
+    {
+      let date = this.addDays(reviewDate, paymentTargetDays + 1)
+      this.correctWeekend(date);
+      if (model['mrba:paymentDateNetValue'] == null)
+      {
+        model['mrba:paymentDateNetValue'] = this.mrbauCommonService.getFormDateValue(date);
+      }
+    }
+
+    const earlyPaymentDiscountDays1 = this.getValueAsNumberPreferModel('mrba:earlyPaymentDiscountDays1', model, props)
+    if (earlyPaymentDiscountDays1)
+    {
+      let date = this.addDays(reviewDate, earlyPaymentDiscountDays1 + 1)
+      this.correctWeekend(date);
+      if (model['mrba:paymentDateDiscount1Value'] == null) {
+        model['mrba:paymentDateDiscount1Value'] = this.mrbauCommonService.getFormDateValue(date);
+      }
+    }
+
+    const earlyPaymentDiscountDays2 = this.getValueAsNumberPreferModel('mrba:earlyPaymentDiscountDays2', model, props)
+    if (earlyPaymentDiscountDays2)
+    {
+      let date = this.addDays(reviewDate, earlyPaymentDiscountDays2 + 1)
+      this.correctWeekend(date);
+      if (model['mrba:paymentDateDiscount2Value'] == null)
+      {
+        model['mrba:paymentDateDiscount2Value'] = this.mrbauCommonService.getFormDateValue(date);
+      }
+    }
+  }
+
+  queryProposedDocuments(node: Node) : Promise<NodePaging|null>
+  {
+    // query: '*',  - NOT SUPPORTED WITH TMDQ
+    // { query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
+    // { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
+    // sort // NOT SUPPORTED WITH TMDQ
+    // OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY]) // DATE INTERVAL NOT SUPPORTED WITH TMDQ
+    let query : SearchRequest | null = null;
+    if (node != null)
+    {
+      query = {
+        query: {
+          query: 'TYPE:"cm:content"',
+          language: 'afts'
+        },
+        filterQueries: [
+          //{ query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
+          { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
+          // temporary ignore organisation unit { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+          { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
+          { query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
+        ],
+        fields: [
+          // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
+          'id',
+          'name',
+          'nodeType',
+          'isFolder',
+          'isFile',
+          'modifiedAt',
+          'modifiedByUser',
+          'createdAt',
+          'createdByUser',
+        ],
+        include: ['properties', 'path', 'allowableOperations'],
+        sort: [
+          {
+            type: 'FIELD',
+            field: 'TYPE',
+            ascending: false
+          },
+          {
+            type: 'FIELD',
+            field: 'cm:name',
+            ascending: true
+          }
+        ]
+      };
+
+      if (node.nodeType == 'mrba:order' || node.nodeType == 'mrba:orderNegotiationProtocol')
+      {
+        query.filterQueries?.push({ query: `(=TYPE:"mrba:offer" AND cm:created:[NOW/DAY-120DAYS TO NOW/DAY+1DAY]) OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+      }
+      else if (node.nodeType == 'mrba:invoice')
+      {
+        query.filterQueries?.push({ query: `
+        ((=TYPE:"mrba:order" OR =TYPE:"mrba:invoice" OR =TYPE:"mrba:orderNegotiationProtocol") AND (=mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" OR =mrba:costCarrierNumber:"0000"))
+        OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])
+        OR (=TYPE:"mrba:deliveryNote" AND (=mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}" OR =mrba:costCarrierNumber:"0000") AND (!ASPECT:"mrba:referencedDeliveryNote" OR =mrba:deliveryNoteBeingReferencedCount:0))
+        `}); // date interval NOT SUPPORTED WITH TMDQ
+      }
+      else if (node.nodeType == 'mrba:invoiceReviewSheet')
+      {
+        query.filterQueries?.push({ query: `=TYPE:"mrba:invoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
+      }
+      else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument' || node.nodeType == 'mrba:offer' )
+      {
+        query = null;
+      }
+    }
+    if (query != null)
+    {
+      return this.mrbauCommonService.queryNodes(query) as Promise<NodePaging>;
+    }
+    return new Promise((resolve) => resolve(null));
+  }
+}

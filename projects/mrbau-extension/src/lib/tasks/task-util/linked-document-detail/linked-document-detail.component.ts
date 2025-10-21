@@ -1,0 +1,242 @@
+import { Component, EventEmitter, Input, Output} from '@angular/core';
+import { NodeEntry, Node } from '@alfresco/js-api';
+import { NodePermissionService } from '@alfresco/aca-shared';
+import { MrbauCommonService } from '../../../services/mrbau-common.service';
+import { Store } from '@ngrx/store';
+import { AppStore, NavigateToParentFolder } from '@alfresco/aca-shared/store';
+import { TranslationService } from '@alfresco/adf-core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { FileDraggableDirective } from '@alfresco/adf-content-services';
+import {CdkMenuModule} from '@angular/cdk/menu';
+import { TranslateModule } from '@ngx-translate/core';
+
+@Component({
+  standalone:true,
+  imports:[
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    FileDraggableDirective,
+    CdkMenuModule,
+    TranslateModule
+  ],
+  selector: 'mrbau-linked-document-detail',
+  template: `
+    <details>
+      <summary>
+        <button *ngIf="removeButtonVisible" mat-button (click)="onRemoveButtonClicked(node?.id)" matTooltip="Link Entfernen"><mat-icon>delete</mat-icon></button>
+        <div [adf-file-draggable]="uploadNewVersionButtonVisible" [class]="uploadNewVersionButtonVisible ? 'linked-document-name drag-and-drop-border' : 'linked-document-name'"
+          (filesDropped)="onFilesDropped(node, $event)"
+          (folderEntityDropped)="onFolderEntityDropped($event)"
+          dropzone="" webkitdropzone="*" #dragAndDropArea>
+          <ng-content></ng-content>
+          {{prefix}}<a href="javascript: void(0);" (click)="onNodeClicked()"
+            [cdkContextMenuTriggerFor]="contextmenu"
+            matTooltip="Dokument Anzeigen">{{node?.name}}</a>
+          <button *ngIf="uploadNewVersionButtonVisible" mat-button
+            matTooltip="Neue Version hochladen"
+            [disabled]="!isVersionUpdateAllowed()"
+            (click)="uploadNewVersion.click()">
+            <mat-icon>file_upload</mat-icon>
+            <input #uploadNewVersion
+              style="display: none;"
+              [type]="'file'"
+              id="uploadNewVersion"
+              name="uploadNewVersion"
+              accept=".pdf"
+              (change)="onUploadNewVersionClicked(node, $event)"
+            >
+          </button>
+        </div>
+        <ng-template #contextmenu>
+          <div class="mrbau-context-menu" cdkMenu>
+            <button class="mrbau-context-menu-item" (click)="openInNewWindow()" cdkMenuItem>In neuem Fenster anzeigen</button>
+            <button class="mrbau-context-menu-item" (click)="editInNewWindow()" cdkMenuItem>In neuem Fenster bearbeiten</button>
+          </div>
+        </ng-template>
+      </summary>
+      <ul class="node-detail-list">
+        <li class="status">Pfad: <a href="javascript: void(0);" (click)="goToLocation()" matTooltip="In Ordner Anzeigen">{{this.nodePath || ('APP.BROWSE.SEARCH.UNKNOWN_LOCATION' | translate)}}</a></li>
+        <li class="status">ID {{node?.id || 'unbekannt'}} -
+          erzeugt am {{node?.createdAt | date:'medium'}}
+          von {{node?.createdByUser?.displayName || 'unbekannt'}}
+          - {{node?.content?.sizeInBytes || '?'}} Bytes</li>
+      </ul>
+    </details>
+  `,
+  styles: [`
+    .mrbau-context-menu {
+      display: inline-flex;
+      flex-direction: column;
+      min-width: 180px;
+      max-width: 280px;
+      background-color: rgb(255, 255, 255);
+      padding: 6px 0;
+      border: 1px solid black;
+    }
+
+    .mrbau-context-menu-item {
+      background-color: transparent;
+      cursor: pointer;
+      border: none;
+
+      user-select: none;
+      min-width: 64px;
+      line-height: 36px;
+      padding: 0 16px;
+
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      flex: 1;
+    }
+
+    .mrbau-context-menu-item:hover {
+      background-color: rgb(208, 208, 208);
+    }
+
+    .mrbau-context-menu-item:active {
+      background-color: rgb(170, 170, 170);
+    }`
+  ],
+})
+export class LinkedDocumentDetailComponent {
+  @Input() prefix : string = '';
+  //@Input() node : Node = new Node();
+  nodePath : String | undefined;
+  private _node : Node | undefined;
+  @Input() set node(val : Node | undefined) {
+    this._node = val;
+    this.updateNodePath();
+  }
+  get node() {
+    return this._node;
+  }
+  @Input() removeButtonVisible : boolean = false;
+  @Input() uploadNewVersionButtonVisible : boolean = false;
+  @Output() clickDocument = new EventEmitter();
+  @Output() clickRemoveButton = new EventEmitter<string>();
+  constructor(
+    private nodePermissionService: NodePermissionService,
+    private mrbauCommonService : MrbauCommonService,
+    private translationService: TranslationService,
+    private store: Store<AppStore>,
+  )
+  {
+  }
+
+  openInNewWindow() {
+    const path = window.location.origin+'/#/search;q=ID:%22workspace:%2F%2FSpacesStore%2F'+this.node?.id+'%22/(viewer:view/'+this.node?.id+')';
+    //console.log(path);
+    //window.open(path, "_blank");
+    window.open(path, '_blank', 'width=800,height=600');
+  }
+
+  editInNewWindow() {
+    const path = window.location.origin+'/#/mrbaupdfview/'+this.node?.id;
+    //console.log(path);
+    //window.open(path, "_blank");
+    window.open(path, '_blank', 'width=800,height=600');
+  }
+
+  goToLocation() {
+    if (this.node && this.node.path) {
+      const node: NodeEntry = {entry : this.node};
+      this.store.dispatch(new NavigateToParentFolder(node));
+    }
+  }
+
+  updateNodePath()
+  {
+    // change path text from /Company Home/Sites/belegsammlung/documentLibrary/01 Mandant1/01 Belege/...
+    // to Dateibibliotheken/belegsammlung/01 Mandant1/01 Belege/...
+
+    if (this._node?.path?.name)
+    {
+      const path = this._node.path;
+      const personalFiles = this.translationService.instant('APP.BROWSE.PERSONAL.TITLE');
+      const fileLibraries = this.translationService.instant('APP.BROWSE.LIBRARIES.TITLE');
+
+      const elements = path.elements?.map((e) => Object.assign({}, e));
+      if (elements && elements[0].name === 'Company Home') {
+        if (elements.length > 2)
+        {
+          if (elements[1].name === 'Sites') {
+            elements[1].name = fileLibraries;
+            // remove document library
+            if (elements.length > 3) { elements.splice(3,1); }
+            // remove company home
+            elements.splice(0,1);
+          }
+          else if (elements[1].name === 'User Homes') {
+            elements[1].name = personalFiles;
+          }
+        }
+        this.nodePath = elements.map((e) => e.name).join('/');
+      }
+      else
+      {
+        this.nodePath = path.name;
+      }
+    }
+    else
+    {
+      this.nodePath = undefined;
+    }
+  }
+
+  onFilesDropped(node : Node | undefined, files:File[])
+  {
+    if (files.length != 1)
+    {
+      this.mrbauCommonService.showError("Fehler: Nur eine einzelne Datei kann als neue Version hochgeladen werden.");
+      return;
+    }
+    if (!this.isVersionUpdateAllowed())
+    {
+      this.mrbauCommonService.showError("Fehler: Keine Berechtigung für den Upload von neuen Versionen.");
+      return;
+    }
+    if (!node)
+      {
+        this.mrbauCommonService.showError("Fehler: Node ist nicht definiert.");
+        return;
+      }
+
+    this.mrbauCommonService.uploadNewVersionWithDialog(node, files[0]);
+  }
+
+  onFolderEntityDropped(event:any)
+  {
+    event;
+    this.mrbauCommonService.showError("Fehler: Ordner können nicht als neue Version verwendet werden.");
+  }
+
+  onUploadNewVersionClicked(node : Node | undefined, ev:any) {
+    if (node) {
+      this.mrbauCommonService.uploadNewVersionWithDialog(node, ev.target.files[0]);
+    }
+  }
+
+  onNodeClicked()
+  {
+    this.clickDocument.emit();
+  }
+
+  onRemoveButtonClicked(id:string | undefined)
+  {
+    if (id) {
+      this.clickRemoveButton.emit(id);
+    }
+  }
+
+  isVersionUpdateAllowed() : boolean
+  {
+    if (this.node) {
+      return this.nodePermissionService.check(this.node, ['update']);
+    }
+    return false;
+  }
+}

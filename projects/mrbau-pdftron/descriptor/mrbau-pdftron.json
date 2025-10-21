@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../extension.schema.json",
+  "$id": "mrbau-pdftron",
+  "$version": "1.0.0",
+  "$vendor": "MRBau",
+  "$name": "MRBau PDFTron Plugin",
+  "$description": "MRBau PDFTron Plugin",
+  "$license": "MIT"
+
+}

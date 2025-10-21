@@ -1,0 +1,16 @@
+<mrbau-loaderoverlay *ngIf="loaderVisible"></mrbau-loaderoverlay>
+<div #main id="main" *ngIf="!loaderVisible;">
+  <mrbau-shownavbaroverlay [overlay]="true"/>
+  <mrbau-errormsgpane [errorMessage]="errorMessage"></mrbau-errormsgpane>
+  <mrbau-splitpane (dragStartEvent)="dragStartEvent()" (dragEndEvent)="dragEndEvent()">
+    <ng-container ngProjectAs="[splitAreaUpperLeft]">
+      <mrbau-taskstable #TASKS_TABLE [taskCategories]="taskCategories" (taskSelectEvent)="taskSelected($event)"/>
+    </ng-container>
+    <ng-container ngProjectAs="[splitAreaLowerLeft]">
+      <mrbau-tasksdetail (fileSelectEvent)="fileSelected($event)" (taskChangeEvent)="taskChanged($event)" [task]="selectedTask"/>
+    </ng-container>
+    <ng-container ngProjectAs="[splitAreaUpperRight]">
+      <mrbau-pdfpreview #PDF_PREVIEW_WRAPPER [fileSelectData]="fileSelectData" [dragging]="dragging"></mrbau-pdfpreview>
+    </ng-container>]
+  </mrbau-splitpane>
+</div>

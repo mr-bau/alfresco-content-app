@@ -1,0 +1,299 @@
+import { Injectable } from '@angular/core';
+import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../declaration/mrbau-task-declarations';
+import { IMrbauReplaceCompanyInfoData, MrbauCommonService } from './mrbau-common.service';
+import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, DocumentTypeFormOptions, EMRBauDocumentCategory, MRBauSigningStatusTypes, MRBauVerifiedInboundInvoiceTypes, MRBauWorkflowStateCallbackData, OrganisationPositionTypes } from '../declaration/mrbau-doc-declarations';
+import jsonMrbauAppConfig from '../../../assets/json/mrbau-app-config.json';
+import { MrbauDbService } from './mrbau-db.service';
+import { IMrbauAppConfig } from '../declaration/mrbau-declarations';
+
+//import jsonKtList from '../../../../../projects/mrbau-extension/assets/json/kt-list.json';
+//import jsonVendorList from '../../../../../projects/mrbau-extension/assets/json/vendor-list.json';
+
+// INTERFACES
+export interface ISelectFormOptions {
+  label: string,
+  value: any,
+  group?: string,
+};
+
+export interface IVendor {
+  "mrba:companyId" : string,
+  "mrba:companyName" : string,
+  "mrba:companyStreet" : string,
+  "mrba:companyZipCode" : string,
+  "mrba:companyCity" : string,
+  "mrba:companyVatID" : string,
+  "mrba:companyEmail" : string,
+  "mrba:companyPhone" : string,
+}
+
+export interface ICostCarrier {
+  "mrba:costCarrierNumber" : string,
+  "mrba:projectName" : string,
+  "auditor1" : string,
+  "auditor2" : string,
+  "accountant" : string,
+}
+
+// SERVICE
+@Injectable({
+  providedIn: 'root'
+})
+export class MrbauConventionsService {
+  readonly mrbauAppConfig = jsonMrbauAppConfig as IMrbauAppConfig;
+
+  // service class to return mrbau related responsibility conventions
+  constructor(
+    private mrbauCommonService: MrbauCommonService,
+    private mrbauDbService:MrbauDbService
+    )
+  {
+  }
+
+  getOrganisationUnitFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    this.mrbauAppConfig.organisationUnits.forEach( (d) => result.push({label: d.label, value : d.folder}));
+    return result;
+  }
+
+  getOrganisationPositionFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    OrganisationPositionTypes.forEach( (d : any) => result.push({label: d.label, value : d.value}));
+    return result;
+  }
+
+  getDocumentTypeFormOptions() : ISelectFormOptions[] {
+    return DocumentTypeFormOptions;
+  }
+
+  getDefaultOrganisationUnit() : string {
+    return this.mrbauAppConfig.organisationUnits[this.mrbauAppConfig.organisationUnitDefault].folder;
+  }
+
+  getTaskDefaultAssignedUserIdForStatus(data: MRBauWorkflowStateCallbackData, status: EMRBauTaskStatus) : Promise<string|null>
+  {
+    let taskCategory = data?.taskDetailNewDocument?.task!.category;
+    let kt = data?.taskDetailNewDocument?.taskNode?.properties['mrba:costCarrierNumber'];
+    return new Promise((resolve, reject) => {
+      if ( MRBauTask.isNewDocumentTask(taskCategory) && kt)
+      {
+        this.mrbauDbService.getProject(kt).subscribe(
+          result => {
+            //console.log(result);
+            if (typeof result === 'string') {
+              reject(result);
+              return;
+            }
+            const project = result as ICostCarrier;
+            if (project == null) {
+              resolve(null);
+            }
+            switch (status)
+            {
+              case EMRBauTaskStatus.STATUS_INVOICE_VERIFICATION:
+                resolve(project.auditor1);break;
+              case EMRBauTaskStatus.STATUS_FINAL_APPROVAL:
+                resolve(project.auditor2);break;
+              case EMRBauTaskStatus.STATUS_ACCOUNTING:
+                resolve(project.accountant);break;
+              default:
+                resolve(null);break;
+            }
+            return;
+          },
+          error => {
+            reject(error);
+          },
+        );
+      }
+    });
+  }
+
+  getTaskFullDescription(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string | null
+  {
+    task;documentCategory;client;
+    return null;
+  }
+  getTaskDueDateValue(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string | undefined
+  {
+    task;documentCategory;client;
+    let date = new Date();
+    date.setDate( date.getDate() + MRBauTask.DOCUMENT_DEFAULT_TASK_DURATION );
+    return this.mrbauCommonService.getFormDateValue(date);
+  }
+  getNewTaskDefaultAssignedUserId(task: EMRBauTaskCategory, documentCategory? : EMRBauDocumentCategory, client? : number) : string | null
+  {
+    task;
+    documentCategory;
+    client;
+    // return null to use the current user
+    return null;
+  }
+
+  readonly reviewDaysDefaultValues = ['0','7','10','14','28','30','36'];
+  readonly taxRateDefaultValues = ['0,0', '20,0','13,0', '10,0'];
+  readonly discountDefaultValues = ['1,00','2,00','3,00'];
+  readonly deductionDefaultValues = ['0,12','0,15','0,20','0,25','0,30','0,35','0,40','0,45','0,50','0,60'];
+  readonly retentionDefaultValues = ['5,00','10,00'];
+
+  /*public createVendorString(v : IVendor) : string {
+    let result = v['mrba:companyName'];
+    result = (v['mrba:companyStreet']) ? result.concat(', ').concat(v['mrba:companyStreet']) : result;
+    result = (v['mrba:companyCity']) ? result.concat(', ').concat(v['mrba:companyZipCode']).concat(' ').concat(v['mrba:companyCity'])  : result;
+    result = (v['mrba:companyVatID']) ? result.concat(', ').concat(v['mrba:companyVatID']) : result;
+    //console.log(result);
+    return result;
+  }
+  private _vendorListFormOptions : ISelectFormOptions[];
+  getVendorListFormOptions() : ISelectFormOptions[] {
+    if (this._vendorListFormOptions) {
+      return this._vendorListFormOptions;
+    }
+    let result : ISelectFormOptions[] = [];
+    for (const key in jsonVendorList) {
+      const d = jsonVendorList[key] as IVendor;
+      result.push({label: this.createVendorString(d), value : d['mrba:companyId']})
+    }
+    result = result.sort((a,b) => a.label.localeCompare(b.label));
+    this._vendorListFormOptions = result;
+    return result;
+  }
+  getVendorListFormOption(mrba_companyId : string) : ISelectFormOptions {
+    const result = this.getVendorListFormOptions().filter( d => d.value == mrba_companyId);
+    return (result.length > 0) ? result[0] : undefined;
+  }
+  getVendor(key : string) : IVendor {
+    return jsonVendorList[key] as IVendor
+  }*/
+
+  addVendor() {
+    this.mrbauCommonService.addVendorWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  editVendor() {
+    this.mrbauCommonService.editVendorWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  addProject() {
+    this.mrbauCommonService.addProjectWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  editProject() {
+    this.mrbauCommonService.editProjectWithConfirmDialog().then((result) => {
+      if (result) { }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  massReplaceUserProject() {
+    this.mrbauCommonService.massReplaceUserProjectDialog().then((result) => {
+      if (result) {
+        this.mrbauCommonService.showInfo(result);
+      }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  massReplaceUserTask(){
+    this.mrbauCommonService.massReplaceUserTaskDialog().then((result) => {
+      if (result) {
+        this.mrbauCommonService.showInfo(result);
+      }
+    })
+    .catch((error) => {
+      this.mrbauCommonService.showError(error);
+    });
+  }
+
+  exportOpenDocumentTasks() {
+    this.mrbauCommonService.exportOpenDocumentTasks();
+  }
+
+  replaceCompanyInfoByName(data : IMrbauReplaceCompanyInfoData[]) {
+    this.mrbauCommonService.replaceCompanyInfoByName(data);
+  }
+/*
+  private createKtString(v:ICostCarrier) : string {
+    let result = v['mrba:costCarrierNumber'];
+    result = (v['mrba:projectName']) ? result.concat(', ').concat(v['mrba:projectName']) : result;
+    return result;
+  }
+
+  private _ktListFormOptions : ISelectFormOptions[];
+  getKtListFormOptions() : ISelectFormOptions[] {
+    if (this._ktListFormOptions) {
+      return this._ktListFormOptions;
+    }
+    let result : ISelectFormOptions[] = [];
+    for (const key in jsonKtList) {
+      const d = jsonKtList[key] as ICostCarrier;
+      result.push({label: this.createKtString(d), value : d['mrba:costCarrierNumber']})
+    }
+    result = result.sort((a,b) => a.label.localeCompare(b.label));
+    this._ktListFormOptions = result;
+    return result;
+  }
+  getKtListFormOption(mrba_costCarrierNumber : string) : ISelectFormOptions {
+    const result = this.getKtListFormOptions().filter( d => d.value == mrba_costCarrierNumber);
+    return (result.length > 0) ? result[0] : undefined;
+  }
+  getCostCarrier(key : string) : ICostCarrier {
+    return jsonKtList[key] as ICostCarrier
+  }*/
+
+  getOfferTypeFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    DocumentOfferTypes.forEach( (d : any) => result.push({label: d.label, value : d.value}));
+    return result;
+  }
+
+  getOrderTypeFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    DocumentOrderTypes.forEach( (d : any) => result.push({label: d.label, value : d.value}));
+    return result;
+  }
+
+  getInvoiceTypeFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    DocumentInvoiceTypes.forEach( (d : any) => result.push({label: d.label, value : d.value}));
+    return result;
+  }
+
+  getSigningStatusFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    MRBauSigningStatusTypes.forEach( (d : any) => result.push({label: d.label, value : d.value}));
+    return result;
+  }
+
+  getVerifiedInboundInvoiceTypeFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    MRBauVerifiedInboundInvoiceTypes.forEach( (d : any) => result.push({label: d.label, value : d.value}));
+    return result;
+  }
+
+  getTagsFormOptions() : ISelectFormOptions[] {
+    let result : ISelectFormOptions[] = [];
+    this.mrbauCommonService.DEFAULT_TAGS.forEach( (d : any) => result.push({label: d, value : d.toLowerCase()}));
+    return result;
+  }
+
+}

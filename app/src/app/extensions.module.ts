@@ -27,13 +27,22 @@ import { provideFolderRulesExtension } from '@alfresco/aca-content/folder-rules'
 import { provideAosExtension } from '@alfresco/aca-content/ms-office';
 import { DEV_MODE_TOKEN, PACKAGE_JSON, provideAboutExtension } from '@alfresco/aca-content/about';
 import { environment } from '../environments/environment';
+import { provideMrbauCommonExtension } from '@mrbau/mrbau-common';
+//import { MrbauExtensionModule } from '@mrbau/mrbau-extension';
 import packageJson from 'package.json';
+import { provideMrbauExtensionExtension } from '@mrbau/mrbau-extension';
+import { provideMrbauSmarttableExtension } from '@mrbau/mrbau-smarttable';
+import { provideMrbauPdftronExtension } from '@mrbau/mrbau-pdftron';
 
 export function provideApplicationExtensions(): (Provider | EnvironmentProviders)[] {
   return [
     ...provideAboutExtension(),
     ...provideAosExtension(),
     ...provideFolderRulesExtension(),
+    ...provideMrbauCommonExtension(),
+    ...provideMrbauExtensionExtension(),
+    ...provideMrbauSmarttableExtension(),
+    ...provideMrbauPdftronExtension(),
     { provide: PACKAGE_JSON, useValue: packageJson },
     { provide: DEV_MODE_TOKEN, useValue: !environment.production }
   ];
@@ -41,6 +50,7 @@ export function provideApplicationExtensions(): (Provider | EnvironmentProviders
 
 /* @deprecated use `provideApplicationExtensions()` provider api instead */
 @NgModule({
+  imports: [],
   providers: [...provideApplicationExtensions()]
 })
 export class AppExtensionsModule {}

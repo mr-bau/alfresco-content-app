@@ -1,0 +1,19 @@
+<mrbau-page-layout title="MRBau Common Test" [errorMessage]="errorMessage" [loaderVisible]="loaderVisible">
+
+<div id="main">
+  <h2>Common Test</h2>
+  <div>
+    <button mat-flat-button color="primary" (click)="fakeLoading()">Trigger Loader Overlay</button>
+    <button mat-icon-button color="primary"(click)="fakeLoading()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div><div>
+    <button mat-flat-button color="primary"(click)="errorMessage = 'Test Error Message'">Set Error Message</button>
+    <button mat-flat-button color="primary"(click)="errorMessage = null">Clear Error Message</button>
+  </div>
+  <p> </p>
+</div>
+
+</mrbau-page-layout>
+
+

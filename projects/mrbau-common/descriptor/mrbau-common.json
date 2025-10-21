@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../extension.schema.json",
+  "$id": "mrbau-common",
+  "$version": "1.0.0",
+  "$vendor": "MRBau",
+  "$name": "MRBau Common Plugin",
+  "$description": "MRBau Common Plugin",
+  "$license": "MIT",
+
+
+  "routes": [
+    {
+      "id": "mrbau.common.route.test",
+      "parentRoute": "",
+      "path": "common-test",
+      "layout": "app.layout.main",
+      "component": "mrbau.common.component.test",
+      "data": {
+         "title": "Common Test"
+      },
+      "auth": ["content-services.auth", "extension-data-loader-guard.auth"]
+    }
+  ]
+}

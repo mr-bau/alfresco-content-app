@@ -1,0 +1,248 @@
+$flex-width-base: 10rem;
+$toolbar-text-button-color: #d1ecf1;
+$toolbar-text-button-color-hover: #beebe5;
+$flex-width-gap: 10px;
+$flex-container-width: min(calc(#{$flex-width-base}* 6), 100vw - 90px);
+
+.disable-flex-shrink {
+  flex-shrink: 0;
+}
+
+mat-radio-button {
+  padding-right: 25px;
+}
+
+.adf-toolbar {
+  //color: var(--theme-text-color);
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.adf-form-label-title {
+  font-size: 90%;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.54);
+}
+.adf-form-label-wrapper {
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  width: auto;
+  padding: 0 0.5rem;
+  margin-bottom: 10px;
+  background-color: #f1f1f1;
+  border-color: #e1e1e1;
+}
+/*
+.mat-form-field {
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}*/
+
+.version-history-tabgroup {
+  min-height: 200px;
+}
+
+.toolbar-text-button {
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  width: auto;
+  padding: 0 0.5rem;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.form-group-title {
+  font-size: 120%;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.form-group-title-large {
+  font-size: 160%;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.form-group-title-wrapper {
+  margin-bottom: 1rem;
+  background-color: lightsteelblue;
+  padding: 20px;
+}
+
+.form-group-warning-wrapper {
+  background-color: yellow;
+  margin-bottom: 1rem;
+  padding: 20px;
+}
+
+.form-group-warning-large {
+  font-size: 160%;
+  color: red;
+}
+
+.addPaddingTop {
+  padding-top: 1rem;
+}
+
+.addMarginTop {
+  margin-top: 1rem;
+}
+
+.addMarginLeft {
+  margin-left: 1rem;
+}
+
+.addMarginRight {
+  margin-right: 1rem;
+}
+
+.addMarginBottom {
+  margin-bottom: 1rem;
+}
+
+.addPadding {
+  padding: 1rem;
+}
+
+.duplicate-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+  align-items: flex-start;
+}
+.duplicate-radio-button {
+  margin: 5px;
+}
+.node-detail-list {
+  list-style-type: none;
+}
+
+.linked-document-name {
+  min-height: 36px;
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.drag-and-drop-border {
+  border: 1px dashed;
+  border-color: lightblue;
+}
+// drag-and-drop-border highlight
+.adf-file-draggable-input-focus {
+  border-color: darkblue;
+  background-color: rgb(237, 242, 250);
+}
+
+.task-infobox,
+.task-description,
+.task-formbox,
+.task-history,
+.task-linked-docs {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  border-radius: 0.25rem;
+  background: whitesmoke;
+  border: 1px solid var(--theme-border-color);
+  color: rgba(0, 0, 0, 0.87);
+}
+.task-infobox {
+  display: flex;
+}
+
+.flex-container,
+.flex-container-min-width {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-items: center;
+  gap: 0 #{$flex-width-gap};
+}
+
+.flex-container-min-width {
+  width: #{$flex-container-width};
+}
+
+.tasks-detail-main {
+  margin: 10px;
+  position: relative;
+}
+
+.status {
+  font-size: smaller;
+}
+
+.previewDocumentName {
+  font-size: smaller;
+  text-align: center;
+}
+
+.flex-container-list-task-dialog {
+  display: flex;
+  flex: 1;
+  min-width: 100%;
+  flex-wrap: nowrap;
+  formly-wrapper-mat-form-field {
+    width: 100%;
+  }
+  mat-radio-button {
+    display: block;
+  }
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 1 - #{$flex-width-gap}));
+}
+
+.flex-2 {
+  flex: 2;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 2 - #{$flex-width-gap}));
+}
+
+.flex-3 {
+  flex: 3;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 3 - #{$flex-width-gap}));
+}
+
+.flex-4 {
+  flex: 4;
+  min-width: min(#{$flex-container-width}, calc(#{$flex-width-base} * 4 - #{$flex-width-gap}));
+}
+
+.flex-6 {
+  flex: 6;
+  min-width: #{$flex-container-width};
+}
+
+textarea.mat-input-element.cdk-textarea-autosize {
+  resize: vertical;
+}
+
+.textAlignRight {
+  text-align: right;
+}
+
+.calcFormField {
+  margin: 0;
+  padding: 0;
+}
+
+.calcButton {
+  button {
+    margin-bottom: 1.4375em;
+    height: 3rem;
+    color: white !important;
+    background-color: #0055b8;
+  }
+}
+
+// formly form field background blue
+:root {
+  --mdc-filled-text-field-container-color: #e0e2ec;
+  //--mdc-filled-text-field-container-color : rgb(237, 242, 250);
+}
+.mdc-text-field {
+  padding: 0 16px !important;
+}

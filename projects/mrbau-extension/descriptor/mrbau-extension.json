@@ -1,0 +1,1130 @@
+{
+  "$schema": "../../../extension.schema.json",
+  "$id": "mrbau-extension",
+  "$version": "1.0.0",
+  "$vendor": "MRBau",
+  "$name": "MRBau Extension Plugin",
+  "$description": "MRBau Extension Plugin",
+  "$license": "MIT",
+
+  "appConfig": {
+    "locale": "de",
+    "dateValues": {
+      "defaultDateFormat": "mediumDate",
+      "defaultDateTimeFormat": "dd-MM-yyyy, HH:mm",
+      "defaultLocale": "de-DE"
+     },
+    "application": {
+      "name": "M&R DMS",
+      "logo": "assets/mrbau-extension/svg/logo_mr.svg",
+      "headerImagePath": "assets/mrbau-extension/svg/bg_head.svg",
+      "copyright": "© 2022-2025 M&R Bau GmbH, © 2017-2025 Alfresco Software, Inc. Alle Rechte vorbehalten."
+    }
+  },
+  "routes": [
+    {
+      "id": "mrbau.extension.route.main",
+      "path": "ext/mrbau/main",
+      "component": "mrbau-extension.main.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.mrid",
+      "path": "mrid/:mrId",
+      "component": "mrbau-extension.mrid.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.belege",
+      "path": "belege",
+      "component": "mrbau-extension.belegsammlung.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.mrbausettings",
+      "path": "mrbausettings",
+      "component": "mrbau-extension.mrbausettings.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.tasks",
+      "path": "tasks",
+      "component": "mrbau-extension.tasks.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.tasks.single",
+      "path": "tasks/:nodeId",
+      "component": "mrbau-extension.tasks.single.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.mrbaupdfview",
+      "path": "mrbaupdfview/:nodeId",
+      "component": "mrbau-extension.mrbaupdfview.component",
+      "layout": "blank",
+      "auth": ["app.auth"],
+      "data": {
+        "title": "PDF Viewer"
+      }
+    },
+    {
+      "id": "mrbau.extension.route.mrbaupdfviewversion",
+      "path": "mrbaupdfview/:nodeId/:versionId",
+      "component": "mrbau-extension.mrbaupdfview.component",
+      "layout": "blank",
+      "auth": ["app.auth"],
+      "data": {
+        "title": "PDF Viewer"
+      }
+    },
+    {
+      "id": "mrbau-extension.route.inbox",
+      "path": "inbox",
+      "component": "mrbau-extension.inbox.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau.extension.route.mrbauformlytest",
+      "path": "mrbauformlytest",
+      "component": "mrbau-extension.mrbauformlytest.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    }
+
+  ],
+  "actions": [
+    {
+        "id": "mrbau.extension.actions.navigate-test",
+        "type": "NAVIGATE_ROUTE",
+        "payload": "$(['/mrid/', '10'])"
+    },
+    {
+      "id": "mrbau.extension.actions.snakbar-test",
+      "type": "SNACKBAR_INFO",
+      "payload": "I'm a nice little popup raised by extension."
+    },
+    {
+      "id": "mrbau.extension.actions.new-task-dialog",
+      "type": "MRBAU_NEW_TASK_DIALOG",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.inbox-assign-dialog",
+      "type": "MRBAU_INBOX_ASSIGN_DIALOG",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.show-doc-task-dialog",
+      "type": "MRBAU_SHOW_DOC_TASK_DIALOG",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.show-doc-task-dialog-window",
+      "type": "MRBAU_SHOW_DOC_TASK_DIALOG_WINDOW",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.start-ocr",
+      "type": "MRBAU_START_OCR",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.modify-company",
+      "type": "MRBAU_MODIFY_COMPANY",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.print-linked-docs",
+      "type": "MRBAU_PRINT_LINKED_DOCS",
+      "payload": "$(context.selection)"
+    },
+    {
+      "id": "mrbau.extension.actions.tag-done-linked-docs",
+      "type": "MRBAU_TAG_DONE_LINKED_DOCS",
+      "payload": "$(context.selection)"
+    }
+  ],
+  "features": {
+    "documentList": {
+      "files": [
+        {
+          "id":"mrbau.extension.column.mrba.costCarrierNumber",
+          "title":"KT/KS",
+          "key": "properties.mrba:costCarrierNumber",
+          "type":"text",
+          "resizable": true,
+          "draggable": true
+        }
+      ],
+      "search-results": [
+        {
+          "id":"mrbau.extension.column.mrba.costCarrierNumber2",
+          "title":"KT/KS",
+          "key": "properties.mrba:costCarrierNumber",
+          "type":"text",
+          "resizable": true,
+          "draggable": true
+        }
+      ],
+      "recent": [{
+          "id":"mrbau.extension.column.mrba.costCarrierNumber",
+          "title":"KT/KS",
+          "key": "properties.mrba:costCarrierNumber",
+          "type":"text",
+          "resizable": true,
+          "draggable": true
+        }
+      ]
+    },
+    "navbar": [
+      {
+        "id": "app.navbar.primary",
+        "items": [
+          {
+            "id": "app.navbar.mrbau.tasks.group",
+            "title": "M&R Bau",
+            "description": "M&R Bau Anwendungen",
+            "order": 200,
+            "rules": {
+              "visible": "app.isContentServiceEnabled"
+            },
+            "children": [
+               {
+                "id": "app.navbar.mrbausettings",
+                "order": 100,
+                "label": "Link",
+                "title": "Administration",
+                "description": "Administration",
+                "route": "mrbausettings",
+                "rules": {
+                  "visible": "app.isContentServiceEnabled"
+                }
+              },
+              {
+                "id": "mrbau.extension.tasks",
+                "order": 600,
+                "title": "Meine Aufgaben",
+                "route" : "tasks",
+                "rules": {
+                  "visible": "app.isContentServiceEnabled"
+                }
+              },
+              {
+                "id": "mrbau.extension.belegsammlung",
+                "order": 620,
+                "label": "Link",
+                "title": "Belegsammlung",
+                "description": "Belegsammlung",
+                "route": "belege",
+                "rules": {
+                  "visible": [
+                    "mrbau.extension.rule.FALSE"
+                  ]
+                }
+              },
+              {
+                "id": "mrbau.extension.tools",
+                "order": 630,
+                "title": "Anwendungen",
+                "route": "mrbau.extension.route.main",
+                "rules": {
+                  "visible": [
+                    "mrbau.extension.rule.FALSE"
+                  ]
+                }
+              }
+           ]
+          }
+        ]
+      }
+    ],
+    "create": [
+      {
+        "id": "mrbau.extension.create.new-task",
+        "type": "default",
+        "icon": "build",
+        "title": "Aufgabe erstellen",
+        "actions": {
+          "click": "mrbau.extension.actions.new-task-dialog"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "!app.navigation.isSearchResults",
+            "mrbau.extension.rule.nothing-or-only-files-selected"
+          ]
+        }
+      }
+    ],
+    "toolbar" : [
+      {
+        "id": "app.toolbar.create",
+        "children": [
+          {
+            "id": "mrbau.extension.create.new-task",
+            "type": "default",
+            "icon": "build",
+            "title": "Aufgabe erstellen",
+            "actions": {
+              "click": "mrbau.extension.actions.new-task-dialog"
+            },
+            "rules": {
+              "visible": [
+                "!app.navigation.isTrashcan",
+                "!app.navigation.isSearchResults",
+                "mrbau.extension.rule.nothing-or-only-files-selected"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "contextMenu": [
+      {
+        "id": "mrbau.extension.menu.separator.1",
+        "type": "separator",
+        "order": 310
+      },
+      {
+        "id": "mrbau.extension.menu.inbox-assign",
+        "title": "Dokumente zuordnen",
+        "order": 311,
+        "icon": "inbox",
+        "actions": {
+          "click": "mrbau.extension.actions.inbox-assign-dialog"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "mrbau.extension.rule.only-files-selected",
+            "!mrbau.extension.rule.is-mrba-archiveDocument"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.show-doc-task",
+        "title": "Aufgabe anzeigen",
+        "order": 312,
+        "icon": "inbox",
+        "actions": {
+          "click": "mrbau.extension.actions.show-doc-task-dialog"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "app.selection.file",
+            "mrbau.extension.rule.is-mrba-archiveDocument"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.show-doc-task-window",
+        "title": "Aufgabe anzeigen (Tab)",
+        "order": 313,
+        "icon": "inbox",
+        "actions": {
+          "click": "mrbau.extension.actions.show-doc-task-dialog-window"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "app.selection.file",
+            "mrbau.extension.rule.is-mrba-archiveDocument"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.new-task",
+        "title": "Aufgabe erstellen",
+        "order": 314,
+        "icon": "build",
+        "actions": {
+          "click": "mrbau.extension.actions.new-task-dialog"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "mrbau.extension.rule.only-files-selected"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.start-ocr",
+        "title": "OCR starten",
+        "order": 315,
+        "icon": "mrbau:ocr",
+        "actions": {
+          "click": "mrbau.extension.actions.start-ocr"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "mrbau.extension.rule.only-files-selected"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.modify-company",
+        "title": "Firma ändern",
+        "order": 316,
+        "icon": "groups",
+        "actions": {
+          "click": "mrbau.extension.actions.modify-company"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "mrbau.extension.rule.only-files-selected",
+            "mrbau.extension.rule.is-mrba-archiveDocument"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.separator.1",
+        "type": "separator",
+        "order": 317
+      },
+      {
+        "id": "mrbau.extension.menu.print-linked-docs",
+        "title": "Dok. und Verkn. Drucken",
+        "order": 318,
+        "icon": "print",
+        "actions": {
+          "click": "mrbau.extension.actions.print-linked-docs"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "mrbau.extension.rule.only-files-selected",
+            "mrbau.extension.rule.is-mrba-archiveDocument"
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.menu.tag-done-linked-docs",
+        "title": "Dok. und Verkn. Tag Erledigt",
+        "order": 319,
+        "icon": "label",
+        "actions": {
+          "click": "mrbau.extension.actions.tag-done-linked-docs"
+        },
+        "rules": {
+          "visible": [
+            "!app.navigation.isTrashcan",
+            "mrbau.extension.rule.only-files-selected",
+            "mrbau.extension.rule.is-mrba-archiveDocument"
+          ]
+        }
+      }
+    ],
+    "icons": [
+      {
+        "id" : "mrbau:ocr",
+        "value": "./assets/mrbau-extension/svg/icon-ocr.svg"
+      }
+    ],
+    "search": [
+      {
+        "id": "mrbau.extension.search.standard",
+        "order": 95,
+        "name": "MRBAU_EXTENSION.SEARCH.SEARCH_TITLE",
+        "default": true,
+        "filterWithContains": true,
+        "app:fields": ["cm:name", "cm:title", "cm:description", "TEXT", "TAG"],
+        "include": ["path", "allowableOperations", "properties", "aspectNames"],
+        "sorting": {
+          "options": [
+            {
+              "key": "score",
+              "label": "SEARCH.SORT.RELEVANCE",
+              "type": "SCORE",
+              "field": "score",
+              "ascending": false
+            },
+            {
+              "key": "name",
+              "label": "SEARCH.SORT.FILENAME",
+              "type": "FIELD",
+              "field": "cm:name",
+              "ascending": true
+            },
+            {
+              "key": "title",
+              "label": "SEARCH.SORT.TITLE",
+              "type": "FIELD",
+              "field": "cm:title",
+              "ascending": true
+            },
+            {
+              "key": "modified",
+              "label": "SEARCH.SORT.MODIFIED_DATE",
+              "type": "FIELD",
+              "field": "cm:modified",
+              "ascending": true
+            },
+            {
+              "key": "modifier",
+              "label": "SEARCH.SORT.MODIFIER",
+              "type": "FIELD",
+              "field": "cm:modifier",
+              "ascending": true
+            },
+            {
+              "key": "created",
+              "label": "SEARCH.SORT.CREATE_DATE",
+              "type": "FIELD",
+              "field": "cm:created",
+              "ascending": true
+            },
+            {
+              "key": "content.sizeInBytes",
+              "label": "SEARCH.SORT.SIZE",
+              "type": "FIELD",
+              "field": "content.size",
+              "ascending": true
+            },
+            {
+              "key": "content.mimetype",
+              "label": "SEARCH.SORT.TYPE",
+              "type": "FIELD",
+              "field": "content.mimetype",
+              "ascending": true
+            }
+          ],
+          "defaults": [
+            {
+              "key": "score",
+              "type": "SCORE",
+              "field": "score",
+              "ascending": false
+            }
+          ]
+        },
+        "aca:triggeredOnChange": false,
+        "resetButton": true,
+        "filterQueries": [
+          { "query": "+TYPE:'cm:folder' OR +TYPE:'cm:content'" },
+          {
+            "query": "-TYPE:'cm:thumbnail' AND -TYPE:'cm:failedThumbnail' AND -TYPE:'cm:rating'"
+          },
+          { "query": "-cm:creator:System" },
+          {
+            "query": "-TYPE:'st:site' AND -ASPECT:'st:siteContainer' AND -ASPECT:'sys:hidden'"
+          },
+          {
+            "query": "-TYPE:'dl:dataList' AND -TYPE:'dl:todoList' AND -TYPE:'dl:issue'"
+          },
+          { "query": "-TYPE:'fm:topic' AND -TYPE:'fm:post'" },
+          { "query": "-TYPE:'lnk:link'" },
+          { "query": "-PATH:'//cm:wiki/*'" },
+          { "query": "-ASPECT:'mrba:discardedDocument'" }
+        ],
+        "facetFields": {
+          "expanded": true,
+          "fields": [
+            {
+              "mincount": 1,
+              "field": "mrba:organisationUnit",
+              "label": "Mandant",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "mrba:companyName",
+              "label": "Firma",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "mrba:costCarrierNumber",
+              "label": "Kostenträger",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "SITE",
+              "label": "SEARCH.FACET_FIELDS.LOCATION",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "content.mimetype",
+              "label": "SEARCH.FACET_FIELDS.FILE_TYPE",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "creator",
+              "label": "SEARCH.FACET_FIELDS.CREATOR",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "facetOrder": 200
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "modifier",
+              "label": "SEARCH.FACET_FIELDS.MODIFIER",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "facetOrder": 300
+              }
+            }
+          ]
+        },
+        "facetQueries": {
+          "label": "facetQueries",
+          "expanded": true,
+          "queries": [
+            { "query": "TYPE:'mrba:offer'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OFFER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:order'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ORDER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:frameworkContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FRAMEWORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:deliveryNote'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.DELIVERY_NOTE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:invoice'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:invoiceReviewSheet'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE_REVIEW_SHEET", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:orderNegotiationProtocol'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:miscellaneousDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:rentContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.RENT_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:contractCancellationWaiver'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION_WAIVER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:maintenanceContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MAINTENANCE_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:allInContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ALL_IN_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:licenseContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.LICENSE_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:financingContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FINANCING_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:workContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.WORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:contractCancellation'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+
+            { "query": "TAG:'abfallwirtschaft'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "(mrba:costCarrierNumber:11-100 OR mrba:costCarrierNumber:12-100 OR mrba:costCarrierNumber:41-100) AND !TAG:'bauhof'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_KT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung' AND !TAG:'weiterverrechnung erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"}
+          ],
+          "settings": {
+            "allowUpdateOnChange": false,
+            "hideDefaultAction": true
+          }
+        },
+        "categories": [
+          {
+            "id": "logic",
+            "name": "SEARCH.CATEGORIES.LOGIC",
+            "enabled": true,
+            "component": {
+              "selector": "logical-filter",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "field": "cm:name,cm:title,cm:description,TEXT,TAG"
+              }
+            }
+          },
+          {
+            "id": "mrbau.extension.search.categories.mrbabase",
+            "name": "Kategorie",
+            "enabled": true,
+            "component": {
+              "selector": "check-list",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "operator": "OR",
+                "hideDefaultAction": true,
+                "options": [
+                  { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS"},
+                  { "value": "TYPE:'mrba:contractDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"}
+                ]
+              }
+            }
+          },
+          {
+            "id": "properties",
+            "name": "SEARCH.CATEGORIES.PROPERTIES",
+            "enabled": true,
+            "component": {
+              "selector": "properties",
+              "settings": {
+                "field": "content.size,cm:name",
+                "fileExtensions": [
+                  "3g2", "3gp", "acp", "aep", "ai", "aiff", "apk", "arw", "avi", "bin", "bmp", "cgm", "class", "cr2",
+                  "css", "csv", "dita", "dng", "doc", "docm", "docx", "dotm","dwg", "dwt", "eps", "flac", "flv", "fm",
+                  "fodg", "gif", "gtar", "gz", "htm", "html", "icns", "ics", "ief", "indd", "jar", "java", "jp2", "jpeg",
+                  "jpg", "js", "json", "jsp", "m4v", "man", "md", "mov", "mp3", "mp4", "mpeg", "mpp", "mrw", "msg", "nef",
+                  "numbers", "odb", "odf", "odg", "odi", "odm", "odp", "ods", "odt", "oga", "ogg", "ogv", "ogx", "orf",
+                  "ott", "pages", "pbm", "pdf", "pef", "pgm", "pmd", "png", "pnm", "pot", "potx", "ppam", "ppj", "pps",
+                  "ppsm", "ppt", "pptm", "pptx", "ps", "psd", "rad", "raf", "rar", "rgb", "rss", "rtf", "rw2", "rwl",
+                  "sda", "sdc", "sdd", "sdp", "sds", "sdw", "sgi", "sgl", "sgml", "sh", "sldm", "smf", "stw", "svg",
+                  "swf", "sxi", "tar", "tex", "texi", "tif", "tiff", "ts", "tsv", "txt", "vsd", "vsdm", "vsdx", "vssm",
+                  "vstm", "vstx", "wav", "webm", "wma", "wmv", "wpd", "wrl", "x3f", "xdp", "xhtml", "xla", "xlam", "xls",
+                  "xlsb", "xlsm", "xlsx", "xltm", "xml", "xpm", "xwd", "z", "zip"
+                ]
+              }
+            }
+          },
+          {
+            "id": "createdModifiedDateRange",
+            "name": "SEARCH.CATEGORIES.DATE",
+            "enabled": true,
+            "component": {
+              "selector": "date-range",
+              "settings": {
+                "field": "cm:created,cm:modified",
+                "dateFormat": "dd-MMM-yy",
+                "maxDate": "today",
+                "displayedLabelsByField": {
+                  "cm:created": "SEARCH.CATEGORIES.DATE_TABS.CREATED",
+                  "cm:modified": "SEARCH.CATEGORIES.DATE_TABS.MODIFIED"
+                }
+              }
+            }
+          },
+          {
+            "id": "location",
+            "name": "SEARCH.FACET_FIELDS.LOCATION",
+            "enabled": true,
+            "component": {
+              "selector": "autocomplete-chips",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "allowOnlyPredefinedValues": false,
+                "field": "SITE",
+                "autocompleteOptions": [ { "value": "_REPOSITORY_", "query": "PATH:'/app:company_home/\/*'" } ]
+              }
+            }
+          },
+          {
+            "id": "tag",
+            "name": "Tags",
+            "enabled": true,
+            "component": {
+              "selector": "autocomplete-chips",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "allowOnlyPredefinedValues": true,
+                "field": "TAG"
+              }
+            },
+            "rules": {
+              "visible": "false"
+            }
+          },
+          {
+            "id": "categories",
+            "name": "SEARCH.FACET_FIELDS.CATEGORIES",
+            "enabled": true,
+            "component": {
+              "selector": "autocomplete-chips",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "allowOnlyPredefinedValues": true,
+                "field": "cm:categories"
+              }
+            },
+            "rules": {
+              "visible": "app.areCategoriesEnabled"
+            }
+          }
+        ],
+        "highlight": {
+          "prefix": "<span class='aca-highlight'>",
+          "postfix": "</span>",
+          "fields": [
+            {
+              "field": "cm:title"
+            },
+            {
+              "field": "cm:name"
+            },
+            {
+              "field": "cm:description",
+              "snippetCount": 1
+            },
+            {
+              "field": "cm:content",
+              "snippetCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "mrbau.extension.search.standard.withdiscarded",
+        "order": 98,
+        "name": "MRBAU_EXTENSION.SEARCH.SEARCH_TITLE_DISCARDED",
+        "default": false,
+        "filterWithContains": true,
+        "app:fields": ["cm:name", "cm:title", "cm:description", "TEXT", "TAG"],
+        "include": ["path", "allowableOperations", "properties", "aspectNames"],
+        "sorting": {
+          "options": [
+            {
+              "key": "score",
+              "label": "SEARCH.SORT.RELEVANCE",
+              "type": "SCORE",
+              "field": "score",
+              "ascending": false
+            },
+            {
+              "key": "name",
+              "label": "SEARCH.SORT.FILENAME",
+              "type": "FIELD",
+              "field": "cm:name",
+              "ascending": true
+            },
+            {
+              "key": "title",
+              "label": "SEARCH.SORT.TITLE",
+              "type": "FIELD",
+              "field": "cm:title",
+              "ascending": true
+            },
+            {
+              "key": "modified",
+              "label": "SEARCH.SORT.MODIFIED_DATE",
+              "type": "FIELD",
+              "field": "cm:modified",
+              "ascending": true
+            },
+            {
+              "key": "modifier",
+              "label": "SEARCH.SORT.MODIFIER",
+              "type": "FIELD",
+              "field": "cm:modifier",
+              "ascending": true
+            },
+            {
+              "key": "created",
+              "label": "SEARCH.SORT.CREATE_DATE",
+              "type": "FIELD",
+              "field": "cm:created",
+              "ascending": true
+            },
+            {
+              "key": "content.sizeInBytes",
+              "label": "SEARCH.SORT.SIZE",
+              "type": "FIELD",
+              "field": "content.size",
+              "ascending": true
+            },
+            {
+              "key": "content.mimetype",
+              "label": "SEARCH.SORT.TYPE",
+              "type": "FIELD",
+              "field": "content.mimetype",
+              "ascending": true
+            }
+          ],
+          "defaults": [
+            {
+              "key": "score",
+              "type": "SCORE",
+              "field": "score",
+              "ascending": false
+            }
+          ]
+        },
+        "aca:triggeredOnChange": false,
+        "resetButton": true,
+        "filterQueries": [
+          { "query": "+TYPE:'cm:folder' OR +TYPE:'cm:content'" },
+          {
+            "query": "-TYPE:'cm:thumbnail' AND -TYPE:'cm:failedThumbnail' AND -TYPE:'cm:rating'"
+          },
+          { "query": "-cm:creator:System" },
+          {
+            "query": "-TYPE:'st:site' AND -ASPECT:'st:siteContainer' AND -ASPECT:'sys:hidden'"
+          },
+          {
+            "query": "-TYPE:'dl:dataList' AND -TYPE:'dl:todoList' AND -TYPE:'dl:issue'"
+          },
+          { "query": "-TYPE:'fm:topic' AND -TYPE:'fm:post'" },
+          { "query": "-TYPE:'lnk:link'" },
+          { "query": "-PATH:'//cm:wiki/*'" }
+        ],
+        "facetFields": {
+          "expanded": true,
+          "fields": [
+            {
+              "mincount": 1,
+              "field": "mrba:organisationUnit",
+              "label": "Mandant",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "mrba:companyName",
+              "label": "Firma",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "mrba:costCarrierNumber",
+              "label": "Kostenträger",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "SITE",
+              "label": "SEARCH.FACET_FIELDS.LOCATION",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "content.mimetype",
+              "label": "SEARCH.FACET_FIELDS.FILE_TYPE",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "creator",
+              "label": "SEARCH.FACET_FIELDS.CREATOR",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "facetOrder": 200
+              }
+            },
+            {
+              "mincount": 1,
+              "field": "modifier",
+              "label": "SEARCH.FACET_FIELDS.MODIFIER",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "facetOrder": 300
+              }
+            }
+          ]
+        },
+        "facetQueries": {
+          "label": "facetQueries",
+          "expanded": true,
+          "queries": [
+            { "query": "TYPE:'mrba:offer'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.OFFER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:order'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ORDER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:frameworkContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FRAMEWORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:deliveryNote'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.DELIVERY_NOTE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:invoice'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:invoiceReviewSheet'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.INVOICE_REVIEW_SHEET", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:orderNegotiationProtocol'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:miscellaneousDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:rentContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.RENT_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:contractCancellationWaiver'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION_WAIVER", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:maintenanceContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MAINTENANCE_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:allInContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.ALL_IN_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:licenseContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.LICENSE_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:financingContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FINANCING_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:workContract'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.WORK_CONTRACT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:contractCancellation'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_CANCELLATION", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+            { "query": "TYPE:'mrba:miscellaneousContractDocument'", "label": "MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.MISCELLANEOUS_CONTRACT_DOCUMENT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TITLE"},
+
+            { "query": "TAG:'abfallwirtschaft'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'abfallwirtschaft' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_ABFALLWIRTSCHAFT_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof' AND !TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'bauhof' AND TAG:'erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "(mrba:costCarrierNumber:11-100 OR mrba:costCarrierNumber:12-100 OR mrba:costCarrierNumber:41-100) AND !TAG:'bauhof'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_BAUHOF_KT", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung erledigt' AND !TAG:'weiterverrechnung erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_TODO", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"},
+            { "query": "TAG:'weiterverrechnung erledigt'", "label": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENT_TAG_WEITERVERRECHNUNG_DONE", "group":"MRBAU_EXTENSION.SEARCH.ARCHIVE_TAG_TITLE"}
+          ],
+          "settings": {
+            "allowUpdateOnChange": false,
+            "hideDefaultAction": true
+          }
+        },
+        "categories": [
+          {
+            "id": "logic",
+            "name": "SEARCH.CATEGORIES.LOGIC",
+            "enabled": true,
+            "component": {
+              "selector": "logical-filter",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "field": "cm:name,cm:title,cm:description,TEXT,TAG"
+              }
+            }
+          },
+          {
+            "id": "mrbau.extension.search.categories.mrbabase",
+            "name": "Kategorie",
+            "enabled": true,
+            "component": {
+              "selector": "check-list",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "operator": "OR",
+                "hideDefaultAction": true,
+                "options": [
+                  { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS"},
+                  { "value": "TYPE:'mrba:archiveDocument' AND -TYPE:'mrba:contractDocument' AND +ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_DOCUMENTS_DISCARDED"},
+                  { "value": "TYPE:'mrba:contractDocument' AND -ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS"},
+                  { "value": "TYPE:'mrba:contractDocument' AND +ASPECT:'mrba:discardedDocument'", "name": "MRBAU_EXTENSION.SEARCH.ARCHIVE_CONTRACTS_DISCARDED"}
+                ]
+              }
+            }
+          },
+          {
+            "id": "properties",
+            "name": "SEARCH.CATEGORIES.PROPERTIES",
+            "enabled": true,
+            "component": {
+              "selector": "properties",
+              "settings": {
+                "field": "content.size,cm:name",
+                "fileExtensions": [
+                  "3g2", "3gp", "acp", "aep", "ai", "aiff", "apk", "arw", "avi", "bin", "bmp", "cgm", "class", "cr2",
+                  "css", "csv", "dita", "dng", "doc", "docm", "docx", "dotm","dwg", "dwt", "eps", "flac", "flv", "fm",
+                  "fodg", "gif", "gtar", "gz", "htm", "html", "icns", "ics", "ief", "indd", "jar", "java", "jp2", "jpeg",
+                  "jpg", "js", "json", "jsp", "m4v", "man", "md", "mov", "mp3", "mp4", "mpeg", "mpp", "mrw", "msg", "nef",
+                  "numbers", "odb", "odf", "odg", "odi", "odm", "odp", "ods", "odt", "oga", "ogg", "ogv", "ogx", "orf",
+                  "ott", "pages", "pbm", "pdf", "pef", "pgm", "pmd", "png", "pnm", "pot", "potx", "ppam", "ppj", "pps",
+                  "ppsm", "ppt", "pptm", "pptx", "ps", "psd", "rad", "raf", "rar", "rgb", "rss", "rtf", "rw2", "rwl",
+                  "sda", "sdc", "sdd", "sdp", "sds", "sdw", "sgi", "sgl", "sgml", "sh", "sldm", "smf", "stw", "svg",
+                  "swf", "sxi", "tar", "tex", "texi", "tif", "tiff", "ts", "tsv", "txt", "vsd", "vsdm", "vsdx", "vssm",
+                  "vstm", "vstx", "wav", "webm", "wma", "wmv", "wpd", "wrl", "x3f", "xdp", "xhtml", "xla", "xlam", "xls",
+                  "xlsb", "xlsm", "xlsx", "xltm", "xml", "xpm", "xwd", "z", "zip"
+                ]
+              }
+            }
+          },
+          {
+            "id": "createdModifiedDateRange",
+            "name": "SEARCH.CATEGORIES.DATE",
+            "enabled": true,
+            "component": {
+              "selector": "date-range",
+              "settings": {
+                "field": "cm:created,cm:modified",
+                "dateFormat": "dd-MMM-yy",
+                "maxDate": "today",
+                "displayedLabelsByField": {
+                  "cm:created": "SEARCH.CATEGORIES.DATE_TABS.CREATED",
+                  "cm:modified": "SEARCH.CATEGORIES.DATE_TABS.MODIFIED"
+                }
+              }
+            }
+          },
+          {
+            "id": "location",
+            "name": "SEARCH.FACET_FIELDS.LOCATION",
+            "enabled": true,
+            "component": {
+              "selector": "autocomplete-chips",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "allowOnlyPredefinedValues": false,
+                "field": "SITE",
+                "autocompleteOptions": [ { "value": "_REPOSITORY_", "query": "PATH:'/app:company_home/\/*'" } ]
+              }
+            }
+          },
+          {
+            "id": "tag",
+            "name": "Tags",
+            "enabled": true,
+            "component": {
+              "selector": "autocomplete-chips",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "allowOnlyPredefinedValues": true,
+                "field": "TAG"
+              }
+            },
+            "rules": {
+              "visible": "false"
+            }
+          },
+          {
+            "id": "categories",
+            "name": "SEARCH.FACET_FIELDS.CATEGORIES",
+            "enabled": true,
+            "component": {
+              "selector": "autocomplete-chips",
+              "settings": {
+                "allowUpdateOnChange": false,
+                "hideDefaultAction": true,
+                "allowOnlyPredefinedValues": true,
+                "field": "cm:categories"
+              }
+            },
+            "rules": {
+              "visible": "app.areCategoriesEnabled"
+            }
+          }
+        ],
+        "highlight": {
+          "prefix": "<span class='aca-highlight'>",
+          "postfix": "</span>",
+          "fields": [
+            {
+              "field": "cm:title"
+            },
+            {
+              "field": "cm:name"
+            },
+            {
+              "field": "cm:description",
+              "snippetCount": 1
+            },
+            {
+              "field": "cm:content",
+              "snippetCount": 1
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

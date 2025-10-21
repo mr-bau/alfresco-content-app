@@ -1,0 +1,1193 @@
+import { CommonModule, DatePipe} from '@angular/common';
+import { LoaderoverlayComponent } from '@mrbau/mrbau-common';
+import { IFileSelectData } from '@mrbau/mrbau-extension';
+import { MrbauNodeService } from '@mrbau/mrbau-extension';
+//import WebViewer from '@pdftron/webviewer';
+import { Component, inject, ViewChild, OnInit, ElementRef, AfterViewInit, Input, OnChanges, SimpleChanges, SecurityContext, ChangeDetectorRef } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ContentApiService } from '@alfresco/aca-shared';
+import { MrbauCommonService } from '@mrbau/mrbau-extension';
+import { HttpHeaders } from '@angular/common/http';
+import * as MrbauStamps from './mrbau.stamps';
+import { ContentService } from '@alfresco/adf-content-services';
+import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } from '@mrbau/mrbau-extension';
+import { AspectDeductionDetails, AspectRetentionDetails, IAspectDetailItem } from '@mrbau/mrbau-extension';
+import { NodeEntry } from '@alfresco/js-api';
+import { MrbauCalcService, ICalculationParameter, TCalculationParameterType } from '@mrbau/mrbau-extension';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
+import { CanComponentDeactivate } from '@mrbau/mrbau-extension';
+import { MrbauConfirmDialogComponent} from '@mrbau/mrbau-extension';
+
+
+interface ICalculationParameterExtend extends ICalculationParameter {
+  dyMultiplier : number
+}
+
+declare const WebViewer: any;
+
+interface ISVGData {
+  path: string,
+  icon: string,
+  tooltip: string,
+  toolgroup: string,
+  svg?: string,
+  width?: number,
+  height?: number
+  patchFunction? : IPatchFunction,
+  showPanel: boolean,
+};
+
+interface IPatchFunction {
+  (a: string): Promise<string>;
+}
+
+@Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    LoaderoverlayComponent,
+    //MrbauConfirmDialogComponent,
+  ],
+  selector: 'mrbau-pdftron',
+  templateUrl: './pdftron.component.html',
+  styleUrls: ['./pdftron.component.scss']
+})
+export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanComponentDeactivate {
+  private mrbauNodeService = inject(MrbauNodeService);
+  private mrbauCommonService = inject(MrbauCommonService);
+  private mrbauCalcService = inject(MrbauCalcService);
+  private datePipe = inject(DatePipe);
+
+  // Syntax if using Angular 8+
+  // true or false depending on code
+  @ViewChild('viewer') viewer!: ElementRef;
+  @Input() fileSelectData: IFileSelectData | undefined;
+
+  previousFileSelectData : IFileSelectData | null = null;
+  sanitized_document_url: SafeResourceUrl | null = null;
+  isPDFFile = true;
+  private modified = false;
+  loaderVisible = false;
+  // Syntax if using Angular 7 and below
+  //@ViewChild('viewer') viewer: ElementRef;
+  stampDate : Date = new Date();
+  customStamps : any[] = [];
+  readonly STAMP_FOLDER_PATH = 'Vorlagen/Stempel/';
+  readonly SAVE_YES_NO_DIALOG_DATA = {
+              dialogTitle: 'Änderungen Speichern?',
+              dialogMsg: 'Es gab Änderungen im PDF Dokument. Neue Version hochladen und Änderungen speichern?',
+              dialogButtonOK: 'SPEICHERN',
+              dialogButtonCancel: 'VERWERFEN',
+              fieldsMain: [],
+              payload: null
+            };
+
+  wvInstance: any;
+  constructor(
+    private sanitizer: DomSanitizer,
+    private contentApiService : ContentApiService,
+    private contentService : ContentService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private dialog: MatDialog,
+  ){
+    this.sanitizer;
+    this.contentService;
+    //SecurityContext;
+  }
+
+  canDeactivate() : Observable<boolean> | Promise<boolean> | boolean {
+    if (this.modified && this.previousFileSelectData != null) {
+      return new Promise<boolean>((resolve) => {
+          const dialogRef = this.dialog.open(MrbauConfirmDialogComponent, {
+            disableClose: true,
+            data: this.SAVE_YES_NO_DIALOG_DATA
+          },
+        );
+
+        dialogRef.afterClosed().subscribe(async (result) => {
+          if (result) {
+            if (this.previousFileSelectData) {
+              await this.doUploadDocumentToDMS(this.previousFileSelectData, false);
+            }
+          }
+          this.modified = false;
+          this.previousFileSelectData = null;
+          resolve(true);
+        });
+        }
+      );
+    }
+    return true;
+  }
+
+  ngOnInit() {
+    this.modified = false;
+    window.onbeforeunload = (event) => {
+    if (this.modified) {
+      event.preventDefault(); // Verhindert das sofortige Verlassen
+      event.returnValue = ''; // Zeigt die Standard-Browser-Warnung an
+    }
+  };
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['fileSelectData']) {
+      if (this.previousFileSelectData == null) {
+        this.previousFileSelectData = changes['fileSelectData'].previousValue;
+      }
+      this.onFileSelected();
+    }
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    // The following code initiates a new instance of WebViewer.
+    await this.loadSVGStamps();
+    const user = await this.mrbauCommonService.getCurrentUser();
+
+    WebViewer({
+      path: '../..'+location.pathname+'wv-resources/lib',
+      licenseKey: 'demo:1712755081824:7f15e134030000000055b9b826f68203ea09c327fac3598037aca85361', // sign up to get a key at https://dev.apryse.com
+      //initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf'
+      fullAPI: true
+    }, this.viewer.nativeElement).then((instance: any) => {
+      this.wvInstance = instance;
+
+      instance.Core.annotationManager.setCurrentUser(user.entry.displayName ?? '');
+
+      // now you can access APIs through this.webviewer.getInstance()
+      // instance.UI.openElement('notesPanel');
+      // see https://docs.apryse.com/documentation/web/guides/ui/apis/
+      // see https://www.pdftron.com/api/web/WebViewerInstance.html for the full list of low-level APIs
+      // https://community.apryse.com/t/detect-any-pdf-modifications/5347/3
+
+      instance.Core.annotationManager.addEventListener('fieldChanged', (value:any) => {
+        value; // formular change
+        this.modified = true;
+        this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+      });
+      instance.Core.documentViewer.addEventListener('pagesUpdated', (value:any) => {
+        value; // add/remove/rotate page
+        this.modified = true;
+        this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+      });
+      instance.Core.annotationManager.addEventListener('annotationChanged', (annotations:any, action:any, { imported } : {imported : any}) =>
+      {
+        if (!imported)
+        {
+          annotations;action;
+          this.modified = true;
+          this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+        }
+      });
+
+      this.customizeUI();
+
+      this.onFileSelected();
+    })
+  }
+
+  svgEscapeUmlaute(text:string) : string {
+    // Caution: order direction matters
+    text = text.replace(/&/g, '&amp;');
+    text = text.replace(/#/g, '&#35;');
+    text = text.replace(/'/g, '&#39;');
+    text = text.replace(/"/g, '&#34;');
+    text = text.replace(/</g, '&#60;');
+    text = text.replace(/>/g, '&#62;');
+    text = text.replace(/Ä/g, '&#196;');
+    text = text.replace(/ä/g, '&#228;');
+    text = text.replace(/Ö/g, '&#214;');
+    text = text.replace(/ö/g, '&#246;');
+    text = text.replace(/Ü/g, '&#220;');
+    text = text.replace(/ü/g, '&#252;');
+    text = text.replace(/ß/g, '&#223;');
+    text = text.replace(/§/g, '&#167;');
+    text = text.replace(/®/g, '&#174;');
+    text = text.replace(/©/g, '&#169;');
+    text = text.replace(/€/g, '&#8364;');
+    return text;
+  }
+
+  async svgPatchStampDate(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve) => {
+      let dateAsString = this.datePipe.transform(this.stampDate, 'dd. MMM yyyy') ?? '-';
+      dateAsString = this.svgEscapeUmlaute(dateAsString);
+      svgData = svgData.replace('DATE', dateAsString);
+      resolve(svgData);
+      return;
+    });
+  }
+
+  async svgPatchCurrentDate(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve) => {
+      let dateAsString = this.datePipe.transform(new Date(), 'dd. MMM yyyy') ?? '-';
+      dateAsString = this.svgEscapeUmlaute(dateAsString);
+      svgData = svgData.replace('DATE', dateAsString);
+      resolve(svgData);
+      return;
+    });
+  }
+
+  async svgPatchArchiveDate(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        const node = await this.mrbauCommonService.getNode(this.fileSelectData!.nodeId).toPromise();
+        const date = new Date(node!.entry.properties['mrba:archivedDateValue']);
+        let dateAsString = this.datePipe.transform(date, 'dd. MMM yyyy') ?? '-';
+        dateAsString = this.svgEscapeUmlaute(dateAsString);
+        svgData = svgData.replace('DATE', dateAsString);
+        resolve(svgData);
+        return;
+      }
+      catch (error) {
+        reject(error)
+      }
+    });
+  }
+
+  getCalculationParameter(item : IAspectDetailItem, node:NodeEntry, dyMultiplier:number, type : TCalculationParameterType = 'Percent') : ICalculationParameterExtend {
+    const val = this.mrbauCalcService.getNumberFromString(node.entry.properties[item.key]);
+    return {label : item.label_short, type : type, value: val, dyMultiplier: dyMultiplier};
+  }
+
+  getLabelValueFromCalculationParameter(p : ICalculationParameterExtend, attributes:string='') : string {
+    return this.getLabelStringFromCalculationParameter(p.label+(p.type != 'Number' ? ' '+this.mrbauCalcService.numberToString(p.value)+'%' : ''), p.dyMultiplier, attributes);
+  }
+
+  getLabelStringFromCalculationParameter(value:string, multiplier : number, attributes:string='') : string {
+    const dy=1.1;
+    return '<tspan '+attributes+' x="6" dy="'+dy*multiplier+'em">'+this.svgEscapeUmlaute(value)+'</tspan>';
+  }
+
+  getValueStringFromCalculationParameter(value:string, multiplier : number, attributes:string='') : string {
+    const dy=1.1;
+    return '<tspan '+attributes+' x="180" dy="'+dy*multiplier+'em">'+this.svgEscapeUmlaute(value)+'</tspan>';
+  }
+
+  async svgPatchDeductions(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        svgData = await this.svgPatchDocumentProperties(svgData);
+        const node = await this.mrbauCommonService.getNode(this.fileSelectData!.nodeId).toPromise();
+        if (!node) {
+          return resolve(svgData);
+        }
+        const taxRate = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:taxRate']);
+        const invoiceType = node!.entry.properties['mrba:invoiceType'];
+        const skonto1 = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:earlyPaymentDiscountPercent1']);
+        const skonto2 = this.mrbauCalcService.getNumberFromString(node.entry.properties['mrba:earlyPaymentDiscountPercent2']);
+        const skonto = (skonto1 > skonto2) ? skonto1 : skonto2;
+        const pStart = this.getCalculationParameter(AspectDeductionDetails.netAmountPreDeduction, node, 1, 'Number')
+        let deductionParameters :  ICalculationParameterExtend[] = [];
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageUnassignedPercent, node, 2));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionDamageAssignedNetAmount, node, 1, 'Number'));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialNetAmount, node, 1, 'Number'));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionSpecialPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWastePercent, node, 2));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionCleaningPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionToiletsPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionWaterPercent, node, 1));
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionElectricityPercent, node, 1));
+
+        const rl = (invoiceType=='Teilrechnung') ? this.getCalculationParameter(AspectRetentionDetails.retentionDRLPercent, node, 2) :  this.getCalculationParameter(AspectRetentionDetails.retentionHRLPercent, node, 2, 'Retention')
+        if (this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)) {
+          rl.label += ' (>'+this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)+')';
+        }
+        deductionParameters.push(rl);
+
+        deductionParameters.push(this.getCalculationParameter(AspectDeductionDetails.deductionPreviousPaymentsNetAmount, node, 2, 'Number'));
+
+        const netResult = this.mrbauCalcService.calcValues(deductionParameters, pStart.value);
+
+        let labels = '';
+        labels += this.getLabelValueFromCalculationParameter(pStart);
+        for (let i=0; i< deductionParameters.length; i++) {
+          const p : ICalculationParameterExtend = deductionParameters[i];
+          labels += this.getLabelValueFromCalculationParameter(p);
+        }
+        labels += this.getLabelStringFromCalculationParameter('Gepr. Summe Netto', 2);
+        if (taxRate > 0) {
+          labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
+          labels += this.getLabelStringFromCalculationParameter('Gepr. Summe Brutto', 1);
+        }
+
+        //let rlLabel = rl.label+' '+this.mrbauCalcService.numberToString(rl.value)+'%';
+        //if (this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)) {
+        //  rlLabel += ' (>'+this.mrbauCalcService.getRetentionMinimumThreshold(invoiceType)+')';
+        //}
+        //labels += this.getLabelStringFromCalculationParameter(rlLabel, rl.dyMultiplier);
+
+
+        if (skonto >= 0) {
+          labels += this.getLabelStringFromCalculationParameter('Skonto '+this.mrbauCalcService.numberToString(skonto)+'%' , 2);
+
+          labels += this.getLabelStringFromCalculationParameter('Anzuweisender Betrag Netto', 2);
+          if (taxRate > 0) {
+            labels += this.getLabelStringFromCalculationParameter('MWSt. '+this.mrbauCalcService.numberToString(taxRate)+'%', 1);
+            labels += this.getLabelStringFromCalculationParameter('Anzuweisender Betrag Brutto', 1);
+          }
+        }
+
+        let values = '';
+        values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(pStart.value), 1);
+        for (let i=0; i< deductionParameters.length; i++) {
+          const p : ICalculationParameterExtend = deductionParameters[i];
+          values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(p.calculatedValue!), p.dyMultiplier);
+        }
+        values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult), 2);
+        if (taxRate > 0) {
+          const mwst : number = this.mrbauCalcService.calcPercentValue(taxRate, netResult);
+          const grossResult : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult);
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst), 1);
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult), 1);
+        }
+        //values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(rl.calculatedValue), 2);
+        let skontoValue = 0;
+        if (skonto >= 0) {
+          skontoValue = this.mrbauCalcService.calcPercentValue(skonto, pStart.value);
+          values += this.getValueStringFromCalculationParameter('-'+this.mrbauCalcService.numberToString(skontoValue), 2);
+
+          const netResult2 = netResult-skontoValue;
+          values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(netResult2), 2);
+          if (taxRate > 0) {
+            const grossResult2 : number = this.mrbauCalcService.calcPercentValue(100+taxRate, netResult2);
+            const mwst2 : number = this.mrbauCalcService.calcPercentValue(taxRate, netResult2);
+            values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(mwst2), 1);
+            values += this.getValueStringFromCalculationParameter(''+this.mrbauCalcService.numberToString(grossResult2), 1);
+          }
+        }
+
+        let lines= '';
+        let dy = 8.8;
+        let y = 45 + dy*15;
+        lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+        y += dy * ((taxRate > 0) ? 4 : 2);
+        lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+
+        if (skonto >= 0) {
+          y += dy * (2);
+          lines += ('<line class="cls-1" x1="6" y1="'+y+'" x2="180" y2="'+y+'"/>')
+        }
+
+        svgData = svgData.replace('mrba:calclabels', labels);
+        svgData = svgData.replace('mrba:calcvalues', values);
+        svgData = svgData.replace('mrba:lines', lines);
+
+        resolve(svgData);
+        return;
+      }
+      catch (error) {
+        reject(error)
+      }
+    });
+  }
+
+  async svgPatchDocumentProperties(svgData :string) : Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        const { annotationManager } = this.wvInstance.Core;
+        const dateAsString = this.datePipe.transform(new Date(), 'dd. MMM yyyy') ?? '-';
+        interface IProps {name:string, value:string};
+        const propNames : string[] = ["mrba:costCarrierNumber", "mrba:projectName", "mrba:reviewDaysFinalInvoice", "mrba:reviewDaysPartialInvoice", "mrba:verifyDate", "mrba:verifyDate", "mrba:grossAmountVerified"];
+        const props : IProps[] = [];
+        props.push({name:'DATE', value:dateAsString});
+        if (this.fileSelectData?.nodeId)
+        {
+          const node = await this.mrbauCommonService.getNode(this.fileSelectData.nodeId).toPromise();
+          for (let i=0; i< propNames.length; i++) {
+            const name = propNames[i];
+            let value = (node!.entry.properties[name]) ? (node!.entry.properties[name]) : '';
+            props.push({name:name, value:value});
+          }
+          let review_days = ''
+          if (node!.entry.properties["mrba:reviewDaysPartialInvoice"]) {
+            review_days = node!.entry.properties["mrba:reviewDaysPartialInvoice"]+'T TR';
+          }
+          if (node!.entry.properties["mrba:reviewDaysFinalInvoice"]) {
+            if (review_days.length == 0) {
+              review_days = node!.entry.properties["mrba:reviewDaysFinalInvoice"]+'T';
+              if (node!.entry.properties["mrba:invoiceTypes"] == "Teilrechnung" || node!.entry.properties["mrba:invoiceTypes"] == "Schlussrechnung")
+              {
+                review_days = '0T TR / '+review_days+' SR';
+              }
+            } else {
+              review_days += ' / '+node!.entry.properties["mrba:reviewDaysFinalInvoice"]+'T SR';
+            }
+          }
+          props.push({name:'REVIEW_DAYS', value:review_days});
+
+          let payment_conditions = ['','',''];
+          if (node!.entry.properties['mrba:verifiedInboundInvoiceType']
+              && node!.entry.properties['mrba:verifiedInboundInvoiceType'].length > 0
+              && node!.entry.properties['mrba:verifiedInboundInvoiceType'] != MRBauVerifiedInboundInvoiceTypes.get(EMRBauVerifiedInboundInvoiceType.UEBERWEISUNG)!.value) {
+            // Abbucher, intern,etc.
+            payment_conditions[0] = node!.entry.properties['mrba:verifiedInboundInvoiceType'];
+          }
+          else
+          {
+            let i = 0;
+            if (node!.entry.properties['mrba:earlyPaymentDiscountDays1']) {
+              payment_conditions[i] = node!.entry.properties['mrba:earlyPaymentDiscountDays1']+'T -'+node!.entry.properties['mrba:earlyPaymentDiscountPercentNumericValue1']+'%';
+              i++;
+            }
+            if (node!.entry.properties['mrba:earlyPaymentDiscountDays2']) {
+              payment_conditions[i] = node!.entry.properties['mrba:earlyPaymentDiscountDays2']+'T -'+node!.entry.properties['mrba:earlyPaymentDiscountPercentNumericValue2']+'%';
+              i++;
+              if (i == 2 && new Date(node!.entry.properties['mrba:earlyPaymentDiscountDays1Value']) > new Date(node!.entry.properties['mrba:earlyPaymentDiscountDays2Value']))
+              {
+                let temp = payment_conditions[0];
+                payment_conditions[0] = payment_conditions[1];
+                payment_conditions[1] = temp;
+              }
+            }
+            if (node!.entry.properties['mrba:paymentTargetDays']) {
+              payment_conditions[i] = node!.entry.properties['mrba:paymentTargetDays']+'T NETTO';
+              i++;
+            }
+          }
+          props.push({name:'PAYMENT_CONDITIONS_1', value:payment_conditions[0]});
+          props.push({name:'PAYMENT_CONDITIONS_2', value:payment_conditions[1]});
+          props.push({name:'PAYMENT_CONDITIONS_3', value:payment_conditions[2]});
+          let payment_dates = ['','',''];
+          if (node!.entry.properties['mrba:verifiedInboundInvoiceType']
+              && node!.entry.properties['mrba:verifiedInboundInvoiceType'].length > 0
+              && node!.entry.properties['mrba:verifiedInboundInvoiceType'] != MRBauVerifiedInboundInvoiceTypes.get(EMRBauVerifiedInboundInvoiceType.UEBERWEISUNG)!.value) {
+            // Abbucher, intern,etc.
+            payment_dates[0] = node!.entry.properties['mrba:verifiedInboundInvoiceType'];
+          }
+          else
+          {
+            let i = 0;
+            if (node!.entry.properties['mrba:paymentDateDiscount1']) {
+              const discount = node!.entry.properties['mrba:earlyPaymentDiscountPercentNumericValue1'] || '';
+              payment_dates[i] = node!.entry.properties['mrba:paymentDateDiscount1']+' -'+discount+'%';
+              i++;
+            }
+            if (node!.entry.properties['mrba:paymentDateDiscount2']) {
+              const discount = node!.entry.properties['mrba:earlyPaymentDiscountPercentNumericValue2'] || '';
+              payment_dates[i] = node!.entry.properties['mrba:paymentDateDiscount2']+' -'+discount+'%';
+              i++;
+              if (i == 2 && new Date(node!.entry.properties['mrba:paymentDateDiscount1Value']) > new Date(node!.entry.properties['mrba:paymentDateDiscount2Value']))
+              {
+                const temp = payment_dates[0];
+                payment_dates[0] = payment_dates[1];
+                payment_dates[1] = temp;
+              }
+            }
+            if (node!.entry.properties['mrba:paymentDateNet']) {
+              payment_dates[i] = node!.entry.properties['mrba:paymentDateNet']+' NETTO';
+              i++;
+            }
+          }
+          props.push({name:'PAYMENT_1', value:payment_dates[0]});
+          props.push({name:'PAYMENT_2', value:payment_dates[1]});
+          props.push({name:'PAYMENT_3', value:payment_dates[2]});
+          props.push({name:'AUTHOR', value: annotationManager.getCurrentUser()});
+        }
+        // patch svg
+        for (let i=0; i<props.length;i++) {
+          const prop = props[i];
+          if (typeof prop.value === 'string') {
+            prop.value = this.svgEscapeUmlaute(prop.value)
+          }
+          svgData = svgData.replace(prop.name, prop.value);
+        }
+        resolve(svgData);
+        return;
+      }
+      catch (error) {
+        console.log(error);
+        reject(error);
+        return;
+      }
+    });
+  }
+
+  svgStamps : ISVGData[] = [
+
+    //{path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchArchivDate.bind(this), icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt'},
+    //{path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchArchivDate.bind(this), icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang'},
+    //{path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur1.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1'},
+    //{path : 'wv-resources/lib/ui/assets/icons/mrbau-stamp-Rechnungkorrektur2.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2'},
+
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-nopay.svg', patchFunction : this.svgPatchStampDate.bind(this), showPanel : false, icon: MrbauStamps.SVG_ICON_NOPAY, tooltip: 'M&R Buchen nicht Zahlen', toolgroup: 'mrbauStampToolGroup2'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-abzuege.svg', patchFunction : this.svgPatchDeductions.bind(this), showPanel : false, icon: MrbauStamps.SVG_ICON_SUM, tooltip: 'M&R Abzüge', toolgroup: 'mrbauStampToolGroup2'},
+
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingelangt.svg', patchFunction : this.svgPatchStampDate.bind(this), showPanel : true, icon: MrbauStamps.SVG_ICON_MR_S1, tooltip: 'M&R Eingelangt', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-eingang.svg', patchFunction: this.svgPatchStampDate.bind(this), showPanel : true, icon:  MrbauStamps.SVG_ICON_MR_S2, tooltip: 'M&R Eingang', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-formal.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), showPanel : false, icon :  MrbauStamps.SVG_ICON_MR_S3, tooltip: 'M&R Prüfstempel 1', toolgroup: 'mrbauStampToolGroup'},
+    {path : 'assets/mrbau-extension/svg/mrbau-stamp-pruefung.svg', patchFunction: this.svgPatchDocumentProperties.bind(this), showPanel : false, icon :  MrbauStamps.SVG_ICON_MR_S4, tooltip: 'M&R Prüfstempel 2', toolgroup: 'mrbauStampToolGroup'},
+  ];
+
+  async loadSVGStamps() {
+    const headers = new HttpHeaders();
+    headers.set('Accept', 'image/svg+xml');
+    for (let i=0; i<this.svgStamps.length;i++) {
+      const stamp : ISVGData = this.svgStamps[i];
+      //const svgString = await this.httpClient.get(stamp.path, {headers, responseType: 'text'}).toPromise();
+      try {
+        const response = await fetch(stamp.path);
+        let svgString = await response.text();
+        // extract size and patch svg size to improve quality
+        const searchStrings = ['width', 'height'];
+        for (let index = 0; index < searchStrings.length; index++) {
+          const searchString = searchStrings[index];
+          let start = svgString.indexOf(searchString+'="');
+          start += searchString.length+2;
+          let end = svgString.indexOf('"', start);
+          const lengthSvg = svgString.substring(start, end);
+          if (lengthSvg.endsWith('mm'))
+          {
+            const lengthSvgNumberText = lengthSvg.replace(/\D/g, '');
+            const lengthSvgNumber = +lengthSvgNumberText;
+            (stamp as any)[searchString] = lengthSvgNumber;
+            svgString =  svgString.substring(0, start)+lengthSvgNumber*MrbauStamps.SVG_QUALITY_FACTOR+svgString.substring(end);
+          }
+        }
+        stamp.svg = svgString;
+      }
+      catch (error)
+      {
+        console.log(error);
+      }
+    }
+  }
+
+  customizeAnnotationPermissions() {
+    const { annotationManager } = this.wvInstance.Core;
+    annotationManager.setPermissionCheckCallback((author : any, annotation : any) => {
+      author;
+      // the default permission check that is used
+      // you can combine this with your own custom checks
+      const defaultPermission = annotation.Author === annotationManager.getCurrentUser() || annotationManager.isUserAdmin();
+      const customPermission = true;
+      return defaultPermission || customPermission;
+     });
+  }
+
+  // see also https://groups.google.com/g/pdfnet-webviewer/c/tM--7GW5MP8
+  customizeUIMRStamps() {
+    const { Annotations, annotationManager, Tools, documentViewer } = this.wvInstance.Core;
+
+    const XFDF_NAME='stamp';  //const XFDF_NAME='mrbau_stamp_annotation'
+    interface IMRBauStampParamater {
+      svgStamp : ISVGData,
+      pdftronComponent : PdftronComponent
+    }
+    class MRBauCustomStampAnnotation extends Annotations.StampAnnotation  {
+      mrbau_parameter : IMRBauStampParamater | undefined;
+      constructor(mrbau_parameter: IMRBauStampParamater) {
+        super(XFDF_NAME); // Provide the custom XFDF element name. You can provide an object initializer as a second parameter.
+        this.mrbau_parameter = mrbau_parameter;
+        this.Subject = 'MRBauCustomStampAnnotation';
+      }
+
+      setFixedSize() {
+        if (!this.mrbau_parameter?.svgStamp) {
+          return;
+        }
+        const stamp = this.mrbau_parameter.svgStamp;
+        this.Width = stamp.width!*MrbauStamps.SCALE_FACTOR_MM_TO_POINTS;
+        this.Height = stamp.height!*MrbauStamps.SCALE_FACTOR_MM_TO_POINTS;
+        const rotation = documentViewer.getCompleteRotation(this.PageNumber) * 90;
+        this.Rotation = rotation;
+        if (rotation === 270 || rotation === 90) {
+          this.Width = stamp.height!*MrbauStamps.SCALE_FACTOR_MM_TO_POINTS;
+          this.Height = stamp.width!*MrbauStamps.SCALE_FACTOR_MM_TO_POINTS;
+        }
+        this.X -= this.Width/2;
+        this.Y -= this.Height/2
+      }
+
+      async initAnnotation() {
+        if (!this.mrbau_parameter?.svgStamp)
+          return;
+
+        this.Author = annotationManager.getCurrentUser();
+        this.NoResize = true;
+        this.setFixedSize();
+
+        let svgData = this.mrbau_parameter.svgStamp.svg;
+        let svgDataUrl = svgData;
+        // patch svg
+        if (typeof svgData === 'string' && !svgData.startsWith('data:image')) {
+          svgData = await this.mrbau_parameter.svgStamp.patchFunction!(svgData);
+          const svgDataBase64 = btoa(svgData as string);
+          svgDataUrl = 'data:image/svg+xml;base64,'+svgDataBase64;
+        }
+
+        await this.setImageData(svgDataUrl);
+      }
+    }
+
+    class MRBauCustomStampAnnotationCreateTool extends Tools.GenericAnnotationCreateTool {
+      mrbau_parameter : IMRBauStampParamater | undefined;
+      constructor(documentViewer : any, param: IMRBauStampParamater) {
+        super(documentViewer, MRBauCustomStampAnnotation, param);
+        this.mrbau_parameter = param;
+      }
+      mouseLeftDown(e: any) {
+        e;
+        Tools.AnnotationSelectTool.prototype.mouseLeftDown.apply(this, arguments);
+      };
+      mouseMove(e: any) {
+        e;
+        Tools.AnnotationSelectTool.prototype.mouseMove.apply(this, arguments);
+      };
+      switchIn(oldTool: any) {
+        //The event triggered when this tool is selected.
+        oldTool;
+        if (this.mrbau_parameter!.svgStamp.showPanel) {
+          this.mrbau_parameter!.pdftronComponent.wvInstance.UI.openElements(['mrStampPropertiesPanel']);
+        }
+      }
+      switchOut(oldTool: any) {
+        //The event triggered when this tool is selected.
+        oldTool;
+        this.mrbau_parameter!.pdftronComponent.wvInstance.UI.closeElements(['mrStampPropertiesPanel']);
+      }
+      async mouseLeftUp(e: any) {
+        let annotationReference;
+        Tools.GenericAnnotationCreateTool.prototype.mouseLeftDown.call(this, e);
+        if (this.annotation) {
+          await this.annotation.initAnnotation();
+          annotationReference = this.annotation;
+        }
+        Tools.GenericAnnotationCreateTool.prototype.mouseLeftUp.call(this, e);
+        if (annotationReference) {
+
+          /* workaround for testing
+          if (42 < 0) {
+            // clone into StampAnnotation
+            const stampAnnotation = new Annotations.StampAnnotation({
+              PageNumber: annotationReference.PageNumber,
+              X: annotationReference.X,
+              Y: annotationReference.Y,
+              Width: annotationReference.Width,
+              Height: annotationReference.Height,
+              NoResize:annotationReference.NoResize,
+              Rotation:annotationReference.Rotation,
+            });
+            const data = await annotationReference.getImageData();
+            await stampAnnotation.setImageData(data); // Base64 URL or SVG
+            annotationManager.addAnnotation(stampAnnotation);
+            annotationManager.redrawAnnotation(stampAnnotation);
+            annotationManager.selectAnnotation(stampAnnotation);
+          }
+          else */
+          {
+            annotationManager.redrawAnnotation(annotationReference);
+            annotationManager.selectAnnotation(annotationReference);
+          }
+        }
+      };
+    };
+
+    // This is necessary to set the elementName before instantiation
+    MRBauCustomStampAnnotation.prototype.elementName = XFDF_NAME;
+    annotationManager.registerAnnotationType(MRBauCustomStampAnnotation.prototype.elementName, MRBauCustomStampAnnotation);
+
+    // Register tool
+    for (let i=0; i<this.svgStamps.length; i++) {
+      const mrbauStampToolName = 'MRBauAnnotationCustomStamp'+i;
+      const mrbauCustomStampTool = new MRBauCustomStampAnnotationCreateTool(documentViewer, {svgStamp: this.svgStamps[i], pdftronComponent: this});
+      const myTool = {
+        toolName: mrbauStampToolName,
+        toolObject: mrbauCustomStampTool,
+        buttonImage: this.svgStamps[i].icon,
+        buttonGroup: this.svgStamps[i].toolgroup,
+        //buttonName: 'mrbauCustomStampToolButton',
+        tooltip: this.svgStamps[i].tooltip,
+        showColor: 'never',
+        showPresets: true
+      };
+      this.wvInstance.UI.registerTool(myTool, MRBauCustomStampAnnotation);
+    }
+
+    const mrbauToolGroupButton = {
+      type: 'toolGroupButton',
+      //toolGroup: 'rubberStampTools',
+      toolGroup: 'mrbauStampToolGroup',
+      //dataElement: 'mrbauStampToolGroupButton',
+      title: 'M&R Stempel',
+      img: MrbauStamps.SVG_ICON_MR,
+    };
+
+    const mrbauToolGroupButton2 = {
+      type: 'toolGroupButton',
+      //toolGroup: 'rubberStampTools',
+      toolGroup: 'mrbauStampToolGroup2',
+      //dataElement: 'mrbauStampToolGroupButton',
+      title: 'M&R Abzüge',
+      img: MrbauStamps.SVG_ICON_SUM,
+    };
+
+
+    this.wvInstance.UI.setHeaderItems((header : any) => {
+      const item = header
+        .getHeader('toolbarGroup-Insert')
+        .get('rubberStampToolGroupButton');
+        item.insertBefore(mrbauToolGroupButton2);
+        item.insertBefore(mrbauToolGroupButton);
+    });
+  }
+
+  private async getFilename(fileSelectData : IFileSelectData) : Promise<string> {
+
+    if (fileSelectData.versionId) {
+      const node = await this.contentApiService.versionsApi.getVersion(this.fileSelectData!.nodeId, this.fileSelectData!.versionId!);
+        return node.entry!.name;
+    }
+    else {
+      const node = await this.mrbauCommonService.getNode(this.fileSelectData!.nodeId).toPromise();
+      return node!.entry.name;
+    }
+  }
+
+  private async onFileSelected() {
+    if (this.modified && this.previousFileSelectData != null) {
+      //this.previousFileSelectData = null;
+      //this.openModal(this.mrbauModalSaveYesNo);
+      //return;
+      //console.log('open Modal',this.previousFileSelectData.nodeId, ' - ', this.fileSelectData.nodeId);
+      this.openSaveYesNoDialog();
+      return;
+    }
+
+    this.modified = false;
+    this.previousFileSelectData = null;
+
+    if (!this.fileSelectData) {
+      this.sanitized_document_url = null;
+      if (this.wvInstance) {
+        this.wvInstance.UI.closeDocument();
+      }
+      return;
+    }
+
+    const fileName = await this.getFilename(this.fileSelectData);
+
+    if (this.fileSelectData.versionId)
+    {
+      this.loadUrl(this.contentApiService.getVersionContentUrl(this.fileSelectData.nodeId, this.fileSelectData.versionId), fileName);
+    }
+    else
+    {
+      this.loadUrl(this.contentApiService.getContentUrl(this.fileSelectData.nodeId), fileName);
+    }
+  }
+
+  private loadUrl(fileUrl : string, fileName : string)
+  {
+    this.modified = false;
+    if (fileUrl == null)
+    {
+      this.sanitized_document_url = null;
+    }
+    else {
+      this.sanitized_document_url = this.sanitizeUrl(fileUrl);
+    }
+    this.loadPdf(this.sanitized_document_url!, fileName);
+  }
+
+  private sanitizeUrl(url:string) : SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  toolUpdated(info:any): void {
+    const elements = [ 'colorPalette', 'opacitySlider', 'strokeThicknessSlider'];
+    if (this.wvInstance && info && info.name && info.name.startsWith('MRBauAnnotationCustomStamp'))
+    {
+      this.wvInstance.UI.disableElements(elements);
+      //this.wvInstance.UI.disableElements(['toolsOverlay']);
+    }
+    else
+    {
+      this.wvInstance.UI.enableElements(elements);
+    }
+  }
+
+  loadPdf(url:SafeResourceUrl, fileName : string) {
+    if (!this.wvInstance) {
+      return;
+    }
+    if (url === null)
+    {
+      return;
+    }
+    const pdfSrc = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, url);
+    this.toggleSpinner(true);
+    this.wvInstance.UI.loadDocument(pdfSrc, {extension:'pdf', filename: fileName});
+    this.toggleSpinner(false);
+  }
+
+  addModalDialog(headerText:string, bodyText:string, name: string) {
+    // Custom modal parameters
+    const modalOptions = {
+      dataElement: name,
+      disableBackdropClick: true,
+      header: {
+        title: headerText,
+        className: 'mrbauCustomModal-header',
+      },
+      body: {
+        className: 'mrbauCustomModal-body',
+        style: {},
+        children: [ {title: bodyText}],
+      },
+      footer: {
+        className: 'mrbauCustomModal-footer footer',
+        style: {},
+        children: [
+          {
+            title: 'OK',
+            button: true,
+            style: {},
+            className: 'modal-button confirm ok-btn',
+            onClick: (e: any) => {
+              e;
+              this.wvInstance.UI.closeElements([modalOptions.dataElement]);
+            }
+          },
+        ]
+      }
+    }
+    this.wvInstance.UI.addCustomModal(modalOptions);
+  }
+
+  async openSaveYesNoDialog()
+  {
+    await this.canDeactivate();
+    this.modified = false;
+    this.previousFileSelectData = null;
+    this.onFileSelected();
+  }
+
+  /*
+  addModalYesNoDialog(headerText:string, bodyText:string, name: string) {
+    const modalOptions = {
+      dataElement: name,
+        disableBackdropClick: true,
+        header: {
+          title: headerText,
+          className: 'mrbauCustomModal-header',
+        },
+        body: {
+          className: 'mrbauCustomModal-body',
+          style: {},
+          children: [ {title: bodyText}],
+        },
+      footer: {
+        className: 'myCustomModal-footer footer',
+        style: {},
+        children: [
+          {
+            title: 'Nein',
+            button: true,
+            style: {},
+            className: 'modal-button cancel-form-field-button',
+            onClick: (e: any) => {
+              e;
+              this.modified = false;
+              this.wvInstance.UI.closeElements([modalOptions.dataElement]);
+              this.previousFileSelectData = null;
+              this.onFileSelected();
+            }
+          },
+          {
+            title: 'Ja',
+            button: true,
+            style: {},
+            className: 'modal-button confirm ok-btn',
+            onClick: async (e: any) => {
+              e;
+              this.wvInstance.UI.closeElements([modalOptions.dataElement]);
+              await this.doUploadDocumentToDMS(this.previousFileSelectData!);
+              this.previousFileSelectData = null;
+              this.onFileSelected();
+            }
+          },
+        ]
+      }
+    }
+    this.wvInstance.UI.addCustomModal(modalOptions);
+  }*/
+
+  openModal(name:string, ) {
+    this.wvInstance.UI.openElements([name]);
+  }
+
+  mrbauModalNoChange = "mrbauModalNoChange";
+  mrbauModalNoNodeId = "mrbauModalNoNodeId";
+  mrbauModalUploadOK = "mrbauModalUploadOK";
+  mrbauModalUploadError = "mrbauModalUploadError";
+  mrbauModalSaveYesNo = "mrbauModalSaveYesNo";
+
+  customizeUI() {
+    this.customizeDefaults();
+
+    // Add header button that will get file data on click
+    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Flatten PDF',  img: MrbauStamps.SVG_ICON_FLATTEN, className:"row", onClick: async () => { this.flattenDocument(); }});
+    this.wvInstance.UI.settingsMenuOverlay.add({ type: 'actionButton', label: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, className:"row", onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData!, true); }});
+    this.wvInstance.UI.setHeaderItems((header:any) => {
+      header.get('leftPanelButton').insertBefore({ type: 'actionButton', title: 'Änderungen im DMS speichern', img: MrbauStamps.SVG_ICON_CLOUD_UPLOAD, onClick: async () => { this.doUploadDocumentToDMS(this.fileSelectData!, true); }});
+    });
+
+    this.addModalDialog("Upload abgebrochen", "Es wurden keine Änderungen durchgeführt", this.mrbauModalNoChange);
+    this.addModalDialog("Upload abgebrochen", "Node Id fehlt.", this.mrbauModalNoNodeId);
+    this.addModalDialog("Upload erfolgreich", "Dokument als neue Version gespeichert.", this.mrbauModalUploadOK);
+    this.addModalDialog("Upload Fehler", "Upload Fehler!", this.mrbauModalUploadError);
+    //this.addModalYesNoDialog("Änderungen Speichern", "Sollen die Änderungen als neue Version gespeichert werden?",this.mrbauModalSaveYesNo)
+    this.customizeUIStamps();
+    this.customizeUIMRStamps();
+    this.customizeSignatureTool();
+    this.customizeAnnotationPermissions();
+    this.customizeMRPanel();
+  }
+
+  getBase64Data(imageBlob:any) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result;
+        return resolve(base64data);
+      }
+      reader.readAsDataURL(imageBlob);
+    });
+  }
+
+  async customizeSignatureTool() {
+    this.customStamps = [];
+    const nodeUrls = []
+
+    const { documentViewer, annotationManager, Annotations } = this.wvInstance.Core;
+    const signatureTool = documentViewer.getTool('AnnotationCreateSignature');
+
+    try {
+      const node = await this.contentApiService.getNodeChildren('-my-', {relativePath: this.STAMP_FOLDER_PATH}).toPromise();
+      for (let i = 0; i < node!.list!.entries!.length; i++) {
+        const result = node!.list!.entries![i];
+        if (result.entry.isFile && result.entry.content!.mimeType == "image/png") {
+          const nodeId = result.entry.id;
+          nodeUrls.push(this.contentApiService.getContentUrl(nodeId));
+        }
+      }
+    } catch(error) {
+      //console.log(error);
+    };
+
+    if (nodeUrls.length ==0)
+    {
+      return;
+    }
+
+    this.wvInstance.UI.setMaxSignaturesCount(nodeUrls.length + 1);
+    for (let i=0; i< nodeUrls.length; i++) {
+      const res = await fetch(nodeUrls[i]);
+      const imageBlob = await res.blob();
+      const base64data = await this.getBase64Data(imageBlob);
+      const bmp = await createImageBitmap(imageBlob);
+      this.customStamps.push({data : base64data, width: bmp.width, height: bmp.height});
+      bmp.close(); // free memory
+    }
+
+    documentViewer.addEventListener('documentLoaded', () => {
+      signatureTool.importSignatures(this.customStamps.map(x => x.data));
+    });
+
+    annotationManager.addEventListener('annotationChanged', (annotations : any, action : any) => {
+      if (action === 'add') {
+        annotations.forEach((annotation : any) => {
+          if (annotation instanceof Annotations.StampAnnotation && (annotation.Subject === 'Unterschrift' || annotation.Subject === 'Signature'))
+          {
+            for (let i=0; i<this.customStamps.length; i++) {
+              if (this.customStamps[i].data == annotation.image.src) {
+                const pixel2SizeFor150dpi=2.0669;
+                annotation.X += annotation.Width/2;
+                annotation.Y += annotation.Height/2;
+                annotation.Width = this.customStamps[i].width/pixel2SizeFor150dpi;
+                annotation.Height = this.customStamps[i].height/pixel2SizeFor150dpi;
+                annotation.X -= annotation.Width/2;
+                annotation.Y -= annotation.Height/2;
+              }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  customizeDefaults() {
+    const { documentViewer } = this.wvInstance.Core;
+
+    this.wvInstance.UI.setLanguage('de');
+
+    const theme = this.wvInstance.UI.Theme;
+    this.wvInstance.UI.setTheme(theme.DARK);
+
+    const tool = documentViewer.getTool('AnnotationCreateFreeText');
+    tool.defaults.Font = "Roboto";
+    tool.defaults.FontSize = "12pt";
+  }
+
+  customizeUIStamps() {
+    const { documentViewer, Annotations } = this.wvInstance.Core;
+
+    // Custom stamps
+    const tool = documentViewer.getTool('AnnotationCreateRubberStamp');
+    const customUIStamps = [
+      //{ title: "Eingang", subtitle: "[$currentUser] DD.MM.YYYY, hh:mm", color: new Annotations.Color('#5656D6'), textColor: new Annotations.Color(255,255,255, 1.0), font: "robo" },
+      { title: "Geprüft", subtitle: "[$currentUser] DD.MM.YYYY, hh:mm", color: new Annotations.Color('#5656D6'), font: "robo" },
+      { title: "Gebucht", subtitle: "[$currentUser] DD.MM.YYYY, hh:mm", color: new Annotations.Color('#D65656'), font: "robo"},
+    ]
+    tool.setCustomStamps(customUIStamps)
+
+    // Standard stamps
+    //const pathToLogo = 'assets/icons/stamp-eingelangt.svg';
+    tool.setStandardStamps([
+      //pathToLogo,
+      'Approved',
+      'NotApproved',
+      'Completed',
+      'Confidential',
+      'SHSignHere',
+      'SHWitness',
+      'SHInitialHere',
+      'SHAccepted',
+      'SBRejected',
+    ]);
+  }
+
+  customizeMRPanel() {
+    // Adding a panel built with JS and DOM elements
+    this.wvInstance.UI.addPanel({
+      dataElement: 'mrStampPropertiesPanel',
+      location: 'right',
+      //icon: '/path/to/icon.svg',
+      icon: MrbauStamps.SVG_ICON_MR,
+      render: () => {
+        const panelDiv = document.createElement('div');
+        const paragraph = document.createElement('p');
+        paragraph.textContent = 'Stempel Datum';
+        const date = document.createElement("INPUT");
+        date.setAttribute("type", "date");
+        date.addEventListener("change", (e) => {
+          this.stampDate = new Date((e.target as HTMLInputElement).value);
+        })
+        const stampDate = this.stampDate;
+        const nowString = stampDate.getFullYear().toString() + '-' + (stampDate.getMonth() + 1).toString().padStart(2, '0') + '-' + stampDate.getDate().toString().padStart(2, '0');
+        date.setAttribute("value", nowString);
+        const button = document.createElement('button');
+        button.textContent = 'X';
+        const self = this;
+        button.addEventListener('click', function() {
+          self.wvInstance.UI.closeElements(['mrStampPropertiesPanel']);
+        });
+        button.style.cssFloat = 'right';
+        button.style.backgroundColor = "darkgray";
+        panelDiv.appendChild(button);
+        panelDiv.appendChild(paragraph);
+        panelDiv.appendChild(date);
+        return panelDiv;
+      }
+    });
+  }
+
+  async flattenDocument() {
+    const { documentViewer, PDFNet, annotationManager } = this.wvInstance.Core;
+
+    this.wvInstance.UI.closeElements([ 'menuOverlay' ]);
+
+    await PDFNet.initialize();
+    const doc = await documentViewer.getDocument().getPDFDoc();
+
+    // export annotations from the document
+    const annots = await annotationManager.exportAnnotations();
+
+    // Run PDFNet methods with memory management
+    await PDFNet.runWithCleanup(async () => {
+
+      // lock the document before a write operation
+      // runWithCleanup will auto unlock when complete
+      doc.lock();
+
+      // import annotations to PDFNet
+      const fdf_doc = await PDFNet.FDFDoc.createFromXFDF(annots);
+      await doc.fdfUpdate(fdf_doc);
+
+      // flatten all annotations in the document
+      await doc.flattenAnnotations();
+
+      // or optionally only flatten forms
+      // await doc.flattenAnnotations(true);
+
+      // clear the original annotations
+      annotationManager.deleteAnnotations(annotationManager.getAnnotationsList());
+
+      // optionally only clear widget annotations if forms were only flattened
+      // const widgetAnnots = annots.filter(a => a instanceof Annotations.WidgetAnnotation);
+      // annotationManager.deleteAnnotations(widgetAnnots);
+    });
+
+    // clear the cache (rendered) data with the newly updated document
+    documentViewer.refreshAll();
+
+    // Update viewer to render with the new document
+    documentViewer.updateView();
+
+    // Refresh searchable and selectable text data with the new document
+    documentViewer.getDocument().refreshTextData();
+  }
+
+  toggleSpinner(val:boolean) {
+    this.loaderVisible = val;
+    this.changeDetectorRef.detectChanges();
+  }
+
+  async doUploadDocumentToDMS(fileSelectData : IFileSelectData, showConfirmDialog : boolean) {
+    const { documentViewer, annotationManager } = this.wvInstance.Core;
+
+    this.wvInstance.UI.closeElements([ 'menuOverlay' ]);
+
+    if (this.modified == false) {
+      this.openModal(this.mrbauModalNoChange);
+      return;
+    }
+
+    if (!fileSelectData || !fileSelectData.nodeId) {
+      this.openModal(this.mrbauModalNoNodeId);
+      return;
+    }
+    this.toggleSpinner(true);
+    const doc = documentViewer.getDocument();
+    const xfdfString = await annotationManager.exportAnnotations();
+    const data = await doc.getFileData({
+      // saves the document with annotations in it
+      xfdfString
+    });
+    const arrayBuffer = new Uint8Array(data);
+    const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+
+    // Add code for handling Blob here
+    await this.mrbauNodeService.updateNodeContent(fileSelectData.nodeId, blob, false, 'PDF Annotation')
+    .then(result => {
+      result;
+      //this.mrbauCommonService.showInfo("Dokument erfolgreich gespeichert.");
+      this.toggleSpinner(false);
+      if (showConfirmDialog) {
+        this.openModal(this.mrbauModalUploadOK);
+      }
+      this.modified = false;
+    })
+    .catch(error => {
+      this.toggleSpinner(false);
+      this.mrbauCommonService.showError(error);
+      if (showConfirmDialog) {
+        this.openModal(this.mrbauModalUploadError);
+      }
+      console.log(error)
+    })
+  }
+}
+

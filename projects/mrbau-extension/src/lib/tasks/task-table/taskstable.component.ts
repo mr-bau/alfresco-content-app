@@ -1,0 +1,295 @@
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsulation} from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { DataColumnComponent, DataColumnListComponent, DataTableAdapter, DataTableComponent, EmptyContentComponent, LoadingContentTemplateDirective, LocalizedDatePipe, NoContentTemplateDirective, PaginationComponent} from '@alfresco/adf-core';
+import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
+import { IMRBauTasksCategory, IMRBauTaskListEntry, MRBauTask, ITaskChangedData, mrbauTaskStatusPipeTransform } from '../../declaration/mrbau-task-declarations';
+import { FormControl,} from '@angular/forms';
+import { SearchRequest } from '@alfresco/js-api';
+import { Store } from '@ngrx/store';
+import { takeUntil } from 'rxjs/operators';
+import { isAdmin, AppStore } from '@alfresco/aca-shared/store';
+import { OnDestroy } from '@angular/core';
+import { TaskIndicatorComponent } from './task-indicator/task-indicator.component';
+import { ErrormsgpaneComponent } from '@mrbau/mrbau-common';
+import { CommonModule } from '@angular/common';
+import { SearchService } from '@alfresco/adf-content-services';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule } from '@ngx-translate/core';
+
+@Component({
+   standalone:true,
+    imports:[
+      CommonModule,
+      ErrormsgpaneComponent,
+      TaskIndicatorComponent,
+      MatTabsModule,
+      MatListModule,
+      MatButtonModule,
+      MatIconModule,
+      MatBadgeModule,
+      LocalizedDatePipe,
+      EmptyContentComponent,
+      PaginationComponent,
+      DataTableComponent,
+      DataColumnListComponent,
+      DataColumnComponent,
+      NoContentTemplateDirective,
+      TranslateModule,
+      LoadingContentTemplateDirective,
+      MatProgressSpinnerModule,
+
+    ],
+  selector: 'mrbau-taskstable',
+  templateUrl: './taskstable.component.html',
+  styleUrls: ['./taskstable.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+})
+export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponent {
+  @ViewChild('dataTable') adfDataTable : DataTableAdapter | undefined;
+  @Input() taskCategories : IMRBauTasksCategory[] | null = null;
+  @Output() taskSelectEvent = new EventEmitter<MRBauTask|null>();
+
+  SEVER_SIDE_SORTING = true;
+
+  onDestroy$: Subject<boolean> = new Subject<boolean>();
+
+  data: ObjectDataTableAdapter = new ObjectDataTableAdapter([],[]);
+  isLoading : boolean = false;
+  errorMessage : string | null = null;
+  isAdmin : boolean = false;
+  isTabDocs : boolean = false;
+  selectedTab = new FormControl(0);
+  selectedTask : MRBauTask | null = null;
+
+  pagination: BehaviorSubject<PaginationModel> = new BehaviorSubject<PaginationModel>({});
+  paginationSizes = [25, 50, 100];
+  updatePagination(params: PaginationModel) {
+    //console.log(params);
+    this.pagination.next(params);
+    this.queryNewData();
+  }
+
+  constructor
+    (private searchService: SearchService,
+    private store: Store<AppStore>,
+    ) {
+  }
+  ngOnDestroy(): void {
+    this.onDestroy$.next(true);
+    this.onDestroy$.complete();
+  }
+
+  ngOnInit(): void {
+    this.store
+    .select(isAdmin)
+    .pipe(takeUntil(this.onDestroy$))
+    .subscribe((value) => {
+      this.isAdmin = value;
+    });
+
+    // load data
+    this.pagination.value.maxItems = this.paginationSizes[0];
+    this.tabSelectionChanged(0);
+  }
+
+  taskUpdateEvent(taskChangedData:ITaskChangedData) {
+    if (taskChangedData.queryTasks)
+    {
+      // unselect task and update table
+      this.selectObject(null);
+      this.queryNewData();
+    }
+    else
+    {
+      // update task info in table
+      const rows = this.data.getRows();
+      for (let i=0; i<rows.length; i++) {
+        const row = rows[i];
+        if (row.obj.task == taskChangedData.task)
+        {
+          row.obj.status = mrbauTaskStatusPipeTransform(taskChangedData.task.status);
+          row.obj.company = taskChangedData.task.companyName;
+          row.obj.kt = taskChangedData.task.costCarrierNumber;
+          const dueDate = taskChangedData.task.dueDateValue ? new Date(taskChangedData.task.dueDateValue) : new Date();
+          row.obj.dueDateValue = dueDate;
+          const today = new Date();
+          const difference_In_Time = dueDate.getTime() - today.getTime();
+          const difference_In_Days = Math.round(difference_In_Time / (1000 * 3600 * 24));
+          row.obj.prio = difference_In_Days;
+          break;
+        }
+      }
+    }
+  }
+
+  queryRemainingBadgeCounts()
+  {
+    if (this.taskCategories == null) {
+      return;
+    }
+
+    for (let i=0; i<this.taskCategories.length-1; i++)
+    {
+      //if (i != this.selectedTab.value)
+      {
+        let tab = this.taskCategories[i];
+        // deep copy object
+        let searchRequest : SearchRequest = JSON.parse(JSON.stringify(tab.searchRequest))
+        searchRequest.paging = {
+          skipCount: 0,
+          maxItems:  999
+        }
+        // HELPER_FORCE_FULL_TEXT_SEARCH is only needed for AFTS search
+        //searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
+        this.searchService.searchByQueryBody(searchRequest).subscribe(
+          (nodePaging) => {
+            if (nodePaging.list?.pagination?.totalItems)
+            {
+              tab.tabBadge = nodePaging.list.pagination.totalItems;
+            }
+          },
+          error => {
+            // ignore errors for badge counts
+            console.log(error);
+          }
+        );
+      }
+    }
+  }
+
+  queryNewData()
+  {
+    if (this.taskCategories == null || this.selectedTab.value == null|| this.taskCategories.length == 0) {
+      return;
+    }
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.selectedTask = null;
+    this.data.setRows([]);
+    let currentTab = this.taskCategories[this.selectedTab.value];
+    this.isTabDocs = (this.selectedTab.value != 2 && this.selectedTab.value != 3 && this.selectedTab.value != 5);
+    let searchRequest : SearchRequest = JSON.parse(JSON.stringify(currentTab.searchRequest));
+    searchRequest.query.query += ' '+currentTab.order;
+    searchRequest.paging = {
+      skipCount: this.pagination.value.skipCount,
+      maxItems:  this.pagination.value.maxItems
+    }
+    this.searchService.searchByQueryBody(searchRequest).subscribe(
+      (nodePaging) => {
+        // use queryRemainingBadgeCounts
+        //currentTab.tabBadge = nodePaging.list.pagination.totalItems;
+
+        this.pagination.next({
+          count: nodePaging.list?.pagination?.count,
+          maxItems: nodePaging.list?.pagination?.maxItems,
+          skipCount: nodePaging.list?.pagination?.skipCount,
+          totalItems: nodePaging.list?.pagination?.totalItems,
+        });
+
+        let results: IMRBauTaskListEntry[] = [];
+
+        const today = new Date();
+        if (nodePaging.list?.entries != null) {
+          for (let nodeEntry of nodePaging.list.entries) {
+            let task = new MRBauTask();
+            task.updateWithNodeData(nodeEntry.entry);
+            let e : IMRBauTaskListEntry = {
+              task : task,
+              desc : task.desc,
+              createdUser : nodeEntry.entry.createdByUser?.displayName || '',
+              assignedUser : nodeEntry.entry.properties["mrbt:assignedUserName"],
+              createdDate : nodeEntry.entry.createdAt,
+              dueDateValue : nodeEntry.entry.properties["mrbt:dueDateValue"],
+              company: nodeEntry.entry.properties["mrba:companyName"],
+              kt: nodeEntry.entry.properties["mrba:costCarrierNumber"],
+              icon : 'material-icons://'+currentTab.tabIcon,
+              status: mrbauTaskStatusPipeTransform(task.status),
+            }
+            if (nodeEntry.entry.properties["mrbt:dueDateValue"]) {
+              const date1 = new Date(nodeEntry.entry.properties["mrbt:dueDateValue"]);
+              let difference_In_Time = date1.getTime() - today.getTime();
+              let difference_In_Days = Math.round(difference_In_Time / (1000 * 3600 * 24));
+              e.prio = difference_In_Days;
+            }
+            results.push(
+              e
+            );
+          }
+        }
+        this.data.setRows(results.map(item => { return new ObjectDataRow(item); }));
+        this.isLoading = false;
+      },
+      error => {
+        this.errorMessage = "Error loading data. "+error;
+        this.isLoading = false;
+      }
+    );
+    this.queryRemainingBadgeCounts();
+  }
+
+  tabSelectionChanged(event : any)
+  {
+    // set new tab
+    this.selectedTab.setValue(event);
+    this.pagination.next({
+      skipCount: 0,
+      maxItems: this.pagination.value.maxItems,
+    });
+    // deselect object
+    this.selectObject(null);
+    // load data
+    this.queryNewData();
+  }
+
+  rowClicked( event : DataRowEvent)
+  {
+    let obj = event.value as DataRow;
+    let task = obj.getValue("task") as MRBauTask;
+    if (task != this.selectedTask)
+    {
+      this.selectObject(task);
+    }
+  }
+
+  selectObject(task : MRBauTask | null)
+  {
+    this.selectedTask = task;
+    this.taskSelectEvent.emit(task);
+  }
+
+  sortingChanged( event : any)
+  {
+    event;
+    if (!this.SEVER_SIDE_SORTING)
+      return;
+
+    if (this.taskCategories == null || this.selectedTab.value == null)
+      return;
+
+    const sortingKey: string = event.detail.sortingKey;
+    const sortingDir: string = event.detail.direction;
+    this.taskCategories[this.selectedTab.value].order = 'ORDER BY B.'+sortingKey+' '+sortingDir.toUpperCase();
+    this.queryNewData();
+  }
+
+  isHighPrio(prio:number | undefined) {
+    if (this.selectedTab.value == null ||this.taskCategories == null)
+      return false;
+    if (this.selectedTab.value >= this.taskCategories.length-1)
+      return false;
+    return (prio != null && prio != undefined && prio < TaskIndicatorComponent.HIGH_PRIO_THRESHOLD)
+  }
+
+  isMedPrio(prio:number | undefined) {
+    if (this.selectedTab.value == null ||this.taskCategories == null)
+      return false;
+    if (this.selectedTab.value >= this.taskCategories.length-1)
+      return false;
+    return (prio && prio >= TaskIndicatorComponent.HIGH_PRIO_THRESHOLD && prio < TaskIndicatorComponent.MED_PRIO_THRESHOLD)
+  }
+}

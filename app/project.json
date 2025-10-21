@@ -84,7 +84,48 @@
             "glob": "**/*",
             "input": "projects/aca-content/assets",
             "output": "./assets"
-          }
+          },
+          {
+            "glob": "**/*",
+            "input": "projects/mrbau-common/assets",
+            "output": "./assets/mrbau-common"
+          },
+          {
+            "glob": "mrbau-common.json",
+            "input": "projects/mrbau-common/descriptor",
+            "output": "/assets/plugins"
+          },
+          {
+            "glob": "**/*",
+            "input": "projects/mrbau-extension/assets",
+            "output": "./assets/mrbau-extension"
+          },
+          {
+            "glob": "mrbau-extension.json",
+            "input": "projects/mrbau-extension/descriptor",
+            "output": "/assets/plugins"
+          },
+          {
+            "glob": "**/*",
+            "input": "projects/mrbau-smarttable/assets",
+            "output": "./assets/mrbau-smarttable"
+          },
+          {
+            "glob": "mrbau-smarttable.json",
+            "input": "projects/mrbau-smarttable/descriptor",
+            "output": "/assets/plugins"
+          },
+          {
+            "glob": "**/*",
+            "input": "projects/mrbau-pdftron/assets",
+            "output": "./assets/mrbau-pdftron"
+          },
+          {
+            "glob": "mrbau-pdftron.json",
+            "input": "projects/mrbau-pdftron/descriptor",
+            "output": "/assets/plugins"
+          },
+          "app/src/wv-resources/lib"
         ],
         "styles": [
           "node_modules/cropperjs/dist/cropper.min.css",
@@ -100,7 +141,9 @@
           "node_modules/katex/dist/contrib/auto-render.min.js",
           "node_modules/prismjs/prism.js",
           "node_modules/prismjs/components/prism-csharp.min.js",
-          "node_modules/prismjs/components/prism-css.min.js"
+          "node_modules/prismjs/components/prism-css.min.js",
+
+	        "app/src/wv-resources/lib/webviewer.min.js"
         ],
         "vendorChunk": true,
         "extractLicenses": false,

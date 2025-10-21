@@ -1,0 +1,33 @@
+{
+  "name": "@mrbau/mrbau-pdftron",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "projects/mrbau-pdftron/src",
+  "prefix": "lib",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "projects/mrbau-pdftron/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "projects/mrbau-pdftron/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "projects/mrbau-pdftron/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["projects/mrbau-pdftron/**/*.ts", "projects/mrbau-pdftron/**/*.html", "projects/mrbau-pdftron/package.json"]
+      }
+    }
+  }
+}

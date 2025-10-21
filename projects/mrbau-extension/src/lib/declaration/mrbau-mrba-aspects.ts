@@ -1,0 +1,31 @@
+export interface IAspectDetailItem {key:string, label:string, label_short:string};
+export const AspectDeductionDetails : { [key:string]: IAspectDetailItem } = {
+  netAmountPreDeduction                        : {key:"mrba:netAmountPreDeduction", label:"Geprüfte Summe Netto vor Abzügen [€]", label_short:"Gepr. Summe Netto vor Abzügen" },
+  //netAmountCentsPreDeduction                   : {key:"mrba:netAmountCentsPreDeduction", label:"Geprüfte Summe Netto vor Abzügen [€]" },
+  deductionDamageUnassignedPercent             : {key:"mrba:deductionDamageUnassignedPercent", label:"Nicht zuordenbare Bauschäden [%]", label_short:"Nicht zuord. Bauschäden" },
+  //deductionDamageUnassignedPercentNumericValue : {key:"mrba:deductionDamageUnassignedPercentNumericValue ", label:"Nicht zuordenbare Bauschäden" },
+  deductionDamageAssignedNetAmount             : {key:"mrba:deductionDamageAssignedNetAmount", label:"Zuordenbare Bauschäden Netto [€]", label_short: "Zuordenbare Bauschäden" },
+  //deductionDamageAssignedNetAmountCents        : {key:"mrba:deductionDamageAssignedNetAmountCents", label:"Zuordenbare Bauschäden Netto [€]" },
+  deductionSpecialNetAmount                    : {key:"mrba:deductionSpecialNetAmount", label:"Sonderabzüge Netto [€]", label_short: "Sonderabzüge"},
+  //deductionSpecialNetAmountCents               : {key:"mrba:deductionSpecialNetAmountCents", label:"Sonderabzüge Netto [€]"},
+  deductionSpecialPercent                      : {key:"mrba:deductionSpecialPercent", label:"Sonderabzüge [%]", label_short: "Sonderabzüge"},
+  //deductionSpecialPercentNumericValue          : {key:"mrba:deductionSpecialPercentNumericValue", label:"Sonderabz\u00fcge Prozent "},
+  deductionWastePercent                        : {key:"mrba:deductionWastePercent", label:"Umlage Bauschutt [%]", label_short: "Umlage Bauschutt"},
+  //deductionWastePercentNumericValue            : {key:"mrba:deductionWastePercentNumericValue", label:"Umlage Bauschutt"},
+  deductionCleaningPercent                     : {key:"mrba:deductionCleaningPercent", label:"Umlage Baureinigung [%]", label_short: "Umlage Baureinigung"},
+  //deductionCleaningPercentNumericValue         : {key:"mrba:deductionCleaningPercentNumericValue", label:"Umlage Baureinigung"},
+  deductionToiletsPercent                      : {key:"mrba:deductionToiletsPercent", label:"Umlage Baustellen-WC [%]", label_short: "Umlage Baustellen-WC"},
+  //deductionToiletsPercentNumericValue          : {key:"mrba:deductionToiletsPercentNumericValue", label:"Umlage Baustellen-WC"},
+  deductionWaterPercent                        : {key:"mrba:deductionWaterPercent", label:"Umlage Wasser [%]", label_short: "Umlage Wasser"},
+  //deductionWaterPercentNumericValue            : {key:"mrba:deductionWaterPercentNumericValue", label:"Umlage Wasser"},
+  deductionElectricityPercent                  : {key:"mrba:deductionElectricityPercent", label:"Umlage Strom [%]", label_short: "Umlage Strom"},
+  //deductionElectricityPercentNumericValue      : {key:"mrba:deductionElectricityPercentNumericValue", label:"Umlage Strom"},
+  deductionPreviousPaymentsNetAmount             : {key:"mrba:deductionPreviousPaymentsNetAmount", label:"Geleistete Zahlungen Netto [€]", label_short: "Geleistete Zahlungen" },
+  //deductionPreviousPaymentsNetAmountCents        : {key:"mrba:deductionPreviousPaymentsNetAmountCents", label:"Geleistete Zahlungen Netto [€]", label_short: "Geleistete Zahlungen" },
+}
+export const AspectRetentionDetails : { [key:string]: IAspectDetailItem } = {
+  retentionDRLPercent             : {key:"mrba:retentionDRLPercent", label:"Deckungsrücklass [%]", label_short: "Deckungsrücklass"},
+  //retentionDRLPercentNumericValue : {key:"mrba:retentionDRLPercentNumericValue", label:"Deckungsrücklass"},
+  retentionHRLPercent             : {key:"mrba:retentionHRLPercent", label:"Haftungsrücklass [%]", label_short: "Haftungsrücklass"},
+  //retentionHRLPercentNumericValue : {key:"mrba:retentionHRLPercentNumericValue", label:"Haftungsrücklass"},
+}

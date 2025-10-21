@@ -1,0 +1,70 @@
+{
+  "$schema": "../../../extension.schema.json",
+  "$id": "mrbau-smarttable",
+  "$version": "1.0.0",
+  "$vendor": "MRBau",
+  "$name": "MRBau Smart Tables Plugin",
+  "$description": "MRBau Smart Tables Plugin",
+  "$license": "MIT",
+
+  "routes": [
+    {
+      "id": "mrbau-extension.route.tasksmarttable",
+      "path": "tasktable",
+      "component": "mrbau-extension.tasksmarttable.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    },
+    {
+      "id": "mrbau-extension.route.docsmarttable",
+      "path": "doctable",
+      "component": "mrbau-extension.docsmarttable.component",
+      "layout": "app.layout.main",
+      "auth": ["app.auth"]
+    }
+  ],
+  "features": {
+    "navbar": [
+      {
+        "id": "app.navbar.primary",
+        "items": [
+          {
+            "id": "app.navbar.mrbau.tasks.group",
+            "title": "M&R Bau",
+            "description": "M&R Bau Anwendungen",
+            "order": 200,
+            "rules": {
+              "visible": "app.isContentServiceEnabled"
+            },
+            "children": [
+              {
+                "id": "mrbau.extension.tasksmarttable",
+                "order": 610,
+                "label": "Übersicht Aufgaben",
+                "title": "Übersicht Aufgaben",
+                "description": "Übersicht Aufgaben",
+                "route": "tasktable",
+                "rules": {
+                  "visible": "app.isContentServiceEnabled"
+                }
+              },
+              {
+
+                "id": "mrbau.extension.docsmarttable",
+                "order": 620,
+                "label": "Übersicht Belege",
+                "title": "Übersicht Belege",
+                "description": "Übersicht Belege",
+                "route": "doctable",
+                "rules": {
+                  "visible": "app.isContentServiceEnabled"
+                }
+              }
+           ]
+          }
+        ]
+      }
+    ]
+  }
+}
+

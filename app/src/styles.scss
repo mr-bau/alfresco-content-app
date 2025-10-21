@@ -1,3 +1,10 @@
+@use '@coreui/coreui-pro/scss/coreui' as * with (
+  // If you want to override variables do it here
+  $enable-deprecation-messages: false
+);
+
+@import '~@ng-select/ng-select/themes/default.theme.css';
+
 @import 'material-icons/iconfont/material-icons.css';
 
 /* You can add global styles to this file, and also import other style files */

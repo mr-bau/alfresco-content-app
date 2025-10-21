@@ -1,0 +1,79 @@
+      <adf-toolbar [title]="this.task && this.task.desc">
+        <div *ngIf="isTaskToolbarButtonsVisible()" class="toolbar-buttons-container" >
+          <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
+            <button mat-flat-button
+              *ngIf="b.visible ? b.visible() : true"
+              class="disable-flex-shrink {{b.class}}"
+              [matTooltip]="b.tooltip"
+              (click)="b.onClick($event)"
+              [style.display]="true"
+              [disabled]="b.disabled ? b.disabled() : false">
+              <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
+            </button>
+          </ng-container>
+        </div>
+        <div *ngIf="isTaskAdditionalToolbarButtonsVisible()">
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <mrbau-tasks-menu-delegate [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></mrbau-tasks-menu-delegate>
+            <mrbau-tasks-menu-delete [task]="task" (taskChangeEvent)="emitTaskChangeEvent($event)"></mrbau-tasks-menu-delete>
+          </mat-menu>
+        </div>
+      </adf-toolbar>
+
+      <mrbau-task-common-summary [task]="this.task"></mrbau-task-common-summary>
+
+      <div *ngIf="isTaskModificationUiVisible()">
+        <mat-expansion-panel style="margin-top:1rem;" [expanded]="true" [hidden]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>build</mat-icon>
+              <span class="expansionTitleText">Status ändern oder Kommentar hinzufügen</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <form [formGroup]="form">
+            <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
+            <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model['mrbt:status'] && !this.model.comment">Speichern</button>
+          </form>
+        </mat-expansion-panel>
+      </div>
+
+      <mrbau-task-linked-documents
+        [buttonsDisabled]="!isTaskModificationUiVisible()"
+        [associatedDocumentRef]="task.associatedDocumentRef"
+        [associatedDocumentName]="task.associatedDocumentName"
+        (onRemoveAssociation)="onRemoveAssociationClicked($event)"
+        (onAssociation)="onAssociationClicked($event)"
+        (onAddAssociation)="buttonAddFilesClicked()"
+      ></mrbau-task-linked-documents>
+
+      <!-- comments panel -->
+      <mat-expansion-panel style="margin-top:1rem;" (opened)="commentPanelOpened=true" (closed)="commentPanelOpened=false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>question_answer</mat-icon>
+            <span class="expansionTitleText">Kommentare</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mrbau-task-commentlist #commentlist [nodeId]="task ? task.id : null" [isVisible]="commentPanelOpened"></mrbau-task-commentlist>
+      </mat-expansion-panel>
+
+      <!-- history panel -->
+      <mat-expansion-panel style="margin-top:1rem;" (opened)="historyPanelOpened=true" (closed)="historyPanelOpened=false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>history</mat-icon>
+            <span class="expansionTitleText">Verlauf</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mrbau-task-versionlist
+          [nodeId]="task ? task.id : null"
+          [isVisible]="historyPanelOpened"
+          (onAssociation)="onAssociationClickedById($event)"
+        />
+      </mat-expansion-panel>
+
+
+

@@ -1,0 +1,11 @@
+<mrbau-loaderoverlay *ngIf="loaderVisible"></mrbau-loaderoverlay>
+<mrbau-errormsgpane [errorMessage]="errorMessage"></mrbau-errormsgpane>
+<aca-page-layout>
+  <div class="aca-page-layout-header">
+    <span class="mrbau-title">{{ title }}</span>
+    <aca-toolbar [items]="actions" />
+  </div>
+  <div class="aca-page-layout-content aca-scrollable">
+    <ng-content></ng-content>
+  </div>
+</aca-page-layout>

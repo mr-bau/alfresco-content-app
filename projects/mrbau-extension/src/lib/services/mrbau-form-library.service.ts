@@ -1,0 +1,2253 @@
+import { Injectable } from '@angular/core';
+
+import { FormlyFieldConfig } from '@ngx-formly/core';
+import { CONST } from '../declaration/mrbau-global-declarations';
+import { EMRBauTaskCategory, MRBauTaskStatusNamesReduced } from '../declaration/mrbau-task-declarations';
+import { MrbauCommonService } from './mrbau-common.service';
+import { MrbauConventionsService, ISelectFormOptions } from './mrbau-conventions.service';
+import { MrbauArchiveModelService } from './mrbau-archive-model.service';
+import { of } from 'rxjs';
+import { germanParseFloat, REGEX_mrba_currencyIgnoreCharacters, REGEX_mrba_germanDecimalOneDecimalPlace, REGEX_mrba_germanDecimalTwoDecimalPlace, REGEX_mrba_taxRateIgnoreCharacters, REGEX_nonNegativeInt } from '../form/mrbau-formly-validators';
+import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } from '../declaration/mrbau-doc-declarations';
+import { AspectDeductionDetails, AspectRetentionDetails } from '../declaration/mrbau-mrba-aspects';
+import { MrbauWorkflowService } from './mrbau-workflow.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MrbauFormLibraryService {
+
+  constructor(
+    private mrbauConventionsService:MrbauConventionsService,
+    private mrbauCommonService : MrbauCommonService,
+    private mrbauArchiveModelService : MrbauArchiveModelService,
+    private mrbauWorkflowService : MrbauWorkflowService
+    ) { }
+
+  filterDefaultValues(name: string, values: string[]) : string[] {
+    return values.filter(state => state.indexOf(name) === 0);
+  }
+
+  filterDefaultValuesSelectFormOptions(value: ISelectFormOptions, values: ISelectFormOptions[]) {
+    const name = typeof value === 'string' ? value : value?.label;
+    return values.filter(state =>
+      state.label.toLowerCase().indexOf(name.toLowerCase()) === 0);
+  }
+
+  getByName(name : string) : FormlyFieldConfig
+  {
+    let val = eval("this."+name);
+    return val;
+  }
+
+  getFormForNodeType(formTypeName : string, nodeType: string) :FormlyFieldConfig[]
+  {
+    formTypeName;
+    // extract from doc model types
+    let result : FormlyFieldConfig[] = [];
+
+    let docModel = this.mrbauArchiveModelService.mrbauArchiveModel.mrbauArchiveModelTypes.filter(doc => doc.name == nodeType);
+    if (docModel.length > 0 && docModel[0].mrbauFormDefinitions)
+    {
+      const formDefinition = docModel[0].mrbauFormDefinitions[formTypeName];
+      if (formDefinition)
+      {
+        formDefinition.formlyFieldConfigs.forEach((formElement : any) => {
+          result.push(this.getByName(formElement))})
+        result.forEach((fc) => this.mrbauCommonService.patchFormFieldConfigRequiredPropertyRecursive(fc, formDefinition.mandatoryRequiredProperties));
+      }
+    }
+    return result;
+  }
+
+  isVerifyDateDisabled(value:string) : boolean {
+    if (value && (value == MRBauVerifiedInboundInvoiceTypes.get(EMRBauVerifiedInboundInvoiceType.ABBUCHER)?.value
+                  || value == MRBauVerifiedInboundInvoiceTypes.get(EMRBauVerifiedInboundInvoiceType.INTERNE_RECHNUNG)?.value
+                  || value == MRBauVerifiedInboundInvoiceTypes.get(EMRBauVerifiedInboundInvoiceType.GUTSCHRIFT)?.value
+                  ))
+      return true;
+    return false;
+  }
+
+  readonly common_comment : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: 'comment',
+    type: 'textarea',
+    props: {
+      //appearance:"fill",
+      label: 'Neuer Kommentar',
+      //description: 'Kommentar',
+      maxLength: CONST.MAX_LENGTH_COMMENT,
+      lines: 10,
+      autosize: true,
+    }
+  }
+
+  readonly common_archiveModelTypes : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'archiveModelTypes',
+    type: 'select',
+    props: {
+      //appearance:"fill",
+      label: 'Dokumenten-Art auswählen',
+      options: this.mrbauArchiveModelService.getArchiveModelTypesFormOptions(),
+    },
+  }
+
+  readonly common_taskLinkedDocuments : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    type: 'mrbauFormlyTaskLinkedDocuments',
+    key: ['fileRefs','fileNames'],
+    props: {
+      //appearance:"fill",
+      text: 'Dokumente Hinzufügen',
+      description: 'Verknüpfte Dokumente',
+    },
+  }
+
+  readonly mrbt_status : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    type: 'select',
+    key: 'mrbt:status',
+    props: {
+      //appearance:"fill",
+      label: 'Status',
+      options: MRBauTaskStatusNamesReduced
+    },
+  };
+
+  readonly mrbt_description : FormlyFieldConfig =
+  {
+    className: 'flex-6',
+    key: 'mrbt:description',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Aufgabe',
+      //description: 'Bezeichnung',
+      maxLength: CONST.MAX_LENGTH_TASK_DESC,
+    },
+  }
+
+  readonly mrbt_fullDescription : FormlyFieldConfig =
+  {
+    className: 'flex-6',
+    key: 'mrbt:fullDescription',
+    type: 'textarea',
+    props: {
+      //appearance:"fill",
+      label: 'Beschreibung',
+      //description: 'Beschreibung',
+      maxLength: CONST.MAX_LENGTH_TASK_FULL_DESC,
+      required: false,
+    },
+  }
+
+  readonly mrbt_dueDateValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrbt:dueDateValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Fällig bis',
+      type: 'date',
+    },
+    validators: {
+      validation: ['date-future'],
+    },
+  }
+
+  readonly mrbt_priority : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrbt:priority',
+    type: 'select',
+    props: {
+      //appearance:"fill",
+      label: 'Priorität',
+      placeholder: 'Placeholder',
+      options: [
+        { value: 1, label: 'Hoch' },
+        { value: 2, label: 'Mittel', default: true },
+        { value: 3, label: 'Niedrig'  },
+      ],
+    },
+  }
+
+  readonly mrbt_category : FormlyFieldConfig =
+  {
+    className: 'flex-3',
+    key: 'mrbt:category',
+    type: 'select',
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    props: {
+      //appearance:"fill",
+      label: 'Aufgabe auswählen',
+      required: true,
+      //change: (field , $event) => {console.log($event);console.log(field.model); },
+      options: [
+        {label: 'Eine Aufgabe sich selbst oder einem Kollegen zuweisen', value: EMRBauTaskCategory.CommonTaskGeneral, group: 'Allgemeine Aufgaben'},
+        {label: 'Zur Information übermitteln', value: EMRBauTaskCategory.CommonTaskInfo, group: 'Allgemeine Aufgaben'},
+        {label: 'Überprüfen und genehmigen (ein Überprüfer)', value: EMRBauTaskCategory.CommonTaskApprove, group: 'Allgemeine Aufgaben'},
+
+        //{label: 'Spezielle Aufgabe 1', value: '2001', group: 'Spezielle Aufgabe'},
+        //{label: 'Spezielle Aufgabe 2', value: '2002', group: 'Spezielle Aufgabe'},
+        //{label: 'Spezielle Aufgabe 3', value: '2003', group: 'Spezielle Aufgabe'},
+      ],
+    },
+  }
+
+  readonly mrbt_assignedUserName : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrbt:assignedUserName',
+    type: 'select',
+    props: {
+      //appearance:"fill",
+      label: 'Mitarbeiter',
+      options: this.mrbauCommonService.getPeopleObservable(),
+      valueProp: 'id',
+      labelProp: 'displayName',
+    },
+  }
+
+  readonly mrba_organisationUnit : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:organisationUnit',
+    type: 'select',
+    props: {
+      //appearance:"fill",
+      label: 'Mandant auswählen',
+      options: this.mrbauConventionsService.getOrganisationUnitFormOptions(),
+    },
+  };
+
+  readonly mrba_organisationPosition : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:organisationPosition',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getOrganisationPositionFormOptions()[0].value,
+    props: {
+      //appearance:"fill",
+      label: 'Auftraggeber/Auftragnehmer',
+      options: this.mrbauConventionsService.getOrganisationPositionFormOptions(),
+    },
+  };
+
+  readonly mrba_companyId : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:companyId',
+    type: 'mrbauFormlySelectSearchVendor',
+    props: {
+      //appearance:"fill",
+      label: 'Firma auswählen',
+      placeholder: 'Firma suchen z.B. %Elbe%',
+      change: (field: FormlyFieldConfig) => {
+        const mrba_company_fields = [
+          'mrba:companyName',
+          'mrba:companyVatID',
+          'mrba:companyStreet',
+          'mrba:companyZipCode',
+          'mrba:companyCity',
+          'mrba:companyCountryCode',
+          ];
+        if (field)
+        {
+          const vendor = field.model[field.key as string];
+          for (const key of mrba_company_fields)
+          {
+            field.model[key] = (vendor) ? vendor[key] : undefined;
+          }
+        }
+      }
+    },
+    hooks: {},
+    validators: { },
+  }
+/*
+  readonly mrba_companyId : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:companyId',
+    type: 'mrbauFormlyAutocompleteSelectFormOptions',
+    props: {
+      label: 'Firma auswählen',
+      filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getVendorListFormOptions()) : this.mrbauConventionsService.getVendorListFormOptions().slice()),
+      change: (field: FormlyFieldConfig) => {
+        const mrba_company_fields = [
+          'mrba:companyName',
+          'mrba:companyVatID',
+          'mrba:companyStreet',
+          'mrba:companyZipCode',
+          'mrba:companyCity',
+          'mrba:companyCountryCode',
+          ];
+        if (field)
+        {
+
+          const data = field.model[field.key as string];
+          console.log('yyy');
+          console.log(data);
+          const value = (data) ? data.value : undefined;
+          const vendor = this.mrbauConventionsService.getVendor(value);
+          for (const key of mrba_company_fields)
+          {
+            field.model[key] = (vendor) ? vendor[key] : undefined;
+          }
+        }
+      }
+    },
+    hooks: {
+      onInit : (field : FormlyFieldConfig) => {
+          const key = field.key as string;
+          if (field.model[key] || field.model[key] === 0)
+          {
+            // replace id value with entry object from list
+            field.model[key] = this.mrbauConventionsService.getVendorListFormOption(field.model[key]);
+          }
+      }
+    },
+    validators: {
+      validation: [{ name: 'mrbauAutocompleteValidator'}],
+    },
+  }*/
+
+  readonly mrba_archivedDateValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:archivedDateValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Eingangs Datum',
+      type: 'date',
+    }
+  };
+
+  readonly mrba_fiscalYear : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:fiscalYear',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Fiskal-Jahr',
+      type: 'number',
+      min: new Date().getFullYear()-1,
+      max: new Date().getFullYear()+1,
+    },
+    validators : {
+      validation: [
+        { name: 'mrbauRegexValidator', options: REGEX_nonNegativeInt }
+      ],
+    }
+  }
+
+  readonly mrba_documentTopic : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:documentTopic',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Bezeichnung',
+    }
+  }
+
+  readonly mrba_documentNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:documentNumber',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Nummer',
+    }
+  }
+
+  readonly mrba_documentDateValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:documentDateValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Datum',
+      type: 'date',
+    }
+  }
+
+  readonly mrba_contractStartValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:contractStartValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Vertragslaufzeit Start',
+      type: 'date',
+    }
+  }
+
+  readonly mrba_contractEndValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:contractEndValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Vertragslaufzeit Ende',
+      type: 'date',
+    }
+  }
+
+  readonly mrba_contractComment : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:contractComment',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Optionaler Kommentar',
+      maxLength: CONST.MAX_LENGTH_COMMENT_SHORT,
+    }
+  }
+
+  readonly mrba_netAmount : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:netAmount',
+    type: 'input',
+
+    props: {
+      //appearance:"fill",
+      label: 'Netto Betrag [€]',
+      placeholder: 'Netto Betrag (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+      ],
+    }
+  }
+
+  readonly mrba_grossAmount : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:grossAmount',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Brutto Betrag [€]',
+      placeholder: 'Brutto Betrag (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+      ],
+    }
+
+  }
+
+  readonly mrba_taxRate : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:taxRate', // d:text, mrba:germanDecimalOneDecimalPlace
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Steuersatz [%]',
+      placeholder: 'Steuersatz in % z.B. 20,0',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.taxRateDefaultValues) : this.mrbauConventionsService.taxRateDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.taxRateDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = field.model['mrba:taxRateMixedRate'] === true;
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 1 } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalOneDecimalPlace },
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+      ],
+    }
+  }
+
+  readonly mrba_taxRateComment : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:taxRateComment',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Optionaler Kommentar Steuersatz',
+      maxLength: CONST.MAX_LENGTH_COMMENT_SHORT,
+    }
+  }
+
+  readonly mrba_taxRateMixedRate : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:taxRateMixedRate',
+    type: 'toggle',
+    props: {
+      //appearance:"fill",
+      label: 'Mischsteuersatz ja/nein',
+      //description: 'Mischsteuersatz ja/nein',
+    }
+  }
+/*
+  readonly mrba_costCarrierNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:costCarrierNumber',
+    type: 'input',
+    props: {
+      label: 'Kostenträger',
+      pattern: /^[0-9]*$/,
+      type: 'number',
+    },
+    validation: {
+      messages: {
+        pattern: () => 'Ungültige Nummer',
+      },
+    },
+  }
+*/
+/*
+  readonly mrba_costCarrierNumber_old : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlyAutocompleteSelectFormOptions',
+    props: {
+      label: 'Kostenträger/-stelle',
+      filter: (term) => of(term ? this.filterDefaultValuesSelectFormOptions(term, this.mrbauConventionsService.getKtListFormOptions()) : this.mrbauConventionsService.getKtListFormOptions().slice()),
+      change: (field: FormlyFieldConfig) => {
+        if (field)
+        {
+          const data = field.model[field.key as string];
+          const value = (data) ? data.value : undefined;
+          const kt = this.mrbauConventionsService.getCostCarrier(value);
+          if (kt)
+          {
+            const control = field.form.get('mrba:projectName');
+            if (control)
+            {
+              control.setValue(kt['mrba:projectName']);
+            }
+          }
+        }
+      }
+    },
+    hooks: {
+      onInit : (field : FormlyFieldConfig) => {
+          const key = field.key as string;
+          if (field.model[key] || field.model[key] === 0)
+          {
+            // replace id value with entry object from list
+            field.model[key] = this.mrbauConventionsService.getKtListFormOption(field.model[key]);
+          }
+      }
+    },
+    validators: {
+      validation: [{ name: 'mrbauAutocompleteValidator', options: { values: this.mrbauConventionsService.getKtListFormOptions() } }],
+    },
+  }*/
+
+  readonly mrba_costCarrierNumber : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlySelectSearchProject',
+    props: {
+      //appearance:"fill",
+      label: 'Kostenträger/-stelle',
+      placeholder: 'KT suchen z.B. %9000%',
+    },
+    hooks: {},
+    validators: { },
+  }
+
+  readonly mrba_projectName: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:projectName',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Projektbezeichnung',
+    }
+  }
+
+  readonly mrba_accountingId: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:accountingId',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'BMD Beleg Nr.',
+      placeholder: 'z.B. ER102',
+      maxLength: 32,
+      minLength: 3,
+    }
+  }
+
+  readonly duplicated_document_form : FormlyFieldConfig = {
+    key: 'ignore:mrbauFormlyDuplicatedDocument',
+    type: 'mrbauFormlyDuplicatedDocument',
+    props: {
+      //appearance:"fill",
+      required : true,
+    }
+  };
+
+  readonly workflow_all_set_form : FormlyFieldConfig = {
+      key: 'mrbauFormlyAllSet',
+      type: 'mrbauFormlyAllSet',
+  };
+
+  readonly workflow_internal_signing : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      //appearance:"fill",
+      icon : 'fingerprint',
+      title : 'PARAPHIEREN UND SIGNIEREN',
+      subtitle : 'Prüfen, Paraphieren und Signieren Sie den Auftrag. Anschließend deligieren Sie den Auftrag an die technische Assistenz zum Versand an den Auftragnehmer.',
+      additionalText : ['1) Prüfen und Paraphieren (Bauleiter)', '2) Signieren (Unternehmensbereichsleiter)', '3) Signieren (Geschäftsführer)','4) Deligieren an technische Assistenz für den Versand']
+    }
+};
+
+  readonly workflow_internal_invoice_view_form : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      //appearance:"fill",
+      title : 'INTERNE RECHNUNG ZUR INFO',
+      subtitle : 'Klicken Sie auf Erledigen um den Workflow abzuschließen. Eine Freigabe ist bei internen Rechnungen nicht erforderlich.'
+    }
+  };
+
+  readonly workflow_formal_review : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      //appearance:"fill",
+      icon : 'send',
+      title : 'WEITERLEITEN ZUR SACHLICHEN RECHNUNGSPRÜFUNG',
+      subtitle : 'Formale Rechnungsprüfung abgeschlossen. Klicken Sie auf Weiterleiten um die Sachliche Rechnungsprüfung zu starten (interne Rechnungen werden nur zur Info übermitteln).'
+    }
+  };
+
+  readonly workflow_invoice_review : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      //appearance:"fill",
+      icon : 'send',
+      title : 'WEITERLEITEN ZUR FREIGABE',
+      subtitle : 'Sachliche Rechnungsprüfung abgeschlossen. Klicken Sie auf Weiterleiten um die Rechnung zur Freigabe weiterzuleiten.'
+    }
+  };
+
+  readonly workflow_invoice_approval : FormlyFieldConfig = {
+    key: 'mrbauFormlyAllSet',
+    type: 'mrbauFormlyAllSet',
+    props: {
+      //appearance:"fill",
+      icon : 'send',
+      title : 'WEITERLEITEN ZUR BUCHHALTUNG',
+      subtitle : 'Freigabe abgeschlossen. Klicken Sie auf Weiterleiten um die Rechnung an die Buchhaltung weiterzuleiten.'
+    }
+  };
+
+  readonly mrba_offerType : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:offerType',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getOfferTypeFormOptions()[0].value,
+    props: {
+      //appearance:"fill",
+      label: 'Angebots-Typ auswählen',
+      options: this.mrbauConventionsService.getOfferTypeFormOptions(),
+      required: true,
+    },
+  };
+
+  readonly mrba_orderType : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:orderType',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getOrderTypeFormOptions()[0].value,
+    props: {
+      //appearance:"fill",
+      label: 'Auftrags-Typ auswählen',
+      options: this.mrbauConventionsService.getOrderTypeFormOptions(),
+      required: true,
+    },
+  };
+
+  readonly mrba_signingStatus : FormlyFieldConfig =
+  {
+    className: 'flex-4',
+    key: 'mrba:signingStatus',
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getSigningStatusFormOptions()[0].value,
+    props: {
+      //appearance:"fill",
+      label: 'Signatur Status auswählen',
+      options: this.mrbauConventionsService.getSigningStatusFormOptions(),
+      required: true,
+    },
+  };
+
+
+  readonly mrba_reviewDaysPartialInvoice: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysPartialInvoice',
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Prüffrist Teilrechnungen [Tage]',
+      placeholder: 'z.B. 14',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
+      pattern: REGEX_nonNegativeInt,
+    },
+    expressions: {
+      /*hide: (field: FormlyFieldConfig) => {
+        //console.log(field);
+        return field.model['mrba:invoiceType']=='Einzelrechnung' || field.model['mrba:invoiceType']=='Schlussrechnung';
+      },*/
+      //'props.required': "model['mrba:invoiceType']=='Teilrechnung'"
+    }
+  }
+
+  readonly mrba_reviewDaysFinalInvoice: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysFinalInvoice',
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Prüffrist Schlussrechnungen [Tage]',
+      placeholder: 'z.B. 30',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
+      pattern: REGEX_nonNegativeInt,
+    },
+    //expressions: {
+    //  hide: "model['mrba:invoiceType']=='Teilrechnung'",
+    //}
+  }
+
+  readonly mrba_paymentTargetDays: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentTargetDays',
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Nettofrist [Tage]',
+      placeholder: 'z.B. 60',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+  readonly mrba_earlyPaymentDiscountDays1: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays1',
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Skontofrist 1 [Tage]',
+      placeholder: 'z.B. 28',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+  readonly mrba_earlyPaymentDiscountDays2: FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays2',
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Skontofrist 2 [Tage]',
+      placeholder: 'z.B. 36',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.reviewDaysDefaultValues) : this.mrbauConventionsService.reviewDaysDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.reviewDaysDefaultValues),
+      pattern: REGEX_nonNegativeInt,
+    }
+  }
+  readonly mrba_earlyPaymentDiscountPercent1 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent1', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Skonto 1 [%]',
+      placeholder: 'Skonto in % z.B. 3,00',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.discountDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_earlyPaymentDiscountPercent2 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent2', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: 'Skonto 2 [%]',
+      placeholder: 'Skonto in % z.B. 2,00',
+      //filter: (term) => of(term ? this.filterDefaultValues(term, this.mrbauConventionsService.discountDefaultValues) : this.mrbauConventionsService.discountDefaultValues.slice()),
+      filter: () => of(this.mrbauConventionsService.discountDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_invoiceType : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:invoiceType', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'select',
+    defaultValue: this.mrbauConventionsService.getInvoiceTypeFormOptions()[0].value,
+    props: {
+      //appearance:"fill",
+      label: 'Rechnungs-Typ auswählen',
+      options: this.mrbauConventionsService.getInvoiceTypeFormOptions(),
+      required: true,
+    },
+  }
+
+  readonly mrba_partialInvoiceNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:partialInvoiceNumber', //d:int
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Teil-/Anzahlungsrechnung-Nummer (min=1, max=99)',
+      placeholder: 'z.B. 1',
+      type: 'number',
+      min: 1,
+      max: 99,
+    },
+    validation: {
+      show: true,
+    },
+    expressions: {
+      hide: "model['mrba:invoiceType']!='Teilrechnung'",
+      'props.required': "model['mrba:invoiceType']=='Teilrechnung'",
+    },
+  }
+
+    // Buttons
+  readonly button_new_company : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: 'ignore:mrbauNewCompanyButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      //appearance:"fill",
+      label: 'Firma anlegen',
+      text: 'FIRMA ANLEGEN',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauConventionsService.addVendor();
+      },
+    },
+  }
+
+  readonly button_new_project : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: 'ignore:mrbauNewProjectButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      //appearance:"fill",
+      label: 'Projekt anlegen',
+      text: 'KT/KS ANLEGEN',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauConventionsService.addProject();
+      },
+    },
+  }
+
+  readonly button_recalc_deduction : FormlyFieldConfig =
+  {
+    className: 'flex-1 calcButton',
+    key: 'ignore:mrbauCalcDeductionButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      //appearance:"fill",
+      label: 'Abzüge festlegen und neu berechnen',
+      text: 'Abzüge Korrigieren',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauCommonService.calcDeductionWithDialog(this.button_recalc_deduction);
+      },
+    },
+  }
+
+  readonly button_calc_deduction : FormlyFieldConfig =
+  {
+    className: 'flex-1 calcButton',
+    key: 'ignore:mrbauCalcDeductionButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      //appearance:"fill",
+      label: 'Abzüge festlegen und berechnen',
+      text: 'Abzüge Berechnen',
+      //btnType: 'default',
+      onClick: () => {
+        this.mrbauCommonService.calcDeductionWithDialog(this.button_calc_deduction);
+      },
+    },
+  }
+
+  readonly button_recalc_paymentdays : FormlyFieldConfig =
+  {
+    className: 'flex-1 calcButton',
+    key: 'ignore:mrbauRecalcPaymentDaysButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      //appearance:"fill",
+      label: 'Zahlungsdatum Neu Berechnen',
+      text: 'Neu Berechnen',
+      btnType: 'default',
+      onClick: () => {
+        this.mrbauWorkflowService.invoiceVerificationRecalcPaymentDays(this.button_recalc_paymentdays);
+      },
+    },
+  }
+
+  // ASPECT GROUPS
+  readonly title_mrba_paymentConditionDetails : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Zahlungskonditionen</span>',
+  };
+  readonly aspect_mrba_paymentConditionDetails : FormlyFieldConfig = {
+    //fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [
+          // Prüffristen
+          this.mrba_reviewDaysPartialInvoice,
+          this.mrba_reviewDaysFinalInvoice,
+        ]},
+      {
+      fieldGroupClassName: 'flex-container',
+      fieldGroup: [
+        //this.mrba_earlyPaymentDiscountPercentNumericValue1 //d:double kept in sync
+        this.mrba_earlyPaymentDiscountDays1,
+        // Skonto 1
+        this.mrba_earlyPaymentDiscountPercent1, // text
+      ]},{
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [
+        //this.mrba_earlyPaymentDiscountPercentNumericValue2 //d:double kept in sync
+        this.mrba_earlyPaymentDiscountDays2,
+        // Skonte 2
+        this.mrba_earlyPaymentDiscountPercent2, // text
+      ]},
+      {
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [
+          // netto
+          this.mrba_paymentTargetDays,
+        ]},
+    ]
+  };
+
+  readonly title_mrba_invoiceType : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Rechnungs-Typ</span>',
+  };
+  readonly element_mrba_invoiceType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_invoiceType,
+      this.mrba_partialInvoiceNumber
+    ],
+  };
+
+  readonly mrba_addonOfferNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:addonOfferNumber', //d:int
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Nachtragsangebot-Nummer (min=1, max=99)',
+      placeholder: 'z.B. 1',
+      type: 'number',
+      min: 1,
+      max: 99,
+    },
+    validation: {
+      show: true,
+    },
+    expressions: {
+      hide: "model['mrba:offerType']=='Angebot'",
+      'props.required': "model['mrba:offerType']!='Angebot'",
+    },
+  }
+
+  readonly title_mrba_offerType : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Angebots-Typ</span>',
+  };
+  readonly element_mrba_offerType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_offerType, this.mrba_addonOfferNumber],
+  };
+
+  readonly mrba_addonOrderNumber : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:addonOrderNumber', //d:int
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Zusatzauftrag-Nummer (min=1, max=99)',
+      placeholder: 'z.B. 1',
+      type: 'number',
+      min: 1,
+      max: 99,
+    },
+    validation: {
+      show: true,
+    },
+    expressions: {
+      hide: "model['mrba:orderType']=='Auftrag'",
+      'props.required': "model['mrba:orderType']!='Auftrag'",
+    },
+  }
+
+  readonly mrba_deductionDamageUnassignedPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionDamageUnassignedPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      //appearance:"fill",
+      label: AspectDeductionDetails.deductionDamageUnassignedPercent.label,
+      placeholder: "in % z.B. 2,00",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionDamageAssignedNetAmount : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionDamageAssignedNetAmount.key,
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: AspectDeductionDetails.deductionDamageAssignedNetAmount.label,
+      placeholder: 'Betrag Netto (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionSpecialNetAmount : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionSpecialNetAmount.key,
+    type: 'input',
+    props: {
+      label: AspectDeductionDetails.deductionSpecialNetAmount.label,
+      //appearance:"fill",
+      placeholder: 'Betrag Netto (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionSpecialPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionSpecialPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectDeductionDetails.deductionSpecialPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionWastePercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionWastePercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectDeductionDetails.deductionWastePercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionCleaningPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionCleaningPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectDeductionDetails.deductionCleaningPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionToiletsPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionToiletsPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectDeductionDetails.deductionToiletsPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionWaterPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionWaterPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectDeductionDetails.deductionWaterPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_deductionElectricityPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectDeductionDetails.deductionElectricityPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectDeductionDetails.deductionElectricityPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.deductionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_retentionDRLPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectRetentionDetails.retentionDRLPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectRetentionDetails.retentionDRLPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.retentionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly mrba_retentionHRLPercent : FormlyFieldConfig =
+  {
+    className: 'flex-1',
+    key: AspectRetentionDetails.retentionHRLPercent.key,
+    type: 'mrbauFormlyAutocomplete',
+    props: {
+      label: AspectRetentionDetails.retentionHRLPercent.label,
+      placeholder: "in % z.B. 2,00",
+      //appearance:"fill",
+      filter: () => of(this.mrbauConventionsService.retentionDefaultValues),
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+          { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_taxRateIgnoreCharacters, fractionDigits : 2 } },
+          { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+      ],
+    }
+  }
+
+  readonly element_mrba_deductionDetails1 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_deductionDamageUnassignedPercent,
+      this.mrba_deductionDamageAssignedNetAmount,
+    ],
+  };
+
+  readonly element_mrba_deductionDetails2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_deductionSpecialPercent,
+      this.mrba_deductionSpecialNetAmount,
+    ],
+  };
+
+  readonly element_mrba_deductionDetails3 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_deductionWastePercent,
+      this.mrba_deductionCleaningPercent,
+      this.mrba_deductionToiletsPercent,
+      this.mrba_deductionWaterPercent,
+      this.mrba_deductionElectricityPercent,
+
+    ],
+  };
+
+  readonly element_mrba_retentionDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_retentionDRLPercent,
+      this.mrba_retentionHRLPercent,
+    ],
+  };
+
+  readonly title_mrba_signingStatus : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Signatur-Status</span>',
+  };
+  readonly element_mrba_signingStatus : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_signingStatus],
+  };
+
+  readonly title_mrba_deductions1 : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Bauschäden</span>',
+  };
+
+  readonly title_mrba_deductions2 : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Sonderabzüge</span>',
+  };
+
+  readonly title_mrba_deductions3 : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Umlagen</span>',
+  };
+
+  readonly title_mrba_retentions : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Rücklässe</span>',
+  };
+
+  readonly title_mrba_orderType : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Auftrags-Typ</span>',
+  };
+  readonly element_mrba_orderType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_orderType, this.mrba_addonOrderNumber],
+  };
+
+  readonly title_mrba_companyId : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Firma</span>',
+  };
+  readonly element_mrba_companyId : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_companyId],
+  };
+  readonly element_mrba_companyId_wbtn : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_companyId, this.button_new_company],
+  };
+
+  readonly title_mrba_organisationPosition : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Mandantenstellung (M&amp;R)</span>',
+  };
+  readonly element_mrba_organisationPosition : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [this.mrba_organisationPosition],
+  };
+
+  readonly title_mrba_documentIdentityDetails : FormlyFieldConfig = {
+    template: '<span class="form-group-title">Dokument Eigenschaften</span>',
+  };
+  readonly aspect_mrba_documentIdentityDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+        this.mrba_documentTopic,
+        this.mrba_documentNumber,
+        this.mrba_documentDateValue,
+        //this.mrba_documentDate
+    ]
+  };
+
+  readonly title_mrba_contractCoreDetails : FormlyFieldConfig = {
+    template: '<span class="form-group-title">Vertrag Eigenschaften</span>',
+  };
+  readonly aspect_mrba_contractCoreDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+        this.mrba_contractStartValue,
+        //this.mrba_contractStart
+        this.mrba_contractEndValue,
+        //this.mrba_contractEnd
+        this.mrba_contractComment,
+    ]
+  };
+
+  readonly title_mrba_taxRate : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Steuersatz</span>',
+  };
+  readonly aspect_mrba_taxRate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_taxRateMixedRate,
+      this.mrba_taxRate,        // d:text, mrba:germanDecimalOneDecimalPlace
+      //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
+      this.mrba_taxRateComment, // d:text
+    ]
+  };
+
+  readonly title_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Betrag und Steuersatz</span>',
+  };
+  readonly aspect_mrba_amountDetails_mrba_taxRate : FormlyFieldConfig = {
+    //fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      {
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [
+          //this.mrbauFormLibraryService.mrba_netAmountCents,    // d:int kept in sync with mrba:netAmount
+          this.mrba_netAmount,         // d:text
+          //this.mrbauFormLibraryService.mrba_grossAmountCents",  // d:int kept in sync with mrba:netAmount
+          this.mrba_grossAmount,       // d:text
+        ]
+      },
+      {
+        fieldGroupClassName: 'flex-container',
+        fieldGroup: [
+          this.mrba_taxRateMixedRate,
+          this.mrba_taxRate,        // d:text, mrba:germanDecimalOneDecimalPlace
+          //mrba:taxRatePercent, // d:double kept in sync with mrba:taxRate
+          this.mrba_taxRateComment, // d:text
+        ]
+      }
+    ]
+  };
+
+  readonly title_mrba_costCarrierDetails : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Kostenträger/-stelle</span>',
+  };
+  readonly aspect_mrba_costCarrierDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_costCarrierNumber, //d:int
+      this.mrba_projectName, //d:text
+    ]
+  };
+  readonly aspect_mrba_costCarrierDetails_wbtn : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_costCarrierNumber, //d:int
+      this.mrba_projectName, //d:text
+      this.button_new_project
+    ]
+  };
+
+  // Warning Labels
+  readonly label_ignore_warning_rk : FormlyFieldConfig = {
+    template: '<div class="form-group-warning-wrapper"><span class="form-group-warning-large">Achtung: Beilage Rechnungskorrektur beachten!</span></div>',
+    hooks: {
+      afterContentInit: (field) => {
+        //this.associatedDocuments?.filter(v => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0;
+        const assoc = field.model['ignore:taskNodeAssociations'];
+        //console.log(assoc);
+        const exists = (assoc?.filter((v : any) => v.entry.nodeType == 'mrba:invoiceReviewSheet').length > 0)
+        //console.log(' exists ' +exists);
+        //console.log(field);
+        if (!exists) {
+          field.template = '';
+        } else {
+          field.template = '<div class="form-group-warning-wrapper"><span class="form-group-warning-large">Achtung: Beilage Rechnungskorrektur beachten!</span></div>';
+        }
+      },
+    },
+  };
+
+  // Labels
+  readonly title_mrba_documentSummary_large : FormlyFieldConfig ={
+    template: '<div class="form-group-title-wrapper"><span class="form-group-title-large">Rechnungsangaben Formelle Prüfung</span></div>',
+  };
+
+  readonly title_mrba_documentSummary : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Rechnungsangaben</span>',
+  };
+
+  readonly label_mrba_companyName : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:companyName',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Firma',
+      readonly: true,
+    },
+  };
+
+  readonly label_mrba_invoiceType : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:invoiceType',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Rechnungstyp',
+      readonly: true,
+    },
+  };
+
+  readonly label_mrba_partialInvoiceNumber : FormlyFieldConfig = {
+    className: 'flex-1',
+    key: 'mrba:partialInvoiceNumber',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Teil-/Anz. Nr',
+      readonly: true,
+    },
+    expressions: {
+      hide: "model['mrba:invoiceType']!='Teilrechnung'",
+    },
+  }
+
+  readonly label_mrba_verifiedInboundInvoiceType : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:verifiedInboundInvoiceType',
+    type: 'mrbauFormlyLabel',
+    props: {
+      placeholder: 'Überweisung',
+      label: 'Überweisung/Abbucher',
+      readonly: true,
+    },
+  }
+
+  readonly label_mrba_taxRate : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:taxRate',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Steuersatz [%]',
+      readonly: true,
+      additionalKeys:['mrba:taxRateMixedRate'],
+    },
+    expressions: {
+      // need to overwrite props.disabled from mrba:taxRate element with same key!
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isMixedTaxRate = field.model['mrba:taxRateMixedRate'] === true;
+        if (isMixedTaxRate) {
+          field.formControl?.setValue(undefined);
+        }
+        // only disable taxRate input element but don't disable taxRate label!
+        return false;
+      },
+      'props.placeholder': (field: FormlyFieldConfig) => {
+        if (field.model['mrba:taxRateMixedRate'] === true)
+          return 'Mischsteuersatz';
+        return 'keine Angabe';
+      }
+    },
+  }
+
+  readonly label_mrba_taxRateComment : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:taxRateComment',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Optionaler Kommentar',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:taxRateComment'] == null,
+  }
+
+  readonly label_mrba_archivedDateValue : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:archivedDateValue',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Eingangs Datum',
+      type: 'date',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_netAmount : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:netAmount',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Netto Betrag [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_grossAmount : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:grossAmount',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Brutto Betrag [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_paymentTargetDays : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentTargetDays',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Nettofrist [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
+  readonly label_mrba_reviewDaysPartialInvoice : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysPartialInvoice',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Prüffrist Teilrechnungen [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+    //hideExpression: (model) => model['mrba:reviewDaysPartialInvoice'] == null,
+  }
+
+  readonly label_mrba_reviewDaysFinalInvoice : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:reviewDaysFinalInvoice',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Prüffrist Schlussrechnungen [Tage]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_earlyPaymentDiscountPercent1 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent1',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Skonto 1 [%]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_mrba_earlyPaymentDiscountDays1 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays1', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Skontofrist 1 [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_mrba_earlyPaymentDiscountPercent2 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountPercent2',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Skonto 2 [%]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+  readonly label_mrba_earlyPaymentDiscountDays2 : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:earlyPaymentDiscountDays2', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Skontofrist 2 [Tage]',
+      placeholder: '-',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+  readonly label_mrba_netAmountVerified : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:netAmountVerified', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Geprüfter Betrag Netto [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_grossAmountVerified : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:grossAmountVerified', //d:text mrba:germanDecimalTwoDecimalPlaces
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Geprüfter Betrag Brutto [€]',
+      placeholder: '-',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_verifyDateValue : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:verifyDateValue',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Prüfdatum',
+      type: 'date',
+      readonly: true,
+    }
+  }
+
+  readonly label_mrba_paymentDateNetValue : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentDateNetValue',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Überweisungsdatum Netto',
+      type: 'date',
+      readonly: true,
+    },
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = this.isVerifyDateDisabled(field.model['mrba:verifiedInboundInvoiceType']);
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+  }
+
+  readonly label_mrba_costCarrierNumber : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:costCarrierNumber',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Kostenträger/-stelle',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
+  readonly label_mrba_projectName : FormlyFieldConfig = {
+    className: 'flex-4',
+    key: 'mrba:projectName',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Projektbezeichnung',
+      placeholder: '-',
+      readonly: true,
+    },
+  }
+
+  multiplyPercentDiscount(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  {
+    let val = germanParseFloat(field.form?.get(nameValue) == null ? undefined : field.form.get(nameValue)?.value);
+    const percent = germanParseFloat(field.form?.get(namePercent) == null ? undefined : field.form.get(namePercent)?.value);
+    const valueFloat = (val !== undefined && percent != undefined) ? val*(100-percent)/100 : NaN;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form?.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  subtract(field:FormlyFieldConfig, nameValue1 : string, nameValue2:string, nameResult: string)
+  {
+    let val1 = germanParseFloat(field.form?.get(nameValue1) == null ? undefined : field.form.get(nameValue1)?.value);
+    let val2 = germanParseFloat(field.form?.get(nameValue2) == null ? undefined : field.form.get(nameValue2)?.value);
+    const valueFloat = (val1 !== undefined && val2 != undefined) ? val1 - val2 : NaN;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form?.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  multiplyPercentGross(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  {
+    let val = germanParseFloat(field.form?.get(nameValue) == null ? undefined : field.form.get(nameValue)?.value);
+    const percent = germanParseFloat(field.form?.get(namePercent) == null ? undefined : field.form.get(namePercent)?.value);
+    const valueFloat = (val !== undefined && percent != undefined) ? val*(100+percent)/100 : NaN;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form?.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  multiplyPercentTax(field:FormlyFieldConfig, nameValue : string, namePercent:string, nameResult: string)
+  {
+    let val = germanParseFloat(field.form?.get(nameValue) == null ? undefined : field.form.get(nameValue)?.value);
+    const percent = germanParseFloat(field.form?.get(namePercent) == null ? undefined : field.form.get(namePercent)?.value);
+    const valueFloat = (val !== undefined && percent != undefined) ? val*(percent)/100 : NaN;
+    const value = (isNaN(valueFloat)) ? '-' : valueFloat.toLocaleString('de-De', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const result = field.form?.get(nameResult);
+    if (result)
+    {
+      result.setValue(value);
+    }
+  }
+
+  readonly label_calcPaymentValueDiscount1 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcPaymentValueDiscount1',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Betrag Skonto 1 Netto [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercentDiscount(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent1','ignore:calcPaymentValueDiscount1');
+      },
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+  }
+
+  readonly label_calcGrossAmountVerified : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcGrossAmountVerified',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Geprüfter Betrag Brutto [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercentGross(field,'mrba:netAmountVerified', 'mrba:taxRate','ignore:calcGrossAmountVerified');
+      },
+    }
+  }
+
+  readonly label_calcTaxAmountVerified : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcTaxAmountVerified',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Berechnete USt [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.subtract(field,'mrba:grossAmountVerified', 'mrba:netAmountVerified','ignore:calcTaxAmountVerified');
+      },
+    }
+  }
+
+  readonly label_calcPaymentValueDiscount2 : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'ignore:calcPaymentValueDiscount2',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Betrag Skonto 2 Netto [€]',
+      readonly: true,
+    },
+    hooks: {
+      afterContentInit: (field) => {
+        this.multiplyPercentDiscount(field,'mrba:netAmountVerified', 'mrba:earlyPaymentDiscountPercent2','ignore:calcPaymentValueDiscount2');
+      },
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+  }
+
+  readonly label_mrba_paymentDateDiscount1Value : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount1Value',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Überweisungsdatum Skonto 1',
+      type: 'date',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent1'] == null,
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = this.isVerifyDateDisabled(field.model['mrba:verifiedInboundInvoiceType']);
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+  }
+
+  readonly label_mrba_paymentDateDiscount2Value : FormlyFieldConfig = {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount2Value',
+    type: 'mrbauFormlyLabel',
+    props: {
+      label: 'Überweisungsdatum Skonto 2',
+      type: 'date',
+      readonly: true,
+    },
+    hideExpression: (model) => model['mrba:earlyPaymentDiscountPercent2'] == null,
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = this.isVerifyDateDisabled(field.model['mrba:verifiedInboundInvoiceType']);
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+  }
+
+
+  readonly label_group_taxRate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_taxRate,
+      this.label_mrba_taxRateComment,
+    ]
+  };
+
+
+  readonly label_group_paymentNetGrossVerified : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_grossAmountVerified,
+      this.label_mrba_netAmountVerified,
+      this.label_calcTaxAmountVerified,
+      this.label_mrba_taxRate,
+    ]
+  };
+
+  readonly label_group_paymentDateVerified : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_paymentDateNetValue
+    ]
+  };
+
+  readonly label_group_paymentDiscount1 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      //this.label_calcPaymentValueDiscount1,
+      this.label_mrba_paymentDateDiscount1Value,
+      this.label_mrba_earlyPaymentDiscountPercent1,
+    ]
+  };
+
+  readonly label_group_paymentDiscount2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      //this.label_calcPaymentValueDiscount2,
+      this.label_mrba_paymentDateDiscount2Value,
+      this.label_mrba_earlyPaymentDiscountPercent2,
+    ]
+  };
+  readonly label_group_archivedDate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_archivedDateValue,
+    ]
+  };
+
+  readonly label_group_invoiceType_archiveDate : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_invoiceType,
+      this.label_mrba_partialInvoiceNumber,
+      this.label_mrba_archivedDateValue,
+    ]
+  };
+
+  readonly label_group_reviewDays : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_reviewDaysPartialInvoice,
+      this.label_mrba_reviewDaysFinalInvoice,
+    ]
+  };
+
+  readonly label_group_companyDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_companyName,
+    ]
+  };
+
+  readonly label_group_costCarrierDetails : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_costCarrierNumber,
+      this.label_mrba_projectName,
+    ]
+  };
+
+  readonly label_group_netgrossPayment : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_grossAmount,
+      this.label_mrba_netAmount,
+      this.label_mrba_taxRate,
+    ]
+  };
+  readonly label_group_netPayment : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_netAmount,
+      this.label_mrba_paymentTargetDays,
+    ]
+  };
+  readonly label_group_grossPayment : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_grossAmount,
+      this.label_mrba_taxRate,
+    ]
+  };
+
+  readonly label_group_earlyPaymentDiscount1 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_earlyPaymentDiscountDays1,
+      this.label_mrba_earlyPaymentDiscountPercent1,
+    ]
+  };
+
+  readonly label_group_earlyPaymentDiscount2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_earlyPaymentDiscountDays2,
+      this.label_mrba_earlyPaymentDiscountPercent2,
+    ]
+  };
+
+  readonly label_group_paymentTargetDays : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.label_mrba_paymentTargetDays,
+    ]
+  };
+
+  readonly mrba_netAmountVerified : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:netAmountVerified',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Geprüfter Betrag Netto [€]',
+      placeholder: 'Netto Betrag geprüft (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+      ],
+    }
+  }
+
+  readonly mrba_grossAmountVerified : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:grossAmountVerified',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Geprüfter Betrag Brutto [€]',
+      placeholder: 'Brutto Betrag geprüft (z.B. 1.005,20)',
+    },
+    modelOptions: {
+      updateOn: 'blur',
+    },
+    validators: {
+      validation: [
+        { name: 'mrbauGermanDecimalValidatorAndConverter', options: { regExp : REGEX_mrba_currencyIgnoreCharacters } },
+        { name: 'mrbauRegexValidator', options: REGEX_mrba_germanDecimalTwoDecimalPlace },
+        //{ name: 'mrbauNetGrossTaxRateValidatorAndConverter'},
+      ],
+    }
+  }
+
+  readonly mrba_verifiedInboundInvoiceType : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:verifiedInboundInvoiceType',
+    type: 'radio',
+    props: {
+      //appearance:"fill",
+      label: 'Überweisung/Abbucher',
+      options: this.mrbauConventionsService.getVerifiedInboundInvoiceTypeFormOptions()
+    }
+  }
+  readonly mrba_verifyDateValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:verifyDateValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Prüfdatum',
+      type: 'date',
+    },
+    expressions: {
+    },
+  }
+  readonly mrba_paymentDateNetValue : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentDateNetValue',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Überweisungsdatum Netto',
+      type: 'date',
+    },
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = this.isVerifyDateDisabled(field.model['mrba:verifiedInboundInvoiceType']);
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+  }
+  readonly mrba_paymentDateDiscount1Value : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount1Value',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Überweisungsdatum Skonto 1',
+      type: 'date',
+    },
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = this.isVerifyDateDisabled(field.model['mrba:verifiedInboundInvoiceType']);
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+  }
+  readonly mrba_paymentDateDiscount2Value : FormlyFieldConfig =
+  {
+    className: 'flex-2',
+    key: 'mrba:paymentDateDiscount2Value',
+    type: 'input',
+    props: {
+      //appearance:"fill",
+      label: 'Überweisungsdatum Skonto 2',
+      type: 'date',
+    },
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        const isDisabled = this.isVerifyDateDisabled(field.model['mrba:verifiedInboundInvoiceType']);
+        if (isDisabled) {
+          field.formControl?.setValue(undefined);
+        }
+        return isDisabled;
+      }
+    },
+  }
+
+  readonly title_mrba_verifyData : FormlyFieldConfig ={
+    template: '<span class="form-group-title">Geprüfter Betrag</span>',
+  };
+  readonly title_mrba_verifyData2: FormlyFieldConfig ={
+    template: '<span class="form-group-title">Datum Zahlung</span>',
+  };
+  readonly aspect_mrba_verifyData : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.button_calc_deduction,
+      this.mrba_grossAmountVerified,
+      this.mrba_netAmountVerified,
+    ]
+  };
+  readonly title_mrba_verifiedInboundInvoiceType: FormlyFieldConfig ={
+    template: '<span class="form-group-title">Überweisung/Abbucher</span>',
+  };
+  readonly element_mrba_verifiedInboundInvoiceType : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.mrba_verifiedInboundInvoiceType,
+    ]
+  };
+  readonly aspect_mrba_verifyData2 : FormlyFieldConfig = {
+    fieldGroupClassName: 'flex-container',
+    fieldGroup: [
+      this.button_recalc_paymentdays,
+      this.mrba_verifyDateValue,
+      this.mrba_paymentDateNetValue,
+      this.mrba_paymentDateDiscount1Value,
+      this.mrba_paymentDateDiscount2Value,
+    ]
+  };
+
+}
+
+

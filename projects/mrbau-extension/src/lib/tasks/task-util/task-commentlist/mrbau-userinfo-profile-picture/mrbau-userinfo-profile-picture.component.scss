@@ -1,0 +1,27 @@
+.mrbau-userinfo-profile-container {
+  display: inline-block;
+}
+.mrbau-userinfo-pic {
+  background-color: #4d88cd;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  text-align: center;
+  font-weight: bolder;
+  font-size: 18px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  line-height: 40px;
+}
+.mrbau-userinfo-profile-image {
+  background-color: #4d88cd;
+  text-align: center;
+  border-radius: 90%;
+  width: 40px;
+  height: 40px;
+  margin-right: 0;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 0;
+}

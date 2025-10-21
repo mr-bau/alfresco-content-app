@@ -1,0 +1,4 @@
+<!--<object id="pdf-frame" type="application/pdf" width="100%" height="100%" [data]="document_url"></object>-->
+<embed *ngIf="!useIframe && sanitized_document_url" id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="sanitized_document_url"/>
+<iframe *ngIf="useIframe && sanitized_document_url" id="pdf-frame" type="application/pdf" width="100%" height="100%" [src]="sanitized_document_url" ></iframe>
+

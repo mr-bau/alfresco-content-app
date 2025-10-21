@@ -1,0 +1,33 @@
+{
+  "name": "@mrbau/mrbau-extension",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "projects/mrbau-extension/src",
+  "prefix": "lib",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "projects/mrbau-extension/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "projects/mrbau-extension/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "projects/mrbau-extension/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["projects/mrbau-extension/**/*.ts", "projects/mrbau-extension/**/*.html", "projects/mrbau-extension/package.json"]
+      }
+    }
+  }
+}

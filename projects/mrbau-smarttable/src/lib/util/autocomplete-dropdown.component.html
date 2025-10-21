@@ -1,0 +1,21 @@
+<div class="group-container">
+  <span cInputGroupText class="no-border-right">{{data.title}}</span>
+  <ng-select
+    [items]="items$ |async"
+    [bindLabel]="data.bindLabel"
+    [bindValue]="data.bindValue"
+    autofocus
+    [(ngModel)]="selectedItemId"
+
+    placeholder="Suchen z.B. %name%"
+    [searchFn]="noClientFilter"
+    [searchable]="true"
+    (search)="onSearch($event.term, $event.items)"
+    (open)="loadItems()"
+    class="w-100"
+  >
+    <ng-template ng-option-tmp let-item="item">
+      {{ createDropDownString(item) }}
+    </ng-template>
+  </ng-select>
+</div>

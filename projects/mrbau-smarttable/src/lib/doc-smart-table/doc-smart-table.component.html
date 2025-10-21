@@ -1,0 +1,304 @@
+<div id="main">
+  <h1><mrbau-shownavbaroverlay/>Übersicht Belege</h1>
+  <mrbau-loaderoverlay *ngIf="loaderVisible"></mrbau-loaderoverlay>
+  <mrbau-errormsgpane [errorMessage]="errorMessage"></mrbau-errormsgpane>
+  <mrbau-context-menu #contextMenu/>
+
+  @if (errorMessage$ | async; as errorMessage) {
+    <hr>
+    <c-alert>{{ errorMessage }}</c-alert>
+  }
+
+  @if (props$ | async; as props) {
+    <!--{{props$ | async | json}}-->
+  <c-smart-table
+    #smartTable="cSmartTable"
+    (columnFilterValueChange)="handleColumnFilterValueChange($event)"
+    (filteredItemsChange)="handleFilteredItemsChange($event)"
+    (itemsPerPageChange)="handleItemsPerPageChange($event)"
+    (sorterValueChange)="handleSorterValueChange($event)"
+    (cleanerClick)="handleCleanerClick($event)"
+    [columnFilterValue]="props.columnFilterValue"
+    [columnFilter]="{ external: true, lazy: false }"
+    [columnSorter]="{ external: true, resettable: true }"
+    [columns]="columns"
+    [itemsPerPageOptions]="[5,10,20,50]"
+    [itemsPerPageSelect]="true"
+    [itemsPerPage]="props.itemsPerPage"
+    [items]="(docsData$ | async) ?? []"
+    [loading]="props.loadingData"
+    [sorterValue]="props.sorterValue"
+    [tableProps]="{ hover: true, striped: true, responsive: true }"
+    cleaner
+    header
+
+    locale="de"
+    itemsPerPageLabel="Elemente pro Seite"
+    noItemsLabel="Keine Elemente gefunden"
+    tableFilterPlaceholder="Eingabe ..."
+  >
+
+    <ng-template cTemplateId="tableCustomHeader">
+      <div [cCol]="'auto'" class="p-0 ms-4">
+
+        <form cForm [formGroup]="formGroup">
+          <mrbau-autocomplete-dropdown [data]="vendorData" (onVendorChanged)="onVendorChanged($event)" cTooltip="Datenbankfilter nach Firma"/>
+          <c-button-group role="group" class="ms-2">
+            @for (radio of radioOptionsKT; track radio) {
+              <input class="btn-check" formControlName="formControlKT" type="radio" value="{{radio.key}}" />
+              <label (contextmenu)="onRightClick($event, radio)" (click)="changeRadioValue(radio)" cButton cFormCheckLabel variant="outline" color="dark" cTooltip="{{radio.tooltip}}">{{radio.label}}</label>
+            }
+          </c-button-group>
+          <c-button-group role="group" class="ms-2">
+            @for (radio of radioOptionsTags; track radio) {
+              <input class="btn-check" formControlName="formControlTags" type="radio" value="{{radio.key}}" />
+              <label (contextmenu)="onRightClick($event, radio)" (click)="changeRadioValue(radio)" cButton cFormCheckLabel variant="outline" color="dark" cTooltip="{{radio.tooltip}}">{{radio.label}}</label>
+            }
+          </c-button-group>
+        </form>
+
+      </div>
+      <div [cCol]="'auto'" class="p-0 ms-auto">
+        <button cButton variant="ghost" color="dark" (click)="onAdjustColumnsClick($event);" (contextmenu)="onAdjustColumnsClick($event);" cTooltip="Spalten anpassen">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h160v-480H160v480Zm240 0h160v-480H400v480Zm240 0h160v-480H640v480Zm-240 0v-480 480Z"/></svg></button>
+        </div>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_created">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(startDate)]="startDateCreated"
+        [(endDate)]="endDateCreated"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_archivedDateValue">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(startDate)]="startDateArchivedDateValue"
+        [(endDate)]="endDateArchivedDateValue"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_documentDateValue">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(startDate)]="startDateDocumentDateValue"
+        [(endDate)]="endDateDocumentDateValue"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_organisationPosition">
+      <c-multi-select (valueChange)="handleValueChangeOrganisationPosition($event)" [value]="props.columnFilterValue['organisationPosition'] || []" multiple size="sm">
+        @for (role of organisationPosition; track role) {
+          <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
+        }
+      </c-multi-select>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_nodeType">
+      <c-multi-select (valueChange)="handleValueChangeNodeType($event)" [value]="props.columnFilterValue['nodeType'] || []" multiple visibleItems="8" size="sm">
+        @for (role of nodeType; track role) {
+          <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
+        }
+      </c-multi-select>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_tags">
+      <c-multi-select (valueChange)="handleValueChangeTags($event)" [value]="props.columnFilterValue['tags'] || []" multiple visibleItems="8" size="sm">
+        @for (role of tagsFormOptions; track role) {
+          <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
+        }
+      </c-multi-select>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_creator">
+      <c-multi-select (valueChange)="handleValueChangeCreator($event)" [value]="props.columnFilterValue['creator'] || []" multiple visibleItems="8" size="sm">
+        @for (role of creator; track role) {
+          <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
+        }
+      </c-multi-select>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_signingStatus">
+      <c-multi-select (valueChange)="handleValueChangeSigningStatus($event)" [value]="props.columnFilterValue['signingStatus'] || []" multiple visibleItems="8" size="sm">
+        @for (role of signingStatus; track role) {
+          <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
+        }
+      </c-multi-select>
+    </ng-template>
+
+    <ng-template cTemplateId="tableSummaryRow">
+      <tr cTableColor="info">
+        <th [attr.colspan]="smartTable.columns.length">
+          Anzahl: {{totalItems$ | async | number}}
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template cTemplateId="tableData" let-columnName="columnName" let-item="item" let-tdContent="tdContent">
+      <td [cAlign]="smartTable.getTableDataCellProps(item, columnName)?.['align']"
+        [cTableActive]="smartTable.getTableDataCellProps(item, columnName)?.['active']"
+        [cTableColor]="smartTable.getTableDataCellProps(item, columnName)?.['color']"
+        [ngClass]="smartTable.getTableDataCellClass(item, columnName)">
+          @switch (columnName) {
+            @case ('details') {
+              <button (click)="viewFile(item['id'])" cButton color="primary" size="sm" variant="outline" cTooltip="Dokument anzeigen">Vorschau</button>
+              <button class="margin-left" (click)="toggleDetails(item.id)" cButton color="primary" size="sm" variant="outline" cTooltip="Details ein-/ausblenden">Details</button>
+            }
+            @case ('nodeType') {
+              {{tdContent | mrbauArchiveNodeTypeLabel | translate }}
+            }
+            @case ('created') {
+              {{tdContent | date : 'YY-MM-dd, hh:mm' }}
+            }
+            @case ('archivedDateValue') {
+             {{tdContent | date : 'yyyy-MM-dd' }}
+            }
+            @case ('documentDateValue') {
+             {{tdContent | date : 'yyyy-MM-dd' }}
+            }
+            @case ('tags') {
+              @if (item['tags$'] | async; as tags) {
+                @for (item of tags['list'].entries; track item) {
+                  <c-badge class="margin-left" color="info">{{item.entry.tag}}</c-badge>
+                }
+              }
+            }
+            @default {
+              {{tdContent}}
+            }
+          }
+      </td>
+    </ng-template>
+
+    <ng-template cTemplateId="tableDetails" let-item="item">
+    <div [visible]="this.details_visible[item.id]===true" cCollapse>
+      <c-card class="rounded-0">
+        <c-card-body>
+          <c-container class="ms-0 ps-0 mb-2">
+            <c-row>
+              <c-col><h5>{{ item['dokumentName'] }}
+              @if (item['tags$'] | async; as tags) {
+                @for (item of tags['list'].entries; track item) {
+                  <c-badge class="margin-left" color="info">{{item.entry.tag}}</c-badge>
+                }
+              }
+              </h5></c-col>
+            </c-row>
+            <c-row><c-col>
+                Art: <span class="emphasize">{{item['nodeType'] | mrbauArchiveNodeTypeLabel | translate }}</span> @if (item.properties['mrba:invoiceType']) { ({{ item.properties['mrba:invoiceType'] }})}
+            </c-col></c-row>
+            <c-row><c-col>
+                Firma: <span class="emphasize">{{ item['companyName'] }}</span> @if (item.properties['mrba:companyVatID']) { ({{item.properties['mrba:companyVatID']}}) }
+            </c-col></c-row>
+            <c-row><c-col>
+                KT/KS: <span class="emphasize">{{ item['costCarrierNumber'] }} {{item['project']}}</span>
+            </c-col></c-row>
+            @if (item['documentNumber']) {
+            <c-row><c-col>
+              Beleg-Nr.: {{ item['documentNumber'] }}
+            </c-col></c-row>
+            }
+            <c-row><c-col>
+                von {{ item['creator'] }} am {{ item['created'] | date : 'YY-MM-dd, hh:mm'}} für Mandant {{ item['organisationUnit'] }}
+                {{ item['organisationPosition'] ? 'als '+item['organisationPosition'] : ''}}
+            </c-col></c-row>
+            <c-row><c-col>
+                Archivierungs-Datum: {{ item['archivedDateValue'] | date : 'yyyy-MM-dd'}}
+            </c-col></c-row>
+            <c-row><c-col>
+                Beleg-Datum: {{ item['documentDateValue'] | date : 'yyyy-MM-dd'}}
+            </c-col></c-row>
+            @if (item['signingStatus']) {
+            <c-row><c-col>
+              Signatur Status: {{ item['signingStatus'] }}
+            </c-col></c-row>
+            }
+            @if (item.properties['mrba:grossAmount']) {
+            <c-row><c-col>
+              Rechnungs-Betrag Brutto: {{ item.properties['mrba:grossAmount'] }}
+              @if (item.properties['mrba:grossAmountVerified']) {
+              <br/>Geprüfter Betrag Brutto: {{ item.properties['mrba:grossAmountVerified'] }}
+              }
+              @if (item.properties['mrba:verifiedInboundInvoiceType']) {
+              <br/>Zahlungsart: {{ item.properties['mrba:verifiedInboundInvoiceType'] }}
+              }
+            </c-col></c-row>
+            }
+            @if (item.properties['mrba:documentTopic']) {
+            <c-row><c-col>
+              Bezeichnung: {{item.properties['mrba:documentTopic']}}
+              @if (item.properties['mrba:contractStart']) {
+                <br/>Laufzeit: {{item.properties['mrba:contractStart']}} - {{item.properties['mrba:contractEnd']}}
+              }
+              @if (item.properties['mrba:contractState']) {
+                <br/>Status: {{item.properties['mrba:contractState']}}
+              }
+            </c-col></c-row>
+            }
+            @if (item.properties['mrba:paymentTargetDays']) {
+            <c-row><c-col>
+              Zahlungsbedingungen:
+              @if (item.properties['mrba:earlyPaymentDiscountDays1']) {
+              {{item.properties['mrba:earlyPaymentDiscountDays1']}}Tage {{item.properties['mrba:earlyPaymentDiscountPercentNumericValue1']}}%,
+              }
+              @if (item.properties['mrba:earlyPaymentDiscountDays2']) {
+              {{item.properties['mrba:earlyPaymentDiscountDays2']}}Tage {{item.properties['mrba:earlyPaymentDiscountPercentNumericValue2']}}%,
+              }
+              {{item.properties['mrba:paymentTargetDays']}} Tage Netto
+            </c-col></c-row>
+            }
+
+
+            <!--<c-row><c-col>{{ item['properties'] | json }}</c-col></c-row>-->
+          </c-container>
+          <p>
+            <button cButton color="primary" variant="outline" size="sm" (click)="viewFile(item.id)" cTooltip="Dokument anzeigen">Dokument Anzeigen</button>
+            <button cButton color="primary" class="margin-left" variant="outline" size="sm" (click)="openTaskLink(item.id, false)" cTooltip="Aufgabe anzeigen">Aufgabe Anzeigen</button>
+            <button cButton color="primary" class="margin-left" variant="outline" size="sm" (click)="openTaskLink(item.id, true)" cTooltip="Aufgabe in neuem Fenster anzeigen">Aufgabe Anzeigen (Tab)</button>
+            <br/><span class="muted">Doc ID {{item['id']}}</span>
+          </p>
+        </c-card-body>
+      </c-card>
+    </div>
+  </ng-template>
+  </c-smart-table>
+
+  @if (props.totalPages) {
+    <c-smart-pagination
+      [activePage]="props.activePage"
+      (activePageChange)="handleActivePageChange($event)"
+      [pages]="props.totalPages"
+    />
+    }
+  }
+
+  <p>Hinweis: Die Tabellen-Filter unterstützen die Platzhaltersuche mit ? für exakt ein Zeichen und * für beliebig viele Zeichen.
+    Die Datenbanksuche (z.B. Firma) unterstützt die Platzhaltersuche mit ? oder _ für exakt ein Zeichen und * oder % für beliebig viele Zeichen.</p>
+  <adf-alfresco-viewer *ngIf="showViewer"
+      [overlayMode]="true"
+      [allowLeftSidebar]="false"
+      [allowFullScreen]="true"
+      [allowRightSidebar]="false"
+      [allowGoBack]="true"
+      [showToolbar]="true"
+      [showViewer]="showViewer"
+      [nodeId]="viewerNodeId!"
+      [hidden]="(viewerNodeId==null)"
+      (showViewerChange)="viewerOnClose()"
+    >
+    </adf-alfresco-viewer>
+</div>

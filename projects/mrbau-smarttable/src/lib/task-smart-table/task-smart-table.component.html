@@ -1,0 +1,239 @@
+<div id="main">
+  <h1><mrbau-shownavbaroverlay/>Übersicht Offene Aufgaben</h1>
+  <mrbau-loaderoverlay *ngIf="loaderVisible"></mrbau-loaderoverlay>
+  <mrbau-errormsgpane [errorMessage]="errorMessage"></mrbau-errormsgpane>
+  <mrbau-context-menu #contextMenu/>
+
+  <c-smart-table
+    #smartTable="cSmartTable"
+    [tableFilter]="false"
+    [columnFilter]="true"
+    [(columnFilterValue)]="columnFilterValue"
+    [columnSorter]="true"
+    [itemsPerPageSelect]="true"
+    [itemsPerPageOptions]="[5,10,20,50]"
+    [itemsPerPage]="10"
+    [columns]="labels"
+    [items]="data"
+    [tableProps]="{ hover: true, striped: true, responsive: true }"
+
+    header
+    pagination
+    [(activePage)]="paginationActivePage"
+    cleaner
+    (itemsPerPageChange)="itemsPerPageChange($event)"
+    (filteredItemsChange) ="filteredItemsChange($event)"
+    locale="de"
+    itemsPerPageLabel="Elemente pro Seite"
+    noItemsLabel="Keine Elemente gefunden"
+    tableFilterPlaceholder="Eingabe ..."
+  >
+
+    <ng-template cTemplateId="tableCustomHeader">
+
+      <!--
+      <div [cCol]="'auto'" class="p-0 ms-4">
+        <button cButton color="dark">
+          Button
+        </button>
+      </div>-->
+      <div [cCol]="'auto'" class="p-0 ms-4">
+        <form [formGroup]="formGroup">
+          <c-button-group role="group" class="ms-2">
+            @for (radio of radioOptionsTaskCategory; track radio) {
+              <input class="btn-check" formControlName="formControlTaskCategory" type="radio" value="{{radio.key}}"/>
+              <label (contextmenu)="onRightClick($event, radio);" (click)="changeRadioValue(radio)" cButton cFormCheckLabel variant="outline" color="dark" cTooltip="{{radio.tooltip}}">{{radio.label}}</label>
+            }
+          </c-button-group>
+          <c-button-group role="group" class="ms-2">
+            @for (radio of radioOptionsUser; track radio) {
+              <input class="btn-check" formControlName="formControlUser" type="radio" value="{{radio.key}}" />
+              <label (contextmenu)="onRightClick($event, radio); " (click)="changeRadioValue(radio)" cButton cFormCheckLabel variant="outline" color="dark" cTooltip="{{radio.tooltip}}">{{radio.label}}</label>
+            }
+          </c-button-group>
+          <c-button-group role="group" class="ms-2">
+            @for (radio of radioOptionsKT; track radio) {
+              <input class="btn-check" formControlName="formControlKT" type="radio" value="{{radio.key}}" />
+              <label (contextmenu)="onRightClick($event, radio); " (click)="changeRadioValue(radio)" cButton cFormCheckLabel variant="outline" color="dark" cTooltip="{{radio.tooltip}}">{{radio.label}}</label>
+            }
+          </c-button-group>
+          <c-form-check class="ceckbox-align-middle margin-left" sizing="xl" switch>
+            <input cFormCheckInput type="checkbox" [checked]="loadAdditionalDocumentData" (change)="loadAdditionalDocumentData = !loadAdditionalDocumentData"/>
+            <label class="margin-left-small" cFormCheckLabel>Rechnungsdaten Laden</label>
+          </c-form-check>
+        </form>
+      </div>
+      <div [cCol]="'auto'" class="p-0 ms-auto">
+        <button cButton variant="ghost" color="dark" (click)="onAdjustColumnsClick($event);" (contextmenu)="onAdjustColumnsClick($event);" cTooltip="Spalten anpassen">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h160v-480H160v480Zm240 0h160v-480H400v480Zm240 0h160v-480H640v480Zm-240 0v-480 480Z"/></svg></button>
+        </div>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_createdDate">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(calendarDate)]="calendarCreationDate"
+        [(startDate)]="startCreationDate"
+        [(endDate)]="endCreationDate"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_dueDateValue">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(calendarDate)]="calendarDueDateValue"
+        [(startDate)]="startDueDateValue"
+        [(endDate)]="endDueDateValue"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_dokumentArchivedDate">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(calendarDate)]="calendarDokumentArchivedDate"
+        [(startDate)]="startDokumentArchivedDate"
+        [(endDate)]="endDokumentArchivedDate"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="columnFilter_dokumentDate">
+      <c-date-range-picker
+        [popperOptions]="{strategy: 'fixed'}"
+        [(calendarDate)]="calendarDokumentDate"
+        [(startDate)]="startDokumentDate"
+        [(endDate)]="endDokumentDate"
+        [calendars]="1"
+        closeOnSelect
+        locale="de-DE"
+        size="sm">
+      </c-date-range-picker>
+    </ng-template>
+
+    <ng-template cTemplateId="tableData" let-columnName="columnName" let-item="item" let-tdContent="tdContent">
+      <td [cAlign]="smartTable.getTableDataCellProps(item, columnName)?.['align']"
+        [cTableActive]="smartTable.getTableDataCellProps(item, columnName)?.['active']"
+        [cTableColor]="smartTable.getTableDataCellProps(item, columnName)?.['color']"
+        [ngClass]="smartTable.getTableDataCellClass(item, columnName)">
+         @switch (columnName) {
+          @case ('details') {
+            <button (click)="viewFile(item['dokumentId'])" cButton color="primary" size="sm" variant="outline">Vorschau</button>
+            <button class="margin-left" (click)="toggleDetails(item.id)" cButton color="primary" size="sm" variant="outline">Details</button>
+          }
+          @case ('createdDate') {
+            {{tdContent | date : 'yyyy-MM-dd'}}
+          }
+          @case ('dueDateValue') {
+            {{tdContent | date : 'yyyy-MM-dd'}}
+          }
+          @case ('dokumentArchivedDate') {
+            {{tdContent | date : 'yyyy-MM-dd'}}
+          }
+          @case ('dokumentDate') {
+            {{tdContent | date : 'yyyy-MM-dd'}}
+          }
+          @case ('grossAmountCents') {
+            {{tdContent/100 | currency: 'EUR':''}}
+          }
+          @case ('grossAmountVerifiedCents') {
+            {{tdContent/100 | currency: 'EUR':''}}
+          }
+          @case ('assigned') {
+            {{tdContent}}
+          }
+
+          @case ('daysUntilDue') {
+            <div style="color: {{getColor(item['daysUntilDue'])}};">
+              {{tdContent}}
+              <svg width="20px" height="20px"><circle cx="10" cy="10" r="10" [style.fill]="getColor(item['daysUntilDue'])"/></svg>
+            </div>
+          }
+          @default {
+            {{tdContent}}
+          }
+        }
+      </td>
+    </ng-template>
+
+    <ng-template cTemplateId="tableDetails" let-item="item">
+    <div [visible]="this.details_visible[item.id]===true" cCollapse>
+      <c-card class="rounded-0">
+        <c-card-body>
+          <c-container class="ms-0 ps-0 mb-2">
+            <c-row>
+              <c-col><h5>{{ item['desc'] }} <c-badge color="info">{{item['status']}} ({{item['statusId']}})</c-badge></h5></c-col>
+            </c-row>
+            <c-row>
+              <c-col>Haupt-Dokument <span class="emphasize">{{item['dokumentName']}}</span></c-col>
+            </c-row>
+            <c-row>
+              <c-col>Firma <span class="emphasize">{{item['company'] || '-'}}</span></c-col>
+              <c-col>KT/KS <span class="emphasize">{{item['kt'] || '-'}}</span></c-col>
+              <c-col>Eingangsdatum <span class="emphasize">{{(item['dokumentArchivedDate'] | date : 'yyyy-MM-dd') || '-'}}</span></c-col>
+            </c-row>
+            <c-row>
+              <c-col>Beleg-Nummer <span class="emphasize">{{item['dokumentNumber']}}</span></c-col>
+              <c-col>Beleg-Datum <span class="emphasize">{{item['dokumentDate'] | date : 'yyyy-MM-dd'}}</span></c-col>
+              <c-col></c-col>
+            </c-row>
+            <c-row>
+              <c-col>Rechnungsbetrag Brutto <span class="emphasize">{{item['grossAmountCents'] == '-' ? item['grossAmountCents'] : (item['grossAmountCents']/100 | currency: 'EUR')}}</span></c-col>
+              <c-col>Geprüfter Betrag Brutto <span class="emphasize">{{item['grossAmountVerifiedCents'] == '-' ? item['grossAmountVerifiedCents'] : (item['grossAmountVerifiedCents']/100 | currency: 'EUR')}}</span></c-col>
+              <c-col></c-col>
+            </c-row>
+            <c-row>
+              <c-col>Aufgabe erzeugt am <span class="emphasize">{{item['createdDate'] | date : 'yyyy-MM-dd'}}</span></c-col>
+              <c-col>zu erledigen bis <span class="emphasize">{{(item['dueDateValue'] | date : 'yyyy-MM-dd') || '-'}}</span></c-col>
+              <c-col>Frist ursprünglich <span class="emphasize" [style.color]="getColor(item['daysUntilDueTotal'])">{{item['dueDateValue'] ? item['daysUntilDueTotal']+' Tage' : '-'}}</span></c-col>
+            </c-row>
+            <c-row>
+              <c-col>Zugewiesen an <span class="emphasize">{{item['assigned']}} {{item['assigned'] | json}}</span></c-col>
+              <c-col></c-col>
+              <c-col>Frist heute <span class="emphasize" [style.color]="getColor(item['daysUntilDue'])">{{item['dueDateValue'] ? item['daysUntilDue']+' Tage' : '-'}}</span></c-col>
+            </c-row>
+          </c-container>
+          <p>
+            <button cButton color="primary" variant="outline" (click)="openTaskLink(item)" size="sm">Aufgabe Anzeigen</button>
+            <button cButton class="margin-left" color="primary" variant="outline" (click)="openTaskLink(item, true)" size="sm">In Neuem Fenster Anzeigen</button><br/>
+            <span class="muted">Task ID {{item['id']}} - Doc ID {{item['dokumentId']}}</span>
+          </p>
+        </c-card-body>
+      </c-card>
+    </div>
+  </ng-template>
+
+    <ng-template cTemplateId="tableSummaryRow">
+        <tr cTableColor="info">
+          <th [attr.colspan]="smartTable.columns.length">
+            Anzahl: {{stats.num}}
+            / Summe Brutto: {{stats.sumGrossAmountCents/100 | currency: 'EUR'}}
+            / Summe Brutto gpr: {{stats.sumGrossAmountVerifiedCents/100 | currency: 'EUR'}}
+          </th>
+        </tr>
+      </ng-template>
+  </c-smart-table>
+  <adf-alfresco-viewer *ngIf="showViewer"
+      [overlayMode]="true"
+      [allowLeftSidebar]="false"
+      [allowFullScreen]="true"
+      [allowRightSidebar]="false"
+      [allowGoBack]="true"
+      [showToolbar]="true"
+      [showViewer]="showViewer"
+      [nodeId]="viewerNodeId"
+      [hidden]="(viewerNodeId==null)"
+      (showViewerChange)="viewerOnClose()"
+    >
+    </adf-alfresco-viewer>
+</div>
