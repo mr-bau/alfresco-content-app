@@ -9,3 +9,9 @@ app/src/assets/i18n
 app/src/environments
 /angular.json
 docs/**/*.md
+app/src/wv-resources
+projects/mrbau-smarttable
+projects/mrbau-common
+projects/mrbau-extension
+projects/mrbau-pdftron
+

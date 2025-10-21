@@ -28,7 +28,7 @@ import { provideAosExtension } from '@alfresco/aca-content/ms-office';
 import { DEV_MODE_TOKEN, PACKAGE_JSON, provideAboutExtension } from '@alfresco/aca-content/about';
 import { environment } from '../environments/environment';
 import { provideMrbauCommonExtension } from '@mrbau/mrbau-common';
-//import { MrbauExtensionModule } from '@mrbau/mrbau-extension';
+// import { MrbauExtensionModule } from '@mrbau/mrbau-extension';
 import packageJson from 'package.json';
 import { provideMrbauExtensionExtension } from '@mrbau/mrbau-extension';
 import { provideMrbauSmarttableExtension } from '@mrbau/mrbau-smarttable';
