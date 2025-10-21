@@ -1,5 +1,12 @@
 # Alfresco Content Application
 
+```sh
+  npm install --legacy-peer-deps
+ 
+ "@alfresco/adf-core": "npm:@mrbau/adf-core@^8.1.1-mrbau.0",
+
+```
+
 Please refer to the public [documentation](https://alfresco-content-app.netlify.app/) for more details
 
 ## Requirements

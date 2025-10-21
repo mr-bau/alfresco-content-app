@@ -22,10 +22,11 @@
  * from Hyland Software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { MarkedOptions, MarkedRenderer } from 'ngx-markdown';
+import { MarkedOptions } from 'ngx-markdown';
+import { marked } from 'marked';
 import { Tokens } from 'marked/lib/marked';
 
-const renderer = new MarkedRenderer();
+const renderer = new marked.Renderer();
 renderer.link = ({ href, title, text }: Tokens.Link): any =>
   `<a href="${href}" target="_blank" rel="noopener noreferrer" title="${title || ''}">${text}</a>`;
 export const searchAiMarkedOptions: MarkedOptions = {

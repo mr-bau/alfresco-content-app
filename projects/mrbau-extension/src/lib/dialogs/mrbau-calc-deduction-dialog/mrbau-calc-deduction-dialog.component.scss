@@ -1,9 +1,9 @@
 $flex-width-basex: 10rem;
 $flex-width-gapx: 10px;
-$flex-container-widthx: min(calc(#{$flex-width-basex}* 6), 100vw - 90px);
+$flex-container-widthx: min(calc(#{$flex-width-basex}*6), 100vw - 90px);
 
 .alignBottom {
-  align-items: bottom;
+  align-items:bottom;
 }
 
 .alignRight {
@@ -13,8 +13,8 @@ $flex-container-widthx: min(calc(#{$flex-width-basex}* 6), 100vw - 90px);
 .flex-container-calc {
   display: flex;
   flex-flow: row wrap;
-  justify-content: space-around;
-  align-items: stretch;
+  justify-content:space-around;
+  align-items:stretch;
   gap: 0 #{$flex-width-gapx};
   width: #{$flex-container-widthx};
 
@@ -26,11 +26,12 @@ $flex-container-widthx: min(calc(#{$flex-width-basex}* 6), 100vw - 90px);
     }
     formly-wrapper-mat-form-field {
       mat-form-field {
-        margin-bottom: 5px;
-        div.mat-form-field-wrapper {
-          padding: 0;
+        margin-bottom:5px;
+        div.mat-form-field-wrapper  {
+          padding:0;
         }
       }
     }
   }
 }
+

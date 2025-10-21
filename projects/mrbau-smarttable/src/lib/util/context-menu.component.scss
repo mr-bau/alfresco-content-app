@@ -5,16 +5,13 @@ h1 {
 }
 
 #contextMenuPanel {
-  background-color: white;
+  background-color:white;
   position: fixed;
   z-index: 1000;
   min-width: 112px;
   max-width: 280px;
   overflow: auto;
-  box-shadow:
-    0px 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0px 8px 10px 1px rgba(0, 0, 0, 0.14),
-    0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
   border-radius: 4px;
 }
 
@@ -35,6 +32,7 @@ h1 {
 }
 
 #searchIcon {
+
 }
 
 #contextMenuList {
@@ -57,3 +55,5 @@ h1 {
   padding: 12px;
   border-top: solid 1px gray;
 }
+
+

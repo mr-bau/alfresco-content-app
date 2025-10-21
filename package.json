@@ -31,7 +31,7 @@
   "private": true,
   "dependencies": {
     "@alfresco/adf-content-services": "8.1.1",
-    "@alfresco/adf-core": "npm:@mrbau/adf-core@^8.1.1-mrbau.0",
+    "@alfresco/adf-core": "8.1.1",
     "@alfresco/adf-extensions": "8.1.1",
     "@alfresco/eslint-plugin-eslint-angular": "8.1.1",
     "@alfresco/js-api": "9.1.1",
