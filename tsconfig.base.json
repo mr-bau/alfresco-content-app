@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
+      "@alfresco/adf-core": ["node_modules/@mrbau/adf-core"],
       "@alfresco/aca-content": ["projects/aca-content/src/public-api.ts"],
       "@alfresco/aca-content/about": ["projects/aca-content/about/src/public-api.ts"],
       "@alfresco/aca-content/folder-rules": ["projects/aca-content/folder-rules/src/public-api.ts"],
