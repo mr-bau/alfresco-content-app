@@ -1,58 +1,89 @@
-# Alfresco Content Application
+# Fork of the Alfresco Content Application for MRBau
 
-```sh
-  npm install --legacy-peer-deps
- 
- "@alfresco/adf-core": "npm:@mrbau/adf-core@^8.1.1-mrbau.0",
+## Branch mrbau_aca_7.1 based on ACA 7.1.x
 
-  package.json
-  "@mrbau/adf-core": "^8.1.1-mrbau.0",
-  
-  tsconfigbase.json
-  "@alfresco/adf-core": ["node_modules/@mrbau/adf-core"],
-
-  npx nx reset
-  rm -rf .nx/cache
-  rm -rf node_modules/.cache/nx
-
-```
-
-Please refer to the public [documentation](https://alfresco-content-app.netlify.app/) for more details
-
-## Requirements
+### Requirements
 
 | Name    | Version |
-|---------|---------|
-| Node.js | 18.x    |
+| ---     | ---     |
+| Node.js | 22.x    |
 | Npm     | 9.x     |
+| Angular | 19.x    |
 
-## Compatibility
+### How to install
 
-| ACA   | ADF           | ACS       | Node | Angular |
-|-------|---------------|-----------|------|---------|
-| 7.1.x | 8.1.1         | 25.2      | 22.x | 19.x    |
-| 7.0.x | 8.0.0         | 25.2      | 22.x | 19.x    |
-| 6.0.x | 7.0.0         | 25.1      | 20.x | 17.x    |
-| 5.3.x | 7.0.0-alpha.7 | 23.4      | 18.x | 16.x    |
-| 5.2.x | 7.0.0-alpha.6 | 23.4      | 18.x | 16.x    |
-| 5.1.x | 7.0.0-alpha.3 | 23.3      | 18.x | 15.x    |
-| 5.0.x | 7.0.0-alpha.2 | 23.3      | 18.x | 15.x    |
-| 4.4.x | 6.7           | 23.2      | 18.x | 14.x    |
-| 4.3.x | 6.4           | 23.1      | 18.x | 14.x    |
-| 4.2.x | 6.3           | 23.1.0-M4 | 18.x | 14.x    |
-| 4.1.x | 6.2           | 7.4       | 18.x | 14.x    |
-| 4.0.x | 6.1           | 7.4       | 14.x | 14.x    |
-| 3.1.x | 5.1           | 7.3       |      |         |
-| 3.0.x | 5.0           | 7.3       |      |         |
+Run the following commands:
 
-> See <https://angular.io/guide/versions> for more details on Angular and Node.js compatibility
-
-## Running
+```sh
+git clone --depth 1 --single-branch -b mrbau_aca_7.1 https://github.com/mr-bau/alfresco-content-app.git
+npm install
+```
 
 Create an `.env` file in the project root folder with the following content
 
 ```yml
 BASE_URL="<URL>"
+```
+
+Where `<URL>` is the address of the ACS e.g. `https://mrdev01.mrbau.local`
+
+### How to update
+
+```sh
+git fetch
+git rebase origin/mrbau_aca_7.1 mrbau_aca_7.1
+npm install
+```
+
+### How to build Local
+
+```sh
+npm start
+```
+### How to build (Docker)
+
+```
+docker build -t mrbau/alfresco-content-app:latest .
+```
+
+This build only requires that the Docker container engine is installed and running locally, as well that access to the central Docker hub (hub.docker.io) is allowed to pull the underyling base image(s).
+
+### How to rebuild Docker without cache
+```sh
+npx nx reset
+rm -rf .nx/cache
+rm -rf node_modules/.cache/nx
+docker build --no-cache -t mrbau/alfresco-content-app:latest .
+```
+
+## Branch mrbau_aca  based on ACA 3.1.x
+
+### Requirements
+
+| Name | Version |
+| --- | --- |
+| Node.js | 14.x |
+| Npm | 6.x |
+
+### How to build (Docker)
+
+In order to deploy the customisations of this project within the context of the [M&R Bau Alfresco deployment template](https://github.com/mr-bau/alfresco-deployment), a Docker image must be built. This can be done without having Node / NPM installed locally by moving the build inside the Docker build pipeline. The build of the Docker image can be triggered by executing the following command:
+
+```
+docker build -t mrbau/alfresco-content-app:latest .
+```
+
+This build only requires that the Docker container engine is installed and running locally, as well that access to the central Docker hub (hub.docker.io) is allowed to pull the underyling base image(s).
+
+### Running
+
+Create an `.env` file in the project root folder with the following content
+
+```yml
+APP_CONFIG_ECM_HOST="<URL>"
+APP_CONFIG_PLUGIN_AOS=false
+APP_CONFIG_PLUGIN_CONTENT_SERVICE=true
+APP_CONFIG_PLUGIN_FOLDER_RULES=true
 ```
 
 Where `<URL>` is the address of the ACS.
@@ -61,28 +92,19 @@ Run the following commands:
 
 ```sh
 npm install
-npm start
+npm start content-ce
 ```
 
-## Unit Tests
+### Using Local ADF
 
-Use following command to test the projects:
+Clone the `alfresco-ng2-components` and `alfresco-content-app` repositories in the same folder, and run the following command:
 
 ```sh
-nx test <project>
+npm start content-ce -- --configuration=adf
 ```
 
-### Code Coverage
+Changing the ADF code results in the recompilation and hot-reloading of the ACA application.
 
-The projects are already configured to produce code coverage reports in console and HTML output.
+## See Also
 
-You can view HTML reports in the `./coverage/<project>` folder.
-
-When working with unit testing and code coverage improvement, you can run unit tests in the "live reload" mode:
-
-```sh
-nx test <project> -- --watch
-```
-
-Upon changing unit tests code, you can track the coverage results either in the console output, or by reloading the HTML report in the browser.
-
+Please refer to the public [documentation](https://alfresco-content-app.netlify.app/) for more details
