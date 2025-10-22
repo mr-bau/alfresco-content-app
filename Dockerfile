@@ -8,7 +8,7 @@ COPY package.json package.json
 FROM acosix/baseimage:20220603 as appBuilder
 
 # add mrbau ssl interception certificate
-COPY ./mrbau-ssl-interception/MFS-SSL-Interception.cer /usr/local/share/ca-certificates/MFS-SSL-Interception.crt
+COPY ../mrbau-ssl-interception/MFS-SSL-Interception.cer /usr/local/share/ca-certificates/MFS-SSL-Interception.crt
 RUN update-ca-certificates
 
 # nodejs 12 is too old
