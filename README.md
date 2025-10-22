@@ -35,18 +35,19 @@ git rebase origin/mrbau_aca_7.1 mrbau_aca_7.1
 npm install
 ```
 
-### How to build Local
+### How to build (Local)
 
 ```sh
 npm start
 ```
+
 ### How to build (Docker)
+
+tbd
 
 ```
 docker build -t mrbau/alfresco-content-app:latest .
 ```
-
-This build only requires that the Docker container engine is installed and running locally, as well that access to the central Docker hub (hub.docker.io) is allowed to pull the underyling base image(s).
 
 ### How to rebuild Docker without cache
 ```sh
