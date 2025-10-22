@@ -16,7 +16,6 @@ Run the following commands:
 
 ```sh
 git clone --depth 1 --single-branch -b mrbau_aca_7.1 https://github.com/mr-bau/alfresco-content-app.git
-npm install
 ```
 
 Create an `.env` file in the project root folder with the following content
@@ -32,12 +31,12 @@ Where `<URL>` is the address of the ACS e.g. `https://mrdev01.mrbau.local`
 ```sh
 git fetch
 git rebase origin/mrbau_aca_7.1 mrbau_aca_7.1
-npm install
 ```
 
 ### How to build (Local)
 
 ```sh
+npm install
 npm start
 ```
 
