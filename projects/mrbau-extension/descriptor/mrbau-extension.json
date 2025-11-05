@@ -209,9 +209,20 @@
                 }
               },
               {
+                "id": "mrbau.extension.search",
+                "order": 200,
+                "title": "Suche",
+                "description": "Suche nach Dokumenten",
+                "route" : "search",
+                "rules": {
+                  "visible": "app.isContentServiceEnabled"
+                }
+              },
+              {
                 "id": "mrbau.extension.tasks",
                 "order": 600,
                 "title": "Meine Aufgaben",
+                "description": "Aufgabenliste",
                 "route" : "tasks",
                 "rules": {
                   "visible": "app.isContentServiceEnabled"
