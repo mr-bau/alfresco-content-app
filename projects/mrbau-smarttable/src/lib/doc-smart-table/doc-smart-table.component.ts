@@ -4,7 +4,7 @@ import { ErrormsgpaneComponent, LoaderoverlayComponent, ShowNavbarOverlayCompone
 import { AlfrescoViewerComponent, EcmUserModel } from '@alfresco/adf-content-services';
 import { AlertModule, AlignDirective, BadgeModule, ButtonDirective, ButtonGroupComponent, CardModule,
   //ColDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, TooltipDirective,
-  CollapseDirective, DateRangePickerModule, FormCheckLabelDirective, FormDirective, GridModule, IColumn, IColumnFilterValue, ISorterValue, MultiSelectComponent, MultiSelectOptionComponent, SmartPaginationModule, SmartTableModule, TableActiveDirective, TableColorDirective, TemplateIdDirective,
+  CollapseDirective, DateRangePickerModule, FormCheckLabelDirective, FormDirective, GridModule, IColumn, IColumnFilterValue, ISorterValue, MultiSelectComponent, MultiSelectOptionComponent, NgCssClass, SmartPaginationModule, SmartTableComponent, SmartTableModule, TableActiveDirective, TableColorDirective, TemplateIdDirective,
   TooltipDirective} from '@coreui/angular-pro';
 import { DocSmartTableHeader, IDocs } from './doc-smart-table-header';
 import { DocSmartTableDataService, IApiParams } from './doc-smart-table-data.service';
@@ -77,6 +77,7 @@ export interface IParams {
   encapsulation: ViewEncapsulation.None,
 })
 export class DocSmartTableComponent implements OnInit, OnDestroy{
+  @ViewChild('smartTable') cSmartTable! : SmartTableComponent;
   @ViewChild('contextMenu') contextMenu! : ContextMenu;
 
   staticDataKT : IContextMenuListItem[] = [
@@ -722,5 +723,19 @@ export class DocSmartTableComponent implements OnInit, OnDestroy{
     else {
       this.store.dispatch(new MrbauShowDocTaskDialogAction(payload));
     }
+  }
+
+  /*
+  test(item:any, columnName:any) {
+    if (columnName == 'documentDateValue') {
+      console.log('xxx', columnName, item);
+      console.log(this.cSmartTable.getTableDataCellClass(item, columnName));
+      console.log(this.cSmartTable.getTableDataCellProps(item, columnName));
+
+    }
+  }*/
+
+  getColClass(item: string) : NgCssClass {
+    return DocSmartTableHeader.getColClass(item);
   }
 }

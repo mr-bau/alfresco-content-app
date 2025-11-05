@@ -19,6 +19,7 @@ import { SharedModule, TableActiveDirective,
   FormCheckComponent,
   FormCheckInputDirective,
   CardModule,
+  NgCssClass,
    } from '@coreui/angular-pro';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '@mrbau/mrbau-extension';
 import { AlfrescoViewerComponent, EcmUserModel, SearchService } from '@alfresco/adf-content-services';
@@ -738,5 +739,9 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
     }
     delete columnFilterValue.dokumentDate;
     this.columnFilterValue = { ...columnFilterValue };
+  }
+
+  getColClass(item: string) : NgCssClass {
+    return TaskSmartTableHeader.getColClass(item);
   }
 }

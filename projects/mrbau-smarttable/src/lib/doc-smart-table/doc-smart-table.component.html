@@ -152,7 +152,8 @@
       <td [cAlign]="smartTable.getTableDataCellProps(item, columnName)?.['align']"
         [cTableActive]="smartTable.getTableDataCellProps(item, columnName)?.['active']"
         [cTableColor]="smartTable.getTableDataCellProps(item, columnName)?.['color']"
-        [ngClass]="smartTable.getTableDataCellClass(item, columnName)">
+        [ngClass]="getColClass(columnName)">
+        <!--[ngClass]="smartTable.getTableDataCellClass(item, columnName)">-->
           @switch (columnName) {
             @case ('details') {
               <button (click)="viewFile(item['id'])" cButton color="primary" size="sm" variant="outline" cTooltip="Dokument anzeigen">Vorschau</button>

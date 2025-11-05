@@ -26,7 +26,6 @@ export class PdfbrowserComponent implements OnChanges {
     private contentApiService : ContentApiService,
   ) {
     this.useIframe = this.deviceService.browser != 'Firefox';
-    console.log('constructor');
   }
 
   ngOnChanges(changes: SimpleChanges) {
