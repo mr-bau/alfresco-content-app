@@ -1,5 +1,5 @@
 
-import {  ConfirmDialogComponent, NotificationService, ToolbarModule } from '@alfresco/adf-core';
+import { ConfirmDialogComponent, NotificationService, ToolbarModule } from '@alfresco/adf-core';
 import { Node, NodeAssociationEntry, NodeBodyUpdate, NodeEntry } from '@alfresco/js-api';
 import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -46,6 +46,8 @@ import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatTextAreaModule } from '@ngx-formly/material/textarea';
 import { MatListModule } from '@angular/material/list';
 import { MatStepperModule } from '@angular/material/stepper';
+import { TaskMenuPauseComponent } from '../../task-menu/task-menu-pause/task-menu-pause.component';
+import { ContentApiService } from '@alfresco/aca-shared';
 
 @Component({
   standalone:true,
@@ -64,6 +66,7 @@ import { MatStepperModule } from '@angular/material/stepper';
     TaskMenuNewarchivetypeComponent,
     TaskMenuDiscardDocumentComponent,
     TaskMenuDelegateComponent,
+    TaskMenuPauseComponent,
     TaskMenuFinishnowComponent,
     TaskMenuDeleteComponent,
     TaskMenuReopenComponent,
@@ -161,6 +164,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     private mrbauArchiveModelService : MrbauArchiveModelService,
     private nodesApiService : NodesApiService,
     private notificationService: NotificationService,
+    private contentApiService: ContentApiService
   ) {
   }
 
@@ -274,21 +278,64 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.onNextClicked();
   }
 
-  getPrevStat() : EMRBauTaskStatus {
-    return EMRBauTaskStatus.STATUS_SIGNING;
+  async getPreviousState() : Promise<EMRBauTaskStatus> {
+    return new Promise<EMRBauTaskStatus>(async (resolve) => {
+      this.isLoading = true;
+      let newState = this.task!.status;
+      try {
+        const list = await this.contentApiService.getNodeVersions(this.task!.id, {maxItems: 999, skipCount: 0, include:['properties'] }).toPromise();
+        let lastDifferentState = newState;
+        if (list?.list?.entries) {
+          for (let i=list.list.entries.length-1; i>=0; i--)
+          {
+            const a = list.list.entries[i];
+            const versionState = a.entry?.properties['mrbt:status'];
+            // use the last state that is different to the current task state as new unpause state
+            if (versionState != newState) {
+              lastDifferentState = versionState;
+            }
+          }
+        }
+        newState = lastDifferentState;
+      }
+      catch (error:any) {
+        this.errorMessage = error;
+      }
+      finally {
+        this.isLoading = false;
+        resolve(newState);
+      }
+    });
   }
 
   isButtonPauseVisible() : boolean {
-    if (this.task &&
-      (this.task.status === EMRBauTaskStatus.STATUS_PAUSED ||  this.task.status === EMRBauTaskStatus.STATUS_SIGNING)) {
+    if (this.task && this.task.status === EMRBauTaskStatus.STATUS_PAUSED) {
+      //(this.task.status === EMRBauTaskStatus.STATUS_PAUSED ||  this.task.status === EMRBauTaskStatus.STATUS_SIGNING)) {
       return true;
     }
     return false;
   }
 
-  onButtonPauseClicked() {
+  pauseClickedEvent() {
+    this.onButtonPauseClicked();
+  }
+
+  async onButtonPauseClicked() {
+    if (!this.task)
+      return;
+
+    let newState = EMRBauTaskStatus.STATUS_PAUSED;
+    if (this.task.status === EMRBauTaskStatus.STATUS_PAUSED)
+    {
+      newState = await this.getPreviousState();
+    }
+
+    if (newState === this.task.status) {
+      // nothing to do or error in getPreviousState()
+      return;
+    }
+
     this.reloadTaskRequiredFlag = true;
-    const newState : EMRBauTaskStatus = (this.task?.status === EMRBauTaskStatus.STATUS_PAUSED) ? this.getPrevStat() : EMRBauTaskStatus.STATUS_PAUSED;
     const callback : MRBauWorkflowStateCallback = () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:newState}));
     this.performStateChangeAction(callback, {taskDetailNewDocument: this});
   }
@@ -581,6 +628,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       if (this.task.status == EMRBauTaskStatus.STATUS_MR_SIGNING && !this.mrbauCommonService.isMRSigningUser()) {
         return false;
       }
+      if (this.task.status == EMRBauTaskStatus.STATUS_PAUSED) {
+        return false;
+      }
       return this.task.status > EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1;
     }
     return false;
@@ -592,6 +642,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
         return false;
       }
       if (this.task.category == EMRBauTaskCategory.NewDocumentValidateORDER && this.task.status == EMRBauTaskStatus.STATUS_ALL_SET && !this.mrbauCommonService.isMRSigningUser()) {
+        return false;
+      }
+      if (this.task.status == EMRBauTaskStatus.STATUS_PAUSED) {
         return false;
       }
       if (this.task.status == EMRBauTaskStatus.STATUS_ALL_SET && !this.mrbauCommonService.isOrderPostUser()) {
