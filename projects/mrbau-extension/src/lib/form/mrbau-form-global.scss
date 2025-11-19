@@ -231,6 +231,10 @@ textarea.mat-input-element.cdk-textarea-autosize {
     color: white !important;
     background-color:#0055b8;
   }
+  .btn:hover {
+      background: #003d85;
+      transition: 0.7s;
+  }
 }
 
 // formly form field background blue

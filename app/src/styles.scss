@@ -19,3 +19,11 @@ html {
 body {
   margin: 0;
 }
+
+.mat-resizeable-dialog {
+  // greift auf das umgebende div zu
+  .mat-mdc-dialog-container {
+    resize: both;
+    overflow: auto;
+  }
+}

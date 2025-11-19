@@ -19,6 +19,7 @@ import { IMrbauDbService_mrba_project, MrbauDbService } from './mrbau-db.service
 import { MrbauCalcDeductionDialogComponent, ResultDetails } from '../dialogs/mrbau-calc-deduction-dialog/mrbau-calc-deduction-dialog.component';
 import { AppStore, UploadFileVersionAction } from '@alfresco/aca-shared/store';
 import { Store } from '@ngrx/store';
+import { MrbauAddReviewSheetDialogComponent } from '../dialogs/mrbau-add-review-sheet-dialog/mrbau-add-review-sheet-dialog.component';
 
 export interface IMrbauReplaceCompanyInfoData {
   key:string,
@@ -1091,6 +1092,29 @@ export class MrbauCommonService {
     dialogRef.afterClosed().subscribe((result) => {
       // update properties in form
       if (result && typeof result === "object") {
+        data.model['ignore:taskNode'] = result;
+        const ctr = data.form?.controls;
+        (data.form?.controls[ResultDetails.netAmountVerified.key as keyof typeof ctr] as any).setValue(result.properties[ResultDetails.netAmountVerified.key]);
+        (data.form?.controls[ResultDetails.grossAmountVerified.key as keyof typeof ctr] as any).setValue(result.properties[ResultDetails.grossAmountVerified.key]);
+      }
+    })
+  }
+
+  addReviewSheetDialog(data:FormlyFieldConfig) {
+    const dialogRef = this.dialog.open(MrbauAddReviewSheetDialogComponent, {
+      width: '90vw',
+      height: '90vh',
+      minWidth: '20vw',
+      minHeight: '50vh',
+      panelClass: 'mat-resizeable-dialog',
+      data: {
+        payload : data,
+    }});
+
+    dialogRef.afterClosed().subscribe((result) => {
+      // update properties in form
+      if (result && typeof result === "object") {
+        console.log(result)
         data.model['ignore:taskNode'] = result;
         const ctr = data.form?.controls;
         (data.form?.controls[ResultDetails.netAmountVerified.key as keyof typeof ctr] as any).setValue(result.properties[ResultDetails.netAmountVerified.key]);

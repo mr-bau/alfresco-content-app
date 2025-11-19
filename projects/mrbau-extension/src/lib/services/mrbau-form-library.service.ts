@@ -964,6 +964,22 @@ export class MrbauFormLibraryService {
     },
   }
 
+  readonly button_add_review_sheet : FormlyFieldConfig =
+  {
+    className: 'flex-1 calcButton',
+    key: 'ignore:mrbauCalcDeductionButton',
+    type: 'mrbauFormlyButton',
+    props: {
+      //appearance:"fill",
+      label: 'Prüfblatt erstellen',
+      text: 'Prüfblatt',
+      //btnType: 'default',
+      onClick: () => {
+        this.mrbauCommonService.addReviewSheetDialog(this.button_add_review_sheet);
+      },
+    },
+  }
+
   readonly button_recalc_paymentdays : FormlyFieldConfig =
   {
     className: 'flex-1 calcButton',
@@ -2224,6 +2240,7 @@ export class MrbauFormLibraryService {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
       this.button_calc_deduction,
+      this.button_add_review_sheet,
       this.mrba_grossAmountVerified,
       this.mrba_netAmountVerified,
     ]

@@ -1,0 +1,73 @@
+:host {
+  --myvar: 1320px;
+}
+
+// Container
+  //grid-template-columns: minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr);
+.container7 { display: grid; grid-template-columns: 2fr 1fr 2fr 2fr 2fr 1fr 2fr; align-items: center;}
+.container7-1 { display: grid; grid-template-columns: 1fr 2fr 2fr 2fr 2fr 1fr 2fr; align-items: center;}
+.container6 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; align-items: center; }
+.container5 { display: grid; grid-template-columns: 2fr 2fr 4fr 2fr 2fr; align-items: center; }
+.container4-2712 { display: grid; grid-template-columns: 2fr 7fr 1fr 2fr; align-items: center; }
+.container4-4512 { display: grid; grid-template-columns: 4fr 5fr 1fr 2fr; align-items: center; }
+.container2-15 { display: grid; grid-template-columns: 1fr 5fr; align-items: center; }
+.container1 { display: grid; grid-template-columns: 1fr; align-items: center; }
+
+
+.item12 { grid-column: 1 / span 2;}
+.item45 { grid-column: 4 / span 2; }
+
+// Small Input
+:host ::ng-deep .small-input .mat-mdc-form-field-flex {
+  align-items: center;
+  min-height: 32px !important; /* ← steuert die Gesamthöhe */
+}
+:host ::ng-deep .small-input .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: 28px !important;
+}
+:host ::ng-deep .small-input .mat-mdc-input-element {
+  height: 24px !important;       /* ← steuert das eigentliche Input-Feld */
+  padding: 0 !important;
+  //font-size: 13px !important;
+  line-height: 24px !important;
+}
+:host ::ng-deep .small-input .mat-mdc-form-field-subscript-wrapper {
+  //display: none; /* optional: entfernt den Platz für Fehlertext */
+}
+
+// Read Only background color
+:host ::ng-deep .readonly .mat-mdc-text-field-wrapper {
+    background-color: #f1f1f1;
+}
+
+mat-form-field {
+  padding: 0 5px;
+}
+
+.borderbot1 {
+  border-bottom: 1px solid black;
+  margin-bottom: 15px;
+}
+
+.borderbot2 {
+  border-bottom: 2px solid black;
+  margin-bottom: 15px;
+}
+
+.label {
+
+  padding: 0 5px;
+  padding-bottom: var(--mat-form-field-subscript-text-line-height);
+}
+
+.form-field-number {
+  input {
+    text-align: right;
+  }
+}
+
+mat-dialog-content {
+  max-height: 90vh;
+}

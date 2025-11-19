@@ -18,12 +18,19 @@ export class MrbauCalcService {
 
   constructor() { }
 
+  formatNumber(value: number): string {
+    return new Intl.NumberFormat('de-DE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  }
+
   getNumberFromString(value : string) : number {
     return germanParseFloat(value) || 0;
   }
 
   getRetentionMinimumThreshold(invoiceType : string) {
-    return (invoiceType=='Teilrechnung') ? undefined : 250;
+    return (invoiceType=='Teilrechnung') ? 0 : 250;
   }
 
   calcRetentionValue(invoiceType : string, p : ICalculationParameter, base: number) : number {

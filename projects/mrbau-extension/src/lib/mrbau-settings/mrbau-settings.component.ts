@@ -12,6 +12,7 @@ import { ShowNavbarOverlayComponent } from '@mrbau/mrbau-common';
 import { MrbauMaintenanceComponent } from './mrbau-maintenance.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   standalone: true,
@@ -19,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
     ShowNavbarOverlayComponent,
     MrbauMaintenanceComponent,
     MatButtonModule, MatIconModule,
+    MatInputModule
   ],
   selector: 'mrbau-settings',
   template: `

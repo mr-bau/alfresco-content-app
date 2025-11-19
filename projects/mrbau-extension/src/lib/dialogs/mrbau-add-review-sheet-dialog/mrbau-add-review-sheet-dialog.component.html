@@ -1,0 +1,302 @@
+  <h2 mat-dialog-title>{{title}} {{subtitle}}</h2>
+  <mrbau-errormsgpane [errorMessage]="errorMessage"></mrbau-errormsgpane>
+  <mat-dialog-content>
+    <form [formGroup]="form" class="container">
+      <div class="container6">
+        <label for="auftragssumme" class="label">Auftrags-Summe:</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="auftragssumme" matInput type="text" formControlName="auftragssumme" placeholder="0,00"></mat-form-field>
+        <label for="zasumme" class="label">Zusatz-Aufträge:</label>
+        <mat-form-field  class="form-field-number small-input"><input mrbauNumberInput id="zasumme" matInput type="text" formControlName="zasumme" placeholder="0,00"></mat-form-field >
+        <label for="gesamtsumme" class="label">Gesamt-Summe:</label>
+        <mat-form-field  class="form-field-number small-input readonly"><input mrbauNumberInput id="gesamtsumme" matInput type="text" formControlName="gesamtsumme" readonly placeholder="0,00"></mat-form-field>
+      </div>
+
+      <div class="container5 borderbot1">
+        <label for="uebernahmedate" class="label">Übernahme am:</label>
+        <mat-form-field class="small-input">
+          <input id="uebernahmedate" matInput [matDatepicker]="pickeruebernahmedate" formControlName="uebernahmedate" >
+          <mat-datepicker-toggle matIconSuffix [for]="pickeruebernahmedate"></mat-datepicker-toggle>
+          <mat-datepicker #pickeruebernahmedate></mat-datepicker>
+        </mat-form-field>
+        <div></div>
+        <label for="maengelfreimeldung" class="label">Mängelfreimeldung am:</label>
+        <mat-form-field class="small-input">
+          <input id="maengelfreimeldung" matInput [matDatepicker]="pickermaengelfreimeldung" formControlName="maengelfreimeldung" >
+          <mat-datepicker-toggle   matIconSuffix [for]="pickermaengelfreimeldung"></mat-datepicker-toggle>
+          <mat-datepicker #pickermaengelfreimeldung></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="container4-2712">
+        <label for="bvh" class="label">BVH:</label>
+        <mat-form-field class="small-input readonly"><input id="bvh" matInput type="text" readonly formControlName="bvh"></mat-form-field>
+        <label for="kt" class="label">KT:</label>
+        <mat-form-field class="small-input readonly"><input id="kt" matInput type="text" readonly formControlName="kt"></mat-form-field>
+      </div>
+      <div class="container2-15 borderbot1">
+        <label for="gewerk" class="label">Gewerk:</label>
+        <mat-form-field class="small-input"><input id="gewerk" matInput type="text" formControlName="gewerk"></mat-form-field>
+      </div>
+
+      <div class="container7">
+        <label class="label">Rechnung</label>
+        <label for="rechnungsnr" class="label">R-Nr.:</label>
+        <mat-form-field class="small-input readonly"><input id="rechnungsnr" matInput type="text" readonly formControlName="rechnungsnr"></mat-form-field>
+        <label for="rechnungsdatum" class="label">Datum:</label>
+        <mat-form-field class="small-input readonly"><input id="rechnungsdatum" matInput type="text" readonly formControlName="rechnungsdatum"></mat-form-field>
+        <label for="rechnungsbetragnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragnetto" matInput type="text" formControlName="rechnungsbetragnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container4-4512">
+        <label class="label">Rechnungskorrektur</label>
+        <div></div>
+        <label for="rechnungskorrekturnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungskorrekturnetto" matInput type="text" formControlName="rechnungskorrekturnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container4-4512">
+        <label class="label">Korrigierte Rechnungssumme Netto</label>
+        <div></div>
+        <label for="rechnungsbetragnettokorr" class="label">Netto €</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="rechnungsbetragnettokorr" matInput type="text" formControlName="rechnungsbetragnettokorr" placeholder="0,00"></mat-form-field>
+      </div>
+
+      <div *ngIf="!isBauleistungsRechnung()" class="container4-4512 borderbot1">
+        <label class="label">Korrigierte Rechnungssumme Brutto</label>
+        <div></div>
+        <label for="rechnungsbetragbruttokorr" class="label">Brutto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragbruttokorr" matInput type="text" formControlName="rechnungsbetragbruttokorr" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container1">
+        <p class="label">Abzüge</p>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- nicht zordenbare Bauschäden</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="nzbauschaedenprozent" matInput type="text" formControlName="nzbauschaedenprozent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragnettokorr2" matInput type="text" formControlName="rechnungsbetragnettokorr2" placeholder="0,00" readonly></mat-form-field>
+        <label for="nzbauschaedennetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="nzbauschaedennetto" matInput type="text" formControlName="nzbauschaedennetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- direkte Bauschäden</label>
+        <div></div>
+        <div></div>
+        <div></div>
+        <label for="bauschaedennetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="bauschaedennetto" matInput type="text" formControlName="bauschaedennetto" placeholder="0,00"></mat-form-field>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Sonderabzüge</label>
+        <div></div>
+        <div></div>
+        <div></div>
+        <label for="sonderabzuege" class="label">Netto €</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="sonderabzuege" matInput type="text" formControlName="sonderabzuege" placeholder="0,00"></mat-form-field>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Sonderabzüge in Prozent</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="sonderabzuegepercent" matInput type="text" formControlName="sonderabzuegepercent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragnettokorr3" matInput type="text" formControlName="rechnungsbetragnettokorr3" placeholder="0,00" readonly></mat-form-field>
+        <label for="sonderabzuegepercentnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sonderabzuegepercentnetto" matInput type="text" formControlName="sonderabzuegepercentnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container4-4512 borderbot1">
+        <label class="label">Summe Abzüge</label>
+        <div></div>
+        <label for="summeabzuegenetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="summeabzuegenetto" matInput type="text" formControlName="summeabzuegenetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container1">
+        <p class="label">Umlagekosten</p>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Schuttbeseitigung</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="schuttprozent" matInput type="text" formControlName="schuttprozent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumnetto1ref1" matInput type="text" formControlName="sumnetto1ref1" placeholder="0,00" readonly></mat-form-field>
+        <label for="schuttnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="schuttnetto" matInput type="text" formControlName="schuttnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Baureinigung</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="reinigungprozent" matInput type="text" formControlName="reinigungprozent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumnetto1ref2" matInput type="text" formControlName="sumnetto1ref2" placeholder="0,00" readonly></mat-form-field>
+        <label for="reinigungnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="reinigungnetto" matInput type="text" formControlName="reinigungnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Baustellen WC</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="wcprozent" matInput type="text" formControlName="wcprozent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumnetto1ref3" matInput type="text" formControlName="sumnetto1ref3" placeholder="0,00" readonly></mat-form-field>
+        <label for="wcnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="wcnetto" matInput type="text" formControlName="wcnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Wasser</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="wasserprozent" matInput type="text" formControlName="wasserprozent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumnetto1ref4" matInput type="text" formControlName="sumnetto1ref4" placeholder="0,00" readonly></mat-form-field>
+        <label for="wassernetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="wassernetto" matInput type="text" formControlName="wassernetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container7-1">
+        <div></div>
+        <label class="label">- Strom</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="stromprozent" matInput type="text" formControlName="stromprozent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumnetto1ref5" matInput type="text" formControlName="sumnetto1ref5" placeholder="0,00" readonly></mat-form-field>
+        <label for="stromnetto" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="stromnetto" matInput type="text" formControlName="stromnetto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container4-4512 borderbot1">
+        <label class="label">Summe Umlagekosten</label>
+        <div></div>
+        <label for="sumumlage" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumumlage" matInput type="text" formControlName="sumumlage" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container4-4512">
+        <label class="label">Geprüfte Rechnungssumme Netto</label>
+        <div></div>
+        <label for="sumnetto2" class="label">Netto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="sumnetto2" matInput type="text" formControlName="sumnetto2" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div  *ngIf="!isBauleistungsRechnung()" class="container4-4512">
+        <label class="label">MWSt {{taxRate}}%</label>
+        <div></div>
+        <label for="ustsumnetto2" class="label">€</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="ustsumnetto2" matInput type="text" formControlName="ustsumnetto2" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div *ngIf="!isBauleistungsRechnung()" class="container4-4512 borderbot1">
+        <label class="label">Geprüfte Rechnungssumme Brutto</label>
+        <div></div>
+        <label for="brutto2" class="label">Brutto €</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="brutto2" matInput type="text" formControlName="brutto2" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container4-4512">
+          <label class="label">Abzüglich Teilzahlungen Netto</label>
+          <div></div>
+          <label for="teilznetto" class="label">Netto €</label>
+          <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="teilznetto" matInput type="text" formControlName="teilznetto" placeholder="0,00"></mat-form-field>
+      </div>
+      <div  *ngIf="!isBauleistungsRechnung()" class="container4-4512">
+          <label class="label">Abzüglich Teilzahlungen MWSt {{taxRate}}%</label>
+          <div></div>
+          <label for="teilzmwst" class="label">€</label>
+          <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="teilzmwst" matInput type="text" formControlName="teilzmwst" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div  *ngIf="!isBauleistungsRechnung()" class="container4-4512">
+          <label class="label">Abzüglich Teilzahlungen Brutto</label>
+          <div></div>
+          <label for="teilzbrutto" class="label">Brutto €</label>
+          <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="teilzbrutto" matInput type="text" formControlName="teilzbrutto" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div class="container4-4512 borderbot1">
+          <label class="label">Einbehalt / Gegenverrechnung</label>
+          <div></div>
+          <label for="einbehalt" class="label">€</label>
+          <mat-form-field  class="form-field-number small-input"><input mrbauNumberInput id="einbehalt" matInput type="text" formControlName="einbehalt" placeholder="0,00"></mat-form-field >
+      </div>
+      <div *ngIf="isTeilRechnung()" class="container7 borderbot1">
+        <label class="label">Deckungsrücklass</label>
+        <div></div>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="deckungsruecklasspercent" matInput type="text" formControlName="deckungsruecklasspercent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragbruttokorrref1" matInput type="text" formControlName="rechnungsbetragbruttokorrref1" placeholder="0,00" readonly></mat-form-field>
+        <label for="deckungsruecklass" class="label">€</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="deckungsruecklass" matInput type="text" formControlName="deckungsruecklass" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div *ngIf="!isTeilRechnung()" class="container7">
+        <label class="label">Haftrücklass {{getHaftruecklassLabel()}}</label>
+        <div></div>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="haftruecklasspercent" matInput type="text" formControlName="haftruecklasspercent" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragbruttokorrref2" matInput type="text" formControlName="rechnungsbetragbruttokorrref2" placeholder="0,00" readonly></mat-form-field>
+        <label for="haftruecklass" class="label">€</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="haftruecklass" matInput type="text" formControlName="haftruecklass" placeholder="0,00" readonly></mat-form-field>
+      </div>
+      <div *ngIf="!isTeilRechnung()" class="container7-1 borderbot1">
+        <div></div>
+        <label class="label">Laufzeit bis:</label>
+        <mat-form-field class="small-input">
+          <input id="haftruecklassdate" matInput [matDatepicker]="pickerhaftruecklassdate" formControlName="haftruecklassdate" >
+          <mat-datepicker-toggle matIconSuffix [for]="pickerhaftruecklassdate"></mat-datepicker-toggle>
+          <mat-datepicker #pickerhaftruecklassdate></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="container7 borderbot2">
+          <label class="label">Offener Betrag</label>
+          <div></div>
+          <div></div>
+          <label for="datumnet" class="label">Fälligkeit:</label>
+          <mat-form-field class="small-input readonly"><input id="datumnet" matInput type="text" readonly formControlName="datumnet"></mat-form-field>
+          <label for="offenerbetrag" class="label">€</label>
+          <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="offenerbetrag" matInput type="text" formControlName="offenerbetrag" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container7 borderbot1">
+        <label class="label">Skonto1</label>
+        <div></div>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skontopercent1" matInput type="text" readonly formControlName="skontopercent1" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragbruttokorrref3" matInput type="text" formControlName="rechnungsbetragbruttokorrref3" placeholder="0,00" readonly></mat-form-field>
+        <label for="skonto1" class="label">€</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skonto1" matInput type="text" formControlName="skonto1" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container7 borderbot2">
+          <label class="label">Offener Betrag Skonto 1</label>
+          <div></div>
+          <div></div>
+          <label for="datumskonto1" class="label">Fälligkeit:</label>
+          <mat-form-field class="small-input readonly"><input id="datumskonto1" matInput type="text" readonly formControlName="datumskonto1"></mat-form-field>
+          <label for="offenerbetragskonto1" class="label">€</label>
+          <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="offenerbetragskonto1" matInput type="text" formControlName="offenerbetragskonto1" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container7 borderbot1">
+        <label class="label">Skonto2</label>
+        <div></div>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skontopercent2" matInput type="text" readonly formControlName="skontopercent2" placeholder="0,00"></mat-form-field>
+        <label class="label">% von</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="rechnungsbetragbruttokorrref4" matInput type="text"  formControlName="rechnungsbetragbruttokorrref4" placeholder="0,00" readonly></mat-form-field>
+        <label for="skonto2" class="label">€</label>
+        <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skonto2" matInput type="text" formControlName="skonto2" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+      <div class="container7 borderbot2">
+          <label class="label">Offener Betrag Skonto 2</label>
+          <div></div>
+          <div></div>
+          <label for="datumskonto2" class="label">Fälligkeit:</label>
+          <mat-form-field class="small-input readonly"><input id="datumskonto2" matInput type="text" readonly formControlName="datumskonto2"></mat-form-field>
+          <label for="offenerbetragskonto2" class="label">€</label>
+          <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="offenerbetragskonto2" matInput type="text" formControlName="offenerbetragskonto2" placeholder="0,00" readonly></mat-form-field>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
+     <button mat-button color="primary" (click)="onCalcValuesClicked()">BERECHNEN</button>
+    <button mat-button color="primary" (click)="onSaveClicked()" [disabled]="saveButtonDisabled()">SPEICHERN</button>
+    <button mat-button mat-dialog-close>ABBRECHEN</button>
+  </mat-dialog-actions>
