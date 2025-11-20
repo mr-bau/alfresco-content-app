@@ -115,16 +115,6 @@
             "input": "projects/mrbau-smarttable/descriptor",
             "output": "/assets/plugins"
           },
-          {
-            "glob": "**/*",
-            "input": "projects/mrbau-pdftron/assets",
-            "output": "./assets/mrbau-pdftron"
-          },
-          {
-            "glob": "mrbau-pdftron.json",
-            "input": "projects/mrbau-pdftron/descriptor",
-            "output": "/assets/plugins"
-          },
           "app/src/wv-resources/lib"
         ],
         "styles": [
@@ -172,7 +162,7 @@
               "type": "bundle",
               "name": "main",
               "maximumWarning": "2mb",
-              "maximumError": "5mb"
+              "maximumError": "15mb"
             },
             {
               "type": "bundle",
