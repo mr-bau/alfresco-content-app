@@ -1,0 +1,15 @@
+{
+  "organisationUnitDefault" : 2,
+  "organisationUnits" : [
+    {"id": 0, "label": "M&R Holding GmbH", "folder": "M&R Holding"},
+    {"id": 1, "label": "M&R Beteiligungs GmbH", "folder": "M&R Beteiligung"},
+    {"id": 2, "label": "M&R Bau GmbH", "folder": "M&R Bau"},
+    {"id": 3, "label": "Vendono GmbH", "folder": "Vendono"},
+    {"id": 4, "label": "Haselweg Alpha Projektentwicklung GmbH", "folder": "Haselweg"},
+    {"id": 5, "label": "SP Lindenweg 7 Projekt GmbH", "folder": "Lindenweg"}
+  ],
+  "organisationPositions" : [
+    {"id": 0, "label": "Auftraggeber"},
+    {"id": 1, "label": "Auftragnehmer"}
+  ]
+}

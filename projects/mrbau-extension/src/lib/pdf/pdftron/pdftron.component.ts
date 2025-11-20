@@ -1,23 +1,23 @@
 import { CommonModule, DatePipe} from '@angular/common';
 import { LoaderoverlayComponent } from '@mrbau/mrbau-common';
-import { IFileSelectData } from '@mrbau/mrbau-extension';
-import { MrbauNodeService } from '@mrbau/mrbau-extension';
 //import WebViewer from '@pdftron/webviewer';
 import { Component, inject, ViewChild, OnInit, ElementRef, AfterViewInit, Input, OnChanges, SimpleChanges, SecurityContext, ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContentApiService } from '@alfresco/aca-shared';
-import { MrbauCommonService } from '@mrbau/mrbau-extension';
 import { HttpHeaders } from '@angular/common/http';
 import * as MrbauStamps from './mrbau.stamps';
 import { ContentService } from '@alfresco/adf-content-services';
-import { EMRBauVerifiedInboundInvoiceType, MRBauVerifiedInboundInvoiceTypes } from '@mrbau/mrbau-extension';
-import { AspectDeductionDetails, AspectRetentionDetails, IAspectDetailItem } from '@mrbau/mrbau-extension';
 import { NodeEntry } from '@alfresco/js-api';
-import { MrbauCalcService, ICalculationParameter, TCalculationParameterType } from '@mrbau/mrbau-extension';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { CanComponentDeactivate } from '@mrbau/mrbau-extension';
-import { MrbauConfirmDialogComponent} from '@mrbau/mrbau-extension';
+import { MrbauConfirmDialogComponent } from '../../../public-api';
+import { MRBauVerifiedInboundInvoiceTypes, EMRBauVerifiedInboundInvoiceType } from '../../declaration/mrbau-doc-declarations';
+import { IAspectDetailItem, AspectDeductionDetails, AspectRetentionDetails } from '../../declaration/mrbau-mrba-aspects';
+import { IFileSelectData } from '../../declaration/mrbau-task-declarations';
+import { CanComponentDeactivate } from '../../guards/pending-changes.interface';
+import { ICalculationParameter, MrbauCalcService, TCalculationParameterType } from '../../services/mrbau-calc.service';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
+import { MrbauNodeService } from '../../services/mrbau-node.service';
 
 
 interface ICalculationParameterExtend extends ICalculationParameter {
@@ -62,7 +62,7 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
   // Syntax if using Angular 8+
   // true or false depending on code
   @ViewChild('viewer') viewer!: ElementRef;
-  @Input() fileSelectData: IFileSelectData | undefined;
+  @Input() fileSelectData: IFileSelectData | null = null;
 
   previousFileSelectData : IFileSelectData | null = null;
   sanitized_document_url: SafeResourceUrl | null = null;
