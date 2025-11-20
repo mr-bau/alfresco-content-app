@@ -37,7 +37,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
   @Input()
-  set nodeId(val: string) {
+  set nodeId(val: string | null) {
     this._nodeId = val;
     this.queryData();
   }
@@ -48,7 +48,7 @@ export class TaskCommentlistInvoiceWorkflowComponent implements OnInit {
     this.queryData();
   }
 
-  get nodeId() {
+  get nodeId() : string {
     return this._nodeId || '';
   }
   form = new FormGroup({});

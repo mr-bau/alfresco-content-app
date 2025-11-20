@@ -26,13 +26,13 @@ import { MatMenuModule } from '@angular/material/menu';
 `,
 })
 export class TaskMenuDiscardDocumentComponent {
-  @Input() task: MRBauTask | undefined;
-  _taskNode : Node | undefined;
-  @Input() set taskNode(val : Node) {
+  @Input() task: MRBauTask | null = null;
+  _taskNode : Node | null = null;
+  @Input() set taskNode(val : Node | null) {
     this._taskNode = val;
     this.onTaskNodeChanged();
   }
-  get taskNode() : Node | undefined {
+  get taskNode() : Node | null {
     return this._taskNode;
   }
 

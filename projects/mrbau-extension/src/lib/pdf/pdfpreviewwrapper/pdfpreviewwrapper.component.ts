@@ -18,7 +18,7 @@ import { Observable } from 'rxjs';
 })
 export class PdfpreviewwrapperComponent implements OnInit, CanComponentDeactivate {
   @ViewChild('PDF_PREVIEW') pdfpreviewComponent! : PdfpreviewComponent;
-  fileSelectData : IFileSelectData | undefined;
+  fileSelectData : IFileSelectData | null = null;
   constructor(private route: ActivatedRoute)
   { }
 

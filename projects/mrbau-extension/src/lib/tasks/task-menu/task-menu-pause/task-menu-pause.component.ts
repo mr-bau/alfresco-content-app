@@ -22,13 +22,13 @@ import { MatMenuModule } from '@angular/material/menu';
   `,
 })
 export class TaskMenuPauseComponent{
-  private _task: MRBauTask | undefined;
-  @Input() set task(value: MRBauTask)
+  private _task: MRBauTask | null = null;
+  @Input() set task(value: MRBauTask | null)
   {
     this._task = value;
     this.setLabel();
   }
-  get task(): MRBauTask | undefined {
+  get task(): MRBauTask | null {
     return this._task;
   }
   @Output() pauseClicked = new EventEmitter<void>();

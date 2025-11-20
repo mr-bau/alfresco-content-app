@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask} from '../declaration/mrbau-task-declarations';
 import { IMrbauReplaceCompanyInfoData, MrbauCommonService } from './mrbau-common.service';
 import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, DocumentTypeFormOptions, EMRBauDocumentCategory, MRBauSigningStatusTypes, MRBauVerifiedInboundInvoiceTypes, MRBauWorkflowStateCallbackData, OrganisationPositionTypes } from '../declaration/mrbau-doc-declarations';
-import jsonMrbauAppConfig from '../../../assets/json/mrbau-app-config.json';
+import jsonMrbauAppConfig from '../json/mrbau-app-config.json';
 import { MrbauDbService } from './mrbau-db.service';
 import { IMrbauAppConfig } from '../declaration/mrbau-declarations';
 

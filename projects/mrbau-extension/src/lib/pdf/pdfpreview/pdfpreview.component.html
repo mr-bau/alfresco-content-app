@@ -23,8 +23,8 @@
       [allowRightSidebar]="false"
       [allowGoBack]="false"
       [showToolbar]="true"
-      [nodeId]="fileSelectDataOut?.nodeId"
-      [versionId]="fileSelectDataOut?.versionId"
+      [nodeId]="fileSelectDataOut?.nodeId || ''"
+      [versionId]="fileSelectDataOut?.versionId || ''"
       [hidden]="(fileSelectDataOut==null || dragging)"
     >
       <!--

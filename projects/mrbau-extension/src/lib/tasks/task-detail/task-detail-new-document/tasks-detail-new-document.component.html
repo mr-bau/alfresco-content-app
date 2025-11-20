@@ -1,13 +1,13 @@
 <mrbau-loaderoverlay *ngIf="isLoading"></mrbau-loaderoverlay>
 
-<adf-toolbar [title]="this.task.desc">
+<adf-toolbar [title]="this.task?.desc || ''">
   <div *ngIf="isTaskToolbarButtonsVisible()" class="toolbar-buttons-container">
     <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
       <button mat-flat-button
         *ngIf="b.visible ? b.visible() : true"
         class="disable-flex-shrink toolbar-button-spacing {{b.class}}"
         [matTooltip]="b.tooltip"
-        (click)="b.onClick($event)"
+        (click)="b?.onClick($event)"
         [style.display]="true"
         [disabled]="b.disabled ? b.disabled() : false">
         <mat-icon>{{b.icon}}</mat-icon>{{b.text}}

@@ -24,7 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
   `,
 })
 export class TaskMenuReopenComponent {
-  @Input() task: MRBauTask | undefined;
+  @Input() task: MRBauTask | null = null;
   @Output() reopenClickedEvent = new EventEmitter<ITaskChangedData>();
 
   constructor(

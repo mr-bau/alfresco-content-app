@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, retry, switchMap } from 'rxjs/operators';
-import { MrbauCommonService } from '../../../../mrbau-extension/src/public-api';
+import { MrbauCommonService } from '@mrbau/mrbau-extension';
 import { RequestFilterQueries, RequestSortDefinitionInner, ResultSetPaging, SearchRequest } from '@alfresco/js-api';
 
 export interface IApiParams {

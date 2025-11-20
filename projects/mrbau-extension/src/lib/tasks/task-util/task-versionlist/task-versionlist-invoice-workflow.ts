@@ -106,12 +106,12 @@ interface HtmlDataDoc {
 })
 export class TaskVersionlistInvoiceWorkflowComponent implements OnInit {
   @Input()
-  set taskId(val: string) {
+  set taskId(val: string | null) {
     this._taskId = val;
     this.queryData();
   }
   @Input()
-  set nodeId(val: string) {
+  set nodeId(val: string | null) {
     this._nodeId = val;
     this.queryData();
   }

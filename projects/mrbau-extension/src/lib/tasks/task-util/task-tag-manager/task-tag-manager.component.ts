@@ -48,7 +48,7 @@ interface INodeTagListData {
 })
 export class TaskTagManagerComponent {
   @Input()
-  set nodeId(val: string) {
+  set nodeId(val: string | null) {
     this._nodeId = val;
     this.queryData();
   }

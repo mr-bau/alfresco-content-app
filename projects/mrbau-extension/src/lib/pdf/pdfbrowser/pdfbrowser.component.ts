@@ -15,7 +15,7 @@ import { IFileSelectData } from '../../declaration/mrbau-task-declarations';
   styleUrls: []
 })
 export class PdfbrowserComponent implements OnChanges {
-  @Input() fileSelectData: IFileSelectData | undefined;
+  @Input() fileSelectData: IFileSelectData | null = null;
   SHOW_TOOLBAR : string = "#toolbar=1";
   useIframe: boolean;
   sanitized_document_url: SafeResourceUrl | null = null;

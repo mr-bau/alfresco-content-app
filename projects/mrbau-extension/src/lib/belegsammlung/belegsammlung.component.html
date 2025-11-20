@@ -13,7 +13,7 @@
       <aca-page-layout>
         <aca-page-layout-header>
           <adf-breadcrumb
-            [folderNode]="selectedNode"
+            [folderNode]="selectedNode!"
             [readOnly]="true"
             [root]="'Belegsammlung'"
             [rootId]="documentListStartFolder">
@@ -28,8 +28,8 @@
           <div class="main-content">
             <adf-document-list
                 #documentList
-                [currentFolderId]="selectedNode?.id"
-                [emptyFolderImageUrl]=""
+                [currentFolderId]="selectedNode?.id || ''"
+                [emptyFolderImageUrl]="''"
                 [contextMenuActions]="true"
                 (folderChange)="folderChange($event)"
                 [contentActions]="true">

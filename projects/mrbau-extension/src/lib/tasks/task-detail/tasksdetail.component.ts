@@ -36,7 +36,7 @@ export interface TaskBarButton {
   encapsulation: ViewEncapsulation.None
 })
 export class TasksdetailComponent implements OnInit {
-  @Output() fileSelectEvent = new EventEmitter<IFileSelectData>();
+  @Output() fileSelectEvent = new EventEmitter<IFileSelectData | null>();
   @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
 
   @Input()
@@ -56,7 +56,7 @@ export class TasksdetailComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  fileSelected(fileSelectData : IFileSelectData)
+  fileSelected(fileSelectData : IFileSelectData | null)
   {
     this.fileSelectEvent.emit(fileSelectData);
   }

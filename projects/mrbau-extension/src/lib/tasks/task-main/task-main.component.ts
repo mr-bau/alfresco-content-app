@@ -33,7 +33,7 @@ export class TaskMainComponent implements OnInit, CanComponentDeactivate {
   @ViewChild('PDF_PREVIEW_WRAPPER') pdfpreviewwrapperComponent! : PdfpreviewwrapperComponent;
   @ViewChild('TASKS_TABLE') tasksTableComponent : TasksTableComponent | undefined;
 
-  fileSelectData: IFileSelectData | undefined;
+  fileSelectData: IFileSelectData | null = null;
   dragging = false;
   selectedTask: MRBauTask | null = null;
 
@@ -268,13 +268,13 @@ export class TaskMainComponent implements OnInit, CanComponentDeactivate {
   {
     if (!this.selectedTask || this.selectedTask.associatedDocumentRef.length == 0)
     {
-      this.fileSelected(undefined);
+      this.fileSelected(null);
       return;
     }
     this.fileSelected({nodeId : this.selectedTask.associatedDocumentRef[0], suppressNotification : true})
   }
 
-  fileSelected(fileSelectData : IFileSelectData | undefined) {
+  fileSelected(fileSelectData : IFileSelectData | null) {
     this.fileSelectData = fileSelectData;
   }
 

@@ -167,6 +167,13 @@ export class TaskDetailCommonComponent implements OnInit {
     this.model.comment = "";
   }
 
+  buttonDisabled() : boolean {
+    if (this.task) {
+      return this.task.status == this.model['mrbt:status'] && !this.model.comment
+    }
+    return true;
+  }
+
   saveStatusCommentUser(status : EMRBauTaskStatus, comment: string, newUserId?: string)
   {
     if (this._task == null) {

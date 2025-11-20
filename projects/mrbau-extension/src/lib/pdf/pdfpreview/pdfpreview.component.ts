@@ -4,9 +4,9 @@ import { ContentApiService } from '@alfresco/aca-shared';
 import { NodeEntry, VersionEntry } from '@alfresco/js-api';
 import { CONST } from '../../declaration/mrbau-global-declarations';
 import { NotificationService } from '@alfresco/adf-core';
-import { IFileSelectData } from '../../declaration//mrbau-task-declarations';
+import { IFileSelectData } from '../../declaration/mrbau-task-declarations';
 import { CommonModule } from '@angular/common';
-import { PdftronComponent } from '@mrbau/mrbau-pdftron';
+import { PdftronComponent } from '../pdftron/pdftron.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { PdfbrowserComponent } from '../pdfbrowser/pdfbrowser.component';
@@ -39,13 +39,13 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
   readonly PDF_ACA = PDF_ACA;
   readonly PDF_BROWSER = PDF_BROWSER;
   @ViewChild(PdftronComponent) pdftronComponent!: PdftronComponent;
-  @Input() fileSelectData: IFileSelectData | undefined;
+  @Input() fileSelectData: IFileSelectData | null = null;
   @Input() dragging: boolean = false;
   errorMessage : string | null = null;
   isPDFFile = true;
   //useViewer : string = 'pdfTron';
   useViewer : string = PDF_BROWSER;
-  fileSelectDataOut: IFileSelectData | undefined;
+  fileSelectDataOut: IFileSelectData | null = null;
 
   constructor(
     private contentApiService : ContentApiService,

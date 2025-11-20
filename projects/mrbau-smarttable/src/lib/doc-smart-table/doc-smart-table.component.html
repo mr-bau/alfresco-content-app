@@ -18,7 +18,7 @@
     (itemsPerPageChange)="handleItemsPerPageChange($event)"
     (sorterValueChange)="handleSorterValueChange($event)"
     (cleanerClick)="handleCleanerClick($event)"
-    [columnFilterValue]="props.columnFilterValue"
+    [columnFilterValue]="props.columnFilterValue!"
     [columnFilter]="{ external: true, lazy: false }"
     [columnSorter]="{ external: true, resettable: true }"
     [columns]="columns"
@@ -27,7 +27,7 @@
     [itemsPerPage]="props.itemsPerPage"
     [items]="(docsData$ | async) ?? []"
     [loading]="props.loadingData"
-    [sorterValue]="props.sorterValue"
+    [sorterValue]="props.sorterValue!"
     [tableProps]="{ hover: true, striped: true, responsive: true }"
     cleaner
     header
@@ -101,7 +101,7 @@
     </ng-template>
 
     <ng-template cTemplateId="columnFilter_organisationPosition">
-      <c-multi-select (valueChange)="handleValueChangeOrganisationPosition($event)" [value]="props.columnFilterValue['organisationPosition'] || []" multiple size="sm">
+      <c-multi-select (valueChange)="handleValueChangeOrganisationPosition($event)" [value]="props?.columnFilterValue?.organisationPosition || []" multiple size="sm">
         @for (role of organisationPosition; track role) {
           <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
         }
@@ -109,7 +109,7 @@
     </ng-template>
 
     <ng-template cTemplateId="columnFilter_nodeType">
-      <c-multi-select (valueChange)="handleValueChangeNodeType($event)" [value]="props.columnFilterValue['nodeType'] || []" multiple visibleItems="8" size="sm">
+      <c-multi-select (valueChange)="handleValueChangeNodeType($event)" [value]="props?.columnFilterValue?.nodeType || []" multiple visibleItems="8" size="sm">
         @for (role of nodeType; track role) {
           <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
         }
@@ -117,7 +117,7 @@
     </ng-template>
 
     <ng-template cTemplateId="columnFilter_tags">
-      <c-multi-select (valueChange)="handleValueChangeTags($event)" [value]="props.columnFilterValue['tags'] || []" multiple visibleItems="8" size="sm">
+      <c-multi-select (valueChange)="handleValueChangeTags($event)" [value]="props?.columnFilterValue?.tags || []" multiple visibleItems="8" size="sm">
         @for (role of tagsFormOptions; track role) {
           <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
         }
@@ -125,7 +125,7 @@
     </ng-template>
 
     <ng-template cTemplateId="columnFilter_creator">
-      <c-multi-select (valueChange)="handleValueChangeCreator($event)" [value]="props.columnFilterValue['creator'] || []" multiple visibleItems="8" size="sm">
+      <c-multi-select (valueChange)="handleValueChangeCreator($event)" [value]="props?.columnFilterValue?.creator || []" multiple visibleItems="8" size="sm">
         @for (role of creator; track role) {
           <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
         }
@@ -133,7 +133,7 @@
     </ng-template>
 
     <ng-template cTemplateId="columnFilter_signingStatus">
-      <c-multi-select (valueChange)="handleValueChangeSigningStatus($event)" [value]="props.columnFilterValue['signingStatus'] || []" multiple visibleItems="8" size="sm">
+      <c-multi-select (valueChange)="handleValueChangeSigningStatus($event)" [value]="props?.columnFilterValue?.signingStatus || []" multiple visibleItems="8" size="sm">
         @for (role of signingStatus; track role) {
           <c-multi-select-option [value]="role.value">{{ role.label }}</c-multi-select-option>
         }
@@ -173,7 +173,7 @@
             }
             @case ('tags') {
               @if (item['tags$'] | async; as tags) {
-                @for (item of tags['list'].entries; track item) {
+                @for (item of $any(tags).list.entries; track item) {
                   <c-badge class="margin-left" color="info">{{item.entry.tag}}</c-badge>
                 }
               }
@@ -193,7 +193,7 @@
             <c-row>
               <c-col><h5>{{ item['dokumentName'] }}
               @if (item['tags$'] | async; as tags) {
-                @for (item of tags['list'].entries; track item) {
+                @for (item of $any(tags).list.entries; track item) {
                   <c-badge class="margin-left" color="info">{{item.entry.tag}}</c-badge>
                 }
               }

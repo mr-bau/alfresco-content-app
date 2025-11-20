@@ -1,11 +1,11 @@
-      <adf-toolbar [title]="this.task && this.task.desc">
+      <adf-toolbar [title]="this.task?.desc || ''">
         <div *ngIf="isTaskToolbarButtonsVisible()" class="toolbar-buttons-container" >
           <ng-container *ngFor="let b of taskBarButtons; index as i; first as isFirst">
             <button mat-flat-button
               *ngIf="b.visible ? b.visible() : true"
               class="disable-flex-shrink {{b.class}}"
               [matTooltip]="b.tooltip"
-              (click)="b.onClick($event)"
+              (click)="b?.onClick($event)"
               [style.display]="true"
               [disabled]="b.disabled ? b.disabled() : false">
               <mat-icon>{{b.icon}}</mat-icon>{{b.text}}
@@ -35,15 +35,15 @@
           </mat-expansion-panel-header>
           <form [formGroup]="form">
             <formly-form [form]="form" [fields]="fields" [options]="options" [model]="model" (modelChange)="modelChangeEvent()"></formly-form>
-            <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="this.task.status == this.model['mrbt:status'] && !this.model.comment">Speichern</button>
+            <button mat-raised-button type="button" class="mat-flat-button mat-button-base mat-primary addMarginTop" color="primary" (click)="buttonSaveClicked()" matTooltip="Änderungen speichern" [disabled]="buttonDisabled()">Speichern</button>
           </form>
         </mat-expansion-panel>
       </div>
 
       <mrbau-task-linked-documents
         [buttonsDisabled]="!isTaskModificationUiVisible()"
-        [associatedDocumentRef]="task.associatedDocumentRef"
-        [associatedDocumentName]="task.associatedDocumentName"
+        [associatedDocumentRef]="task?.associatedDocumentRef || []"
+        [associatedDocumentName]="task?.associatedDocumentName || []"
         (onRemoveAssociation)="onRemoveAssociationClicked($event)"
         (onAssociation)="onAssociationClicked($event)"
         (onAddAssociation)="buttonAddFilesClicked()"

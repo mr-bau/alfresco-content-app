@@ -89,10 +89,10 @@ interface ILinkedDocumentsCategories {
   styles: []
 })
 export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
-  @Input() associatedDocuments : NodeAssociationEntry[] = []
+  @Input() associatedDocuments : NodeAssociationEntry[] = [];
   @Input() buttonsDisabled : boolean = false;
   @Input() defaultExpanded : boolean = false;
-  @Input() taskNode : Node = new Node();
+  @Input() taskNode : Node | null = null;
   @Input() buttonAuditSheetVisible : boolean = false;
 
   @Output() onRemoveAssociation = new EventEmitter<string>();

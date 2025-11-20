@@ -24,7 +24,7 @@ import { CommonModule } from '@angular/common';
 })
 export class TaskCommentlistComponent implements OnInit {
   @Input()
-  set nodeId(val: string) {
+  set nodeId(val: string | null) {
     this._nodeId = val;
     this.queryData();
   }
@@ -55,9 +55,10 @@ export class TaskCommentlistComponent implements OnInit {
   }
 
   queryData() {
+
     this.errorMessage="loading...";
     this.commentData = [];
-    if (this._nodeId == null || this._isVisible == false)
+    if (this.nodeId == null || this._isVisible == false)
     {
       return;
     }
@@ -65,7 +66,7 @@ export class TaskCommentlistComponent implements OnInit {
     .then((value) => {
       this.currentUserId = value.entry.id;
       //console.log("commentsChanged queryData");
-      return this.commentsService.get(this.nodeId).toPromise();
+      return this.commentsService.get(this.nodeId!).toPromise();
     })
     .then((comments: CommentModel[] | undefined) => {
         if (comments && comments instanceof Array) {

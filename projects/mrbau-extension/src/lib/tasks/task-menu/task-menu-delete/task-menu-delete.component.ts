@@ -25,7 +25,7 @@ import { MatMenuModule } from '@angular/material/menu';
   `,
 })
 export class TaskMenuDeleteComponent {
-  @Input() task: MRBauTask | undefined;
+  @Input() task: MRBauTask | null = null;
   @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
 
   constructor(

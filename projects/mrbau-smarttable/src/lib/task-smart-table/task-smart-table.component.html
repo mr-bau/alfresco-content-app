@@ -231,7 +231,7 @@
       [allowGoBack]="true"
       [showToolbar]="true"
       [showViewer]="showViewer"
-      [nodeId]="viewerNodeId"
+      [nodeId]="viewerNodeId ||''"
       [hidden]="(viewerNodeId==null)"
       (showViewerChange)="viewerOnClose()"
     >

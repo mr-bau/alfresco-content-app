@@ -12,11 +12,14 @@ import { MrbauPageLayoutComponent } from '../mrbau-page-layout/mrbau-page-layout
   styleUrls: ['./commontest.component.scss']
 })
 export class CommonTestComponent {
-  errorMessage = "Test Error Message";
+  errorMessage : string | null = "Test Error Message";
   loaderVisible = false;
 
   fakeLoading(){
     this.loaderVisible = true;
     setTimeout(() => this.loaderVisible = false, 2000);
+  }
+  setErrorMsg(val : string | null) {
+    this.errorMessage = val;
   }
 }

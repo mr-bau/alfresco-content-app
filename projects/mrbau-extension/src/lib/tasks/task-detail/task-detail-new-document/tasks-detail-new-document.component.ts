@@ -102,23 +102,23 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   @Output() taskChangeEvent = new EventEmitter<ITaskChangedData>();
   @Output() errorEvent = new EventEmitter<string | null>();
 
-  private _task : MRBauTask | undefined;
-  @Input() set task(val : MRBauTask | undefined) {
+  private _task : MRBauTask | null = null;
+  @Input() set task(val : MRBauTask | null) {
     this._task = val;
     this.setErrorMessage(null);
     this.updateTask();
   }
-  get task() : MRBauTask | undefined {
+  get task() : MRBauTask | null {
     return this._task;
   }
 
-  private _taskNode : Node | undefined;
-  get taskNode() : Node | undefined {
+  private _taskNode : Node | null = null;
+  get taskNode() : Node | null {
     return this._taskNode;
   }
   private _taskNodeAssociations : NodeAssociationEntry[] | undefined;
-  get taskNodeAssociations() : NodeAssociationEntry[] | undefined {
-    return this._taskNodeAssociations;
+  get taskNodeAssociations() : NodeAssociationEntry[] {
+    return this._taskNodeAssociations || [];
   }
   duplicateNode : Node | undefined;
 
@@ -204,7 +204,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   {
     this.fields = [];
     //console.log(this._task);
-    this._taskNode = undefined;
+    this._taskNode = null;
     if (!(this._task && this._task.associatedDocumentRef.length > 0))
     {
       this.errorEvent.emit("Dokument-Assoziation fehlt!");
@@ -580,7 +580,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
           throw new Error('Task is null');
         }
         const nodeEntry = await this.mrbauCommonService.getNode(this._task.associatedDocumentRef[0], {include: CONST.GET_NODE_DEFAULT_INCLUDE}).toPromise();
-        this._taskNode = nodeEntry?.entry;
+        this._taskNode = nodeEntry?.entry || null;
         return resolve(null);
       }
       catch(error : any)

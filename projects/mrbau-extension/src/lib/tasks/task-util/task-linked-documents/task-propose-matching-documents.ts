@@ -46,8 +46,8 @@ import { IFileSelectData } from '../../../declaration/mrbau-task-declarations';
   `,
 })
 export class TaskProposeMatchingDocuments implements OnChanges {
-  @Input() node : Node | undefined;
-  @Input() taskNodeAssociations : NodeAssociationEntry[] = [];
+  @Input() node : Node | null = null;
+  @Input() taskNodeAssociations : NodeAssociationEntry[] | undefined;
   @Output() onAssociation = new EventEmitter<IFileSelectData>();
 
   proposedNodes : Node[] = [];

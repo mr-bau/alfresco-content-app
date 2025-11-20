@@ -106,8 +106,8 @@ export interface IMrbauCompareDocumentsData {
   encapsulation: ViewEncapsulation.None
 })
 export class MrbauCompareDocumentsComponent implements OnInit {
-  fileSelectDataLeft: IFileSelectData | undefined;
-  fileSelectDataRight: IFileSelectData | undefined;
+  fileSelectDataLeft: IFileSelectData | null = null;
+  fileSelectDataRight: IFileSelectData | null = null;
 
   dragging = false;
 

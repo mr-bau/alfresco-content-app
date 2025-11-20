@@ -24,7 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
     `,
 })
 export class TaskMenuOcrComponent {
-  @Input() task: MRBauTask | undefined;
+  @Input() task: MRBauTask | null = null;
 
   constructor(
     private mrbauActionService: MrbauActionService,

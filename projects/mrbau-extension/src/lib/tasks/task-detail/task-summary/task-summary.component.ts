@@ -35,7 +35,7 @@ import { MatCardModule } from '@angular/material/card';
   `,
 })
 export class TaskSummaryComponent implements OnInit {
-  @Input() task : MRBauTask | undefined;
+  @Input() task : MRBauTask | null = null;
   constructor() { }
   ngOnInit(): void {
   }

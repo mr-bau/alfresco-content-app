@@ -32,7 +32,6 @@ import { provideMrbauCommonExtension } from '@mrbau/mrbau-common';
 import packageJson from 'package.json';
 import { provideMrbauExtensionExtension } from '@mrbau/mrbau-extension';
 import { provideMrbauSmarttableExtension } from '@mrbau/mrbau-smarttable';
-import { provideMrbauPdftronExtension } from '@mrbau/mrbau-pdftron';
 
 export function provideApplicationExtensions(): (Provider | EnvironmentProviders)[] {
   return [
@@ -42,7 +41,6 @@ export function provideApplicationExtensions(): (Provider | EnvironmentProviders
     ...provideMrbauCommonExtension(),
     ...provideMrbauExtensionExtension(),
     ...provideMrbauSmarttableExtension(),
-    ...provideMrbauPdftronExtension(),
     { provide: PACKAGE_JSON, useValue: packageJson },
     { provide: DEV_MODE_TOKEN, useValue: !environment.production }
   ];

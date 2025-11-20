@@ -50,7 +50,7 @@ export interface ICommentData {
   styleUrls: ['./task-comment-block.component.scss'],
 })
 export class TaskCommentBlockComponent {
-  @Input() nodeId: string = '';
+  @Input() nodeId: string | null = '';
   @Input() commentData : ICommentData[] = [];
   @Input() currentUserId : string = '';
   @Output() commentsChanged = new EventEmitter();
@@ -72,7 +72,7 @@ export class TaskCommentBlockComponent {
     return this.nodeId != null && this.currentUserId == v.createdById && delta <= 1;
   }
 
-  click(nodeId: string, commentId:string|undefined, message:string|undefined)
+  click(nodeId: string | null, commentId:string|undefined, message:string|undefined)
   {
     const dialogRef = this.dialog.open(MrbauConfirmTaskDialogComponent, {
       data: {
@@ -95,7 +95,7 @@ export class TaskCommentBlockComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result)
+      if (result && nodeId)
       {
         let comment : string = result.comment || '';
         comment = comment.trim();
