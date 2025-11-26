@@ -50,7 +50,8 @@ export class MrbauDbService {
     }
     else
     {
-      environment.serverUrl = 'https://mrdms01.mrbau.at/mysql-db';
+
+      environment.serverUrl = window.location.origin+'/mysql-db';
       environment.production = true;
     }
     console.log('Mrbau ACA Environment:');
