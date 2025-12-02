@@ -80,11 +80,11 @@ export class MrbauDelegateTaskDialogComponent extends MrbauBaseTaskDialogCompone
   override fields : FormlyFieldConfig[] = [
     {
       fieldGroupClassName: 'flex-container-min-width',
-      fieldGroup: [this.mrbauFormLibraryService.common_comment]
+      fieldGroup: [{...this.mrbauFormLibraryService.common_comment}]
     },
     {
       fieldGroupClassName: 'flex-container-min-width',
-      fieldGroup: [this.mrbauFormLibraryService.mrbt_assignedUserName]
+      fieldGroup: [{...this.mrbauFormLibraryService.mrbt_assignedUserName}]
     }
   ];
 
