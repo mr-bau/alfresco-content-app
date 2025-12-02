@@ -3,7 +3,7 @@ import { NodesApiService, ContentService, AlfrescoApiService } from '@alfresco/a
 import { PeopleContentService, EcmUserModel, SearchService } from '@alfresco/adf-content-services';
 import { CommentModel, NotificationService, AuthenticationService, ADF_COMMENTS_SERVICE, } from '@alfresco/adf-core';
 import { NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry, CommentsApi, NodesApi, NodesIncludeQuery } from '@alfresco/js-api';
-import { Observable, Subject } from 'rxjs';
+import { Observable, shareReplay, Subject } from 'rxjs';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../declaration/mrbau-task-declarations';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CONST } from '../declaration/mrbau-global-declarations';
@@ -229,14 +229,33 @@ export class MrbauCommonService {
     });
   }
 
-  getPeopleObservable() : Observable<EcmUserModel[]> {
-    return new Observable(observer => {
-      this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
+  private peopleCache$: Observable<EcmUserModel[]> | null = null;
+  private peopleCacheTimestamp: number = 0;
+  // 12 Stunden in Millisekunden
+  private readonly CACHE_DURATION = 12 * 60 * 60 * 1000;
+  getPeopleObservable(): Observable<EcmUserModel[]> {
+    const now = Date.now();
+    if (this.peopleCache$ && (now - this.peopleCacheTimestamp < this.CACHE_DURATION)) {
+      // Gültigen Cache zurückgeben
+      return this.peopleCache$;
+    }
+
+    this.peopleCache$ = new Observable<EcmUserModel[]>(observer => {
+      this.peopleContentService.listPeople({
+        skipCount: 0,
+        maxItems: 999,
+        sorting: { orderBy: "firstName", direction: "ASC" }
+      }).subscribe(
         data => observer.next(data.entries),
         err  => observer.error(err),
         ()   => observer.complete(),
       );
-    });
+    }).pipe(
+      shareReplay(1)
+    );
+
+    this.peopleCacheTimestamp = now;
+    return this.peopleCache$;
   }
 
   getNodeComments(nodeId : string) : Observable<CommentModel[]>
