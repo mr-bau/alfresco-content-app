@@ -296,7 +296,6 @@
   </mat-dialog-content>
   <mat-dialog-actions>
     <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
-     <button mat-button color="primary" (click)="onCalcValuesClicked()">BERECHNEN</button>
-    <button mat-button color="primary" (click)="onSaveClicked()" [disabled]="saveButtonDisabled()">SPEICHERN</button>
+    <button mat-button color="primary" (click)="createPDFDocument()" [disabled]="saveButtonDisabled()">PRÜFBLATT GENERIEREN</button>
     <button mat-button mat-dialog-close>ABBRECHEN</button>
   </mat-dialog-actions>

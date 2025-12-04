@@ -967,7 +967,7 @@ export class MrbauFormLibraryService {
   readonly button_add_review_sheet : FormlyFieldConfig =
   {
     className: 'flex-1 calcButton',
-    key: 'ignore:mrbauCalcDeductionButton',
+    key: 'ignore:mrbauAddReviewSheetButton',
     type: 'mrbauFormlyButton',
     props: {
       //appearance:"fill",
@@ -2240,7 +2240,7 @@ export class MrbauFormLibraryService {
     fieldGroupClassName: 'flex-container',
     fieldGroup: [
       this.button_calc_deduction,
-      //this.button_add_review_sheet,
+      this.button_add_review_sheet,
       this.mrba_grossAmountVerified,
       this.mrba_netAmountVerified,
     ]

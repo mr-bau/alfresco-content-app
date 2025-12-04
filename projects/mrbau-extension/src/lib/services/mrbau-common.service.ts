@@ -1121,7 +1121,7 @@ export class MrbauCommonService {
 
   addReviewSheetDialog(data:FormlyFieldConfig) {
     const dialogRef = this.dialog.open(MrbauAddReviewSheetDialogComponent, {
-      width: '90vw',
+      width: '50vw',
       height: '90vh',
       minWidth: '20vw',
       minHeight: '50vh',
@@ -1133,13 +1133,29 @@ export class MrbauCommonService {
     dialogRef.afterClosed().subscribe((result) => {
       // update properties in form
       if (result && typeof result === "object") {
-        console.log(result)
-        data.model['ignore:taskNode'] = result;
+        const node = result.node;
+        data.model['ignore:taskNode'] = node;
         const ctr = data.form?.controls;
-        (data.form?.controls[ResultDetails.netAmountVerified.key as keyof typeof ctr] as any).setValue(result.properties[ResultDetails.netAmountVerified.key]);
-        (data.form?.controls[ResultDetails.grossAmountVerified.key as keyof typeof ctr] as any).setValue(result.properties[ResultDetails.grossAmountVerified.key]);
+        (data.form?.controls[ResultDetails.netAmountVerified.key as keyof typeof ctr] as any).setValue(node.properties[ResultDetails.netAmountVerified.key]);
+        (data.form?.controls[ResultDetails.grossAmountVerified.key as keyof typeof ctr] as any).setValue(node.properties[ResultDetails.grossAmountVerified.key]);
+        if (data.model && typeof data.model['ignore:dialogCallback'] === 'function') {
+          data.model['ignore:dialogCallback'](result);
+        }
       }
     })
+  }
+
+  /**
+   * Lädt ein Uint8Array als neue Version einer Node hoch.
+   * @param nodeId Die ID der Node in Alfresco
+   * @param content Das PDF als Byte-Array
+   */
+  async uploadNewVersion(nodeId: string, content: Uint8Array, comment: string): Promise<NodeEntry> {
+    const blob = new Blob([content as any], { type: 'application/pdf' });
+    return this.nodesApi.updateNodeContent(nodeId, blob as any, {
+      majorVersion: false, // false = 1.1, 1.2; true = 2.0, 3.0
+      comment: comment
+    });
   }
 
   editProjectWithConfirmDialog() : Promise<ICostCarrier | null>
@@ -1725,4 +1741,26 @@ async exportOpenDocumentTasks(includeDocData = true) {
     });
   }
 
+  loadNodeContent(nodeId : string | undefined): Promise<Uint8Array> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!nodeId) {
+          throw new Error('Node ID unknown!');
+        }
+        const contentUrl = this.contentApiService.getContentUrl(nodeId);
+        // Fetch the content
+        const response = await fetch(contentUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to load PDF: ${response.statusText}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        resolve(uint8Array);
+      } catch (error) {
+        console.error('Error loading PDF document:', error);
+        reject(error);
+      }
+    });
+  }
 }

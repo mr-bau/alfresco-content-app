@@ -10,6 +10,7 @@ export const environment = {
   serverUrl: 'https://mrdev01.mrbau.local/mysql-db'
   //serverUrl: 'http://localhost:5000'
   //serverUrl: 'https://mrdms01.mrbau.at/mysql-db'
+  //serverUrl: 'https://mrdms02.mrbau.at/mysql-db'
 };
 
 export interface IMrbauDbService_mrba_vendor {
@@ -46,6 +47,7 @@ export class MrbauDbService {
     if (ecmhost.toLowerCase().indexOf('localhost') >= 0 || ecmhost.toLowerCase().indexOf('mrdev01.mrbau.') >= 0) {
       environment.serverUrl = 'https://mrdev01.mrbau.local/mysql-db';
       //environment.serverUrl = 'https://mrdms01.mrbau.at/mysql-db';
+      //environment.serverUrl = 'https://mrdms02.mrbau.at/mysql-db';
       environment.production = false;
     }
     else

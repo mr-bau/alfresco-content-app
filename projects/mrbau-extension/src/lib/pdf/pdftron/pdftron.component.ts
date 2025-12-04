@@ -18,6 +18,7 @@ import { CanComponentDeactivate } from '../../guards/pending-changes.interface';
 import { ICalculationParameter, MrbauCalcService, TCalculationParameterType } from '../../services/mrbau-calc.service';
 import { MrbauCommonService } from '../../services/mrbau-common.service';
 import { MrbauNodeService } from '../../services/mrbau-node.service';
+import { EPDFEventCommands, IEventData, IPDFViewerEventReceiver } from '../../services/mrbau-data.service';
 
 
 interface ICalculationParameterExtend extends ICalculationParameter {
@@ -53,7 +54,7 @@ interface IPatchFunction {
   templateUrl: './pdftron.component.html',
   styleUrls: ['./pdftron.component.scss']
 })
-export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanComponentDeactivate {
+export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanComponentDeactivate, IPDFViewerEventReceiver {
   private mrbauNodeService = inject(MrbauNodeService);
   private mrbauCommonService = inject(MrbauCommonService);
   private mrbauCalcService = inject(MrbauCalcService);
@@ -1188,6 +1189,70 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
       }
       console.log(error)
     })
+  }
+
+  async executePDFViewerEvent(data: IEventData): Promise<boolean> {
+    const eventCommand = data.eventCommand;
+
+    if (eventCommand === EPDFEventCommands.ADD_PAGE_FIRST) {
+      if (!this.wvInstance || !this.wvInstance.Core) {
+        return false;
+      }
+
+      const eventData: Uint8Array = data.eventData;
+      if (!eventData || eventData.length === 0) {
+        return false;
+      }
+
+      const { Core } = this.wvInstance;
+      const { documentViewer } = Core;
+
+      try {
+        this.toggleSpinner(true);
+
+        // 1. Erstellen eines Blobs aus den Rohdaten
+        const pdfBlob = new Blob([eventData as any], { type: 'application/pdf' });
+
+        // 2. Laden des neuen Dokuments im Speicher (ohne es anzuzeigen)
+        // Core.createDocument erstellt ein Document-Objekt, das wir manipulieren können
+        const newDoc = await Core.createDocument(pdfBlob, { extension: 'pdf' });
+
+        // 3. Zugriff auf das aktuell angezeigte Dokument
+        const currentDoc = documentViewer.getDocument();
+
+        // 4. Seiten definieren, die eingefügt werden sollen (alle Seiten des neuen Docs)
+        const pageCount = newDoc.getPageCount();
+        // Erstellt ein Array [1, 2, ..., n]
+        const pagesToInsert = Array.from({length: pageCount}, (_, i) => i + 1);
+
+        // 5. Seiten einfügen
+        // insertPages(sourceDocument, sourcePageIndices, insertBeforePageNumber)
+        // Einfügen an Position 1 (ganz am Anfang)
+        await currentDoc.insertPages(newDoc, pagesToInsert, 1);
+
+        // 6. Aufräumen: Die UI weiß oft nicht sofort, dass sich die Seitenzahl geändert hat
+        documentViewer.updateView();
+        documentViewer.refreshAll();
+        documentViewer.getDocument().refreshTextData();
+
+        // 7. Status setzen für "Speichern"-Dialog
+        this.modified = true;
+        if (this.fileSelectData) {
+          this.previousFileSelectData = Object.assign({}, this.fileSelectData);
+        }
+
+        this.toggleSpinner(false);
+        return true;
+
+      } catch (error) {
+        console.error("Fehler in executePDFViewerEvent (Core API):", error);
+        this.mrbauCommonService.showError("Fehler beim Hinzufügen der Seite.");
+        this.toggleSpinner(false);
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 

@@ -1,5 +1,5 @@
 import { Node, NodeAssociationEntry, NodeBodyUpdate } from '@alfresco/js-api';
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -17,18 +17,9 @@ import { AspectAmountDetails, AspectDeductionDetails, AspectDocumentIdentityDeta
 import { MrbauNumberInputDirective } from './mrbau-number-input.directive';
 import { CONST } from '../../declaration/mrbau-global-declarations';
 import { NodesApiService } from '@alfresco/adf-content-services';
-
-/**
-  TODO
-  [x] Implement All Fields
-  [x] Autofill from Data
-  [ ] Autofill & Save
-
-  [ ] Create Missing Data Fields in Backend
-  [ ] Generate PDF
-  [ ] Merge PDF Files
-
- */
+import { MrbauPdfLibService } from '../../pdf/pdf-lib/mrbau-pdf-lib.service';
+import { ReviewSheetData, ReviewSheetTemplate } from '../../pdf/pdf-lib/mrbau-reviewsheet-template';
+import { EDataServiceEvents, EPDFEventCommands, IEventData } from '../../services/mrbau-data.service';
 
 @Component({
   standalone:true,
@@ -53,6 +44,9 @@ import { NodesApiService } from '@alfresco/adf-content-services';
   //encapsulation: ViewEncapsulation.None
 })
 export class MrbauAddReviewSheetDialogComponent implements OnInit {
+  // Service Injection
+  private mrbauPdfLibService = inject(MrbauPdfLibService);
+
   private destroy$ = new Subject<void>();
   node : Node | undefined;
   nodeAssociations : NodeAssociationEntry[] | undefined;
@@ -136,10 +130,8 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
   initData() {
     this.invoiceType = this.getValueFromPayloadModel('mrba:invoiceType');
     this.taxRate = this.mrbauCalcService.getNumberFromString(this.getValueFromPayloadModel('mrba:taxRate'));
-
     this.subtitle = (this.isTeilRechnung()) ? "für Teilrechnungen" : "für Schlussrechnungen";
     this.subtitle += (this.taxRate > 0) ? " - MWSt Rechnung" : " - Bauleistung";
-
   }
 
   initFormData() {
@@ -419,39 +411,53 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     return this.mrbauCalcService.formatNumber(val);
   }
 
-  async onSaveClicked()
-    {
-      this.errorMessage = null;
+  async saveData(node : Node) : Promise<Node>
+  {
+    // save Properties to node
+    let nodeBody : NodeBodyUpdate = {};
+    nodeBody.properties = {};
+
+    nodeBody.properties[AspectDeductionDetails.netAmountPreDeduction.key] = this.formatFormNumberAsString('rechnungsbetragnettokorr');
+    nodeBody.properties[AspectDeductionDetails.deductionDamageUnassignedPercent.key] = this.formatFormNumberAsString('nzbauschaedenprozent');
+    nodeBody.properties[AspectDeductionDetails.deductionDamageAssignedNetAmount.key] = this.formatFormNumberAsString('bauschaedennetto');
+    nodeBody.properties[AspectDeductionDetails.deductionSpecialNetAmount.key] = this.formatFormNumberAsString('sonderabzuege');
+    nodeBody.properties[AspectDeductionDetails.deductionSpecialPercent.key] = this.formatFormNumberAsString('sonderabzuegepercent');;
+    nodeBody.properties[AspectDeductionDetails.deductionWastePercent.key] = this.formatFormNumberAsString('schuttprozent');;
+    nodeBody.properties[AspectDeductionDetails.deductionCleaningPercent.key] = this.formatFormNumberAsString('reinigungprozent');;
+    nodeBody.properties[AspectDeductionDetails.deductionToiletsPercent.key] = this.formatFormNumberAsString('wcprozent');
+    nodeBody.properties[AspectDeductionDetails.deductionWaterPercent.key] = this.formatFormNumberAsString('wasserprozent');
+    nodeBody.properties[AspectDeductionDetails.deductionElectricityPercent.key] = this.formatFormNumberAsString('stromprozent');;
+    nodeBody.properties[AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key] = this.formatFormNumberAsString('teilznetto');
+    nodeBody.properties[AspectRetentionDetails.retentionDRLPercent.key] = this.formatFormNumberAsString('deckungsruecklasspercent');
+    nodeBody.properties[AspectRetentionDetails.retentionHRLPercent.key] = this.formatFormNumberAsString('haftruecklasspercent');
+
+    nodeBody.properties[AspectInboundInvoiceReviewDetails.grossAmountVerified.key] = this.formatFormNumberAsString('offenerbetrag');
+    const ctr : any = this.form.controls;
+    nodeBody.properties[AspectInboundInvoiceReviewDetails.netAmountVerified.key] = this.mrbauCalcService.formatNumber(this.calcNet(ctr['offenerbetrag'].value));
+    const updatedNode = await this.nodesApiService.nodesApi.updateNode(node.id, nodeBody, {include:CONST.GET_NODE_DEFAULT_INCLUDE});
+    return updatedNode.entry;
+  }
+
+    saveButtonDisabled() {
+      return this.formIsInValid() || this.errorMessage;
+    }
+
+    formIsInValid() : boolean {
+      return this.form.invalid;
+    }
+
+    async createPDFDocument() {
+      if (!this.node)
+        return;
+
       try {
-        // save Properties to node
-        const ctr : any = this.form.controls;
-        let nodeBody : NodeBodyUpdate = {};
-        nodeBody.properties = {};
-        nodeBody.properties[AspectDeductionDetails.netAmountPreDeduction.key] = this.formatFormNumberAsString('rechnungsbetragnettokorr');
-        nodeBody.properties[AspectDeductionDetails.deductionDamageUnassignedPercent.key] = this.formatFormNumberAsString('nzbauschaedenprozent');
-        nodeBody.properties[AspectDeductionDetails.deductionDamageAssignedNetAmount.key] = this.formatFormNumberAsString('bauschaedennetto');
-        nodeBody.properties[AspectDeductionDetails.deductionSpecialNetAmount.key] = this.formatFormNumberAsString('sonderabzuege');
-        nodeBody.properties[AspectDeductionDetails.deductionSpecialPercent.key] = this.formatFormNumberAsString('sonderabzuegepercent');;
-        nodeBody.properties[AspectDeductionDetails.deductionWastePercent.key] = this.formatFormNumberAsString('schuttprozent');;
-        nodeBody.properties[AspectDeductionDetails.deductionCleaningPercent.key] = this.formatFormNumberAsString('reinigungprozent');;
-        nodeBody.properties[AspectDeductionDetails.deductionToiletsPercent.key] = this.formatFormNumberAsString('wcprozent');
-        nodeBody.properties[AspectDeductionDetails.deductionWaterPercent.key] = this.formatFormNumberAsString('wasserprozent');
-        nodeBody.properties[AspectDeductionDetails.deductionElectricityPercent.key] = this.formatFormNumberAsString('stromprozent');;
-        nodeBody.properties[AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key] = this.formatFormNumberAsString('teilznetto');
+        const newNode = await this.saveData(this.node);
+        const pdfBytes = await this.createPDFFromData(this.node);
 
-        nodeBody.properties[AspectRetentionDetails.retentionDRLPercent.key] = this.formatFormNumberAsString('deckungsruecklasspercent');
-        nodeBody.properties[AspectRetentionDetails.retentionHRLPercent.key] = this.formatFormNumberAsString('haftruecklasspercent');
-
-        nodeBody.properties[AspectInboundInvoiceReviewDetails.grossAmountVerified.key] = this.formatFormNumberAsString('offenerbetrag');
-        nodeBody.properties[AspectInboundInvoiceReviewDetails.netAmountVerified.key] = this.mrbauCalcService.formatNumber(this.calcNet(ctr['offenerbetrag']));
-
-        if (this.node) {
-          const updatedNode = await this.nodesApiService.nodesApi.updateNode(this.node.id, nodeBody, {include:CONST.GET_NODE_DEFAULT_INCLUDE});
-          this.node = updatedNode.entry;
-        }
-
-        // return updated node
-        this.dialogRef.close(this.node);
+        // return updated node and new data
+        this.node = newNode;
+        const result : IEventData = {node: newNode, eventType : EDataServiceEvents.PDF_VIEWER_EVENT, eventCommand : EPDFEventCommands.ADD_PAGE_FIRST, eventData : pdfBytes}
+        this.dialogRef.close(result);
       } catch (error : any) {
         if (error?.error?.errorKey && error?.error?.briefSummary) {
           this.errorMessage= error.errorKey+' '+error.briefSummary;
@@ -464,12 +470,73 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
       }
     }
 
-    saveButtonDisabled() {
-      return this.formIsInValid() || this.errorMessage;
+    private createPDFFromData(node:Node) : Promise<Uint8Array<ArrayBufferLike>>
+    {
+      //this.node
+      const data : ReviewSheetData = {
+        node: node,
+        auftragssumme: this.form.get('auftragssumme')?.value || 0,
+        zasumme: this.form.get('zasumme')?.value || 0,
+        gesamtsumme: this.form.get('gesamtsumme')?.value || 0,
+        uebernahmedate: this.form.get('uebernahmedate')?.value,
+        maengelfreimeldung: this.form.get('maengelfreimeldung')?.value,
+        bvh: this.form.get('bvh')?.value || '',
+        kt: this.form.get('kt')?.value || '',
+        gewerk: this.form.get('gewerk')?.value || '',
+        rechnungsnr: this.form.get('rechnungsnr')?.value || '',
+        rechnungsdatum: this.form.get('rechnungsdatum')?.value || '',
+        rechnungsbetragnetto: this.form.get('rechnungsbetragnetto')?.value || 0,
+        rechnungskorrekturnetto: this.form.get('rechnungskorrekturnetto')?.value || 0,
+        rechnungsbetragnettokorr: this.form.get('rechnungsbetragnettokorr')?.value || 0,
+        rechnungsbetragbruttokorr: this.form.get('rechnungsbetragbruttokorr')?.value || 0,
+        nzbauschaedenprozent: this.form.get('nzbauschaedenprozent')?.value || 0,
+        nzbauschaedennetto: this.form.get('nzbauschaedennetto')?.value || 0,
+        bauschaedennetto: this.form.get('bauschaedennetto')?.value || 0,
+        sonderabzuege: this.form.get('sonderabzuege')?.value || 0,
+        sonderabzuegepercent: this.form.get('sonderabzuegepercent')?.value || 0,
+        sonderabzuegepercentnetto: this.form.get('sonderabzuegepercentnetto')?.value || 0,
+        summeabzuegenetto: this.form.get('summeabzuegenetto')?.value || 0,
+        schuttprozent: this.form.get('schuttprozent')?.value || 0,
+        schuttnetto: this.form.get('schuttnetto')?.value || 0,
+        reinigungprozent: this.form.get('reinigungprozent')?.value || 0,
+        reinigungnetto: this.form.get('reinigungnetto')?.value || 0,
+        wcprozent: this.form.get('wcprozent')?.value || 0,
+        wcnetto: this.form.get('wcnetto')?.value || 0,
+        wasserprozent: this.form.get('wasserprozent')?.value || 0,
+        wassernetto: this.form.get('wassernetto')?.value || 0,
+        stromprozent: this.form.get('stromprozent')?.value || 0,
+        stromnetto: this.form.get('stromnetto')?.value || 0,
+        sumumlage: this.form.get('sumumlage')?.value || 0,
+        sumnetto2: this.form.get('sumnetto2')?.value || 0,
+        ustsumnetto2: this.form.get('ustsumnetto2')?.value || 0,
+        brutto2: this.form.get('brutto2')?.value || 0,
+        taxRate: this.taxRate,
+        teilznetto: this.form.get('teilznetto')?.value || 0,
+        teilzmwst: this.form.get('teilzmwst')?.value || 0,
+        teilzbrutto: this.form.get('teilzbrutto')?.value || 0,
+        einbehalt: this.form.get('einbehalt')?.value || 0,
+        deckungsruecklasspercent: this.form.get('deckungsruecklasspercent')?.value || 0,
+        deckungsruecklass: this.form.get('deckungsruecklass')?.value || 0,
+        haftruecklasspercent: this.form.get('haftruecklasspercent')?.value || 0,
+        haftruecklass: this.form.get('haftruecklass')?.value || 0,
+        haftruecklassdate: this.form.get('haftruecklassdate')?.value,
+        haftruecklassLabel: this.getHaftruecklassLabel(),
+        datumnet: this.form.get('datumnet')?.value,
+        offenerbetrag: this.form.get('offenerbetrag')?.value || 0,
+        skontopercent1: this.form.get('skontopercent1')?.value || 0,
+        skonto1: this.form.get('skonto1')?.value || 0,
+        offenerbetragskonto1: this.form.get('offenerbetragskonto1')?.value || 0,
+        datumskonto1: this.form.get('datumskonto1')?.value,
+        skontopercent2: this.form.get('skontopercent2')?.value || 0,
+        skonto2: this.form.get('skonto2')?.value || 0,
+        offenerbetragskonto2: this.form.get('offenerbetragskonto2')?.value || 0,
+        datumskonto2: this.form.get('datumskonto2')?.value,
+        isBauleistungsRechnung: this.isBauleistungsRechnung(),
+        isTeilRechnung: this.isTeilRechnung(),
+      };
+      return this.mrbauPdfLibService.createFromTemplate(ReviewSheetTemplate, data);
     }
 
-    formIsInValid() : boolean {
-      return this.form.invalid;
-    }
+
 }
 

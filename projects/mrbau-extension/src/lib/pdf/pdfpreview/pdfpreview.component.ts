@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, SimpleChanges, ViewChild } from '@angular/core';
-
+import { Node } from '@alfresco/js-api';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { NodeEntry, VersionEntry } from '@alfresco/js-api';
 import { CONST } from '../../declaration/mrbau-global-declarations';
@@ -12,8 +12,11 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { PdfbrowserComponent } from '../pdfbrowser/pdfbrowser.component';
 import { AlfrescoViewerComponent } from '@alfresco/adf-content-services';
 import { CanComponentDeactivate } from '../../guards/pending-changes.interface';
-import { Observable } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { ErrormsgpaneComponent } from '@mrbau/mrbau-common';
+import { EPDFEventCommands, IEventData, MrbauDataService } from '../../services/mrbau-data.service';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
+import { MrbauPdfLibService } from '../pdf-lib/mrbau-pdf-lib.service';
 
 const PDF_TRON = 'pdfTron';
 const PDF_ACA ='aca'
@@ -35,6 +38,7 @@ const PDF_BROWSER='browser';
   styleUrls: ['./pdfpreview.component.scss']
 })
 export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
+  private destroy$ = new Subject<void>();
   readonly PDF_TRON = PDF_TRON;
   readonly PDF_ACA = PDF_ACA;
   readonly PDF_BROWSER = PDF_BROWSER;
@@ -43,6 +47,8 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
   @Input() dragging: boolean = false;
   errorMessage : string | null = null;
   isPDFFile = true;
+  browserReloadToken: number = 0;
+  acaViewerReloadFlag = true;
   //useViewer : string = 'pdfTron';
   useViewer : string = PDF_BROWSER;
   fileSelectDataOut: IFileSelectData | null = null;
@@ -50,6 +56,9 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
   constructor(
     private contentApiService : ContentApiService,
     private notificationService : NotificationService,
+    private mrbauDataService: MrbauDataService,
+    private mrbauCommonService : MrbauCommonService,
+    private mrbauPdfLibService : MrbauPdfLibService,
   ) {
     this.notificationService;
   }
@@ -62,6 +71,16 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
   }
 
   ngOnInit(): void {
+    this.mrbauDataService.pdfViewerEvents$
+    .pipe(takeUntil(this.destroy$)) // Automatically unsubscribes when destroy$ emits
+    .subscribe(result => {
+      this.onPdfViewerEvent(result);
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(); // Kills the subscription
+    this.destroy$.complete();
   }
 
   async ngOnChanges(changes: SimpleChanges) {
@@ -112,5 +131,44 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
     {
       this.errorMessage = ''+error;
     }
+  }
+
+  async onPdfViewerEvent(data : IEventData) : Promise<Observable<boolean> | Promise<boolean> | boolean>
+  {
+    if (this.useViewer == PDF_TRON && this.pdftronComponent)
+    {
+      return this.pdftronComponent.executePDFViewerEvent(data);
+    }
+    else {
+      if (data.eventCommand === EPDFEventCommands.ADD_PAGE_FIRST) {
+        // use pdf-lib to merge documents
+        const node : Node  = data.node;
+        const nodePdfData = await this.mrbauCommonService.loadNodeContent(node.id);
+        const merged = await this.mrbauPdfLibService.mergePDFs(data.eventData, nodePdfData);
+        //this.mrbauPdfLibService.downloadPdf(merged, node.name+'.pdf');
+        try {
+          await this.mrbauCommonService.uploadNewVersion(node.id, merged, "Prüfblatt hinzugefügt");
+          this.browserReloadToken++;
+
+          this.reloadAcaViewer();
+
+        } catch (error) {
+          console.log(error);
+          this.mrbauCommonService.showError('Fehler beim Upload: '+error);
+        }
+      }
+      else {
+        this.mrbauCommonService.showError('Fehler: PDF Event '+data.eventCommand+' nicht unterstützt!')
+      }
+    }
+    return false;
+  }
+
+  private reloadAcaViewer() {
+    this.acaViewerReloadFlag = false;
+    // Ein kurzer Timeout ist nötig, damit Angular den DOM-Change wahrnimmt
+    setTimeout(() => {
+      this.acaViewerReloadFlag = true;
+    }, 100);
   }
 }

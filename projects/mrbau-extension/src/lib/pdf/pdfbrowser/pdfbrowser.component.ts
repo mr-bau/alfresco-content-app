@@ -16,6 +16,7 @@ import { IFileSelectData } from '../../declaration/mrbau-task-declarations';
 })
 export class PdfbrowserComponent implements OnChanges {
   @Input() fileSelectData: IFileSelectData | null = null;
+  @Input() reloadToken: number = 0;
   SHOW_TOOLBAR : string = "#toolbar=1";
   useIframe: boolean;
   sanitized_document_url: SafeResourceUrl | null = null;
@@ -29,7 +30,7 @@ export class PdfbrowserComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.fileSelectData) {
+    if (changes.fileSelectData || changes.reloadToken) {
       this.onFileSelected();
       //console.log('on Changes');
     }
@@ -41,14 +42,21 @@ export class PdfbrowserComponent implements OnChanges {
       return;
     }
 
-    if (this.fileSelectData.versionId)
-    {
-      this.loadUrl(this.contentApiService.getVersionContentUrl(this.fileSelectData.nodeId, this.fileSelectData.versionId));
+    let url: string | null = null;
+
+    if (this.fileSelectData.versionId) {
+      url = this.contentApiService.getVersionContentUrl(this.fileSelectData.nodeId, this.fileSelectData.versionId);
+    } else {
+      url = this.contentApiService.getContentUrl(this.fileSelectData.nodeId);
     }
-    else
-    {
-      this.loadUrl(this.contentApiService.getContentUrl(this.fileSelectData.nodeId));
+
+    // 3. Cache Busting hinzufügen (WICHTIG!)
+    if (url) {
+      const separator = url.includes('?') ? '&' : '?';
+      url = `${url}${separator}t=${new Date().getTime()}`;
     }
+
+    this.loadUrl(url);
   }
 
   private loadUrl(fileUrl : string)

@@ -14,9 +14,9 @@
     </div>
   </div>
   <div id="pdf-viewer">
-    <mrbau-pdfbrowser *ngIf="isPDFFile && useViewer==PDF_BROWSER" [hidden]="(fileSelectDataOut==null || dragging)" id="pdf-frame" [fileSelectData]="fileSelectDataOut"></mrbau-pdfbrowser>
+    <mrbau-pdfbrowser *ngIf="isPDFFile && useViewer==PDF_BROWSER" [hidden]="(fileSelectDataOut==null || dragging)" id="pdf-frame" [reloadToken]="browserReloadToken" [fileSelectData]="fileSelectDataOut"></mrbau-pdfbrowser>
     <mrbau-pdftron #pdfTron *ngIf="isPDFFile && useViewer==PDF_TRON" [hidden]="(fileSelectDataOut==null || dragging)" [fileSelectData]="fileSelectDataOut"/>
-    <adf-alfresco-viewer *ngIf="!isPDFFile || useViewer==PDF_ACA"
+    <adf-alfresco-viewer *ngIf="acaViewerReloadFlag && (!isPDFFile || useViewer==PDF_ACA)"
       [overlayMode]="false"
       [allowLeftSidebar]="false"
       [allowFullScreen]="true"

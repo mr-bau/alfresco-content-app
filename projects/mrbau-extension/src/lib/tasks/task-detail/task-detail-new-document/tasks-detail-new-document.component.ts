@@ -48,6 +48,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatStepperModule } from '@angular/material/stepper';
 import { TaskMenuPauseComponent } from '../../task-menu/task-menu-pause/task-menu-pause.component';
 import { ContentApiService } from '@alfresco/aca-shared';
+import { EDataServiceEvents, MrbauDataService } from '../../../services/mrbau-data.service';
 
 @Component({
   standalone:true,
@@ -162,9 +163,11 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     private mrbauCommonService:MrbauCommonService,
     private mrbauFormLibraryService:MrbauFormLibraryService,
     private mrbauArchiveModelService : MrbauArchiveModelService,
+    private mrbauDataService: MrbauDataService,
     private nodesApiService : NodesApiService,
     private notificationService: NotificationService,
-    private contentApiService: ContentApiService
+    private contentApiService: ContentApiService,
+
   ) {
   }
 
@@ -682,11 +685,19 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.fields.forEach( (field) => this.updateFormValueRecursive(field));
   }
 
+  dialogCallback(data :any ) {
+    data;
+    if (data.eventType === EDataServiceEvents.PDF_VIEWER_EVENT) {
+      this.mrbauDataService.emitPDFViewerEvent(data);
+    }
+  }
+
   updateFormValueRecursive(formlyFieldConfig: FormlyFieldConfig)
   {
     // add task node and associations for special use cases
     this.model['ignore:taskNode'] = this.taskNode;
     this.model['ignore:taskNodeAssociations'] = this.taskNodeAssociations;
+    this.model['ignore:dialogCallback'] = this.dialogCallback.bind(this);
 
     let keys: string[] = [];
     keys.push(formlyFieldConfig.key as string);
