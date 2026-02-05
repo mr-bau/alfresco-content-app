@@ -272,12 +272,11 @@ export class MrbauPdfLibService {
     page.setFont(pdfState.font);
     page.setFontSize(pdfState.fontSize);
     page.setFontColor(this.black);
-    await this.setPdfDocMetaData(pdfState);
+    await this.setPdfDocMetaData(pdfState.pdfDoc);
     return pdfState;
   }
 
-  async setPdfDocMetaData(pdfState : PDFState)  {
-    const pdfDoc = pdfState.pdfDoc;
+  async setPdfDocMetaData(pdfDoc : PDFDocument)  {
     try
     {
       const user = await this.mrbauCommonService.getCurrentUser();
@@ -490,6 +489,7 @@ export class MrbauPdfLibService {
         pdfDoc1.addPage(page);
       });
 
+      this.setPdfDocMetaData(pdfDoc1);
       // Save merged PDF
       const mergedPdfBytes = await pdfDoc1.save();
       return new Uint8Array(mergedPdfBytes);

@@ -351,7 +351,7 @@ export class MrbauCommonService {
     return this.nodesApi.deleteNode(nodeId, opts);
   }
 
-  getFormDateValue(date: Date) : string | undefined {
+  getFormDateValue(date: Date | undefined | null) : string | undefined {
     if (date == null || date == undefined)
     {
       return undefined;

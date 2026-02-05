@@ -28,8 +28,23 @@ export const AspectRetentionDetails : { [key:string]: IAspectDetailItem } = {
   //retentionDRLPercentNumericValue : {key:"mrba:retentionDRLPercentNumericValue", label:"Deckungsrücklass"},
   retentionHRLPercent             : {key:"mrba:retentionHRLPercent", label:"Haftungsrücklass [%]", label_short: "Haftungsrücklass"},
   //retentionHRLPercentNumericValue : {key:"mrba:retentionHRLPercentNumericValue", label:"Haftungsrücklass"},
+  retentionHRLDate : {key:"mrba:retentionHRLDate", label:"Laufzeit", label_short: "Laufzeit"},
+  retentionHRLDateValue : {key:"mrba:retentionHRLDateValue", label:"Laufzeit", label_short: "Laufzeit"},
 }
 
+export const AspectInvoiceReviewSheetDetails : { [key:string]: IAspectDetailItem } = {
+  mainOrderAmount               : {key:"mrba:mainOrderAmount", label:"Auftrags-Summe [€]", label_short: "Auftrags-Summe"},
+  //mainOrderAmountCents          : {key:"mrba:mainOrderAmountCents", label:"Auftrags-Summe [€]", label_short: "Auftrags-Summe"},
+  additionalOrderAmount         : {key:"mrba:additionalOrderAmount", label:"ZA-Summe [€]", label_short: "ZA-Summe"},
+  //additionalOrderAmountCents    : {key:"mrba:additionalOrderAmountCents", label:"ZA-Summe [€]", label_short: "ZA-Summe"},
+  deductionOrClearing         : {key:"mrba:deductionOrClearing", label:"Einbehalt [€]", label_short: "Einbehalt"},
+  //deductionOrClearingCents    : {key:"mrba:deductionOrClearingCents", label:"Einbehalt [€]", label_short: "Einbehalt"},
+  takeoverDate : {key:"mrba:takeoverDate", label:"Übernahme-Datum", label_short: "Übernahme-Datum"},
+  takeoverDateValue : {key:"mrba:takeoverDateValue", label:"Übernahme-Datum", label_short: "Übernahme-Datum"},
+  remedyNoticeDate : {key:"mrba:remedyNoticeDate", label:"Mängelfreimeldung Datum", label_short: "Mängelfreimeldung"},
+  remedyNoticeDateValue : {key:"mrba:remedyNoticeDateValue", label:"Mängelfreimeldung Datum", label_short: "Mängelfreimeldung"},
+  constructionTrade : {key:"mrba:constructionTrade", label:"Gewerk", label_short: "Gewerk"},
+}
 
 export const AspectDocumentIdentityDetails : { [key:string]: IAspectDetailItem } = {
   documentTopic : {key:"mrba:documentTopic", label:"Bezeichnung", label_short: "Bezeichnung"},

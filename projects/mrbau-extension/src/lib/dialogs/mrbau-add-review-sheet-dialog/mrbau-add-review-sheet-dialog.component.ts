@@ -13,7 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MrbauCalcService } from '../../services/mrbau-calc.service';
-import { AspectAmountDetails, AspectDeductionDetails, AspectDocumentIdentityDetails, AspectInboundInvoiceReviewDetails, AspectPaymentConditionDetails, AspectRetentionDetails, OrderTypes } from '../../declaration/mrbau-mrba-aspects';
+import { AspectAmountDetails, AspectDeductionDetails, AspectDocumentIdentityDetails, AspectInboundInvoiceReviewDetails, AspectInvoiceReviewSheetDetails, AspectPaymentConditionDetails, AspectRetentionDetails, OrderTypes } from '../../declaration/mrbau-mrba-aspects';
 import { MrbauNumberInputDirective } from './mrbau-number-input.directive';
 import { CONST } from '../../declaration/mrbau-global-declarations';
 import { NodesApiService } from '@alfresco/adf-content-services';
@@ -158,6 +158,16 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
 
     this.initNumberField('deckungsruecklasspercent', AspectRetentionDetails.retentionDRLPercent.key);
     this.initNumberField('haftruecklasspercent', AspectRetentionDetails.retentionHRLPercent.key);
+
+    this.initDateField('haftruecklassdate', AspectRetentionDetails.retentionHRLDateValue.key); //OK
+
+    this.initNumberField('auftragssumme', AspectInvoiceReviewSheetDetails.mainOrderAmount.key); // Test
+    this.initNumberField('zasumme', AspectInvoiceReviewSheetDetails.additionalOrderAmount.key);// Test
+    this.initNumberField('einbehalt', AspectInvoiceReviewSheetDetails.deductionOrClearing.key);// Test
+    this.initDateField('uebernahmedate', AspectInvoiceReviewSheetDetails.takeoverDateValue.key); // OK
+    this.initDateField('maengelfreimeldung', AspectInvoiceReviewSheetDetails.remedyNoticeDateValue.key); // OK
+    this.initStringField('gewerk', AspectInvoiceReviewSheetDetails.constructionTrade.key);// Test
+
     this.initNumberField('skontopercent1', AspectPaymentConditionDetails.earlyPaymentDiscountPercent1.key);
     this.initNumberField('skontopercent2', AspectPaymentConditionDetails.earlyPaymentDiscountPercent2.key);
     this.initStringField('datumnet', AspectInboundInvoiceReviewDetails.paymentDateNet.key);
@@ -174,6 +184,13 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
   initNumberField(name:string, key:string) {
     const value = this.mrbauCalcService.getNumberFromString(this.getValueFromPayloadModel(key));
     this.form.get(name)?.setValue(value, { emitEvent: false });
+  }
+
+  initDateField(name:string, key:string) {
+    const value = this.getValueFromPayloadModel(key);
+    if (value) {
+      this.form.get(name)?.setValue(new Date(value), { emitEvent: false });
+    }
   }
 
   initForm() {
@@ -431,6 +448,17 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     nodeBody.properties[AspectRetentionDetails.retentionDRLPercent.key] = this.formatFormNumberAsString('deckungsruecklasspercent');
     nodeBody.properties[AspectRetentionDetails.retentionHRLPercent.key] = this.formatFormNumberAsString('haftruecklasspercent');
 
+    nodeBody.properties[AspectRetentionDetails.retentionHRLDateValue.key] = this.form.get('haftruecklassdate')?.value as any;
+    nodeBody.properties[AspectInvoiceReviewSheetDetails.takeoverDateValue.key] = this.form.get('uebernahmedate')?.value as any;
+    nodeBody.properties[AspectInvoiceReviewSheetDetails.remedyNoticeDateValue.key] = this.form.get('maengelfreimeldung')?.value as any;
+
+
+    nodeBody.properties[AspectInvoiceReviewSheetDetails.mainOrderAmount.key] = this.formatFormNumberAsString('auftragssumme');
+    nodeBody.properties[AspectInvoiceReviewSheetDetails.additionalOrderAmount.key] = this.formatFormNumberAsString('zasumme');
+    nodeBody.properties[AspectInvoiceReviewSheetDetails.deductionOrClearing.key] = this.formatFormNumberAsString('einbehalt');
+
+    nodeBody.properties[AspectInvoiceReviewSheetDetails.constructionTrade.key] = this.form.get('gewerk')?.value || '';
+
     nodeBody.properties[AspectInboundInvoiceReviewDetails.grossAmountVerified.key] = this.formatFormNumberAsString('offenerbetrag');
     const ctr : any = this.form.controls;
     nodeBody.properties[AspectInboundInvoiceReviewDetails.netAmountVerified.key] = this.mrbauCalcService.formatNumber(this.calcNet(ctr['offenerbetrag'].value));
@@ -444,6 +472,27 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
 
     formIsInValid() : boolean {
       return this.form.invalid;
+    }
+
+    async saveDocumentData() {
+      if (!this.node)
+        return;
+
+      try {
+        const newNode = await this.saveData(this.node);
+        this.node = newNode;
+        // return updated node
+        this.dialogRef.close({node: newNode});
+      } catch (error : any) {
+        if (error?.error?.errorKey && error?.error?.briefSummary) {
+          this.errorMessage= error.errorKey+' '+error.briefSummary;
+        }
+        else {
+          this.errorMessage= ''+error;
+        }
+        console.log(error);
+        return;
+      }
     }
 
     async createPDFDocument() {
@@ -478,8 +527,8 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
         auftragssumme: this.form.get('auftragssumme')?.value || 0,
         zasumme: this.form.get('zasumme')?.value || 0,
         gesamtsumme: this.form.get('gesamtsumme')?.value || 0,
-        uebernahmedate: this.form.get('uebernahmedate')?.value,
-        maengelfreimeldung: this.form.get('maengelfreimeldung')?.value,
+        uebernahmedate: this.form.get('uebernahmedate')?.value || '',
+        maengelfreimeldung: this.form.get('maengelfreimeldung')?.value || '',
         bvh: this.form.get('bvh')?.value || '',
         kt: this.form.get('kt')?.value || '',
         gewerk: this.form.get('gewerk')?.value || '',
@@ -519,7 +568,7 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
         deckungsruecklass: this.form.get('deckungsruecklass')?.value || 0,
         haftruecklasspercent: this.form.get('haftruecklasspercent')?.value || 0,
         haftruecklass: this.form.get('haftruecklass')?.value || 0,
-        haftruecklassdate: this.form.get('haftruecklassdate')?.value,
+        haftruecklassdate: this.form.get('haftruecklassdate')?.value || '',
         haftruecklassLabel: this.getHaftruecklassLabel(),
         datumnet: this.form.get('datumnet')?.value,
         offenerbetrag: this.form.get('offenerbetrag')?.value || 0,

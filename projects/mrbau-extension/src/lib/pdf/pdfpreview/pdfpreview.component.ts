@@ -50,7 +50,7 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
   browserReloadToken: number = 0;
   acaViewerReloadFlag = true;
   //useViewer : string = 'pdfTron';
-  useViewer : string = PDF_BROWSER;
+  useViewer : string = PDF_TRON;
   fileSelectDataOut: IFileSelectData | null = null;
 
   constructor(
@@ -137,7 +137,8 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
   {
     if (this.useViewer == PDF_TRON && this.pdftronComponent)
     {
-      return this.pdftronComponent.executePDFViewerEvent(data);
+      const result = this.pdftronComponent.executePDFViewerEvent(data);
+      return result;
     }
     else {
       if (data.eventCommand === EPDFEventCommands.ADD_PAGE_FIRST) {
@@ -149,9 +150,8 @@ export class PdfpreviewComponent implements OnInit, CanComponentDeactivate {
         try {
           await this.mrbauCommonService.uploadNewVersion(node.id, merged, "Prüfblatt hinzugefügt");
           this.browserReloadToken++;
-
           this.reloadAcaViewer();
-
+          return true;
         } catch (error) {
           console.log(error);
           this.mrbauCommonService.showError('Fehler beim Upload: '+error);

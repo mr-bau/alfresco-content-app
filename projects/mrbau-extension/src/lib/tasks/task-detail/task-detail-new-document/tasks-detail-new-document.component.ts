@@ -685,10 +685,15 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.fields.forEach( (field) => this.updateFormValueRecursive(field));
   }
 
-  dialogCallback(data :any ) {
+  async dialogCallback(data :any ) {
     data;
     if (data.eventType === EDataServiceEvents.PDF_VIEWER_EVENT) {
-      this.mrbauDataService.emitPDFViewerEvent(data);
+      this.isLoading = true;
+      try {
+        await this.mrbauDataService.emitPDFViewerEvent(data);
+      } finally {
+        this.isLoading = false;
+      }
     }
   }
 
