@@ -354,7 +354,6 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     this.form.get('haftruecklass')?.setValue(haftruecklass, { emitEvent: false });
 
     const offenerbetrag = brutto2 - teilzbrutto - einbehalt - deckungsruecklass - haftruecklass;
-    this.form.get('teilznetto')?.setValue(teilznetto, { emitEvent: false });
     this.form.get('teilzmwst')?.setValue(teilzmwst, { emitEvent: false });
     this.form.get('teilzbrutto')?.setValue(teilzbrutto, { emitEvent: false });
 
