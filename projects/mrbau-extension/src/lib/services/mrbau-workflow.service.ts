@@ -35,10 +35,6 @@ export class MrbauWorkflowService {
     return new Promise<string>((resolve, reject) => {
       this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status)
       .then((assignedUserName) => {
-        if (!assignedUserName) {
-          reject("assignedUserName is null");
-          return;
-        }
         this.mrbauCommonService.progressWithNewUserConfirmDialog(assignedUserName)
         .then((name) => {
           resolve(name);
@@ -100,10 +96,6 @@ export class MrbauWorkflowService {
     return new Promise<string>((resolve, reject) => {
       this.mrbauConventionsService.getTaskDefaultAssignedUserIdForStatus(data, status)
       .then((assignedUserName) => {
-        if (!assignedUserName) {
-          reject("assignedUserName is null");
-          return;
-        }
         this.mrbauCommonService.progressWithElevatedAuditorsConfirmDialog(assignedUserName)
         .then((name) => {
           resolve(name);

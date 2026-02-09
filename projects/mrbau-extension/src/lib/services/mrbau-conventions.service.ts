@@ -87,6 +87,7 @@ export class MrbauConventionsService {
             const project = result as ICostCarrier;
             if (project == null) {
               resolve(null);
+              return;
             }
             switch (status)
             {

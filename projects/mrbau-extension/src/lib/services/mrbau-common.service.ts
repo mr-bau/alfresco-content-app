@@ -427,16 +427,16 @@ export class MrbauCommonService {
     return this.nodesApi.updateNode(nodeId, nodeBodyUpdate);
   }
 
-  progressWithElevatedAuditorsConfirmDialog(assignedUserName : string) : Promise<string>
+  progressWithElevatedAuditorsConfirmDialog(assignedUserName : string | null | undefined) : Promise<string>
   {
     return this.doProgressWithNewUserConfirmDialog(assignedUserName, this.getElevatedAuditorsObservable());
   }
 
-  progressWithNewUserConfirmDialog(assignedUserName : string) : Promise<string> {
+  progressWithNewUserConfirmDialog(assignedUserName : string | null | undefined) : Promise<string> {
     return this.doProgressWithNewUserConfirmDialog(assignedUserName, this.getPeopleObservable());
   }
 
-  doProgressWithNewUserConfirmDialog(assignedUserName : string, optionsList: Observable<any>) : Promise<string>
+  doProgressWithNewUserConfirmDialog(assignedUserName : string | null | undefined, optionsList: Observable<any>) : Promise<string>
   {
 
     //this.model['mrbt:assignedUserName'] = task.assignedUserName;
