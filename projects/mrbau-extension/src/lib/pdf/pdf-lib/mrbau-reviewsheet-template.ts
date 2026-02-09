@@ -2,7 +2,7 @@ import { EPDFBorderFlags, EPDFCellFlags, IPDFTemplate, PDFTemplateData } from '.
 
 export const ReviewSheetTemplate : IPDFTemplate = {
   title: 'Rechnungs-Prüfblatt',
-  company: ['Firma', '{{mrba:companyStreet}}', '{{mrba:companyZipCode}}', '{{mrba:companyCity}}', '{{mrba:companyVatID}}'],
+  company: ['Firma', '{{mrba:companyName}}','{{mrba:companyStreet}}', '{{mrba:companyZipCode}}'+' '+'{{mrba:companyCity}}', '{{mrba:companyVatID}}'],
   lines : [
     { line:['Auftrags-Summe:','{auftragssumme}','Zusatz-Aufträge:','{zasumme}', 'Gesamt-Summe:', '{gesamtsumme}'], flags: [0, EPDFCellFlags.Right, 0, EPDFCellFlags.Right, 0, EPDFCellFlags.Right], cellBorder: [0,EPDFBorderFlags.Outline,0,EPDFBorderFlags.Outline,0,EPDFBorderFlags.Outline] },
     { extraSpaceY: 4},
