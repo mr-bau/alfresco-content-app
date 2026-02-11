@@ -105,6 +105,11 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   private _task : MRBauTask | null = null;
   @Input() set task(val : MRBauTask | null) {
+    // Prevent execution if the task hasn't actually changed
+    if (this._task?.id === val?.id && this._task?.status === val?.status) {
+      return;
+    }
+
     this._task = val;
     this.setErrorMessage(null);
     this.updateTask();
@@ -117,9 +122,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   get taskNode() : Node | null {
     return this._taskNode;
   }
-  private _taskNodeAssociations : NodeAssociationEntry[] | undefined;
+  private _taskNodeAssociations : NodeAssociationEntry[] = [];
   get taskNodeAssociations() : NodeAssociationEntry[] {
-    return this._taskNodeAssociations || [];
+    return this._taskNodeAssociations;
   }
   duplicateNode : Node | undefined;
 
@@ -136,8 +141,10 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
   taskBarButtons : TaskBarButton[] = this.taskBarButtonsNormal;
 
   set errorMessage(val : string | null) {
-    this._errorMessage = val;
-    this.errorEvent.emit(this._errorMessage);
+    if (this._errorMessage !== val) {
+      this._errorMessage = val;
+      this.errorEvent.emit(this._errorMessage);
+    }
   }
   private _errorMessage: string | null = null;
   set reloadTaskRequiredFlag(val:boolean)
@@ -226,7 +233,7 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       if (result.list == null) {
         throw new Error('result.list is null');
       }
-      this._taskNodeAssociations = result.list.entries;
+      this._taskNodeAssociations = result.list.entries || [];
       // update Form
       this.updateFormDC();
       // execute onEnterAction
