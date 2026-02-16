@@ -151,11 +151,12 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrbt:dueDateValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
       label: 'Fällig bis',
       type: 'date',
+      placeholder: 'DD.MM.YYYY',
     },
     validators: {
       validation: ['date-future'],
@@ -326,11 +327,12 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:archivedDateValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
       label: 'Eingangs Datum',
       type: 'date',
+      placeholder: 'DD.MM.YYYY',
     }
   };
 
@@ -379,11 +381,12 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:documentDateValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
       label: 'Datum',
       type: 'date',
+      placeholder: 'DD.MM.YYYY',
     }
   }
 
@@ -391,11 +394,12 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:contractStartValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
       label: 'Vertragslaufzeit Start',
       type: 'date',
+      placeholder: 'DD.MM.YYYY',
     }
   }
 
@@ -403,11 +407,12 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:contractEndValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
       label: 'Vertragslaufzeit Ende',
       type: 'date',
+      placeholder: 'DD.MM.YYYY',
     }
   }
 
@@ -2160,9 +2165,10 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:verifyDateValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
+      placeholder: 'DD.MM.YYYY',
       label: 'Prüfdatum',
       type: 'date',
     },
@@ -2173,9 +2179,10 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:paymentDateNetValue',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
+      placeholder: 'DD.MM.YYYY',
       label: 'Überweisungsdatum Netto',
       type: 'date',
     },
@@ -2193,9 +2200,10 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:paymentDateDiscount1Value',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
+      placeholder: 'DD.MM.YYYY',
       label: 'Überweisungsdatum Skonto 1',
       type: 'date',
     },
@@ -2213,9 +2221,10 @@ export class MrbauFormLibraryService {
   {
     className: 'flex-2',
     key: 'mrba:paymentDateDiscount2Value',
-    type: 'input',
+    type: 'datepicker',
     props: {
       //appearance:"fill",
+      placeholder: 'DD.MM.YYYY',
       label: 'Überweisungsdatum Skonto 2',
       type: 'date',
     },

@@ -43,6 +43,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyMaterialModule } from '@ngx-formly/material';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { FormlyMatTextAreaModule } from '@ngx-formly/material/textarea';
 import { MatListModule } from '@angular/material/list';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -61,6 +62,7 @@ import { EDataServiceEvents, MrbauDataService } from '../../../services/mrbau-da
     FormlyMatToggleModule,
     FormlyMaterialModule,
     FormlyMatTextAreaModule,
+    FormlyMatDatepickerModule,
 
     ToolbarModule,
     TaskMenuOcrComponent,
@@ -90,7 +92,6 @@ import { EDataServiceEvents, MrbauDataService } from '../../../services/mrbau-da
     MatIconModule,
     MatDividerModule,
     MatExpansionModule,
-
   ],
   selector: 'mrbau-tasks-detail-new-document',
   templateUrl: './tasks-detail-new-document.component.html',
