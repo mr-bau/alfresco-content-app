@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 @Component({
   standalone:true,
   imports:[
@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     ReactiveFormsModule,
     FormlyModule,
     FormlyMaterialModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-show-doc-task-dialog',
   template: `

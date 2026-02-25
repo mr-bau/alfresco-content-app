@@ -16,6 +16,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 
  interface IProjectFormOption extends ICostCarrier {
   value?: any;
@@ -36,6 +37,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     MatFormFieldModule,
     MatInputModule,
     NgxMatSelectSearchModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-formly-select-search-project',
   template: `

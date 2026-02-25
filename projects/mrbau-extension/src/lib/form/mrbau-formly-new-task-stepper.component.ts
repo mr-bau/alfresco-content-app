@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyMaterialModule } from '@ngx-formly/material';
-
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 @Component({
   standalone:true,
   imports: [
@@ -23,6 +23,7 @@ import { FormlyMaterialModule } from '@ngx-formly/material';
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-formly-new-task-stepper',
   template: `

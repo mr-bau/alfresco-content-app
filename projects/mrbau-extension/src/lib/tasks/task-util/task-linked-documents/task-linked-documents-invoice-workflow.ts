@@ -12,7 +12,7 @@ import { MrbauUploadButtonComponent } from './mrbau-upload-button/mrbau-upload-b
 import { LinkedDocumentDetailComponent } from '../linked-document-detail/linked-document-detail.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MRBauNodeAssociationEntryFilterPipeImpure } from '../../../declaration/mrbau-doc-declarations';
-
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 interface ILinkedDocumentsCategories {
   filter: string,
   name: string,
@@ -31,6 +31,7 @@ interface ILinkedDocumentsCategories {
     MrbauUploadButtonComponent,
     LinkedDocumentDetailComponent,
     MRBauNodeAssociationEntryFilterPipeImpure,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-task-linked-documents-invoice-workflow',
   template: `

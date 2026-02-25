@@ -23,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { MatIconModule } from '@angular/material/icon';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 
 @Component({
   standalone:true,
@@ -36,6 +37,7 @@ import { MatIconModule } from '@angular/material/icon';
     ReactiveFormsModule,
     FormlyModule,
     FormlyMaterialModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-inbox-assign-dialog',
   template: `

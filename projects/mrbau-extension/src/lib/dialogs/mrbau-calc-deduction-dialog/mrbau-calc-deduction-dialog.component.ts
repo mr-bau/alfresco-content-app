@@ -23,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { ErrormsgpaneComponent } from '@mrbau/mrbau-common';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 
 //import { CONST } from '../../mrbau-global-declarations';
   export const ResultDetails : { [key:string]: IAspectDetailItem } = {
@@ -42,6 +43,7 @@ import { ErrormsgpaneComponent } from '@mrbau/mrbau-common';
     ReactiveFormsModule,
     FormlyModule,
     FormlyMaterialModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-calc-deduction-dialog',
   template: `

@@ -32,6 +32,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormlyMatTextAreaModule } from '@ngx-formly/material/textarea';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 
 @Component({
   standalone:true,
@@ -58,6 +59,7 @@ import { TextFieldModule } from '@angular/cdk/text-field';
     MatSelectModule,
     MatInputModule, MatFormFieldModule,
     FormlyMaterialModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-task-detail-common',
   templateUrl: './task-detail-common.component.html',

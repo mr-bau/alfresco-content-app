@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormlyModule } from '@ngx-formly/core';
 import { MatListModule } from '@angular/material/list';
 import { IFileSelectData } from '../../../declaration/mrbau-task-declarations';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 
 @Component({
   standalone:true,
@@ -23,6 +24,7 @@ import { IFileSelectData } from '../../../declaration/mrbau-task-declarations';
     ReactiveFormsModule,
     FormsModule,
     FormlyModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-task-propose-matching-documents',
   template: `

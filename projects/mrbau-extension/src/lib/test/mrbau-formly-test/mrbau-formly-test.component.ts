@@ -22,6 +22,7 @@ import { MrbauShowDocTaskDialogComponent } from '../../dialogs/mrbau-show-doc-ta
 import { MrbauShowModifyCompanyDialogComponent } from '../../dialogs/mrbau-show-modify-company-dialog/mrbau-show-modify-company-dialog.component';
 import { MrbauTagDoneLinkedDocsDialogComponent } from '../../dialogs/mrbau-tag-done-docs-dialog/mrbau-tag-done-docs-dialog.component';
 import { MrbauPrintLinkedDocsDialogComponent } from '../../dialogs/mrbau-print-linked-docs-dialog/mrbau-print-linked-docs-dialog.component';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 
 @Component({
   standalone:true,
@@ -36,6 +37,7 @@ import { MrbauPrintLinkedDocsDialogComponent } from '../../dialogs/mrbau-print-l
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule, MatIconModule,
+    FormlyMatDatepickerModule
   ],
   selector: 'mrbau-formly-test',
   template: `
