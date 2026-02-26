@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ErrormsgpaneComponent, LoaderoverlayComponent, ShowNavbarOverlayComponent } from '@mrbau/mrbau-common';
 import { Node, SearchRequest } from '@alfresco/js-api';
 import { SharedModule, TableActiveDirective,
@@ -67,10 +67,12 @@ import { ITaskSmartTableComponentRadioOption, ITaskSmartTableComponentStats } fr
   selector: 'mrbau-task-smart-table',
   templateUrl: './task-smart-table.component.html',
   styleUrls: ['./task-smart-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   //encapsulation: ViewEncapsulation.None,
 })
 export class TaskSmartTableComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   readonly USE_MRBAU_PREFERENCES = true;
   @ViewChild('contextMenu') contextMenu! : ContextMenu;
 
@@ -115,6 +117,7 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
   stats : ITaskSmartTableComponentStats = {num:0,sumGrossAmountCents:0,sumGrossAmountVerifiedCents:0};
   taskSmartTableHeader = new TaskSmartTableHeader();
   labels : (string | IColumn)[] = [];
+  colClasses: {[key:string]: string} = {};
   data : IItem[] = [];
 
   radioOptionsTaskCategory : ITaskSmartTableComponentRadioOption[] = [
@@ -211,6 +214,16 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
       this.taskSmartTableHeader.setDefaultColumns();
     }
     this.labels = this.taskSmartTableHeader.labels;
+    this.colClasses = {};
+    for (const col of this.labels) {
+      if (typeof col !== 'string') {
+        const key = col.key!;
+        const cls = TaskSmartTableHeader.getColClass(key);
+        if (cls) {
+          this.colClasses[key] = cls as string;
+        }
+      }
+    }
   }
   generatePreferences() {
     this.preferences = {};
@@ -364,6 +377,7 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
   async loadData() {
     this.loaderVisible = true;
     this.errorMessage = null;
+    this.cdr.markForCheck();
     const filters = Object.values(this.additionalFilter);
     //filters = ["C.mrba:costCarrierNumber LIKE '11%'"];
     let filter = '';
@@ -413,6 +427,8 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
           row['daysUntilDue'] = '-';
           row['daysUntilDueTotal'] = '-';
         }
+        row['daysUntilDueColor'] = this.getColor(row['daysUntilDue']);
+        row['daysUntilDueTotalColor'] = this.getColor(row['daysUntilDueTotal']);
         data.push(row);
       };
 
@@ -437,6 +453,7 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
     }
     this.paginationActivePage = 1;
     this.loaderVisible = false;
+    this.cdr.markForCheck();
   }
 
   /*
@@ -506,6 +523,7 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
   async loadAdditionalData(data : IItem[]) {
     this.loaderVisible = true;
     this.errorMessage = null;
+    this.cdr.markForCheck();
     try {
       if (this.loadAdditionalDocumentData === true)
         {
@@ -530,11 +548,13 @@ export class TaskSmartTableComponent implements OnInit, OnDestroy {
           }
         }
         this.data = data;
+        this.cdr.markForCheck();
       }
     catch(error) {
       console.log(error);
     }
     this.loaderVisible = false;
+    this.cdr.markForCheck();
   }
 
   itemsPerPageChange(event:number) {

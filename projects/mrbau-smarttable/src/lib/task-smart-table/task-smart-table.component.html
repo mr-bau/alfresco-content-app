@@ -125,7 +125,7 @@
       <td [cAlign]="smartTable.getTableDataCellProps(item, columnName)?.['align']"
         [cTableActive]="smartTable.getTableDataCellProps(item, columnName)?.['active']"
         [cTableColor]="smartTable.getTableDataCellProps(item, columnName)?.['color']"
-        [ngClass]="getColClass(columnName)">
+        [ngClass]="colClasses[columnName]">
          @switch (columnName) {
           @case ('details') {
             <button (click)="viewFile(item['dokumentId'])" cButton color="primary" size="sm" variant="outline">Vorschau</button>
@@ -154,9 +154,9 @@
           }
 
           @case ('daysUntilDue') {
-            <div style="color: {{getColor(item['daysUntilDue'])}};">
+            <div style="color: {{item['daysUntilDueColor']}};">
               {{tdContent}}
-              <svg width="20px" height="20px"><circle cx="10" cy="10" r="10" [style.fill]="getColor(item['daysUntilDue'])"/></svg>
+              <svg width="20px" height="20px"><circle cx="10" cy="10" r="10" [style.fill]="item['daysUntilDueColor']"/></svg>
             </div>
           }
           @default {
@@ -195,12 +195,12 @@
             <c-row>
               <c-col>Aufgabe erzeugt am <span class="emphasize">{{item['createdDate'] | date : 'yyyy-MM-dd'}}</span></c-col>
               <c-col>zu erledigen bis <span class="emphasize">{{(item['dueDateValue'] | date : 'yyyy-MM-dd') || '-'}}</span></c-col>
-              <c-col>Frist ursprünglich <span class="emphasize" [style.color]="getColor(item['daysUntilDueTotal'])">{{item['dueDateValue'] ? item['daysUntilDueTotal']+' Tage' : '-'}}</span></c-col>
+              <c-col>Frist ursprünglich <span class="emphasize" [style.color]="item['daysUntilDueTotalColor']">{{item['dueDateValue'] ? item['daysUntilDueTotal']+' Tage' : '-'}}</span></c-col>
             </c-row>
             <c-row>
               <c-col>Zugewiesen an <span class="emphasize">{{item['assigned']}} {{item['assigned'] | json}}</span></c-col>
               <c-col></c-col>
-              <c-col>Frist heute <span class="emphasize" [style.color]="getColor(item['daysUntilDue'])">{{item['dueDateValue'] ? item['daysUntilDue']+' Tage' : '-'}}</span></c-col>
+              <c-col>Frist heute <span class="emphasize" [style.color]="item['daysUntilDueColor']">{{item['dueDateValue'] ? item['daysUntilDue']+' Tage' : '-'}}</span></c-col>
             </c-row>
           </c-container>
           <p>

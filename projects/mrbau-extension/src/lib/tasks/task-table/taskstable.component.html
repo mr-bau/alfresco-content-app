@@ -23,7 +23,7 @@
           [sortable]="false"
           class="adf-desktop-only adf-expand-cell-1">
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               <mat-icon role="img" class="icon_filled mat-icon notranslate material-icons mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font">{{entry.row.getValue('icon').replace('material-icons://','')}}</mat-icon>
             </span>
           </ng-template>
@@ -36,7 +36,7 @@
           cssClass="mrbau-prio-high"
           class="adf-expand-cell-3 adf-ellipsis-cell">
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               {{entry.row.getValue('desc')}}
             </span>
           </ng-template>
@@ -48,7 +48,7 @@
           [sortable]="true"
           class="adf-expand-cell-3 adf-ellipsis-cell">
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               {{entry.row.getValue('company')}}
             </span>
           </ng-template>
@@ -61,7 +61,7 @@
           class="adf-expand-cell-2 adf-ellipsis-cell"
           >
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               {{entry.row.getValue('kt')}}
             </span>
           </ng-template>
@@ -76,7 +76,7 @@
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true,'adf-datatable-cell-value':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }"
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell adf-datatable-cell-value'"
               title="{{ entry.row.getValue('dueDateValue') | adfLocalizedDate: 'medium' }}"
             >
               {{entry.row.getValue('dueDateValue') | adfLocalizedDate: 'shortDate'}}
@@ -103,7 +103,7 @@
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               {{entry.row.getValue('status')}}
             </span>
           </ng-template>
@@ -115,7 +115,7 @@
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               {{entry.row.getValue('createdUser')}}
             </span>
           </ng-template>
@@ -127,7 +127,7 @@
           class="adf-desktop-only adf-expand-cell-2 adf-ellipsis-cell"
           >
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }">
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell'">
               {{entry.row.getValue('assignedUser')}}
             </span>
           </ng-template>
@@ -142,7 +142,7 @@
           class="adf-desktop-only adf-expand-cell-1 adf-ellipsis-cell"
           >
           <ng-template let-entry="$implicit">
-            <span [ngClass]="{'adf-ellipsis-cell':true,'adf-datatable-cell-value':true, 'mrbau-high-prio':isHighPrio(entry.row.getValue('prio')),'mrbau-med-prio':isMedPrio(entry.row.getValue('prio')) }"
+            <span [ngClass]="entry.row.getValue('prioClass') + ' adf-ellipsis-cell adf-datatable-cell-value'"
               title="{{ entry.row.getValue('createdDate') | adfLocalizedDate: 'medium' }}"
             >
               {{entry.row.getValue('createdDate') | adfLocalizedDate: 'shortDate'}}

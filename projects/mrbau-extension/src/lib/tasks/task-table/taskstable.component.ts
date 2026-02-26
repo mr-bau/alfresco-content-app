@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsulation} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsulation} from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DataColumnComponent, DataColumnListComponent, DataTableAdapter, DataTableComponent, EmptyContentComponent, LoadingContentTemplateDirective, LocalizedDatePipe, NoContentTemplateDirective, PaginationComponent} from '@alfresco/adf-core';
 import { ObjectDataTableAdapter, ObjectDataRow, DataRowEvent, DataRow, PaginatedComponent, PaginationModel}  from '@alfresco/adf-core';
@@ -48,6 +48,7 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './taskstable.component.html',
   styleUrls: ['./taskstable.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponent {
   @ViewChild('dataTable') adfDataTable : DataTableAdapter | undefined;
@@ -77,6 +78,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
   constructor
     (private searchService: SearchService,
     private store: Store<AppStore>,
+    private cdr: ChangeDetectorRef,
     ) {
   }
   ngOnDestroy(): void {
@@ -121,10 +123,18 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
           const difference_In_Time = dueDate.getTime() - today.getTime();
           const difference_In_Days = Math.round(difference_In_Time / (1000 * 3600 * 24));
           row.obj.prio = difference_In_Days;
+          row.obj.prioClass = this.getPrioClass(difference_In_Days);
+          this.cdr.markForCheck();
           break;
         }
       }
     }
+  }
+
+  getPrioClass(prio: number | undefined) : string {
+    if (this.isHighPrio(prio)) return 'mrbau-high-prio';
+    if (this.isMedPrio(prio)) return 'mrbau-med-prio';
+    return '';
   }
 
   queryRemainingBadgeCounts()
@@ -146,11 +156,14 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
         }
         // HELPER_FORCE_FULL_TEXT_SEARCH is only needed for AFTS search
         //searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
-        this.searchService.searchByQueryBody(searchRequest).subscribe(
+        this.searchService.searchByQueryBody(searchRequest)
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe(
           (nodePaging) => {
             if (nodePaging.list?.pagination?.totalItems)
             {
               tab.tabBadge = nodePaging.list.pagination.totalItems;
+              this.cdr.markForCheck();
             }
           },
           error => {
@@ -169,6 +182,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
     }
     this.isLoading = true;
     this.errorMessage = null;
+    this.cdr.markForCheck();
     this.selectedTask = null;
     this.data.setRows([]);
     let currentTab = this.taskCategories[this.selectedTab.value];
@@ -179,7 +193,9 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
       skipCount: this.pagination.value.skipCount,
       maxItems:  this.pagination.value.maxItems
     }
-    this.searchService.searchByQueryBody(searchRequest).subscribe(
+    this.searchService.searchByQueryBody(searchRequest)
+    .pipe(takeUntil(this.onDestroy$))
+    .subscribe(
       (nodePaging) => {
         // use queryRemainingBadgeCounts
         //currentTab.tabBadge = nodePaging.list.pagination.totalItems;
@@ -216,6 +232,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
               let difference_In_Days = Math.round(difference_In_Time / (1000 * 3600 * 24));
               e.prio = difference_In_Days;
             }
+            e.prioClass = this.getPrioClass(e.prio);
             results.push(
               e
             );
@@ -223,10 +240,12 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
         }
         this.data.setRows(results.map(item => { return new ObjectDataRow(item); }));
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error => {
         this.errorMessage = "Error loading data. "+error;
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     );
     this.queryRemainingBadgeCounts();

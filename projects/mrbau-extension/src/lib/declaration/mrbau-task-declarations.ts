@@ -173,7 +173,8 @@ export interface IMRBauTaskListEntry {
   status: string;
   company?: string;
   kt?:string;
-  prio?: number
+  prio?: number;
+  prioClass?: string;
 }
 
 export class MRBauTask {
