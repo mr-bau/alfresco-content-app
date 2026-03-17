@@ -216,7 +216,7 @@ export class MrbauCommonService {
   }
 
   getElevatedAuditorsObservable() : Observable<EcmUserModel[]> {
-    const elevatedAuditors = ['egger', 'mosera', 'schwabp', 'wolfgang moser', 'strohmayer', 'janesch', 'scharner', 'rauter', 'kogler', 'mosermoessler'];
+    const elevatedAuditors = ['mosera', 'wolfgang moser', 'strohmayer', 'janesch', 'scharner', 'rauter', 'kogler', 'mosermoessler'];
     return new Observable(observer => {
       this.peopleContentService.listPeople({skipCount : 0, maxItems : 999, sorting : { orderBy: "firstName", direction: "ASC"}}).subscribe(
         data => {
@@ -1388,7 +1388,7 @@ export class MrbauCommonService {
     'daniel' : this.TAG_GROUP_BAUHOF,
     'koestenbaumer' : this.TAG_GROUP_BAUHOF,
 
-    'egger' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'neidhart' : this.TAG_GROUP_WEITERVERRECHNUNG,
     'strohmayer' : this.TAG_GROUP_WEITERVERRECHNUNG,
     'janesch' : this.TAG_GROUP_WEITERVERRECHNUNG,
     'scharner' : this.TAG_GROUP_WEITERVERRECHNUNG,
