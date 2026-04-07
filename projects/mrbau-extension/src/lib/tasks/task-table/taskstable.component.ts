@@ -148,7 +148,7 @@ export class TasksTableComponent implements OnInit, OnDestroy, PaginatedComponen
         //searchRequest.query.query = searchRequest.query.query+CONST.HELPER_FORCE_FULL_TEXT_SEARCH;
         this.searchService.searchByQueryBody(searchRequest).subscribe(
           (nodePaging) => {
-            if (nodePaging.list?.pagination?.totalItems)
+            if (nodePaging.list?.pagination?.totalItems !== null && nodePaging.list?.pagination?.totalItems !== undefined)
             {
               tab.tabBadge = nodePaging.list.pagination.totalItems;
             }
