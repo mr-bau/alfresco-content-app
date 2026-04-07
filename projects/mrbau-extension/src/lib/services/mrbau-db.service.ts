@@ -109,7 +109,8 @@ export class MrbauDbService {
   }
 
   searchVendors(searchValue:string) : Observable<string | IVendor[]>{
-    return this.request('GET', `${environment.serverUrl}/mrba_vendor/search?name=${searchValue}`).pipe(
+    const encodedSearchValue = encodeURIComponent(searchValue);
+    return this.request('GET', `${environment.serverUrl}/mrba_vendor/search?name=${encodedSearchValue}`).pipe(
       map((result) =>
         { return (result.mrba_vendors as IMrbauDbService_mrba_vendor[]).map(vendor =>
           { return {
@@ -131,8 +132,9 @@ export class MrbauDbService {
     );
   }
   searchVendors2(searchValue:string) : Observable<IVendor[]>{
-    console.log(`${environment.serverUrl}/mrba_vendor/search?name=${searchValue}`)
-    return this.request('GET', `${environment.serverUrl}/mrba_vendor/search?name=${searchValue}`).pipe(
+    const encodedSearchValue = encodeURIComponent(searchValue);
+    //console.log(`${environment.serverUrl}/mrba_vendor/search?name=${searchValue}`)
+    return this.request('GET', `${environment.serverUrl}/mrba_vendor/search?name=${encodedSearchValue}`).pipe(
       map((result) =>
         {
           return (result.mrba_vendors as IMrbauDbService_mrba_vendor[]).map(vendor =>
@@ -230,7 +232,8 @@ export class MrbauDbService {
   }
 
   searchProjects(searchValue:string, limit?:number) : Observable<string | ICostCarrier[]>{
-    let request = `${environment.serverUrl}/mrba_project/search?name=${searchValue}`;
+    const encodedSearchValue = encodeURIComponent(searchValue);
+    let request = `${environment.serverUrl}/mrba_project/search?name=${encodedSearchValue}`;
     if (limit) {
       request = request + `&limit=${limit}`;
     }
