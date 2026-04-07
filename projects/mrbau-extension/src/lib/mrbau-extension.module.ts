@@ -34,10 +34,23 @@ import { MrbauFormlyFieldTaskLinkedDocumentsComponent } from './form/mrbau-forml
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MrbauEffects } from './store/effects/mrbau.effects';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
+import { MatMomentDateModule } from '@angular/material-moment-adapter';
 //import { MRBAU_EXTENSION_ROUTES } from './mrbau-extension.routes';
 
 registerLocaleData(localeDe);
+
+export const MRBAU_GERMAN_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD.MM.YYYY',
+  },
+  display: {
+    dateInput: 'DD.MM.YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 export function provideMrbauExtensionExtension(): (Provider| EnvironmentProviders)[]
 {
@@ -69,6 +82,7 @@ export function provideMrbauExtensionExtension(): (Provider| EnvironmentProvider
       CommonModule,
       RouterModule,
       ReactiveFormsModule,
+      MatMomentDateModule,
       FormlyModule.forRoot(
         {
           validationMessages: [
@@ -113,14 +127,9 @@ export function provideMrbauExtensionExtension(): (Provider| EnvironmentProvider
       )
     ),
     MrbauExtensionService,
-    {
-      provide: LOCALE_ID,
-      useValue: 'de-DE'
-    },
-    {
-      provide: MAT_DATE_LOCALE,
-      useValue: 'de-DE'
-    },
+    { provide: LOCALE_ID, useValue: 'de-DE' },
+    { provide: MAT_DATE_LOCALE, useValue: 'de-DE' },
+    { provide: MAT_DATE_FORMATS, useValue: MRBAU_GERMAN_DATE_FORMATS },
     DatePipe,
     DecimalPipe,
     CurrencyPipe,
