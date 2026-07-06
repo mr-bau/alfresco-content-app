@@ -775,11 +775,11 @@ export class MrbauArchiveModel {
         },
         'STATUS_PAUSED' : {
           formlyFieldConfigs: [
-            'title_mrba_signingStatus',
-            'element_mrba_signingStatus',
+            //'title_mrba_signingStatus',
+            //'element_mrba_signingStatus',
             ],
             mandatoryRequiredProperties: [
-              'mrba:signingStatus'
+              //'mrba:signingStatus'
             ]
         },
         'STATUS_ALL_SET' : {
