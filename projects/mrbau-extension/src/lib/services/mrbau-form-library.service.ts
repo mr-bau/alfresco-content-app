@@ -737,6 +737,12 @@ export class MrbauFormLibraryService {
       options: this.mrbauConventionsService.getSigningStatusFormOptions(),
       required: true,
     },
+    expressions: {
+      'props.disabled': (field: FormlyFieldConfig) => {
+        field;
+        return !this.mrbauCommonService.isMRSigningUser();
+      }
+    }
   };
 
 
