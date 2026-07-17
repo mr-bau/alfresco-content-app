@@ -5,6 +5,10 @@ import { catchError, map } from 'rxjs/operators';
 import { ICostCarrier, IVendor } from './mrbau-conventions.service';
 import { AppConfigService, AppConfigValues } from '@alfresco/adf-core';
 
+// https://mrdms01.mrbau.at/mysql-db/mrba_vendor
+// https://mrdms01.mrbau.at/mysql-db/mrba_project
+// https://mrdev01.mrbau.at/mysql-db/mrba_project
+
 export const environment = {
   production: false,
   serverUrl: 'https://mrdev01.mrbau.local/mysql-db'

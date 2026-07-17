@@ -370,16 +370,18 @@ export class MrbauPdfLibService {
 
       // Replace all placeholders in the string
       val = val.replace(/\{\{([^}]+)\}\}|{([^}]+)}/g, (_match, nodeKey, dataKey) => {
-        const key = nodeKey || dataKey;
-        let projectValue: any;
+        const fullKey = (nodeKey || dataKey).trim();
+        const [key, formatOption] = fullKey.split(':');
 
-        if (nodeKey) {
-          projectValue = data.node.properties[key];
-        } else {
-          projectValue = data[key];
-        }
+        let projectValue = nodeKey ? data.node.properties[key] : data[key];
+
+        if (projectValue == null) return '';
 
         if (typeof projectValue === 'number') {
+          if (formatOption) {
+            const decimals = parseInt(formatOption, 10);
+            return this.mrbauCalcService.formatNumber(projectValue, decimals);
+          }
           return this.mrbauCalcService.formatNumber(projectValue);
         } else if (typeof projectValue === 'string') {
           return projectValue;

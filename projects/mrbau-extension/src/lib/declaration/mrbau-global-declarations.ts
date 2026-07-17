@@ -15,6 +15,7 @@ export class CONST {
   // ATTENTION make sure to request all mandatory fields for Node (vs ResultNode!)
   public static readonly SEARCH_REQUEST_DEFAULT_FIELDS : RequestFields = ['id', 'name', 'nodeType', 'isFolder', 'isFile', 'modifiedAt', 'modifiedByUser', 'createdAt', 'createdByUser']
 
+
   public static readonly DMS_SERVER_URL:        string = "https://mrdms01.mrbau.at";
 
   public static readonly CM_DESC:               string = "cm:description";

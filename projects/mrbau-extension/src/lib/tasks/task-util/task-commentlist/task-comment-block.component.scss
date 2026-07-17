@@ -23,7 +23,9 @@
   max-width: 1400px;
   padding: 14px 18px;
   margin: 6px 8px;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .chatBoxRight {
   background-color:#ecf7e6;// #bfe3ab;

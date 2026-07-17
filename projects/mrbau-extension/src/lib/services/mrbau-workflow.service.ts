@@ -125,6 +125,8 @@ export class MrbauWorkflowService {
       "mrba:deliveryNote",
       "mrba:invoice",
       "mrba:orderNegotiationProtocol",
+      "mrba:priceListExternal",
+      "mrba:priceListInternal",
       "mrba:miscellaneousDocument",
 
       "mrba:rentContract",
@@ -584,10 +586,21 @@ export class MrbauWorkflowService {
           }
         ]
       };
-
-      if (node.nodeType == 'mrba:order' || node.nodeType == 'mrba:orderNegotiationProtocol')
+      const ccn = node.properties['mrba:costCarrierNumber'];
+      ccn;
+      if (node.nodeType == 'mrba:frameworkContract')
       {
-        query.filterQueries?.push({ query: `(=TYPE:"mrba:offer" AND cm:created:[NOW/DAY-120DAYS TO NOW/DAY+1DAY]) OR (=TYPE:"mrba:frameworkContract" AND cm:created:[NOW/DAY-1095DAYS TO NOW/DAY+1DAY])`});
+        query.filterQueries?.push({ query: `
+          (=TYPE:"mrba:priceListExternal" AND (=mrba:costCarrierNumber:"${ccn}" OR =mrba:costCarrierNumber:"0000" OR ISUNSET:"mrba:costCarrierNumber"))
+          OR (=TYPE:"mrba:priceListInternal" AND (=mrba:costCarrierNumber:"${ccn}" OR =mrba:costCarrierNumber:"0000" OR ISUNSET:"mrba:costCarrierNumber"))`});
+      }
+      else if (node.nodeType == 'mrba:order' || node.nodeType == 'mrba:orderNegotiationProtocol')
+      {
+        query.filterQueries?.push({ query: `
+          (=TYPE:"mrba:offer" AND cm:created:[NOW/DAY-120DAYS TO NOW/DAY+1DAY])
+          OR (=TYPE:"mrba:frameworkContract" )
+          OR (=TYPE:"mrba:priceListExternal" AND (=mrba:costCarrierNumber:"${ccn}" OR =mrba:costCarrierNumber:"0000" OR ISUNSET:"mrba:costCarrierNumber"))
+          OR (=TYPE:"mrba:priceListInternal" AND (=mrba:costCarrierNumber:"${ccn}" OR =mrba:costCarrierNumber:"0000" OR ISUNSET:"mrba:costCarrierNumber"))`});
       }
       else if (node.nodeType == 'mrba:invoice')
       {
@@ -601,7 +614,8 @@ export class MrbauWorkflowService {
       {
         query.filterQueries?.push({ query: `=TYPE:"mrba:invoice" AND =mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`});
       }
-      else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument' || node.nodeType == 'mrba:offer' )
+      else if (node.nodeType == 'mrba:frameworkContract' || node.nodeType == 'mrba:deliveryNote' || node.nodeType == 'mrba:miscellaneousDocument' || node.nodeType == 'mrba:offer'
+        || node.nodeType == 'mrba:priceListExternal' || node.nodeType == 'mrba:priceListInternal')
       {
         query = null;
       }

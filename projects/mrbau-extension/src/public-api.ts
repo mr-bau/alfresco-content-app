@@ -23,5 +23,4 @@ export * from './lib/store/effects/mrbau.effects';
 
 export * from './lib/guards/pending-changes.interface';
 
-export * from './lib/dialogs/mrbau-confirm-dialog/mrbau-confirm-dialog.component';
 export * from './lib/tasks/task-table/task-indicator/task-indicator.component';

@@ -1,6 +1,6 @@
 
 import {  } from '@alfresco/adf-core';
-import { NodeAssociationEntry, Node } from '@alfresco/js-api';
+import { NodeAssociationEntry, Node, NodeAssociation } from '@alfresco/js-api';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { Mutex } from 'async-mutex';
 import { MrbauWorkflowService } from '../../../services/mrbau-workflow.service';
@@ -13,6 +13,10 @@ import { FormlyModule } from '@ngx-formly/core';
 import { MatListModule } from '@angular/material/list';
 import { IFileSelectData } from '../../../declaration/mrbau-task-declarations';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
+
+export interface INodeWithChildInfo extends Node {
+  childs?: NodeAssociation[];
+}
 
 @Component({
   standalone:true,
@@ -53,7 +57,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
   @Output() onAssociation = new EventEmitter<IFileSelectData>();
 
   proposedNodes : Node[] = [];
-  resultNodes : Node[] = [];
+  resultNodes : INodeWithChildInfo[] = [];
   selectedOptions: string[] = [];
   errorMessage : string | null = null;
 
@@ -74,8 +78,10 @@ export class TaskProposeMatchingDocuments implements OnChanges {
       //console.log('finished query');
       if (changes.node != null)
       {
-        await this.querySuggestions(); // fill proposedNodes
-        await this.filterProposedNodes(); // filter proposed Nodes and create resultNodes
+        const ok = await this.querySuggestions(); // fill proposedNodes
+        if (ok) {
+          await this.filterProposedNodes(); // filter proposed Nodes and create resultNodes
+        }
       }
       else if (changes.taskNodeAssociations != null)
       {
@@ -84,12 +90,12 @@ export class TaskProposeMatchingDocuments implements OnChanges {
      });
   }
 
-  async querySuggestions()
+  async querySuggestions() : Promise<boolean>
   {
     this.proposedNodes = [];
     if (this.node == null)
     {
-      return;
+      return true;
     }
 
     this.errorMessage = "Loading...";
@@ -102,7 +108,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
         return;
       }
       if (result.list?.entries) {
-      for (const e of result.list.entries)
+        for (const e of result.list.entries)
         {
           const node = e.entry;
           newProposedNodes.push(node);
@@ -112,7 +118,9 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     })
     .catch((error) => {
         this.errorMessage = error;
+        return false;
     });
+    return true;
   }
 
   createInfoString(node: Node) : string {
@@ -124,25 +132,51 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     }
   }
 
+  async queryChildNodes() {
+    this.nodesApiService;
+    try {
+      for (let i=this.resultNodes.length-1; i>=0; i--)
+      {
+        const node = this.resultNodes[i];
+        const targetAssociations = await this.nodesApiService.nodesApi.listTargetAssociations(node.id)
+        console.log(targetAssociations);
+        if (targetAssociations.list?.entries && targetAssociations.list?.entries.length > 0)
+        {
+          const entries = targetAssociations.list?.entries;
+          node.childs = [];
+          for (const na of entries) {
+            node.childs.push(na.entry);
+          }
+        }
+      }
+    }
+    catch(error)
+    {
+      this.errorMessage = ''+error;
+      return;
+    }
+  }
+
   async queryAssociationsAndFilter()
   {
-    this.nodesApiService;
     /*
-    for (let i=this.resultNodes.length-1; i>=0; i--)
-    {
-      const node = this.resultNodes[i];
-      await this.nodesApiService.nodesApi.listSourceAssociations(node.id, {skipCount:0, maxItems: 999})
-      .then((result) => {
-        console.log(result);
-        if (this.shouldFilterNode(node.nodeType, result.list.entries))
-        {
-          this.resultNodes.splice(i,1);
+    try {
+      for (let i=this.resultNodes.length-1; i>=0; i--)
+      {
+        const node = this.resultNodes[i];
+        const sourceAssociations = await this.nodesApiService.nodesApi.listSourceAssociations(node.id)
+        if (sourceAssociations.list?.entries) {
+          if (this.shouldFilterNode(node.nodeType, sourceAssociations.list.entries))
+          {
+            this.resultNodes.splice(i,1);
+          }
         }
-      })
-      .catch((error) => {
-        this.errorMessage = error;
-        return;
-      });
+      }
+    }
+    catch(error)
+    {
+      this.errorMessage = ''+error;
+      return;
     }*/
   }
 
@@ -168,6 +202,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     this.filterCurrentAssociations();
     this.filterLatestFrameworkContract();
     await this.queryAssociationsAndFilter();
+    await this.queryChildNodes();
     this.errorMessage = null;
   }
 
@@ -176,7 +211,7 @@ export class TaskProposeMatchingDocuments implements OnChanges {
     let frameworkContracts : Node[] = this.resultNodes.filter((node) => node.nodeType == "mrba:frameworkContract");
     if (frameworkContracts.length > 1)
     {
-      frameworkContracts.sort((a,b) => (a.modifiedAt.getTime() - b.createdAt.getTime()));
+      frameworkContracts.sort((a,b) => (b.createdAt.getTime() - a.createdAt.getTime()));
       let newResultNodes : Node[] = this.resultNodes.filter((node) => node.nodeType != "mrba:frameworkContract");
       newResultNodes.push(frameworkContracts[0]);
       this.resultNodes = newResultNodes;

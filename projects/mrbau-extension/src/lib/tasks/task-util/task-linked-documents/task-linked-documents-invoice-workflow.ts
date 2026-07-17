@@ -113,6 +113,8 @@ export class TaskLinkedDocumentsInvoiceWorkflowComponent  {
     {filter:'mrba:invoice', name:'Rechnungen'},
     {filter:'mrba:partialInvoice', name:'Teilrechnungen'},
     {filter:'mrba:invoiceReviewSheet', name:'Rechnungs-Prüfblatt'},
+    {filter:'mrba:priceListExternal', name:'Preislisten Extern'},
+    {filter:'mrba:priceListInternal', name:'Preislisten Intern'},
     {filter:'mrba:archiveDocument', name:'Andere Belege'},
     {filter:'mrba:document', name:'Andere Dokumente'}
   ];

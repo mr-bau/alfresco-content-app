@@ -14,7 +14,8 @@
 // title: "Lieferschein",               name : "mrba:deliveryNote",
 // title: "Rechnung",                   name : "mrba:invoice",
 // title: "Rechnungsprüfblatt"          name : "mrba:invoiceReviewSheet",
-
+// title: "Preisliste extern"           name : "mrba:priceListExternal",
+// title: "Preisliste intern"           name : "mrba:priceListInternal",
 // title: "Sonstiger Beleg",            name : "mrba:miscellaneousDocument",
 
 // title: "Vertragsdokument",           name : "mrba:contractDocument"
@@ -72,6 +73,8 @@ export class MRBauArchiveNodeTypeLabelPipe implements PipeTransform {
     "mrba:financialRetention":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.FINANCIALRETENTION", // Deckungsrücklass
     "mrba:contractGuarantee":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACTGUARANTEE", //Erfüllungsgarantie
     "mrba:noteDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.NOTEDOCUMENT", // Bescheid
+    "mrba:priceListExternal":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.PRICELISTEXTERNAL", // Preisliste extern
+    "mrba:priceListInternal":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.PRICELISTINTERNAL", // Preisliste intern
 
     "mrba:contractDocument":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.CONTRACT_DOCUMENT",
     "mrba:rentContract":"MRBAU_EXTENSION.MRBA_ARCHIVE_MODEL.RENT_CONTRACT",
@@ -97,6 +100,7 @@ export class MRBauNodeAssociationEntryFilterPipeImpure implements PipeTransform 
   }
 }
 
+
 export const enum EMRBauDocumentAssociations {
   DOCUMENT_REFERENCE,
   ARCHIVE_DOCUMENT_REFERENCE,
@@ -110,6 +114,8 @@ export const enum EMRBauDocumentAssociations {
   PARTIAL_INVOICE_REFERENCE,
   CONTRACT_REFERENCE,
   CANCELLED_CONTRACT_REFERENCE,
+  PRICELIST_EXTERNAL_REFERENCE,
+  PRICELIST_INTERNAL_REFERENCE,
 }
 interface IDocumentAssociations {
   category: EMRBauDocumentAssociations,
@@ -117,20 +123,24 @@ interface IDocumentAssociations {
   associationName: string,
   targetClass: string,
 }
-export const DocumentAssociations = new Map<number, IDocumentAssociations>([
-  [EMRBauDocumentAssociations.DOCUMENT_REFERENCE, {category: EMRBauDocumentAssociations.DOCUMENT_REFERENCE,  aspectName: "mrba:documentReference", associationName: "mrba:document", targetClass: "cm:content"}],
-  [EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE, {category: EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE,  aspectName: "mrba:archiveDocumentReference", associationName: "mrba:archiveDocument", targetClass: "mrba:archiveDocument"}],
-  [EMRBauDocumentAssociations.OFFER_REFERENCE, {category: EMRBauDocumentAssociations.OFFER_REFERENCE,  aspectName: "mrba:offerReference", associationName: "mrba:offer", targetClass: "mrba:offer"}],
-  [EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE, {category: EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE,  aspectName: "mrba:addonOfferReference", associationName: "mrba:addonOffer", targetClass: "mrba:offer"}],
-  [EMRBauDocumentAssociations.ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ORDER_REFERENCE,  aspectName: "mrba:orderReference", associationName: "mrba:order", targetClass: "mrba:order"}],
-  [EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE, {category: EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE,  aspectName: "mrba:addonOrderReference", associationName: "mrba:addonOrder", targetClass: "mrba:order"}],
-  [EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE,  aspectName: "mrba:frameworkContractReference", associationName: "mrba:frameworkContract", targetClass: "mrba:frameworkContract"}],
-  [EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE, {category: EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE,  aspectName: "mrba:deliveryNoteReference", associationName: "mrba:deliveryNote", targetClass: "mrba:deliveryNote"}],
-  [EMRBauDocumentAssociations.INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.INVOICE_REFERENCE,  aspectName: "mrba:invoiceReference", associationName: "mrba:invoice", targetClass: "mrba:invoice"}],
-  [EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE, {category: EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE,  aspectName: "mrba:partialInvoiceReference", associationName: "mrba:partialInvoice", targetClass: "mrba:invoice"}],
-  [EMRBauDocumentAssociations.CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.CONTRACT_REFERENCE,  aspectName: "mrba:contractDocumentReference", associationName: "mrba:contractDocument", targetClass: "mrba:contractDocument"}],
-  [EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE, {category: EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE,  aspectName: "mrba:cancelledContractReference", associationName: "mrba:cancelledContract", targetClass: "mrba:contractDocument"}],
-]);
+export const DocumentAssociations: Record<EMRBauDocumentAssociations, IDocumentAssociations> = {
+  [EMRBauDocumentAssociations.DOCUMENT_REFERENCE]: { category: EMRBauDocumentAssociations.DOCUMENT_REFERENCE, aspectName: "mrba:documentReference", associationName: "mrba:document", targetClass: "cm:content" },
+  [EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE]: { category: EMRBauDocumentAssociations.ARCHIVE_DOCUMENT_REFERENCE, aspectName: "mrba:archiveDocumentReference", associationName: "mrba:archiveDocument", targetClass: "mrba:archiveDocument" },
+  [EMRBauDocumentAssociations.OFFER_REFERENCE]: { category: EMRBauDocumentAssociations.OFFER_REFERENCE, aspectName: "mrba:offerReference", associationName: "mrba:offer", targetClass: "mrba:offer" },
+  [EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE]: { category: EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE, aspectName: "mrba:addonOfferReference", associationName: "mrba:addonOffer", targetClass: "mrba:offer" },
+  [EMRBauDocumentAssociations.ORDER_REFERENCE]: { category: EMRBauDocumentAssociations.ORDER_REFERENCE, aspectName: "mrba:orderReference", associationName: "mrba:order", targetClass: "mrba:order" },
+  [EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE]: { category: EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE, aspectName: "mrba:addonOrderReference", associationName: "mrba:addonOrder", targetClass: "mrba:order" },
+  [EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE]: { category: EMRBauDocumentAssociations.FRAMEWORK_CONTRACT_REFERENCE, aspectName: "mrba:frameworkContractReference", associationName: "mrba:frameworkContract", targetClass: "mrba:frameworkContract" },
+  [EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE]: { category: EMRBauDocumentAssociations.DELIVERY_NOTE_REFERENCE, aspectName: "mrba:deliveryNoteReference", associationName: "mrba:deliveryNote", targetClass: "mrba:deliveryNote" },
+  [EMRBauDocumentAssociations.INVOICE_REFERENCE]: { category: EMRBauDocumentAssociations.INVOICE_REFERENCE, aspectName: "mrba:invoiceReference", associationName: "mrba:invoice", targetClass: "mrba:invoice" },
+  [EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE]: { category: EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE, aspectName: "mrba:partialInvoiceReference", associationName: "mrba:partialInvoice", targetClass: "mrba:invoice" },
+  [EMRBauDocumentAssociations.CONTRACT_REFERENCE]: { category: EMRBauDocumentAssociations.CONTRACT_REFERENCE, aspectName: "mrba:contractDocumentReference", associationName: "mrba:contractDocument", targetClass: "mrba:contractDocument" },
+  [EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE]: { category: EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE, aspectName: "mrba:cancelledContractReference", associationName: "mrba:cancelledContract", targetClass: "mrba:contractDocument" },
+  [EMRBauDocumentAssociations.PRICELIST_EXTERNAL_REFERENCE]: { category: EMRBauDocumentAssociations.PRICELIST_EXTERNAL_REFERENCE, aspectName: "mrba:priceListExternalReference", associationName: "mrba:priceListExternal", targetClass: "mrba:priceListExternal" },
+  [EMRBauDocumentAssociations.PRICELIST_INTERNAL_REFERENCE]: { category: EMRBauDocumentAssociations.PRICELIST_INTERNAL_REFERENCE, aspectName: "mrba:priceListInternalReference", associationName: "mrba:priceListInternal", targetClass: "mrba:priceListInternal" },
+};
+
+export const COPY_CHILD_NODE_TYPES : string[] = ["mrba:offer", "mrba:order", "mrba:orderNegotiationProtocol", "mrba:frameworkContract"];
 
 export const enum EMRBauDocumentCategory {
   // BILLS
@@ -149,6 +159,8 @@ export const enum EMRBauDocumentCategory {
   FINANCIAL_RETENTION, // "mrba:financialRetention"
   CONTRACT_GUARANTEE, // "mrba:contractGuarantee"
   NOTE_DOCUMENT, // "mrba:noteDocument"
+  PRICE_LIST_EXTERNAL, // "mrba:priceListExternal"
+  PRICE_LIST_INTERNAL, // "mrba:priceListInternal"
 
   // CONTRACTS
   CONTRACT_DOCUMENT, //"mrba:contractDocument"
@@ -174,6 +186,8 @@ export const DocumentTypeFormOptions : ISelectFormOptions[] = [
   {value: 'mrba:deliveryNote', label: 'Lieferschein'},
   {value: 'mrba:invoice', label: 'Rechnung'},
   {value: 'mrba:invoiceReviewSheet', label: 'Rechnungsprüfblatt'},
+  {value: 'mrba:priceListExternal', label: 'Preisliste Extern'},
+  {value: 'mrba:priceListInternal', label: 'Preisliste Intern'},
   {value: 'mrba:miscellaneousDocument', label: 'Sonstiger Beleg'},
 
   {value: 'mrba:contractDocument', label: 'Vertragsdokument'},
@@ -807,8 +821,19 @@ export class MrbauArchiveModel {
       group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS) as IDocumentCategoryGroupData,
       mrbauWorkflowDefinition: {states : [
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
-          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_LINK_DOCUMENTS,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.createAssociationsForProposedDocuments(data as MRBauWorkflowStateCallbackData)
+            .then( () =>
+            {
+              resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2});
+            })
+            .catch( (error) => reject(error))
+            }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+        },
         {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
           nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
             this.mrbauWorkflowService.performDuplicateCheck(data as MRBauWorkflowStateCallbackData)
@@ -818,7 +843,7 @@ export class MrbauArchiveModel {
             })
             .catch( (error) => reject(error))
           }),
-          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_LINK_DOCUMENTS})),
           onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data as MRBauWorkflowStateCallbackData)
         },
         {state : EMRBauTaskStatus.STATUS_DUPLICATE,
@@ -1495,6 +1520,168 @@ export class MrbauArchiveModel {
             ],
             mandatoryRequiredProperties: [
             ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+    {
+      title: "Preisliste Extern",
+      name : "mrba:priceListExternal",
+      category: EMRBauDocumentCategory.PRICE_LIST_EXTERNAL,
+      folder: "11 Preisliste Extern",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS) as IDocumentCategoryGroupData,
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data as MRBauWorkflowStateCallbackData)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data as MRBauWorkflowStateCallbackData)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data as MRBauWorkflowStateCallbackData)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              result;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
+        },
+        'STATUS_ALL_SET' : {
+          formlyFieldConfigs: [
+            'workflow_all_set_form'
+            ],
+            mandatoryRequiredProperties: [
+            ]
+        }
+      }
+    },
+    {
+      title: "Preisliste Intern",
+      name : "mrba:priceListInternal",
+      category: EMRBauDocumentCategory.PRICE_LIST_INTERNAL,
+      folder: "12 Preisliste Intern",
+      group : DocumentCategoryGroups.get(EMRBauDocumentCategoryGroup.BILLS) as IDocumentCategoryGroupData,
+      mrbauWorkflowDefinition: {states : [
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1}))},
+        {state : EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.performDuplicateCheck(data as MRBauWorkflowStateCallbackData)
+            .then( (duplicatedData) =>
+            {
+              resolve( duplicatedData ? {state:EMRBauTaskStatus.STATUS_DUPLICATE} : {state:EMRBauTaskStatus.STATUS_ALL_SET});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_1})),
+          onEnterAction : (data) => this.mrbauWorkflowService.cloneMetadataFromLinkedDocuments(data as MRBauWorkflowStateCallbackData)
+        },
+        {state : EMRBauTaskStatus.STATUS_DUPLICATE,
+          nextState : (data) => new Promise<IMRBauTaskStatusAndUser>((resolve, reject) => {
+            this.mrbauWorkflowService.resolveDuplicateIssue(data as MRBauWorkflowStateCallbackData)
+            .then( (result) =>
+            {
+              let newState = EMRBauTaskStatus.STATUS_DUPLICATE;
+              result;
+              switch (result)
+              {
+                case EMRBauDuplicateResolveResult.IGNORE: newState = EMRBauTaskStatus.STATUS_ALL_SET; break;
+                case EMRBauDuplicateResolveResult.DELETE_SUCCESS: newState = EMRBauTaskStatus.STATUS_FINISHED;break
+                case EMRBauDuplicateResolveResult.DELETE_CANCEL: newState = EMRBauTaskStatus.STATUS_DUPLICATE;break;
+                case EMRBauDuplicateResolveResult.NEW_VERSION: newState = EMRBauTaskStatus.STATUS_ALL_SET;break;
+              }
+              resolve({state:newState});
+            })
+            .catch( (error) => reject(error))
+          }),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2})),
+        },
+        {state : EMRBauTaskStatus.STATUS_ALL_SET,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_METADATA_EXTRACT_2}))},
+        {state : EMRBauTaskStatus.STATUS_FINISHED,
+          nextState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_FINISHED})),
+          prevState : () => new Promise<IMRBauTaskStatusAndUser>(resolve => resolve({state:EMRBauTaskStatus.STATUS_ALL_SET}))},
+      ]},
+      mrbauFormDefinitions : {
+        'STATUS_METADATA_EXTRACT_1' : {
+          formlyFieldConfigs: METADATA_EXTRACT_1_FORM_DEFINITION,
+          mandatoryRequiredProperties: [
+            'mrba:companyId',
+          ]
+        },
+        'STATUS_METADATA_EXTRACT_2' : {
+          formlyFieldConfigs: [
+            'title_mrba_documentIdentityDetails',
+            'aspect_mrba_documentIdentityDetails',
+          ],
+          mandatoryRequiredProperties: [
+            'mrba:documentDateValue',
+          ]
+        },
+        'STATUS_DUPLICATE' : {
+          formlyFieldConfigs: [
+            'duplicated_document_form'
+          ],
+          mandatoryRequiredProperties: [
+          ]
         },
         'STATUS_ALL_SET' : {
           formlyFieldConfigs: [

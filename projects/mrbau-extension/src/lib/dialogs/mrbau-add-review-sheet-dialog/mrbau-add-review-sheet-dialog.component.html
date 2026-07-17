@@ -49,6 +49,14 @@
       </div>
 
       <div class="container4-4512">
+        <label class="label">Nachlass</label>
+        <div></div>
+        <label for="discount" class="label">Netto €</label>
+        <mat-form-field class="form-field-number small-input"><input mrbauNumberInput id="discount" matInput type="text" formControlName="discount" placeholder="0,00"></mat-form-field>
+      </div>
+
+
+      <div class="container4-4512">
         <label class="label">Rechnungskorrektur</label>
         <div></div>
         <label for="rechnungskorrekturnetto" class="label">Netto €</label>
@@ -252,7 +260,7 @@
           <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="offenerbetrag" matInput type="text" formControlName="offenerbetrag" placeholder="0,00" readonly></mat-form-field>
       </div>
 
-      <div class="container7 borderbot1">
+      <div *ngIf="hasSkonto1()" class="container7 borderbot1">
         <label class="label">Skonto1</label>
         <div></div>
         <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skontopercent1" matInput type="text" readonly formControlName="skontopercent1" placeholder="0,00"></mat-form-field>
@@ -262,7 +270,7 @@
         <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skonto1" matInput type="text" formControlName="skonto1" placeholder="0,00" readonly></mat-form-field>
       </div>
 
-      <div class="container7 borderbot2">
+      <div *ngIf="hasSkonto1()" class="container7 borderbot2">
           <label class="label">Offener Betrag Skonto 1</label>
           <div></div>
           <div></div>
@@ -272,7 +280,7 @@
           <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="offenerbetragskonto1" matInput type="text" formControlName="offenerbetragskonto1" placeholder="0,00" readonly></mat-form-field>
       </div>
 
-      <div class="container7 borderbot1">
+      <div *ngIf="hasSkonto2()" class="container7 borderbot1">
         <label class="label">Skonto2</label>
         <div></div>
         <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skontopercent2" matInput type="text" readonly formControlName="skontopercent2" placeholder="0,00"></mat-form-field>
@@ -282,7 +290,7 @@
         <mat-form-field class="form-field-number readonly small-input"><input mrbauNumberInput id="skonto2" matInput type="text" formControlName="skonto2" placeholder="0,00" readonly></mat-form-field>
       </div>
 
-      <div class="container7 borderbot2">
+      <div *ngIf="hasSkonto2()" class="container7 borderbot2">
           <label class="label">Offener Betrag Skonto 2</label>
           <div></div>
           <div></div>
@@ -298,5 +306,9 @@
     <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
     <button mat-button color="primary" (click)="createPDFDocument()" [disabled]="saveButtonDisabled()">PRÜFBLATT GENERIEREN</button>
     <button mat-button color="primary" (click)="saveDocumentData()" [disabled]="saveButtonDisabled()">NUR SPEICHERN</button>
+    <button mat-button color="primary" (click)="test(1)" [disabled]="saveButtonDisabled()">TR Netto</button>
+    <button mat-button color="primary" (click)="test(2)" [disabled]="saveButtonDisabled()">TR Brutto</button>
+    <button mat-button color="primary" (click)="test(3)" [disabled]="saveButtonDisabled()">SR Netto</button>
+    <button mat-button color="primary" (click)="test(4)" [disabled]="saveButtonDisabled()">SR Brutto</button>
     <button mat-button mat-dialog-close>ABBRECHEN</button>
   </mat-dialog-actions>

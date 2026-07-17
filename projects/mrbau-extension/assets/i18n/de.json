@@ -47,6 +47,8 @@
       "FINANCIALRETENTION":"Deckungsrücklass",
       "CONTRACTGUARANTEE":"Erfüllungsgarantie",
       "NOTEDOCUMENT":"Bescheid",
+      "PRICELISTEXTERNAL":"Preisliste Extern",
+      "PRICELISTINTERNAL":"Preisliste Intern",
 
       "CONTRACT_DOCUMENT":"Vertragsdokument",
       "RENT_CONTRACT":"Mietvertrag",

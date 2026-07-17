@@ -6,7 +6,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { FormlyFieldConfig, FormlyFormOptions, FormlyModule } from '@ngx-formly/core';
 import { FormlyMatToggleModule } from '@ngx-formly/material/toggle'
-import { DocumentAssociations,  EMRBauDocumentAssociations, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../../../declaration/mrbau-doc-declarations';
+import { COPY_CHILD_NODE_TYPES, DocumentAssociations,  EMRBauDocumentAssociations, MRBauWorkflowStateCallback, MRBauWorkflowStateCallbackData } from '../../../declaration/mrbau-doc-declarations';
 //import { DocumentInvoiceTypes, DocumentOfferTypes, DocumentOrderTypes, EMRBauInvoiceTypes, EMRBauOfferTypes, EMRBauOrderTypes  } from '../mrbau-doc-declarations';
 import { CONST } from '../../../declaration/mrbau-global-declarations';
 import { EMRBauTaskCategory, EMRBauTaskStatus, IFileSelectData, IMRBauTaskStatusAndUser, ITaskChangedData, MRBauTask } from '../../../declaration/mrbau-task-declarations';
@@ -14,7 +14,7 @@ import { MrbauArchiveModelService } from '../../../services/mrbau-archive-model.
 import { MrbauCommonService } from '../../../services/mrbau-common.service';
 import { MrbauFormLibraryService } from '../../../services/mrbau-form-library.service';
 import { MrbauWorkflowService } from '../../../services/mrbau-workflow.service';
-import { TaskProposeMatchingDocuments } from '../../task-util/task-linked-documents/task-propose-matching-documents';
+import { INodeWithChildInfo, TaskProposeMatchingDocuments } from '../../task-util/task-linked-documents/task-propose-matching-documents';
 
 import { TaskBarButton } from '../tasksdetail.component';
 import { CommonModule } from '@angular/common';
@@ -507,6 +507,12 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   private keyIsValid(key:string) : boolean
   {
+    // special case if e.g. skonto date has been set and should be deleted with null
+    let nodeValue = this._taskNode?.properties[key];
+    if (this.model[key] === null && nodeValue !== null)
+    {
+      return true;
+    }
     if (this.model[key] || this.model[key] === 0 || this.model[key] === "" || this.model[key] === false)
     {
       if (!key.startsWith('ignore:'))// ignore fields where the key starts with ignore: e.g. calculated values
@@ -532,28 +538,26 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       if (this.keyIsValid(key))
       {
         // if the data for the key is a object (e.g. AutocompleteSelectFormOptionsComponent) with a value key, then use the value data else use the data
-        const value = (this.model[key]?.value) ? (this.model[key].value) : this.model[key];
+        let value = (this.model[key]?.value) ? (this.model[key].value) : this.model[key];
+        // id date object convert to date string representation
+        if (value instanceof Date) {
+          value = this.mrbauCommonService.getFormDateValue(value);
+        }
         // only update node if some values have changed
         let nodeValue = this._taskNode.properties[key];
         // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
-        if (key.endsWith('DateValue') && nodeValue != null)
-        {
-          nodeValue = this.mrbauCommonService.getFormDateValue(new Date(nodeValue));
-        }
+        nodeValue = this.mrbauCommonService.fixPossibleDateValueIssues(key, nodeValue);
         if (value != nodeValue)
         {
-          if (nodeBody.properties == null) {
-            nodeBody.properties = {};
-          }
           nodeBody.properties[key] = value;
         }
       }
     }
+
     if (Object.keys(nodeBody.properties).length == 0)
     {
       return new Promise((resolve) => resolve(null));
     }
-    //this.log(nodeBody);
     return this.mrbauCommonService.updateNode(this._taskNode.id, nodeBody, {});
   }
 
@@ -775,56 +779,53 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.uploadNodeType = value;
   }
 
-  async onUploadDocumentClicked(node: NodeEntry) : Promise<NodeEntry|null>
-  {
+  async onUploadDocumentClicked(node: NodeEntry): Promise<NodeEntry | null> {
     if (this._taskNode == null) {
       return null;
     }
-
     const nodeType = this.uploadNodeType;
-    // auto assign properties
-    let nodeBody : NodeBodyUpdate =  {
-      nodeType: nodeType,
-      properties: {
-        //"mrba:mrBauId"
-        "mrba:fiscalYear"        : this._taskNode.properties['mrba:fiscalYear'],
-        "mrba:archivedDateValue" : this.mrbauCommonService.getFormDateValue(new Date()) || '',
-        "mrba:organisationUnit"  : this._taskNode.properties['mrba:organisationUnit'],
+    const taskNode = this._taskNode;
 
-        'mrba:companyId' : this._taskNode.properties['mrba:companyId'],
-        'mrba:companyName' : this._taskNode.properties['mrba:companyName'],
-        'mrba:companyVatID' : this._taskNode.properties['mrba:companyVatID'],
-        'mrba:companyStreet' : this._taskNode.properties['mrba:companyStreet'],
-        'mrba:companyZipCode' : this._taskNode.properties['mrba:companyZipCode'],
-        'mrba:companyCity' : this._taskNode.properties['mrba:companyCity'],
-        'mrba:companyCountryCode' : this._taskNode.properties['mrba:companyCountryCode'],
-        'mrba:costCarrierNumber' : this._taskNode.properties['mrba:costCarrierNumber'],
-        'mrba:projectName' : this._taskNode.properties['mrba:projectName'],
-      }
+    const nodeBody: NodeBodyUpdate = {
+      nodeType,
+      properties: {
+        'mrba:fiscalYear'        : taskNode.properties['mrba:fiscalYear'],
+        'mrba:archivedDateValue' : this.mrbauCommonService.getFormDateValue(new Date()) || '',
+        'mrba:organisationUnit'  : taskNode.properties['mrba:organisationUnit'],
+        'mrba:companyId'         : taskNode.properties['mrba:companyId'],
+        'mrba:companyName'       : taskNode.properties['mrba:companyName'],
+        'mrba:companyVatID'      : taskNode.properties['mrba:companyVatID'],
+        'mrba:companyStreet'     : taskNode.properties['mrba:companyStreet'],
+        'mrba:companyZipCode'    : taskNode.properties['mrba:companyZipCode'],
+        'mrba:companyCity'       : taskNode.properties['mrba:companyCity'],
+        'mrba:companyCountryCode': taskNode.properties['mrba:companyCountryCode'],
+        'mrba:costCarrierNumber' : taskNode.properties['mrba:costCarrierNumber'],
+        'mrba:projectName'       : taskNode.properties['mrba:projectName'],
+      },
     };
 
     try {
-      // update properties
       await this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {});
-      // add invoice association
-      await this.addAssociationsToNode(node.entry.id, [this._taskNode]);
-      await this.addAssociations([node.entry]);
+      // neuesDoc -> taskNode
+      await this.addAssociationsToNode(node.entry.id, [taskNode]);
+      // taskNode -> neuesDoc
+      await this.addAssociations([node.entry], true);
 
-      // set document number - this may cause a name conflict if a file with the same name already exists.
-      nodeBody.properties = {};
-      if (nodeType == 'mrba:miscellaneousDocument') {
+      const numberBody: NodeBodyUpdate = { properties: {} };
+      if (nodeType === 'mrba:miscellaneousDocument') {
         const index = node.entry.name.lastIndexOf('.');
-        const name = index > 0 ? node.entry.name.substring(0, index) : node.entry.name;
-        nodeBody.properties['mrba:documentNumber'] = name;
-      } else if (nodeType == 'mrba:invoiceReviewSheet') {
-        nodeBody.properties['mrba:documentNumber'] = this._taskNode.properties['mrba:documentNumber'];
+        numberBody.properties!['mrba:documentNumber'] =
+          index > 0 ? node.entry.name.substring(0, index) : node.entry.name;
+      } else if (nodeType === 'mrba:invoiceReviewSheet') {
+        numberBody.properties!['mrba:documentNumber'] = taskNode.properties['mrba:documentNumber'];
       }
-      return this.nodesApiService.nodesApi.updateNode(node.entry.id, nodeBody, {});
+      const result = await this.nodesApiService.nodesApi.updateNode(node.entry.id, numberBody, {});
+      this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+      return result;
+    } catch (error: any) {
+      this.handleAssociationError(error);
+      return null;
     }
-    catch(error:any) {
-      this.setErrorMessage(error);
-    }
-    return null;
   }
 
   onTaskNodeClicked()
@@ -846,31 +847,53 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     this.fileSelectEvent.emit(data);
   }
 
-  setErrorMessage(error : string | null)
-  {
-    this.errorMessage = error;
+  setErrorMessage(error: any): void {
+    this.errorMessage = (error == null || typeof error === 'string')
+      ? error
+      : (error?.message ?? ('' + error));
   }
 
-  addAssociationCheckDuplicate(val:Node[])
+  async addAssociationCheckDuplicate(val:INodeWithChildInfo[])
   {
-    this.addAssociations(val)
-    .then(() => {})
-    .catch((error : Error) => {
-      let errObj = null;
-      try {
-        errObj = JSON.parse(error.message);
-      } catch (error)
-      {error;}
-      if (errObj?.error?.statusCode == 409)
-      {
-        // An association of this assoc type already exists between these two nodes
-        this.mrbauCommonService.showError("Es existiert bereits eine Assoziation für dieses Dokument!");
+    const nodesWithPotentialChilds : INodeWithChildInfo[] = [];
+    for (const n of val) {
+      if (this.shouldCopyChilds(n.nodeType)) {
+        nodesWithPotentialChilds.push(n);
       }
-      else
-      {
-        this.setErrorMessage(error.message);
+    }
+    if (nodesWithPotentialChilds.length > 0) {
+      let addWithChilds = await new Promise<boolean>((resolve) => {
+
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+          data: {
+              title: 'Dokument oder Konvolut',
+              message: 'Soll nur das Dokument verknüpft werder oder das ganze Konvolut (Dokument und alle verknüpften Dokumente)?',
+              yesLabel: 'Konvolut',
+              noLabel: 'Dokument',
+            },
+            minWidth: '250px'
+        });
+        dialogRef.afterClosed().subscribe(async (result) => {
+          resolve(!!result);
+        });
+      });
+
+      if (addWithChilds) {
+        for (const node of nodesWithPotentialChilds) {
+          const targetAssociations = await this.nodesApiService.nodesApi.listTargetAssociations(node.id)
+          if (targetAssociations.list?.entries && targetAssociations.list?.entries.length > 0)
+          {
+            const entries = targetAssociations.list?.entries;
+            node.childs = [];
+            for (const na of entries) {
+              node.childs.push(na.entry);
+            }
+          }
+        }
       }
-    });
+    }
+
+    this.addAssociations(val).catch((error) => this.handleAssociationError(error));
   }
 
   onButtonAddFilesClicked()
@@ -924,66 +947,31 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
   getAssocTypeByNodeType(node:Node) : string | undefined
   {
-    // special cases
-    /*
-    if (node.nodeType == 'mrba:offer')
-    {
-      if (node.properties['mrba:offerType'] == DocumentOfferTypes.get(EMRBauOfferTypes.NACHTRAGSANGEBOT).value)
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_OFFER_REFERENCE).associationName;
-      }
-      return DocumentAssociations.get(EMRBauDocumentAssociations.OFFER_REFERENCE).associationName;
-    }
-    if (node.nodeType == 'mrba:order')
-    {
-      if (node.properties['mrba:orderType'] == DocumentOrderTypes.get(EMRBauOrderTypes.ZUSATZAUFTRAG).value)
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.ADDON_ORDER_REFERENCE).associationName;
-      }
-      return DocumentAssociations.get(EMRBauDocumentAssociations.ORDER_REFERENCE).associationName;
-    }
-    if (node.nodeType == 'mrba:invoice')
-    {
-      if (node.properties['mrba:invoiceType'] == DocumentInvoiceTypes.get(EMRBauInvoiceTypes.TEILRECHNUNG).value)
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.PARTIAL_INVOICE_REFERENCE).associationName;
-      }
-      return DocumentAssociations.get(EMRBauDocumentAssociations.INVOICE_REFERENCE).associationName;
-    }
-    if (this.mrbauArchiveModelService.mrbauArchiveModel.isContractDocument(node.nodeType))
-    {
-      if (node.nodeType == 'mrba:contractCancellation')
-      {
-        return DocumentAssociations.get(EMRBauDocumentAssociations.CANCELLED_CONTRACT_REFERENCE).associationName;
-      }
-      return DocumentAssociations.get(EMRBauDocumentAssociations.CONTRACT_REFERENCE).associationName;
-    }*/
     // standard cases
-    const associations = Array.from(DocumentAssociations.values()).filter((item) => item.category != EMRBauDocumentAssociations.DOCUMENT_REFERENCE && item.targetClass == node.nodeType);
+    const associations = Object.values(DocumentAssociations).filter((item) => item.category != EMRBauDocumentAssociations.DOCUMENT_REFERENCE && item.targetClass == node.nodeType);
     if (associations.length == 1)
     {
       return associations[0].associationName;
     }
 
-    return DocumentAssociations.get(EMRBauDocumentAssociations.DOCUMENT_REFERENCE)?.associationName;
+    return DocumentAssociations[EMRBauDocumentAssociations.DOCUMENT_REFERENCE]?.associationName;
   }
 
-  getBodyParamsForAddAssociations(nodes: Node[]) : any[]
-  {
-    let bodyParams = [];
-    for (let i=0; i< nodes.length; i++)
-    {
-      const nodeAssocType = this.getAssocTypeByNodeType(nodes[i]);
-      bodyParams.push({
-        targetId : nodes[i].id,
-        assocType : nodeAssocType}
-      );
-    };
-    return bodyParams;
+  private buildAssocBody(node: Node): { targetId: string; assocType: string } {
+    const assocType = this.getAssocTypeByNodeType(node);
+    if (!assocType) {
+      throw new Error(`Kein Association-Typ für nodeType '${node.nodeType}' gefunden`);
+    }
+    return { targetId: node.id, assocType };
+  }
+
+  getBodyParamsForAddAssociations(nodes: Node[]): any[] {
+    return nodes.map((n) => this.buildAssocBody(n));
   }
 
   addAssociationsToNode(nodeId : string, nodes: Node[]) : Promise<any>
   {
+    console.trace(nodeId);
     const bodyParams = this.getBodyParamsForAddAssociations(nodes);
     const pathParams = {nodeId: nodeId};
     const queryParams = {include:'association'};
@@ -992,14 +980,34 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
     return this.nodesApiService.nodesApi.apiClient.callApi("/nodes/{nodeId}/targets", "POST", pathParams, queryParams, {}, {}, bodyParams, contentTypes, accepts);
   }
 
-  async addAssociations(selectedNodes: Node[]) : Promise<any>
+  shouldCopyChilds(nodeType : string) : boolean {
+    return (COPY_CHILD_NODE_TYPES.indexOf(nodeType) >= 0)
+  }
+
+  async addAssociations(selectedNodes: INodeWithChildInfo[], silent = false) : Promise<any>
   {
     if (this._task == null || this._taskNode == null || this._taskNodeAssociations == null) {
       return Promise.reject('task is null');
     }
-
+    // create array without duplicates
+    const uniqueNodesMap = new Map<string, Node>();
+    for (const n of selectedNodes) {
+      uniqueNodesMap.set(n.id, n);
+      if (this.shouldCopyChilds(n.nodeType) && n.childs)
+      {
+        for (const c of n.childs) {
+          uniqueNodesMap.set(c.id, c);
+        }
+      }
+    }
+    // remove existing
+    uniqueNodesMap.delete(this._taskNode.id);
+    for (const existingAssociation of this.taskNodeAssociations) {
+      uniqueNodesMap.delete(existingAssociation.entry.id);
+    }
+    const allNodes = Array.from(uniqueNodesMap.values());
     // remove folders from list
-    const nodes = selectedNodes.filter((value:Node) => value.isFile)
+    const nodes = allNodes.filter((value:Node) => value.isFile)
     if (nodes.length == 0)
     {
       return Promise.resolve(null);
@@ -1023,7 +1031,9 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
       }
       this._taskNodeAssociations = this._taskNodeAssociations.slice(); // create a shallow copy to trigger onChange event
       this.taskChangeEvent.emit({task : this._task, queryTasks : false});
-      this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+      if (!silent) {
+        this.notificationService.showInfo('Änderungen erfolgreich gespeichert');
+      }
       return Promise.resolve(null);
     }
     catch(error : any)
@@ -1041,5 +1051,22 @@ export class TasksDetailNewDocumentComponent implements OnInit, AfterViewChecked
 
     const nodes = this.taskProposeMatchingDocuments.resultNodes.filter((val)=> this.taskProposeMatchingDocuments.selectedOptions.includes(val.id))
     return this.addAssociations(nodes);
+  }
+
+  private isDuplicateAssociationError(error: any): boolean {
+    try {
+      const errObj = JSON.parse(error?.message ?? '');
+      return errObj?.error?.statusCode === 409;
+    } catch {
+      return false;
+    }
+  }
+
+  private handleAssociationError(error: any): void {
+    if (this.isDuplicateAssociationError(error)) {
+      this.mrbauCommonService.showError('Es existiert bereits eine Assoziation für dieses Dokument!');
+    } else {
+      this.setErrorMessage(error?.message ?? ('' + error));
+    }
   }
 }

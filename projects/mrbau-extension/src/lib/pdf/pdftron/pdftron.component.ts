@@ -10,7 +10,6 @@ import { ContentService } from '@alfresco/adf-content-services';
 import { NodeEntry } from '@alfresco/js-api';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { MrbauConfirmDialogComponent } from '../../../public-api';
 import { MRBauVerifiedInboundInvoiceTypes, EMRBauVerifiedInboundInvoiceType } from '../../declaration/mrbau-doc-declarations';
 import { IAspectDetailItem, AspectDeductionDetails, AspectRetentionDetails } from '../../declaration/mrbau-mrba-aspects';
 import { IFileSelectData } from '../../declaration/mrbau-task-declarations';
@@ -19,6 +18,7 @@ import { ICalculationParameter, MrbauCalcService, TCalculationParameterType } fr
 import { MrbauCommonService } from '../../services/mrbau-common.service';
 import { MrbauNodeService } from '../../services/mrbau-node.service';
 import { EPDFEventCommands, IEventData, IPDFViewerEventReceiver } from '../../services/mrbau-data.service';
+import { ConfirmDialogComponent } from '@mrbau/adf-core';
 
 
 interface ICalculationParameterExtend extends ICalculationParameter {
@@ -48,7 +48,6 @@ interface IPatchFunction {
   imports: [
     CommonModule,
     LoaderoverlayComponent,
-    //MrbauConfirmDialogComponent,
   ],
   selector: 'mrbau-pdftron',
   templateUrl: './pdftron.component.html',
@@ -75,14 +74,6 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
   stampDate : Date = new Date();
   customStamps : any[] = [];
   readonly STAMP_FOLDER_PATH = 'Vorlagen/Stempel/';
-  readonly SAVE_YES_NO_DIALOG_DATA = {
-              dialogTitle: 'Änderungen Speichern?',
-              dialogMsg: 'Es gab Änderungen im PDF Dokument. Neue Version hochladen und Änderungen speichern?',
-              dialogButtonOK: 'SPEICHERN',
-              dialogButtonCancel: 'VERWERFEN',
-              fieldsMain: [],
-              payload: null
-            };
 
   wvInstance: any;
   constructor(
@@ -100,9 +91,15 @@ export class PdftronComponent implements OnInit, AfterViewInit, OnChanges, CanCo
   canDeactivate() : Observable<boolean> | Promise<boolean> | boolean {
     if (this.modified && this.previousFileSelectData != null) {
       return new Promise<boolean>((resolve) => {
-          const dialogRef = this.dialog.open(MrbauConfirmDialogComponent, {
+          const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             disableClose: true,
-            data: this.SAVE_YES_NO_DIALOG_DATA
+            data: {
+              title: 'Änderungen Speichern?',
+              message: 'Es gab Änderungen im PDF Dokument. Neue Version hochladen und Änderungen speichern?',
+              yesLabel: 'SPEICHERN',
+              noLabel: 'VERWERFEN',
+            },
+            minWidth: '250px'
           },
         );
 

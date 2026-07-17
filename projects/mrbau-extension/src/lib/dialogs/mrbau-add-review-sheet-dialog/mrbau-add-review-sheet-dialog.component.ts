@@ -13,13 +13,13 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MrbauCalcService } from '../../services/mrbau-calc.service';
-import { AspectAmountDetails, AspectDeductionDetails, AspectDocumentIdentityDetails, AspectInboundInvoiceReviewDetails, AspectInvoiceReviewSheetDetails, AspectPaymentConditionDetails, AspectRetentionDetails, OrderTypes } from '../../declaration/mrbau-mrba-aspects';
+import { AspectAmountDetails, AspectDeductionDetails, AspectDocumentIdentityDetails, AspectInboundInvoiceReviewDetails, AspectInvoiceDetails, AspectInvoiceReviewSheetDetails, AspectPaymentConditionDetails, AspectRetentionDetails, OrderTypes } from '../../declaration/mrbau-mrba-aspects';
 import { MrbauNumberInputDirective } from './mrbau-number-input.directive';
 import { CONST } from '../../declaration/mrbau-global-declarations';
-import { NodesApiService } from '@alfresco/adf-content-services';
 import { MrbauPdfLibService } from '../../pdf/pdf-lib/mrbau-pdf-lib.service';
 import { ReviewSheetData, ReviewSheetTemplate } from '../../pdf/pdf-lib/mrbau-reviewsheet-template';
 import { EDataServiceEvents, EPDFEventCommands, IEventData } from '../../services/mrbau-data.service';
+import { MrbauCommonService } from '../../services/mrbau-common.service';
 
 @Component({
   standalone:true,
@@ -35,6 +35,7 @@ import { EDataServiceEvents, EPDFEventCommands, IEventData } from '../../service
     MatFormFieldModule,
     ReactiveFormsModule,
     MrbauNumberInputDirective,
+
   ],
   providers: [provideNativeDateAdapter()],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +62,7 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private mrbauCalcService : MrbauCalcService,
-    private nodesApiService : NodesApiService,
+    private mrbauCommonService : MrbauCommonService,
     private dialogRef: MatDialogRef<MrbauAddReviewSheetDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {payload: any})
   {
@@ -85,11 +86,29 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
   ngOnInit() {
     if (!this.node)
       return;
+
     this.initData();
     this.initForm();
     this.initAuftragssumme();
     this.initFormData();
     this.initFormRecalculate();
+    this.preFillPreviousPartialInvoice();
+  }
+
+  async preFillPreviousPartialInvoice() {
+    if (!this.node)
+      return;
+
+    let teilznetto = Number(this.form.get('teilznetto')?.value) || 0;
+    if (teilznetto == 0) {
+      const previous = await this.mrbauCommonService.queryPreviousPartialInvoice(this.node);
+      if (previous)
+      {
+        teilznetto = previous.properties['mrba:netAmountVerifiedCents'] / 100
+        this.form.get('teilznetto')?.setValue(teilznetto);
+        this.mrbauCommonService.showInfo('Teirechnungsbetrag übernommen von TR '+previous.properties['mrba:partialInvoiceNumber']+' ('+previous.properties['mrba:documentNumber']+')')
+      }
+    }
   }
 
   isBauleistungsRechnung() : boolean {
@@ -99,6 +118,15 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
   isTeilRechnung() : boolean {
     return (this.invoiceType == 'Teilrechnung')
   }
+
+  hasSkonto1() : boolean {
+    return (Number(this.form.get('skontopercent1')?.value) > 0)
+  }
+
+  hasSkonto2() : boolean {
+    return (Number(this.form.get('skontopercent2')?.value) > 0)
+  }
+
 
   initAuftragssumme() {
     if (!this.nodeAssociations || this.nodeAssociations.length == 0)
@@ -139,9 +167,11 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     this.form.get('kt')?.setValue(this.getValueFromPayloadModel('mrba:costCarrierNumber'));
 
     this.initStringField('rechnungsnr', AspectDocumentIdentityDetails.documentNumber.key);
-    this.initStringField('rechnungsdatum', AspectDocumentIdentityDetails.documentDate.key);
+    this.initDateAsStringField('rechnungsdatum', AspectDocumentIdentityDetails.documentDateValue.key);
     this.initNumberField('rechnungsbetragnetto', AspectAmountDetails.netAmount.key);
-    this.initNumberField('rechnungsbetragnettokorr', AspectDeductionDetails.netAmountPreDeduction.key);
+    this.initNumberField('discount', AspectInvoiceReviewSheetDetails.discount.key);
+
+    this.initNumberField('rechnungsbetragnettokorr', AspectDeductionDetails.netAmountPreDeduction.key, AspectInboundInvoiceReviewDetails.netAmountVerified.key);
     this.initNumberField('nzbauschaedenprozent', AspectDeductionDetails.deductionDamageUnassignedPercent.key);
 
     this.initNumberField('bauschaedennetto', AspectDeductionDetails.deductionDamageAssignedNetAmount.key);
@@ -159,21 +189,20 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     this.initNumberField('deckungsruecklasspercent', AspectRetentionDetails.retentionDRLPercent.key);
     this.initNumberField('haftruecklasspercent', AspectRetentionDetails.retentionHRLPercent.key);
 
-    this.initDateField('haftruecklassdate', AspectRetentionDetails.retentionHRLDateValue.key); //OK
+    this.initDateField('haftruecklassdate', AspectRetentionDetails.retentionHRLDateValue.key);
 
-    this.initNumberField('auftragssumme', AspectInvoiceReviewSheetDetails.mainOrderAmount.key); // Test
-    this.initNumberField('zasumme', AspectInvoiceReviewSheetDetails.additionalOrderAmount.key);// Test
-    this.initNumberField('einbehalt', AspectInvoiceReviewSheetDetails.deductionOrClearing.key);// Test
-    this.initDateField('uebernahmedate', AspectInvoiceReviewSheetDetails.takeoverDateValue.key); // OK
-    this.initDateField('maengelfreimeldung', AspectInvoiceReviewSheetDetails.remedyNoticeDateValue.key); // OK
-    this.initStringField('gewerk', AspectInvoiceReviewSheetDetails.constructionTrade.key);// Test
+    this.initNumberField('auftragssumme', AspectInvoiceReviewSheetDetails.mainOrderAmount.key);
+    this.initNumberField('zasumme', AspectInvoiceReviewSheetDetails.additionalOrderAmount.key);
+    this.initNumberField('einbehalt', AspectInvoiceReviewSheetDetails.deductionOrClearing.key);
+    this.initDateField('uebernahmedate', AspectInvoiceReviewSheetDetails.takeoverDateValue.key);
+    this.initDateField('maengelfreimeldung', AspectInvoiceReviewSheetDetails.remedyNoticeDateValue.key);
+    this.initStringField('gewerk', AspectInvoiceReviewSheetDetails.constructionTrade.key);
 
     this.initNumberField('skontopercent1', AspectPaymentConditionDetails.earlyPaymentDiscountPercent1.key);
     this.initNumberField('skontopercent2', AspectPaymentConditionDetails.earlyPaymentDiscountPercent2.key);
-    this.initStringField('datumnet', AspectInboundInvoiceReviewDetails.paymentDateNet.key);
-    this.initStringField('datumskonto1', AspectInboundInvoiceReviewDetails.paymentDateDiscount1.key);
-    this.initStringField('datumskonto2', AspectInboundInvoiceReviewDetails.paymentDateDiscount2.key);
-
+    this.initDateAsStringField('datumnet', AspectInboundInvoiceReviewDetails.paymentDateNetValue.key);
+    this.initDateAsStringField('datumskonto1', AspectInboundInvoiceReviewDetails.paymentDateDiscount1Value.key);
+    this.initDateAsStringField('datumskonto2', AspectInboundInvoiceReviewDetails.paymentDateDiscount2Value.key);
   }
 
   initStringField(name:string, key:string) {
@@ -181,8 +210,13 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     this.form.get(name)?.setValue(value, { emitEvent: false });
   }
 
-  initNumberField(name:string, key:string) {
-    const value = this.mrbauCalcService.getNumberFromString(this.getValueFromPayloadModel(key));
+  initNumberField(name:string, key:string, alternativeKey?: string) {
+    let rawValue = this.getValueFromPayloadModel(key);
+    if ((rawValue === undefined || rawValue === null) && alternativeKey)
+    {
+      rawValue = this.getValueFromPayloadModel(alternativeKey);
+    }
+    const value = this.mrbauCalcService.getNumberFromString(rawValue);
     this.form.get(name)?.setValue(value, { emitEvent: false });
   }
 
@@ -191,6 +225,20 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     if (value) {
       this.form.get(name)?.setValue(new Date(value), { emitEvent: false });
     }
+  }
+
+  initDateAsStringField(name:string, key:string) {
+    // unterscheidung label datefield testen
+    // value null string oder date testen
+    // test store in node and update field
+
+    const value = this.getValueFromPayloadModel(key);
+    if (value) {
+      const date = new Date(value);
+      const dateString = this.mrbauCommonService.getFormDateValue(date);
+      this.form.get(name)?.setValue(dateString, { emitEvent: false });
+    }
+
   }
 
   initForm() {
@@ -206,6 +254,7 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
       rechnungsnr: [],
       rechnungsdatum: [],
       rechnungsbetragnetto: [],
+      discount: [],
       rechnungskorrekturnetto: [],
       rechnungsbetragnettokorr : [],
       rechnungsbetragbruttokorr: [],
@@ -285,9 +334,10 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     this.form.get('gesamtsumme')?.setValue(gesamtsumme, { emitEvent: false });
 
     // Rechnung
+    const discount = Number(this.form.get('discount')?.value) || 0;
     const rechnungsbetragnetto = Number(this.form.get('rechnungsbetragnetto')?.value) || 0
     const rechnungsbetragnettokorr = Number(this.form.get('rechnungsbetragnettokorr')?.value) || 0
-    const rechnungskorrekturnetto = rechnungsbetragnetto - rechnungsbetragnettokorr;
+    const rechnungskorrekturnetto = rechnungsbetragnetto - rechnungsbetragnettokorr - discount;
     const rechnungsbetragbruttokorr = this.calcGross(rechnungsbetragnettokorr);
     this.form.get('rechnungskorrekturnetto')?.setValue(rechnungskorrekturnetto, { emitEvent: false });
     this.form.get('rechnungsbetragbruttokorr')?.setValue(rechnungsbetragbruttokorr, { emitEvent: false });
@@ -360,13 +410,13 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
     this.form.get('offenerbetrag')?.setValue(offenerbetrag, { emitEvent: false });
 
     const skontopercent1 = Number(this.form.get('skontopercent1')?.value) || 0;
-    const skonto1 = this.calcPercent(rechnungsbetragnettokorr, skontopercent1);
+    const skonto1 = this.calcPercent(rechnungsbetragbruttokorr, skontopercent1);
     const offenerbetragskonto1 = offenerbetrag - skonto1;
     this.form.get('skonto1')?.setValue(skonto1, { emitEvent: false });
     this.form.get('offenerbetragskonto1')?.setValue(offenerbetragskonto1, { emitEvent: false });
 
     const skontopercent2 = Number(this.form.get('skontopercent2')?.value) || 0;
-    const skonto2 = this.calcPercent(rechnungsbetragnettokorr, skontopercent2);
+    const skonto2 = this.calcPercent(rechnungsbetragbruttokorr, skontopercent2);
     const offenerbetragskonto2 = offenerbetrag - skonto2;
     this.form.get('skonto2')?.setValue(skonto2, { emitEvent: false });
     this.form.get('offenerbetragskonto2')?.setValue(offenerbetragskonto2, { emitEvent: false });
@@ -423,168 +473,276 @@ export class MrbauAddReviewSheetDialogComponent implements OnInit {
   }
 
   formatFormNumberAsString(name:string) {
-    const val = this.form.get(name)?.value || 0;
+    const val = this.form.get(name)?.value;
+    if (val === undefined || val === null) {
+      return val;
+    }
     return this.mrbauCalcService.formatNumber(val);
   }
 
-  async saveData(node : Node) : Promise<Node>
-  {
-    // save Properties to node
-    let nodeBody : NodeBodyUpdate = {};
-    nodeBody.properties = {};
+  private addIfChanged(nodeBody : NodeBodyUpdate, key:string, name:string, format?:string) {
+    let nodeValue = this.node?.properties[key];
+    let value : any = this.form.get(name)?.value;
+    //console.log(key, nodeValue, value)
+    nodeValue = this.mrbauCommonService.fixPossibleDateValueIssues(key, nodeValue);
 
-    nodeBody.properties[AspectDeductionDetails.netAmountPreDeduction.key] = this.formatFormNumberAsString('rechnungsbetragnettokorr');
-    nodeBody.properties[AspectDeductionDetails.deductionDamageUnassignedPercent.key] = this.formatFormNumberAsString('nzbauschaedenprozent');
-    nodeBody.properties[AspectDeductionDetails.deductionDamageAssignedNetAmount.key] = this.formatFormNumberAsString('bauschaedennetto');
-    nodeBody.properties[AspectDeductionDetails.deductionSpecialNetAmount.key] = this.formatFormNumberAsString('sonderabzuege');
-    nodeBody.properties[AspectDeductionDetails.deductionSpecialPercent.key] = this.formatFormNumberAsString('sonderabzuegepercent');;
-    nodeBody.properties[AspectDeductionDetails.deductionWastePercent.key] = this.formatFormNumberAsString('schuttprozent');;
-    nodeBody.properties[AspectDeductionDetails.deductionCleaningPercent.key] = this.formatFormNumberAsString('reinigungprozent');;
-    nodeBody.properties[AspectDeductionDetails.deductionToiletsPercent.key] = this.formatFormNumberAsString('wcprozent');
-    nodeBody.properties[AspectDeductionDetails.deductionWaterPercent.key] = this.formatFormNumberAsString('wasserprozent');
-    nodeBody.properties[AspectDeductionDetails.deductionElectricityPercent.key] = this.formatFormNumberAsString('stromprozent');;
-    nodeBody.properties[AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key] = this.formatFormNumberAsString('teilznetto');
-    nodeBody.properties[AspectRetentionDetails.retentionDRLPercent.key] = this.formatFormNumberAsString('deckungsruecklasspercent');
-    nodeBody.properties[AspectRetentionDetails.retentionHRLPercent.key] = this.formatFormNumberAsString('haftruecklasspercent');
+    if (format == 'number') {
+      value = this.formatFormNumberAsString(name);
+    }
+    else if (format == 'value') {
+      value = name;
+    }
+    else {
+      value = this.form.get(name)?.value;
+    }
 
-    nodeBody.properties[AspectRetentionDetails.retentionHRLDateValue.key] = this.form.get('haftruecklassdate')?.value as any;
-    nodeBody.properties[AspectInvoiceReviewSheetDetails.takeoverDateValue.key] = this.form.get('uebernahmedate')?.value as any;
-    nodeBody.properties[AspectInvoiceReviewSheetDetails.remedyNoticeDateValue.key] = this.form.get('maengelfreimeldung')?.value as any;
+    if (value instanceof Date) {
+      value = this.mrbauCommonService.getFormDateValue(value);
+    }
+    if (value != nodeValue) {
+      if (nodeBody.properties == null) {
+        nodeBody.properties = {};
+      }
+      nodeBody.properties[key] = value;
+      console.log('Add NodeBody', key, nodeValue, value)
+    }
 
-
-    nodeBody.properties[AspectInvoiceReviewSheetDetails.mainOrderAmount.key] = this.formatFormNumberAsString('auftragssumme');
-    nodeBody.properties[AspectInvoiceReviewSheetDetails.additionalOrderAmount.key] = this.formatFormNumberAsString('zasumme');
-    nodeBody.properties[AspectInvoiceReviewSheetDetails.deductionOrClearing.key] = this.formatFormNumberAsString('einbehalt');
-
-    nodeBody.properties[AspectInvoiceReviewSheetDetails.constructionTrade.key] = this.form.get('gewerk')?.value || '';
-
-    nodeBody.properties[AspectInboundInvoiceReviewDetails.grossAmountVerified.key] = this.formatFormNumberAsString('offenerbetrag');
-    const ctr : any = this.form.controls;
-    nodeBody.properties[AspectInboundInvoiceReviewDetails.netAmountVerified.key] = this.mrbauCalcService.formatNumber(this.calcNet(ctr['offenerbetrag'].value));
-    const updatedNode = await this.nodesApiService.nodesApi.updateNode(node.id, nodeBody, {include:CONST.GET_NODE_DEFAULT_INCLUDE});
-    return updatedNode.entry;
   }
 
-    saveButtonDisabled() {
-      return this.formIsInValid() || this.errorMessage;
+  private createNodeBodyUpdate() : NodeBodyUpdate {
+    const ctr : any = this.form.controls;
+    let nodeBody : NodeBodyUpdate = {};
+    nodeBody.properties = undefined;
+
+    // only update node if values have changed
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.discount.key,'discount', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.netAmountPreDeduction.key,'rechnungsbetragnettokorr', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionDamageUnassignedPercent.key,'nzbauschaedenprozent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionDamageAssignedNetAmount.key,'bauschaedennetto', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionSpecialNetAmount.key,'sonderabzuege', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionSpecialPercent.key,'sonderabzuegepercent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionWastePercent.key,'schuttprozent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionCleaningPercent.key,'reinigungprozent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionToiletsPercent.key,'wcprozent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionWaterPercent.key,'wasserprozent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionElectricityPercent.key,'stromprozent', 'number')
+    this.addIfChanged(nodeBody, AspectDeductionDetails.deductionPreviousPaymentsNetAmount.key,'teilznetto', 'number')
+    this.addIfChanged(nodeBody, AspectRetentionDetails.retentionDRLPercent.key,'deckungsruecklasspercent', 'number')
+    this.addIfChanged(nodeBody, AspectRetentionDetails.retentionHRLPercent.key,'haftruecklasspercent', 'number')
+
+    this.addIfChanged(nodeBody, AspectRetentionDetails.retentionHRLDateValue.key,'haftruecklassdate')
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.takeoverDateValue.key,'uebernahmedate')
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.remedyNoticeDateValue.key,'maengelfreimeldung')
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.mainOrderAmount.key,'auftragssumme', 'number')
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.additionalOrderAmount.key,'zasumme', 'number')
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.deductionOrClearing.key,'einbehalt', 'number')
+    this.addIfChanged(nodeBody, AspectInvoiceReviewSheetDetails.constructionTrade.key,'gewerk', 'number')
+    this.addIfChanged(nodeBody, AspectInboundInvoiceReviewDetails.grossAmountVerified.key,'offenerbetrag', 'number')
+    this.addIfChanged(nodeBody, AspectInboundInvoiceReviewDetails.netAmountVerified.key, this.mrbauCalcService.formatNumber(this.calcNet(ctr['offenerbetrag'].value)), 'value')
+    this.addIfChanged(nodeBody, AspectInboundInvoiceReviewDetails.verifyDateValue.key, this.mrbauCommonService.getFormDateValue(this.getVerifyDatefromPayloadModel()) || '', 'value')
+    this.addIfChanged(nodeBody, AspectInboundInvoiceReviewDetails.paymentDateNetValue.key,'datumnet')
+
+    this.addIfChanged(nodeBody, AspectInboundInvoiceReviewDetails.paymentDateDiscount1Value.key,'datumskonto1')
+    this.addIfChanged(nodeBody, AspectInboundInvoiceReviewDetails.paymentDateDiscount2Value.key,'datumskonto2')
+
+    return nodeBody;
+  }
+
+  async saveData(node : Node) : Promise<Node | undefined>
+  {
+    // save Properties to node
+    const nodeBody : NodeBodyUpdate = this.createNodeBodyUpdate();
+    console.log(nodeBody.properties);
+    if (nodeBody.properties) {
+      const updatedNode = await this.mrbauCommonService.updateNode(node.id,nodeBody, {include:CONST.GET_NODE_DEFAULT_INCLUDE});
+      return updatedNode.entry;
     }
+    return undefined;
+  }
 
-    formIsInValid() : boolean {
-      return this.form.invalid;
-    }
+  saveButtonDisabled() {
+    return this.formIsInValid() || this.errorMessage;
+  }
 
-    async saveDocumentData() {
-      if (!this.node)
-        return;
+  formIsInValid() : boolean {
+    return this.form.invalid;
+  }
 
-      try {
-        const newNode = await this.saveData(this.node);
+  async saveDocumentData() {
+    if (!this.node)
+      return;
+
+    try {
+      const newNode = await this.saveData(this.node);
+      if (newNode) {
         this.node = newNode;
-        // return updated node
-        this.dialogRef.close({node: newNode});
-      } catch (error : any) {
-        if (error?.error?.errorKey && error?.error?.briefSummary) {
-          this.errorMessage= error.errorKey+' '+error.briefSummary;
-        }
-        else {
-          this.errorMessage= ''+error;
-        }
-        console.log(error);
-        return;
       }
+      // return updated node
+      this.dialogRef.close({node: this.node});
+    } catch (error : any) {
+      if (error?.error?.errorKey && error?.error?.briefSummary) {
+        this.errorMessage= error.errorKey+' '+error.briefSummary;
+      }
+      else {
+        this.errorMessage= ''+error;
+      }
+      console.log(error);
+      return;
     }
+  }
 
-    async createPDFDocument() {
-      if (!this.node)
-        return;
+  async createPDFDocument() {
+    if (!this.node)
+      return;
 
-      try {
-        const newNode = await this.saveData(this.node);
-        const pdfBytes = await this.createPDFFromData(this.node);
-
-        // return updated node and new data
+    try {
+      const newNode = await this.saveData(this.node);
+      if (newNode) {
         this.node = newNode;
-        const result : IEventData = {node: newNode, eventType : EDataServiceEvents.PDF_VIEWER_EVENT, eventCommand : EPDFEventCommands.ADD_PAGE_FIRST, eventData : pdfBytes}
-        this.dialogRef.close(result);
-      } catch (error : any) {
-        if (error?.error?.errorKey && error?.error?.briefSummary) {
-          this.errorMessage= error.errorKey+' '+error.briefSummary;
-        }
-        else {
-          this.errorMessage= ''+error;
-        }
-        console.log(error);
-        return;
       }
+
+      const data = this.createData(this.node);
+      const pdfBytes = await this.createPDFFromData(data);
+
+      // return updated node and new data
+      const result : IEventData = {node: newNode, eventType : EDataServiceEvents.PDF_VIEWER_EVENT, eventCommand : EPDFEventCommands.ADD_PAGE_FIRST, eventData : pdfBytes}
+      this.dialogRef.close(result);
+    } catch (error : any) {
+      if (error?.error?.errorKey && error?.error?.briefSummary) {
+        this.errorMessage= error.errorKey+' '+error.briefSummary;
+      }
+      else {
+        this.errorMessage= ''+error;
+      }
+      console.log(error);
+      return;
     }
+  }
 
-    private createPDFFromData(node:Node) : Promise<Uint8Array<ArrayBufferLike>>
-    {
-      //this.node
-      const data : ReviewSheetData = {
-        node: node,
-        auftragssumme: this.form.get('auftragssumme')?.value || 0,
-        zasumme: this.form.get('zasumme')?.value || 0,
-        gesamtsumme: this.form.get('gesamtsumme')?.value || 0,
-        uebernahmedate: this.form.get('uebernahmedate')?.value || '',
-        maengelfreimeldung: this.form.get('maengelfreimeldung')?.value || '',
-        bvh: this.form.get('bvh')?.value || '',
-        kt: this.form.get('kt')?.value || '',
-        gewerk: this.form.get('gewerk')?.value || '',
-        rechnungsnr: this.form.get('rechnungsnr')?.value || '',
-        rechnungsdatum: this.form.get('rechnungsdatum')?.value || '',
-        rechnungsbetragnetto: this.form.get('rechnungsbetragnetto')?.value || 0,
-        rechnungskorrekturnetto: this.form.get('rechnungskorrekturnetto')?.value || 0,
-        rechnungsbetragnettokorr: this.form.get('rechnungsbetragnettokorr')?.value || 0,
-        rechnungsbetragbruttokorr: this.form.get('rechnungsbetragbruttokorr')?.value || 0,
-        nzbauschaedenprozent: this.form.get('nzbauschaedenprozent')?.value || 0,
-        nzbauschaedennetto: this.form.get('nzbauschaedennetto')?.value || 0,
-        bauschaedennetto: this.form.get('bauschaedennetto')?.value || 0,
-        sonderabzuege: this.form.get('sonderabzuege')?.value || 0,
-        sonderabzuegepercent: this.form.get('sonderabzuegepercent')?.value || 0,
-        sonderabzuegepercentnetto: this.form.get('sonderabzuegepercentnetto')?.value || 0,
-        summeabzuegenetto: this.form.get('summeabzuegenetto')?.value || 0,
-        schuttprozent: this.form.get('schuttprozent')?.value || 0,
-        schuttnetto: this.form.get('schuttnetto')?.value || 0,
-        reinigungprozent: this.form.get('reinigungprozent')?.value || 0,
-        reinigungnetto: this.form.get('reinigungnetto')?.value || 0,
-        wcprozent: this.form.get('wcprozent')?.value || 0,
-        wcnetto: this.form.get('wcnetto')?.value || 0,
-        wasserprozent: this.form.get('wasserprozent')?.value || 0,
-        wassernetto: this.form.get('wassernetto')?.value || 0,
-        stromprozent: this.form.get('stromprozent')?.value || 0,
-        stromnetto: this.form.get('stromnetto')?.value || 0,
-        sumumlage: this.form.get('sumumlage')?.value || 0,
-        sumnetto2: this.form.get('sumnetto2')?.value || 0,
-        ustsumnetto2: this.form.get('ustsumnetto2')?.value || 0,
-        brutto2: this.form.get('brutto2')?.value || 0,
-        taxRate: this.taxRate,
-        teilznetto: this.form.get('teilznetto')?.value || 0,
-        teilzmwst: this.form.get('teilzmwst')?.value || 0,
-        teilzbrutto: this.form.get('teilzbrutto')?.value || 0,
-        einbehalt: this.form.get('einbehalt')?.value || 0,
-        deckungsruecklasspercent: this.form.get('deckungsruecklasspercent')?.value || 0,
-        deckungsruecklass: this.form.get('deckungsruecklass')?.value || 0,
-        haftruecklasspercent: this.form.get('haftruecklasspercent')?.value || 0,
-        haftruecklass: this.form.get('haftruecklass')?.value || 0,
-        haftruecklassdate: this.form.get('haftruecklassdate')?.value || '',
-        haftruecklassLabel: this.getHaftruecklassLabel(),
-        datumnet: this.form.get('datumnet')?.value,
-        offenerbetrag: this.form.get('offenerbetrag')?.value || 0,
-        skontopercent1: this.form.get('skontopercent1')?.value || 0,
-        skonto1: this.form.get('skonto1')?.value || 0,
-        offenerbetragskonto1: this.form.get('offenerbetragskonto1')?.value || 0,
-        datumskonto1: this.form.get('datumskonto1')?.value,
-        skontopercent2: this.form.get('skontopercent2')?.value || 0,
-        skonto2: this.form.get('skonto2')?.value || 0,
-        offenerbetragskonto2: this.form.get('offenerbetragskonto2')?.value || 0,
-        datumskonto2: this.form.get('datumskonto2')?.value,
-        isBauleistungsRechnung: this.isBauleistungsRechnung(),
-        isTeilRechnung: this.isTeilRechnung(),
-      };
-      return this.mrbauPdfLibService.createFromTemplate(ReviewSheetTemplate, data);
+  private getVerifyDatefromPayloadModel() : Date {
+    const verifyDateStr = this.getValueFromPayloadModel(AspectInboundInvoiceReviewDetails.verifyDateValue.key);
+    const verifyDate = verifyDateStr ? new Date(verifyDateStr) : new Date();
+    return verifyDate;
+  }
+
+  private createData(node:Node) : ReviewSheetData
+  {
+
+    const data : ReviewSheetData = {
+      node: node,
+      auftragssumme: this.form.get('auftragssumme')?.value || 0,
+      zasumme: this.form.get('zasumme')?.value || 0,
+      gesamtsumme: this.form.get('gesamtsumme')?.value || 0,
+      uebernahmedate: this.form.get('uebernahmedate')?.value || '',
+      maengelfreimeldung: this.form.get('maengelfreimeldung')?.value || '',
+      bvh: this.form.get('bvh')?.value || '',
+      kt: this.form.get('kt')?.value || '',
+      gewerk: this.form.get('gewerk')?.value || '',
+      rechnungsnr: this.form.get('rechnungsnr')?.value || '',
+      rechnungsdatum: this.form.get('rechnungsdatum')?.value || '',
+      rechnungsbetragnetto: this.form.get('rechnungsbetragnetto')?.value || 0,
+      discount: this.form.get('discount')?.value || 0,
+      rechnungskorrekturnetto: this.form.get('rechnungskorrekturnetto')?.value || 0,
+      rechnungsbetragnettokorr: this.form.get('rechnungsbetragnettokorr')?.value || 0,
+      rechnungsbetragbruttokorr: this.form.get('rechnungsbetragbruttokorr')?.value || 0,
+      nzbauschaedenprozent: this.form.get('nzbauschaedenprozent')?.value || 0,
+      nzbauschaedennetto: this.form.get('nzbauschaedennetto')?.value || 0,
+      bauschaedennetto: this.form.get('bauschaedennetto')?.value || 0,
+      sonderabzuege: this.form.get('sonderabzuege')?.value || 0,
+      sonderabzuegepercent: this.form.get('sonderabzuegepercent')?.value || 0,
+      sonderabzuegepercentnetto: this.form.get('sonderabzuegepercentnetto')?.value || 0,
+      summeabzuegenetto: this.form.get('summeabzuegenetto')?.value || 0,
+      schuttprozent: this.form.get('schuttprozent')?.value || 0,
+      schuttnetto: this.form.get('schuttnetto')?.value || 0,
+      reinigungprozent: this.form.get('reinigungprozent')?.value || 0,
+      reinigungnetto: this.form.get('reinigungnetto')?.value || 0,
+      wcprozent: this.form.get('wcprozent')?.value || 0,
+      wcnetto: this.form.get('wcnetto')?.value || 0,
+      wasserprozent: this.form.get('wasserprozent')?.value || 0,
+      wassernetto: this.form.get('wassernetto')?.value || 0,
+      stromprozent: this.form.get('stromprozent')?.value || 0,
+      stromnetto: this.form.get('stromnetto')?.value || 0,
+      sumumlage: this.form.get('sumumlage')?.value || 0,
+      sumnetto2: this.form.get('sumnetto2')?.value || 0,
+      ustsumnetto2: this.form.get('ustsumnetto2')?.value || 0,
+      brutto2: this.form.get('brutto2')?.value || 0,
+      taxRate: this.taxRate,
+      teilznetto: this.form.get('teilznetto')?.value || 0,
+      teilzmwst: this.form.get('teilzmwst')?.value || 0,
+      teilzbrutto: this.form.get('teilzbrutto')?.value || 0,
+      einbehalt: this.form.get('einbehalt')?.value || 0,
+      deckungsruecklasspercent: this.form.get('deckungsruecklasspercent')?.value || 0,
+      deckungsruecklass: this.form.get('deckungsruecklass')?.value || 0,
+      haftruecklasspercent: this.form.get('haftruecklasspercent')?.value || 0,
+      haftruecklass: this.form.get('haftruecklass')?.value || 0,
+      haftruecklassdate: this.form.get('haftruecklassdate')?.value || '',
+      haftruecklassLabel: this.getHaftruecklassLabel(),
+      datumnet: this.form.get('datumnet')?.value,
+      offenerbetrag: this.form.get('offenerbetrag')?.value || 0,
+      skontopercent1: this.form.get('skontopercent1')?.value || 0,
+      skonto1: this.form.get('skonto1')?.value || 0,
+      offenerbetragskonto1: this.form.get('offenerbetragskonto1')?.value || 0,
+      datumskonto1: this.form.get('datumskonto1')?.value,
+      skontopercent2: this.form.get('skontopercent2')?.value || 0,
+      skonto2: this.form.get('skonto2')?.value || 0,
+      offenerbetragskonto2: this.form.get('offenerbetragskonto2')?.value || 0,
+      datumskonto2: this.form.get('datumskonto2')?.value,
+      isBauleistungsRechnung: this.isBauleistungsRechnung(),
+      isTeilRechnung: this.isTeilRechnung(),
+      partialInvoiceNumber: this.getValueFromPayloadModel(AspectInvoiceDetails.partialInvoiceNumber.key) || 0,
+      verifyDate: this.getVerifyDatefromPayloadModel()
+    };
+
+    if (data.skontopercent2 > 0 && data.skontopercent2 > data.skontopercent1) {
+      const s1=data.skonto1;
+      const p1=data.skontopercent1;
+      const b1=data.offenerbetragskonto1;
+      const d1=data.datumskonto1;
+      data.skonto1 = data.skonto2;
+      data.skontopercent1 = data.skontopercent2;
+      data.offenerbetragskonto1 = data.offenerbetragskonto2;
+      data.datumskonto1 = data.datumskonto2;
+      data.skonto2 = s1
+      data.skontopercent2 = p1
+      data.offenerbetragskonto2 = b1;
+      data.datumskonto2 = d1;
     }
+    return data;
+  }
 
+  private createPDFFromData(data:ReviewSheetData) : Promise<Uint8Array<ArrayBufferLike>>
+  {
+    return this.mrbauPdfLibService.createFromTemplate(ReviewSheetTemplate, data);
+  }
 
+  async test(id: number) {
+    if (!this.node)
+      return;
+
+    try {
+      //const newNode = await this.saveData(this.node);
+      const nodeBody : NodeBodyUpdate = this.createNodeBodyUpdate();
+      this.node.properties = {...this.node.properties, ...nodeBody.properties};
+      const newNode =this.node;
+
+      const data = this.createData(this.node);
+      switch (id)
+      {
+        case 1: data.isTeilRechnung = true; data.isBauleistungsRechnung = true; break;
+        case 2: data.isTeilRechnung = true; data.isBauleistungsRechnung = false; break;
+        case 3: data.isTeilRechnung = false; data.isBauleistungsRechnung = true; break;
+        case 4: data.isTeilRechnung = false; data.isBauleistungsRechnung = false; break;
+      }
+      const pdfBytes = await this.createPDFFromData(data);
+
+      // return updated node and new data
+      this.node = newNode;
+      const result : IEventData = {node: newNode, eventType : EDataServiceEvents.PDF_VIEWER_EVENT, eventCommand : EPDFEventCommands.ADD_PAGE_FIRST, eventData : pdfBytes}
+      this.dialogRef.close(result);
+    } catch (error : any) {
+      console.log(error);
+      return;
+    }
+  }
 }
 

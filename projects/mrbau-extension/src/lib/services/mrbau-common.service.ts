@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { NodesApiService, ContentService, AlfrescoApiService } from '@alfresco/adf-content-services';
 import { PeopleContentService, EcmUserModel, SearchService } from '@alfresco/adf-content-services';
 import { CommentModel, NotificationService, AuthenticationService, ADF_COMMENTS_SERVICE, } from '@alfresco/adf-core';
-import { NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry, CommentsApi, NodesApi, NodesIncludeQuery } from '@alfresco/js-api';
+import { NodeBodyUpdate, NodeEntry, PersonEntry, Node, SearchRequest, ResultSetPaging, CommentEntry, CommentsApi, NodesApi, NodesIncludeQuery, ResultNode } from '@alfresco/js-api';
 import { Observable, shareReplay, Subject } from 'rxjs';
 import { EMRBauTaskCategory, EMRBauTaskStatus, MRBauTask } from '../declaration/mrbau-task-declarations';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -163,7 +163,6 @@ export class MrbauCommonService {
     }
     if (user == "skofitsch" ||
         user == "koberer" ||
-        user == "pichlkastner" ||
         user == "vaschauner" ||
         user == "daniel" ||
         user == "koestenbaumer"
@@ -181,10 +180,8 @@ export class MrbauCommonService {
     }
     if (user == "skofitsch" ||
         user == "koberer" ||
-        user == "pichlkastner" ||
         user == "vaschauner" ||
-        user == "daniel" ||
-        user == "koestenbaumer"
+        user == "daniel"
         )
     {
       return true;
@@ -343,6 +340,7 @@ export class MrbauCommonService {
 
   updateNode(nodeId: string, nodeBodyUpdate : NodeBodyUpdate, opts?: NodesIncludeQuery) :  Promise<NodeEntry>
   {
+    //console.trace(nodeBodyUpdate);
     return this.nodesApi.updateNode(nodeId, nodeBodyUpdate, opts);
   }
 
@@ -358,6 +356,21 @@ export class MrbauCommonService {
     }
     const result = this.datePipe.transform(date, 'yyyy-MM-dd')
     return (result ? result : undefined) ;
+  }
+
+  fixPossibleDateValueIssues(key:string, value:any) : any {
+    // hack to fix date comparison "2021-12-21" (form) vs "2021-12-21T11:00:00.000+0000" (node)
+    if (value instanceof Date) {
+      return this.getFormDateValue(value);
+    }
+    else if (value != null && typeof value === 'string') {
+      const additionalDateValueKeys = ['mrba:paymentDateNetValue','mrba:paymentDateDiscount1Value','mrba:paymentDateDiscount2Value']
+      if (key.endsWith('DateValue') || additionalDateValueKeys.includes(key))
+      {
+        return this.getFormDateValue(new Date(value));
+      }
+    }
+    return value;
   }
 
   getNodeRefFromNodeId(nodeId : string) : string
@@ -1119,7 +1132,7 @@ export class MrbauCommonService {
     })
   }
 
-  addReviewSheetDialog(data:FormlyFieldConfig) {
+  openAddReviewSheetDialog(data:FormlyFieldConfig) {
     const dialogRef = this.dialog.open(MrbauAddReviewSheetDialogComponent, {
       width: '50vw',
       height: '90vh',
@@ -1383,10 +1396,8 @@ export class MrbauCommonService {
     //'koberer' : this.TAG_GROUP_BAUHOF,
 
     'freithofer' : this.TAG_GROUP_BAUHOF,
-    'pichlkastner' : this.TAG_GROUP_BAUHOF,
     'vaschauner' : this.TAG_GROUP_BAUHOF,
     'daniel' : this.TAG_GROUP_BAUHOF,
-    'koestenbaumer' : this.TAG_GROUP_BAUHOF,
 
     'neidhart' : this.TAG_GROUP_WEITERVERRECHNUNG,
     'strohmayer' : this.TAG_GROUP_WEITERVERRECHNUNG,
@@ -1400,6 +1411,7 @@ export class MrbauCommonService {
     'candir' : this.TAG_GROUP_WEITERVERRECHNUNG,
     'altschach' : this.TAG_GROUP_WEITERVERRECHNUNG,
     'zima' : this.TAG_GROUP_WEITERVERRECHNUNG,
+    'toemboel' : this.TAG_GROUP_WEITERVERRECHNUNG,
 
   }
 
@@ -1762,5 +1774,100 @@ async exportOpenDocumentTasks(includeDocData = true) {
         reject(error);
       }
     });
+  }
+
+  async queryPreviousPartialInvoice(node: Node) : Promise<ResultNode | null> {
+    if (node == null)
+      return null;
+
+    let resultNode = null;
+    let resultNum = 0;
+    const currentPartialInvoiceNumber = (node.properties['mrba:invoiceType'] == "Teilrechnung") ? +node.properties['mrba:partialInvoiceNumber'] : 0;
+
+    // *** First Approach: Check for matching documents in the linked documents section
+    const assocResult = await this.nodesApiService.nodesApi.listTargetAssociations(node.id, {skipCount:0, maxItems: 999, include: CONST.GET_NODE_DEFAULT_INCLUDE});
+    const associatedDocumentRef = assocResult.list?.entries || [];
+    for (let i=1; i<associatedDocumentRef.length; i++) {
+      const entry = associatedDocumentRef[i].entry;
+      if (entry && entry.properties['mrba:invoiceType'] == "Teilrechnung")
+      {
+        const num = +entry.properties['mrba:partialInvoiceNumber'];
+        // find largest partial invoice number that is smaller then partial invoice number of current node (for SR currentPartialInvoiceNumber is 0)
+        if (num > resultNum && (currentPartialInvoiceNumber == 0 || num < currentPartialInvoiceNumber)) {
+          resultNum = num;
+          resultNode = entry;
+        }
+      }
+    }
+    // if a partial invoice has been found where the partial invoice number is smaller by exact 1 use this document
+    if (resultNum > 0 && (resultNum + 1 == currentPartialInvoiceNumber || currentPartialInvoiceNumber == 0))
+    {
+        return resultNode;
+    }
+
+    // *** Second Approach: query DMS for matching partial invoices
+    let query : SearchRequest | null = null;
+    query = {
+      query: {
+        query: 'TYPE:"cm:content"',
+        language: 'afts'
+      },
+      paging: {
+        maxItems:999,
+        skipCount:0
+      },
+      filterQueries: [
+        //{ query: '=SITE:belegsammlung'}, // NOT SUPPORTED WITH TMDQ
+        //{ query: `!ID:'workspace://SpacesStore/${node.id}'`}, // exclude the current document - NOT SUPPORTED WITH TMDQ
+        { query: `=mrba:companyName:"${node.properties['mrba:companyName']}"`},
+        { query: `=mrba:costCarrierNumber:"${node.properties['mrba:costCarrierNumber']}"`},
+        { query: `=mrba:organisationUnit:"${node.properties['mrba:organisationUnit']}"`},
+        { query: `=mrba:invoiceType:"Teilrechnung"`},
+        { query: 'ASPECT:"mrba:invoiceDetails"'}, // has aspect invoice details
+        { query: '!ASPECT:"mrba:discardedDocument"'}, // ignore discarded documents
+      ],
+      fields: CONST.SEARCH_REQUEST_DEFAULT_FIELDS,
+      include: ['properties', 'path', 'allowableOperations'],
+      sort: [
+        {
+          type: 'FIELD',
+          field: 'TYPE',
+          ascending: false
+        },
+        {
+          type: 'FIELD',
+          field: 'cm:name',
+          ascending: true
+        }
+      ]
+    };
+
+    const result = await this.queryNodes(query);
+    if (result?.list?.entries == null)
+    {
+      return null;
+    }
+    const entries = result.list.entries;
+    resultNum = 0;
+    resultNode = null;
+    for (let i=0; i< entries.length; i++)
+    {
+      const entry = entries[i].entry;
+      if (entry.id != node.id) {
+        const num = +entry.properties['mrba:partialInvoiceNumber'];
+        // find largest partial invoice number that is smaller then partial invoice number of current node (for SR currentPartialInvoiceNumber is 0)
+        if (num > resultNum && (currentPartialInvoiceNumber == 0 || num < currentPartialInvoiceNumber)) {
+          resultNum = num;
+          resultNode = entry;
+        }
+      }
+    }
+
+    // if a partial invoice has been found where the partial invoice number is smaller by exact 1 use this document
+    if (resultNum > 0 && (resultNum + 1 == currentPartialInvoiceNumber || currentPartialInvoiceNumber == 0))
+    {
+      return resultNode;
+    }
+    return null;
   }
 }

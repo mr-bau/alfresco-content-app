@@ -1,6 +1,6 @@
 import { FieldTypeConfig } from '@ngx-formly/core';
 import { FieldType } from '@ngx-formly/core';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   standalone:true,
@@ -15,16 +15,15 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
  export class MrbauFormlyLabelComponent extends FieldType<FieldTypeConfig> implements OnInit {
   value : any;
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor() {
     super();
   }
 
   ngOnInit(): void {
     super.formControl.registerOnChange(() => {
-      this.value = this.getValue();
-      this.cdr.detectChanges();
+      this.value = ''+this.getValue();
     })
-    this.value = this.getValue();
+    this.value = ''+this.getValue();
   }
 
 
@@ -34,5 +33,4 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
     }
     return (this.formControl.value == null || this.formControl.value === "") ? this.props.placeholder : this.formControl.value;
   }
-
  }

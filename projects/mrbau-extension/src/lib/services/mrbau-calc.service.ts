@@ -18,10 +18,10 @@ export class MrbauCalcService {
 
   constructor() { }
 
-  formatNumber(value: number): string {
+  formatNumber(value: number, decimals: number = 2): string {
     return new Intl.NumberFormat('de-DE', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
     }).format(value);
   }
 
