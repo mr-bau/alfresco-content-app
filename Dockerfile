@@ -13,7 +13,9 @@ COPY package-lock.json package-lock.json
 
 # 2. Adding SSL Interception Certificate
 COPY cert/MFS-SSL-Interception.cer /usr/local/share/ca-certificates/MFS-SSL-Interception.crt
-RUN apk add --no-cache ca-certificates \
+RUN mkdir -p /etc/ssl \
+    && cat /usr/local/share/ca-certificates/MFS-SSL-Interception.crt > /etc/ssl/cert.pem \
+    && apk add --no-cache ca-certificates \
     && update-ca-certificates \
     && rm -rf /var/cache/apk/*
 
@@ -43,7 +45,9 @@ ARG PROJECT_NAME=content-ce
 # 1. APK Update
 USER root
 COPY cert/MFS-SSL-Interception.cer /usr/local/share/ca-certificates/MFS-SSL-Interception.crt
-RUN apk add --no-cache ca-certificates \
+RUN mkdir -p /etc/ssl \
+    && cat /usr/local/share/ca-certificates/MFS-SSL-Interception.crt > /etc/ssl/cert.pem \
+    && apk add --no-cache ca-certificates \
     && update-ca-certificates \
     && apk update \
     && apk upgrade \
